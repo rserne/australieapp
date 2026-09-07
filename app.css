@@ -421,6 +421,8 @@
   .hits .src{font-size:12px;color:var(--text-faint);margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
   .empty{padding:24px 18px;text-align:center;color:var(--text-dim);font-size:15.5px;
     border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim)}
+  /* Evenveel lucht onder de filters als een kop zou krijgen, zodat de lijst niet verspringt. */
+  .chips.filters+.empty{margin-top:34px}
 
   /* ---------- Morgen ---------- */
   .tomorrow{margin-top:0;overflow:hidden;border-radius:var(--radius);
