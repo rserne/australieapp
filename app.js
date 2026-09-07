@@ -871,15 +871,19 @@ function openSheet({dag,wie,item,onDone,kiesDag}){
   };
 }
 
+// Het tabblad Notities bestaat uit een vaste schil (zoekveld, plusknop, status) en een lijst
+// die opnieuw getekend wordt bij elk filter of elke toetsaanslag. Het zoekveld blijft daarbij
+// staan: dat scheelt het herstellen van focus en cursor, en het typen voelt rustig.
+let alleItems=[], alleWie='';
+
 async function renderAlles(){
   const box=document.getElementById('alles');
   if(!NH.user){ box.innerHTML=''; return; }
-  const wie=NH.user.displayName||NH.user.email;
+  const wie=alleWie=NH.user.displayName||NH.user.email;
   let items=LS.get('aus_cache_all')||[], status='';
-  box.innerHTML=`<div class="nstatus">Laden…</div>`;
-  const verse=(window._notZoek||'').trim()?null:await syncAlles(true);
+  if(!box.querySelector('#nzoek')) box.innerHTML=`<div class="nstatus">Laden…</div>`;
+  const verse=await syncAlles(true);
   if(verse){ items=verse; const t=LS.get('aus_sync'); status=`Bijgewerkt ${fmtWhen(t.tijd)}`; }
-  else if((window._notZoek||'').trim()){ const t=LS.get('aus_sync'); status=t?`Bijgewerkt ${fmtWhen(t.tijd)}`:''; }
   else status=navigator.onLine?'Kon niet bijwerken — laatst opgeslagen versie':'Geen verbinding — laatst opgeslagen versie';
   const wacht=pending().length;
   if(wacht) status+=` · ${wacht} ${wacht===1?'notitie wacht':'notities wachten'} op verbinding`;
@@ -898,12 +902,47 @@ async function renderAlles(){
     if(bs) bs.textContent=tekst;
     else { const w=document.querySelector('#hero .wrap'); if(w) w.insertAdjacentHTML('beforeend',`<p class="bsub">${tekst}</p>`); }
   }
+  // notities die nog op verbinding wachten, horen ook hier zichtbaar te zijn
+  alleItems=[...items,...pending().map((p,i)=>({...p,id:'wacht'+i,pix:i,user_id:NH.user.id,soort:'notitie',
+    type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}))];
 
+  box.innerHTML=`<div class="notes"><div class="zoekrij"><div class="search"><span class="mag">${MAG}</span>`+
+    `<input id="nzoek" type="search" placeholder="Zoek in notities…" autocomplete="off" `+
+    `autocorrect="off" autocapitalize="none" spellcheck="false" value="${esc(window._notZoek||'')}">`+
+    `<button class="wis" id="nwis" type="button" aria-label="Zoekveld wissen"${(window._notZoek||'')?'':' hidden'}>${WIS}</button></div>`+
+    `<button class="plusknop" id="aadd" aria-label="Notitie toevoegen">${PLUS}</button></div>`+
+    `<div id="filterrij"></div><div id="nlijst"></div>`+
+    `<div class="nstatus" style="margin-top:18px">${esc(status)}</div>`+
+    (metBijlage.length?`<div class="nrow" style="margin-top:8px"><button class="btn" id="acache">Bijlagen opnieuw ophalen</button></div>`:'')+
+    `</div>`;
+
+  const zv=box.querySelector('#nzoek');
+  zv.addEventListener('input',()=>{
+    window._notZoek=zv.value;
+    box.querySelector('#nwis').hidden=!zv.value;
+    clearTimeout(zv._t); zv._t=setTimeout(tekenLijst,140);   // alleen de lijst, het veld blijft staan
+  });
+  box.querySelector('#nwis').onclick=()=>{ window._notZoek=''; zv.value=''; box.querySelector('#nwis').hidden=true; zv.focus(); tekenLijst(); };
+  box.querySelector('#aadd').onclick=()=>openSheet({
+    // Voorgeselecteerd: tijdens de reis vandaag, daarbuiten de dag die je het laatst koos.
+    dag:(!T.before&&!T.after)?T.n:(LS.get('aus_laatste_dag')??0),wie,kiesDag:true,onDone:renderAlles});
+  const cb=box.querySelector('#acache');
+  if(cb) cb.onclick=async()=>{
+    if(!navigator.onLine){ toast('Hiervoor heb je verbinding nodig'); return; }
+    cb.textContent='Ophalen…';
+    for(const it of alleItems.filter(x=>x.soort==='bestand')) await cacheFile(it);
+    renderAlles();
+  };
+  tekenLijst();
+}
+
+function tekenLijst(){
+  const box=document.getElementById('alles');
+  const rij=box?.querySelector('#filterrij'), lijst=box?.querySelector('#nlijst');
+  if(!rij||!lijst) return;
+  const items=alleItems, wie=alleWie;
   const dagLabel=d=>d===0?'Algemeen':`Dag ${d} · ${fmtLong(dateFor(d))}`;
   const kaart=it=>noteCard(it,`<button class="ndag" data-dag="${it.dag}">${dagLabel(it.dag)}</button>`);
-  // notities die nog op verbinding wachten, horen ook hier zichtbaar te zijn
-  items=[...items,...pending().map((p,i)=>({...p,id:'wacht'+i,pix:i,user_id:NH.user.id,soort:'notitie',
-    type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}))];
   const zoek=(window._notZoek||'').trim().toLowerCase();
   const filter=window._notType||'';
   // Ook de dag waar een notitie bij hoort telt mee: 'Uluru' vindt zo de notities van dag 18 tot 20,
@@ -923,70 +962,40 @@ async function renderAlles(){
   const inDag=naZoek.filter(dagOk);
   const telling={}; inDag.forEach(it=>{const t=it.type||'notitie'; telling[t]=(telling[t]||0)+1});
   const telVandaag=naZoek.filter(it=>it.dag===T.n&&typeOk(it)).length;
-  let h=`<div class="notes"><div class="zoekrij"><div class="search"><span class="mag">${MAG}</span>`+
-    `<input id="nzoek" type="search" placeholder="Zoek in notities…" autocomplete="off" `+
-    `autocorrect="off" autocapitalize="none" spellcheck="false" value="${esc(window._notZoek||'')}">`+
-    ((window._notZoek||'')?`<button class="wis" id="nwis" type="button" aria-label="Zoekveld wissen">${WIS}</button>`:'')+`</div>`+
-    `<button class="plusknop" id="aadd" aria-label="Notitie toevoegen">${PLUS}</button></div>`;
-  if(items.length){
-    // Links de dag, rechts het soort; het streepje ertussen laat zien dat het twee vragen zijn.
-    h+=`<div class="chips filters" id="typefilter">`+
-      `<button type="button" class="chip dagchip${vandaag?' on':''}" data-d="1">Vandaag<span class="cnt">${telVandaag}</span></button>`+
-      `<span class="chipsplit" aria-hidden="true"></span>`+
-      `<button type="button" class="chip${filter?'':' on'}" data-f="">Alles<span class="cnt">${inDag.length}</span></button>`+
-      TYPES.filter(([k])=>telling[k]).map(([k,l])=>
-        `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}">${l}<span class="cnt">${telling[k]}</span></button>`).join('')+
-      `</div>`;
-  }
+
+  // Links de dag, rechts het soort; het streepje ertussen laat zien dat het twee vragen zijn.
+  rij.innerHTML=items.length?`<div class="chips filters" id="typefilter">`+
+    `<button type="button" class="chip dagchip${vandaag?' on':''}" data-d="1">Vandaag<span class="cnt">${telVandaag}</span></button>`+
+    `<span class="chipsplit" aria-hidden="true"></span>`+
+    `<button type="button" class="chip${filter?'':' on'}" data-f="">Alles<span class="cnt">${inDag.length}</span></button>`+
+    TYPES.filter(([k])=>telling[k]||filter===k).map(([k,l])=>
+      `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}">${l}<span class="cnt">${telling[k]||0}</span></button>`).join('')+
+    `</div>`:'';
+
+  let h='';
   if(!items.length) h+=`<div class="empty">Nog geen notities.</div>`;
   else if(!zichtbaar.length){
     const wat=filter?`notities van het type ${typeLabel(filter).toLowerCase()}`:'notities';
     h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':''}.`}</div>`;
   }
-  if(filter){
-    if(zichtbaar.length) h+=`<ul class="list nlist" style="margin-top:14px">`+zichtbaar.map(kaart).join('')+`</ul>`;
-  } else {
-    TYPES.forEach(([key,label])=>{
-      const groep=zichtbaar.filter(it=>(it.type||'notitie')===key);
-      if(!groep.length) return;
-      h+=`<h2>${label}</h2><ul class="list nlist">`+groep.map(kaart).join('')+`</ul>`;
-    });
-  }
-  h+=`<div class="nstatus" style="margin-top:18px">${status}</div>`+
-     (items.some(x=>x.soort==='bestand')?`<div class="nrow" style="margin-top:8px"><button class="btn" id="acache">Bijlagen opnieuw ophalen</button></div>`:'')+`</div>`;
-  box.innerHTML=h;
-  koppelKaarten(box);
+  else if(filter) h+=`<ul class="list nlist" style="margin-top:14px">`+zichtbaar.map(kaart).join('')+`</ul>`;
+  else TYPES.forEach(([key,label])=>{
+    const groep=zichtbaar.filter(it=>(it.type||'notitie')===key);
+    if(groep.length) h+=`<h2>${label}</h2><ul class="list nlist">`+groep.map(kaart).join('')+`</ul>`;
+  });
+  lijst.innerHTML=h;
 
-  const tf=box.querySelector('#typefilter');
-  if(tf) tf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  rij.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
     if(c.dataset.d) window._notVandaag=!window._notVandaag;
     else window._notType=c.dataset.f;
-    renderAlles();
+    tekenLijst();
   });
-  const nw=box.querySelector('#nwis');
-  if(nw) nw.onclick=()=>{ window._notZoek=''; renderAlles().then(()=>document.getElementById('nzoek')?.focus()); };
-  // bij een actief filter geen lege blokken van andere types tonen
-  const zv=box.querySelector('#nzoek');
-  if(zv){
-    zv.addEventListener('input',()=>{ window._notZoek=zv.value; clearTimeout(zv._t);
-      zv._t=setTimeout(()=>{ const pos=zv.selectionStart; renderAlles().then(()=>{
-        const nz=document.getElementById('nzoek'); if(nz){nz.focus(); try{nz.setSelectionRange(pos,pos)}catch(e){}} }); },250); });
-  }
-  box.querySelectorAll('.ndag').forEach(b=>b.onclick=()=>{const dg=+b.dataset.dag; if(dg>=1){cur=dg;switchTo('day')} else switchTo('prakt');});
-  // Voorgeselecteerd: tijdens de reis vandaag, daarbuiten de dag die je het laatst koos.
-  box.querySelector('#aadd').onclick=()=>openSheet({
-    dag:(!T.before&&!T.after)?T.n:(LS.get('aus_laatste_dag')??0),wie,kiesDag:true,onDone:renderAlles});
-  const cb=box.querySelector('#acache');
-  if(cb) cb.onclick=async()=>{
-    if(!navigator.onLine){ toast('Hiervoor heb je verbinding nodig'); return; }
-    cb.textContent='Ophalen…';
-    for(const it of items.filter(x=>x.soort==='bestand')) await cacheFile(it);
-    renderAlles();
-  };
-  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
+  koppelKaarten(lijst);
+  lijst.querySelectorAll('.ndag').forEach(b=>b.onclick=()=>{const dg=+b.dataset.dag; if(dg>=1){cur=dg;switchTo('day')} else switchTo('prakt');});
+  lijst.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
     const it=items.find(x=>x.id===b.dataset.edit); if(it) openSheet({dag:it.dag,wie,item:it,onDone:renderAlles,kiesDag:true});
   });
-  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+  lijst.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
     if(!confirm('Verwijderen?')) return;
     if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); renderAlles(); return; }
     try{ await verwijderItem(b.dataset.del,b.dataset.file); renderAlles(); }
@@ -1093,7 +1102,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-54';
+const APP_VERSIE='2026-09-07-55';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

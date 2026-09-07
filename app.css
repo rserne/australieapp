@@ -399,6 +399,7 @@
   .search .wis{position:absolute;right:10px;top:50%;transform:translateY(-50%);
     width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;
     display:grid;place-items:center;color:var(--text-dim);background:var(--glass-2)}
+  .search .wis[hidden]{display:none}
   .search .wis:active{opacity:.6}
   .search input{width:100%;font:inherit;font-size:16.5px;color:var(--text);
     background:var(--glass-2);border:1px solid var(--rim);border-radius:18px;
