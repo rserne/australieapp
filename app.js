@@ -969,7 +969,6 @@ function tekenLijst(){
   rij.innerHTML=items.length?`<div class="chips filters" id="typefilter">`+
     `<button type="button" class="chip dagchip${vandaag?' on':''}" data-d="1"${vandaag?' aria-pressed="true"':''}>Vandaag<span class="cnt">${telVandaag}</span>${vandaag?uit:''}</button>`+
     `<span class="chipsplit" aria-hidden="true"></span>`+
-    `<button type="button" class="chip${filter?'':' on'}" data-f="">Alles<span class="cnt">${inDag.length}</span></button>`+
     TYPES.filter(([k])=>telling[k]||filter===k).map(([k,l])=>
       `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}"${filter===k?' aria-pressed="true"':''}>${l}<span class="cnt">${telling[k]||0}</span>${filter===k?uit:''}</button>`).join('')+
     `</div>`:'';
@@ -994,10 +993,10 @@ function tekenLijst(){
     const zv=box.querySelector('#nzoek'); if(zv){ zv.value=''; box.querySelector('#nwis').hidden=true; }
     tekenLijst(); };
   rij.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+    // Elke chip is een schakelaar: nog een tik zet hem weer uit. Een aparte knop 'Alles'
+    // is daarmee overbodig; het totaal staat al in de banner.
     if(c.dataset.d) window._notVandaag=!window._notVandaag;
-    // 'Alles' hoort alles terug te zetten, dus ook de dagfilter: anders blijft die stilletjes staan.
-    else if(c.dataset.f==='') { window._notType=''; window._notVandaag=false; }
-    else window._notType=c.dataset.f;
+    else window._notType=(window._notType===c.dataset.f)?'':c.dataset.f;
     tekenLijst();
   });
   koppelKaarten(lijst);
@@ -1112,7 +1111,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-57';
+const APP_VERSIE='2026-09-07-59';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
