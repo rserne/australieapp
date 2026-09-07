@@ -964,19 +964,23 @@ function tekenLijst(){
   const telVandaag=naZoek.filter(it=>it.dag===T.n&&typeOk(it)).length;
 
   // Links de dag, rechts het soort; het streepje ertussen laat zien dat het twee vragen zijn.
+  // Een actieve chip krijgt een kruisje, zodat zichtbaar is dat je hem ook weer uit kunt zetten.
+  const uit=`<span class="chipx" aria-hidden="true">×</span>`;
   rij.innerHTML=items.length?`<div class="chips filters" id="typefilter">`+
-    `<button type="button" class="chip dagchip${vandaag?' on':''}" data-d="1">Vandaag<span class="cnt">${telVandaag}</span></button>`+
+    `<button type="button" class="chip dagchip${vandaag?' on':''}" data-d="1"${vandaag?' aria-pressed="true"':''}>Vandaag<span class="cnt">${telVandaag}</span>${vandaag?uit:''}</button>`+
     `<span class="chipsplit" aria-hidden="true"></span>`+
     `<button type="button" class="chip${filter?'':' on'}" data-f="">Alles<span class="cnt">${inDag.length}</span></button>`+
     TYPES.filter(([k])=>telling[k]||filter===k).map(([k,l])=>
-      `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}">${l}<span class="cnt">${telling[k]||0}</span></button>`).join('')+
+      `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}"${filter===k?' aria-pressed="true"':''}>${l}<span class="cnt">${telling[k]||0}</span>${filter===k?uit:''}</button>`).join('')+
     `</div>`:'';
 
   let h='';
   if(!items.length) h+=`<div class="empty">Nog geen notities.</div>`;
   else if(!zichtbaar.length){
     const wat=filter?`notities van het type ${typeLabel(filter).toLowerCase()}`:'notities';
-    h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':''}.`}</div>`;
+    // Wie op nul uitkomt moet er in één tik weer uit kunnen, zonder te puzzelen welke chip het deed.
+    h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':''}.`}`+
+       `<button type="button" class="btn wisfilter" id="wisfilters">Alle filters wissen</button></div>`;
   }
   else if(filter) h+=`<ul class="list nlist" style="margin-top:14px">`+zichtbaar.map(kaart).join('')+`</ul>`;
   else TYPES.forEach(([key,label])=>{
@@ -985,8 +989,14 @@ function tekenLijst(){
   });
   lijst.innerHTML=h;
 
+  const wf=lijst.querySelector('#wisfilters');
+  if(wf) wf.onclick=()=>{ window._notVandaag=false; window._notType=''; window._notZoek='';
+    const zv=box.querySelector('#nzoek'); if(zv){ zv.value=''; box.querySelector('#nwis').hidden=true; }
+    tekenLijst(); };
   rij.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
     if(c.dataset.d) window._notVandaag=!window._notVandaag;
+    // 'Alles' hoort alles terug te zetten, dus ook de dagfilter: anders blijft die stilletjes staan.
+    else if(c.dataset.f==='') { window._notType=''; window._notVandaag=false; }
     else window._notType=c.dataset.f;
     tekenLijst();
   });
@@ -1102,7 +1112,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-55';
+const APP_VERSIE='2026-09-07-56';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

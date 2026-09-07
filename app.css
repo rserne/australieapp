@@ -374,6 +374,18 @@
     background:var(--glass-2);border:1px solid var(--rim);color:var(--text-dim)}
   .chip.on{background:var(--pill);color:var(--pill-text);border-color:transparent}
   .chipsplit{flex:none;width:1px;align-self:stretch;margin:4px 3px;background:var(--rim)}
+  /* De dagchip is een schakelaar, geen keuze uit een rij: daarom een rand en een vinkje
+     in plaats van dezelfde donkere pil als de types. */
+  /* De dagchip is een schakelaar, geen keuze uit de typerij. Daarom een rand met accentkleur
+     in plaats van dezelfde donkere pil: anders lijken twee verschillende filters op elkaar. */
+  .chip.dagchip.on{background:var(--glass-3);color:var(--accent-ink);
+    border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .chip.dagchip.on .cnt,.chip.dagchip.on .chipx{background:var(--glass);color:var(--accent-ink)}
+  .chipx{font-size:16px;line-height:1;opacity:.75;margin-left:-1px}
+  .wisfilter{display:block;margin:14px auto 0;font:inherit;font-size:14.5px;font-weight:600;
+    padding:9px 16px;border-radius:12px;cursor:pointer;color:var(--text);
+    background:var(--glass-2);border:1px solid var(--rim)}
+  .wisfilter:active{opacity:.7}
   .chips.filters{margin:0 0 4px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;
     scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .chips.filters::-webkit-scrollbar{display:none}
