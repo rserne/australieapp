@@ -28,6 +28,7 @@ DAYS.forEach((d,i)=>{
   (d.rest||[]).forEach(r=>{
     if(r.length!==7) fout(`${w}: restaurant ${r[0]} heeft ${r.length} velden, verwacht 7 [naam, waar, score, prijs, loopmin, tekst, boeken]`);
     if(!RDATA[r[0]]) fout(`${w}: restaurant '${r[0]}' ontbreekt in RDATA`);
+    else if(!RDATA[r[0]].k) waarschuw(`${w}: restaurant '${r[0]}' heeft geen keukentype (k) in RDATA`);
     if(typeof r[2]!=='number'||r[2]<1||r[2]>5) fout(`${w}: restaurant ${r[0]} heeft een vreemde score ${r[2]}`);
     if(![1,2,3,4].includes(r[3])) fout(`${w}: restaurant ${r[0]} heeft prijsklasse ${r[3]}, verwacht 1–4`);
     if(r[4]!==null&&r[4]!==undefined&&typeof r[4]!=='number') fout(`${w}: restaurant ${r[0]} heeft loopminuten '${r[4]}'`);

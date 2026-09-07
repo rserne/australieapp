@@ -192,7 +192,7 @@ function render(){
                `<a class="btn" href="${url}" target="_blank" rel="noopener">Op de kaart</a>`;
       if(meta.tel) btns+=`<a class="btn" href="tel:${meta.tel.replace(/\s+/g,'')}">Bellen</a>`;
       // Samenvatting op één regel: genoeg om te kiezen zonder open te klappen.
-      const kort=[rt?rt.toFixed(1).replace('.',',')+'/5':'', '€'.repeat(pr||1),
+      const kort=[meta.k||'', rt?rt.toFixed(1).replace('.',',')+'/5':'', '€'.repeat(pr||1),
         wk===0?'vervoer nodig':(wk?wk+' min lopen':'')].filter(Boolean).join(' · ');
       return `<details class="card rcard"><summary>`+
              `<span class="rtop"><span class="role">${ROLE[Math.min(ix,2)]}</span>`+
@@ -248,7 +248,7 @@ const HAY=DAYS.map(d=>{
   d.body.forEach(x=>bits.push([x,'Programma']));
   (d.prac||[]).forEach(x=>bits.push([x,'Goed om te weten']));
   (d.food||[]).forEach(([a,b])=>bits.push([a+' — '+b,'Specialiteit']));
-  (d.rest||[]).forEach(r=>bits.push([r[0]+' — '+r[1]+'. '+r[5]+(r[6]?' Reserveren: '+r[6]:''),'Restaurant']));
+  (d.rest||[]).forEach(r=>bits.push([r[0]+((RDATA[r[0]]||{}).k?' — '+RDATA[r[0]].k:'')+' — '+r[1]+'. '+r[5]+(r[6]?' Reserveren: '+r[6]:''),'Restaurant']));
   if(d.note) bits.push([d.note,'Let op']);
   if(d.rnote) bits.push([d.rnote,'Openingstijden']);
   EXC.filter(e=>e[1]===d.n).forEach(e=>bits.push([e[0]+' — '+e[3]+' Richtprijs '+e[2]+'.','Optionele excursie']));
@@ -1111,7 +1111,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-59';
+const APP_VERSIE='2026-09-07-60';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
