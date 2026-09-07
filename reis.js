@@ -38,8 +38,8 @@ const DAYS=[
 {n:2,r:"nsw",k:"vlucht",t:"Aankomst Sydney",p:"Sydney",h:"The Ultimo, Haymarket",tz:10,temp:"14–22°",
  fl:[["SQ 241","Singapore Changi, terminal 3","Sydney Kingsford Smith, terminal 1","07.15","16.45","Singapore Airlines · 25 kg"]],
  body:[
-  "Het grote bijzondere Australië, met zijn unieke natuur en cultuur, ligt niet dichtbij. Na een lange vlucht komen we ’s avonds in Sydney aan, de grootse stad van Australië. Vanavond wil je waarschijnlijk rustig aan doen en wennen aan het tijdverschil. Sydney geeft je zeker de goede energie om weer op te laden, we verblijven hier dan ook vier nachten in een comfortabel middenklasse hotel.",
-  "Je landt om 16.45 uur. Met douane, bagage en de rit naar de stad ben je rond 18.30 uur bij The Ultimo in Haymarket. Het hotel ligt midden in Chinatown, drie minuten van de tramhalte en vijf van Central Station."
+  "Het grote bijzondere Australië, met zijn unieke natuur en cultuur, ligt niet dichtbij. Na een lange vlucht land je om 16.45 uur in Sydney, de grootse stad van Australië. Met douane, bagage en de rit naar de stad ben je rond 18.30 uur bij het hotel. Vanavond wil je waarschijnlijk rustig aan doen en wennen aan het tijdverschil.",
+  "Sydney geeft je zeker de goede energie om weer op te laden, we verblijven hier dan ook vier nachten. Je slaapt in The Ultimo in Haymarket, midden in Chinatown, drie minuten van de tramhalte en vijf van Central Station."
  ],
  prac:["In Sydney hoef je geen Opal-kaart te kopen. Je checkt in en uit met je bankpas of telefoon, op bus, trein, tram én veerboot.",
   "Kraanwater is overal drinkbaar en gratis bijvullen kan bij vrijwel elk café. Flesjes water zijn hier duur.",
@@ -63,9 +63,9 @@ const DAYS=[
   ["16.15","BridgeClimb Summit Twilight","Geboekt. Ongeveer drie en een half uur. De zon gaat rond 17.50 uur onder, midden in de klim."],
   ["19.45","Klaar, in The Rocks","Reserveer niet vóór 20.30 uur. Dae Jang Kum is tot 02.00 uur open en het dichtst bij het hotel; Mishy's en NOMAD sluiten om 22.00 uur."]],
  body:[
-  "Je hebt twee volle dagen om Sydney te verkennen. Met meer dan vier miljoen inwoners is Sydney een stad met ongekende mogelijkheden. Een stadswandeling waarbij je het wereldberoemde Opera House en de naastgelegen Harbour Bridge bezoekt, mag uiteraard niet overgeslagen worden. Optioneel kan je de Sydney Harbour Bridge ook beklimmen. Zoek je naast de stad iets meer rust? Ga dan naar de botanische tuinen of pak de ferry naar het gezellige Manly. In Manly kun je mooie fietstochten maken.",
-  "Voor jullie ligt het anders: om 09.00 uur staat de rondleiding door het Opera House gepland en om 16.15 uur de BridgeClimb, allebei geboekt. Daartussen zit ruim vijf uur, precies genoeg voor de veerboot naar Manly.",
-  "Beide afspraken zijn bij Circular Quay, dus je hoeft tussendoor niet terug naar het hotel. Neem wel een extra laag mee: op de brug waait het, en het is er na zonsondergang fris."
+  "Je hebt twee volle dagen om Sydney te verkennen. Met meer dan vier miljoen inwoners is Sydney een stad met ongekende mogelijkheden. Een stadswandeling waarbij je het wereldberoemde Opera House en de naastgelegen Harbour Bridge bezoekt, mag uiteraard niet overgeslagen worden.",
+  "Bij jullie staan die twee vandaag allebei vast: om 09.00 uur de rondleiding door het Opera House en om 16.15 uur de BridgeClimb, allebei geboekt. Daartussen zit ruim vijf uur. Zoek je iets meer rust, ga dan naar de botanische tuinen of pak de ferry naar het gezellige Manly, waar je mooie fietstochten kunt maken.",
+  "Beide afspraken zijn bij Circular Quay, dus je hoeft tussendoor niet terug naar het hotel. Neem wel een extra laag mee: op de brug waait het, en na zonsondergang is het er fris."
  ],
  prac:["BridgeClimb heeft strenge regels: geen camera of telefoon mee (de gids fotografeert), geen losse spullen, dichte schoenen, en een blaastest vooraf — meer dan 0,05 promille en je mag niet mee. Drink dus geen wijn bij de lunch in Manly.",
   "De veerboten vallen onder hetzelfde tarief als bus en trein. De overtocht naar Manly is daarmee de goedkoopste rondvaart van Sydney — een fractie van een georganiseerde harbour cruise, met hetzelfde uitzicht.",
@@ -87,8 +87,8 @@ const DAYS=[
   ["15.00","Terug naar de stad","Bus 373 of 374 vanaf Arden Street in Coogee rijdt rechtstreeks naar Central en Circular Quay, ± 35 tot 40 minuten. Geen overstap nodig."],
   ["16.00","Terug in het hotel","Rusten, en op tijd eten: veel zaken in Surry Hills zijn zondag dicht, maar de drie hieronder niet."]],
  body:[
-  "Vanuit de stad neem je eenvoudig de bus naar het bekende Bondi Beach. Maak zeker tijd vrij om de kustwandeling vanaf Bondi naar het Coogee strand te maken, deze kun je in zo’n drie uur lopen. Plan wel een extra uur in, want het zou zonde zijn om nergens te stoppen. Onderweg heb je verschillende uitzichtpunten, zwembaaien en gezellige tentjes voor een bakje koffie. Terug in Sydney is het gezellig eten bij de waterkant, waar je uitzicht op de skyline en haven hebt.",
-  "De wandeling is zes kilometer over kliffen en langs vijf stranden. Op een zondag is het er druk, dus vroeg beginnen loont."
+  "Vanuit de stad neem je eenvoudig de bus naar het bekende Bondi Beach. Maak zeker tijd vrij om de kustwandeling vanaf Bondi naar het Coogee strand te maken: zes kilometer over de kliffen en langs vijf stranden, in zo’n drie uur te lopen. Plan wel een extra uur in, want het zou zonde zijn om nergens te stoppen.",
+  "Onderweg heb je verschillende uitzichtpunten, zwembaaien en gezellige tentjes voor een bakje koffie. Het is de bekendste wandeling van Sydney en op zondag druk, dus vroeg beginnen loont. Terug in Sydney is het gezellig eten bij de waterkant, waar je uitzicht op de skyline en haven hebt."
  ],
  prac:["Op zondag geldt in New South Wales een laag dagmaximum voor het openbaar vervoer. Je kunt vandaag dus onbeperkt reizen voor een paar dollar.",
   "Het zeebad van Bondi Icebergs is open voor publiek, behalve op donderdag. Zwemmen kost een paar dollar; alleen al voor het uitzicht is dat het waard. Neem zwemkleding en een kleine handdoek mee.",
@@ -105,8 +105,8 @@ const DAYS=[
   ["Geelstaartraafkaketoe","Grote zwarte kaketoes met gele staartveren, in groepjes met een klaaglijke roep. Kijk omhoog in de eucalyptussen.",2],
   ["Moeraswallaby","In de schemering aan bosranden. De groep is dan waarschijnlijk al weg, dus alleen met geluk.",1]],
  body:[
-  "Vandaag brengen we een bezoek aan het Blue Mountains Nationaal Park. In ongeveer drie uur rijden we naar de groene en bergachtige omgeving van de Blue Mountains. Het Nationale Park heeft zijn naam te danken aan de blauwe nevel die boven de vele aanwezige eucalyptusbossen hangt. Er zijn vanaf hier verschillende wandelingen te maken. Bijvoorbeeld naar de lager gelegen Jamison vallei, de Katoomba waterval of naar de legendarische rotsformatie de Three Sisters.",
-  "De blauwe nevel ontstaat doordat de eucalyptusbomen olie verdampen."
+  "Vandaag brengen we een bezoek aan het Blue Mountains Nationaal Park. In ongeveer drie uur rijden we naar de groene en bergachtige omgeving van de Blue Mountains. Het Nationale Park heeft zijn naam te danken aan de blauwe nevel die boven de vele aanwezige eucalyptusbossen hangt; die ontstaat doordat de bomen olie verdampen.",
+  "Er zijn vanaf hier verschillende wandelingen te maken. Bijvoorbeeld naar de lager gelegen Jamison vallei, de Katoomba waterval of naar de legendarische rotsformatie de Three Sisters."
  ],
  prac:["De Three Sisters staan vanaf Echo Point 's ochtends in tegenlicht. In de loop van de middag draait de zon eromheen en maak je veel betere foto's; jullie komen dus op het goede moment aan.",
   "In de bergen is het vaak zes tot acht graden kouder dan in Sydney, en het weer slaat er snel om.",
@@ -122,8 +122,8 @@ const DAYS=[
   ["Pauw","Cataract Gorge heeft een verwilderde kolonie pauwen die vrij rondloopt. Geen inheems dier, wel een gek gezicht.",3]],
  fl:[["JQ 745","Sydney, terminal 2 (binnenlands)","Launceston","07.25","09.10","Jetstar · 20 kg ruim, 7 kg cabine"]],
  body:[
-  "Rond reizen door het onmetelijke Australië brengt vele kilometers met zich mee. Tijdens deze reis nemen we dan ook een paar keer tijdbesparende vluchten. Vandaag vliegen we naar het groene eiland Tasmanië, dit deel van Australië werd 35.000 jaar geleden al bewoond door de inheemse Palawa bevolking. In 1642 was de Nederlander Abel Tasman de eerste Europeaan die voet zetten op dit eiland, wat later naar hem vernoemd werd. Tasmanië is net zo groot als Nederland en heeft slechts 500.000 inwoners. Vandaag kom je aan in Launceston, de oudste stad van Tasmanië.",
-  "Launceston voelt eerder als een dorp dan als een stad. Het hotel staat midden in het centrum."
+  "Rond reizen door het onmetelijke Australië brengt vele kilometers met zich mee. Tijdens deze reis nemen we dan ook een paar keer tijdbesparende vluchten. Vandaag vliegen we naar het groene eiland Tasmanië, dit deel van Australië werd 35.000 jaar geleden al bewoond door de inheemse Palawa bevolking. In 1642 was de Nederlander Abel Tasman de eerste Europeaan die voet zette op dit eiland, wat later naar hem vernoemd werd. Tasmanië is net zo groot als Nederland en heeft slechts 500.000 inwoners, het is dus dunbevolkt. Dit zie je terug in de rust en de ongerepte natuur die het eiland te bieden heeft.",
+  "Vandaag kom je aan in Launceston, de oudste stad van Tasmanië. Hoewel het een van de grotere steden van het eiland is, voelt Launceston nog steeds als een charmant dorpje. De stad staat bekend om haar rijke cultuur, prachtige natuur en heerlijke lokale gerechten. Het hotel staat midden in het centrum. Wandel door de historische straatjes, ontdek gezellige cafés en markten, en vergeet vooral niet het nabijgelegen wijngebied van de Tamar Valley te verkennen voor een echte proeverij van Tasmaanse wijnen."
  ],
  prac:["Vroege vlucht: om 07.25 uur vanaf terminal 2. Je vertrekt dus rond 05.15 uur uit het hotel; vraag de reisbegeleider naar het groepsvervoer. Ontbijten in het hotel lukt waarschijnlijk niet meer.",
   "Tasmanië heeft zijn eigen quarantaineregels, ook voor reizigers uit de rest van Australië. Vers fruit en verse groente mogen het eiland niet op; voor andere levensmiddelen hangt het af van product en verpakking. Eet je appel vóór het inchecken op en geef bij twijfel aan.",
@@ -141,9 +141,9 @@ const DAYS=[
   ["Tasmaanse duivel","In het wild alleen 's nachts en zeldzaam. Devils@Cradle, naast het bezoekerscentrum, heeft rondleidingen overdag waar je ze wel ziet.",1],
   ["Vogelbekdier","In de beekjes rond Dove Lake bij zonsopgang of zonsondergang. Geluk nodig, maar het gebeurt.",1]],
  body:[
-  "Tijd voor actie! Vandaag bezoeken we het oudste en bekendste nationale park van Tasmanië: Cradle Mountain-Lake St Clair National Park, dat niet voor niets op de UNESCO Werelderfgoedlijst staat. Het park staat bekend om zijn ruige landschappen met rivieren, watervallen, diepblauwe gletsjermeren en imposante bergen, zoals Barn Bluff (1559 m), Mount Ossa (1614 m, de hoogste berg van Tasmanië) en natuurlijk de iconische Cradle Mountain (1545 m). In dit park vind je talloze wandelroutes. Houd onderweg je ogen open.",
-  "Je slaapt vannacht opnieuw in Launceston: ruim twee uur rijden heen en weer, dus reken op een lange dag.",
-  "Houd je ogen open voor wombats, wallaby's, echidna's en met wat geluk een Tasmaanse duivel."
+  "Tijd voor actie! Vandaag bezoeken we het oudste en bekendste nationale park van Tasmanië: Cradle Mountain-Lake St Clair National Park, dat niet voor niets op de UNESCO Werelderfgoedlijst staat. Het park staat bekend om zijn ruige landschappen met rivieren, watervallen, diepblauwe gletsjermeren en imposante bergen, zoals Barn Bluff (1559 m), Mount Ossa (1614 m, de hoogste berg van Tasmanië) en natuurlijk de iconische Cradle Mountain (1545 m).",
+  "In dit park vind je talloze wandelroutes. Houd onderweg je ogen open, want de kans is groot dat je bijzondere dieren tegenkomt, zoals wombats, wallaby’s, Tasmaanse duivels of misschien zelfs een echidna. Dit indrukwekkende natuurgebied laat je het wilde Tasmanië op zijn best ervaren.",
+  "Je slaapt vannacht opnieuw in Launceston: ruim twee uur rijden heen en weer, dus reken op een lange dag."
  ],
  prac:["Naar Dove Lake rijdt een verplichte pendelbus vanaf het bezoekerscentrum, om de tien à vijftien minuten. Mis de laatste terugrit niet, want daarna volgt nog twee uur rijden naar Launceston.",
   "Wombats zijn het actiefst tegen de avond, maar omdat je terugrijdt naar Launceston is de late middag je kans. De vlonderpaden bij Ronny Creek liggen vlak bij het bezoekerscentrum.",
@@ -160,8 +160,8 @@ const DAYS=[
   ["Witbuikzeearend","Boven de baaien van Bay of Fires en Bicheno. Groot, wit met grijs, vaak op een dode boom bij het water.",2],
   ["Dolfijn","Voor de kust bij Bay of Fires; vanaf de granietrotsen heb je een goed uitzicht over het water.",1]],
  body:[
-  "Vandaag verkennen we de Oostkust van Tasmanië. We rijden naar een van de meest fotogenieke plaatsen van het eiland, de Bay of Fires. Kenmerkend zijn de bijzondere oranje/rood gekleurde rotsen rond het witte strand en het azuurblauwe water. Het is een van de meest ongerepte gebieden dat Tasmanië te bieden heeft. We nemen vanmiddag de tijd om hier rond te kijken. Je kunt een mooie (strand) wandeling maken of je tijd besteden aan een van de pittoreske stranden met helder blauw water. We overnachten vandaag in Bicheno, een charmant vissersdorpje.",
-  "De oranjerode kleur komt van korstmossen op het graniet. Bicheno staat bekend om zijn zeevruchten; 's avonds is er een optionele excursie naar een pinguïnkolonie."
+  "Vandaag verkennen we de Oostkust van Tasmanië. We rijden naar een van de meest fotogenieke plaatsen van het eiland, de Bay of Fires. Kenmerkend zijn de bijzondere oranje/rood gekleurde rotsen rond het witte strand en het azuurblauwe water; die kleur komt van korstmossen op het graniet. Het is een van de meest ongerepte gebieden dat Tasmanië te bieden heeft. We nemen vanmiddag de tijd om hier rond te kijken. Je kunt een mooie strandwandeling maken of je tijd besteden aan een van de pittoreske stranden met helder blauw water.",
+  "We overnachten vandaag in Bicheno, een charmant vissersdorpje gelegen tussen het Douglas-Apsley National Park en het Freycinet National Park. Het dorp ligt aan de rand van een prachtig natuurgebied aan zee en staat bekend om zijn verse en smaakvolle seafood. Vanaf hier kun je ’s avonds genieten van de rustige kustsfeer en misschien zelfs een wandeling maken langs het strand. Of je kunt meegaan op een optionele excursie, waarbij je een bezoek brengt aan een pinguïnkolonie."
  ],
  prac:["Bij de pinguïns is fotograferen met flits verboden en wit licht verstoort ze.",
   "De pinguïns komen pas twintig tot veertig minuten ná zonsondergang aan land. Je staat dus te wachten in de kou aan zee; neem een muts mee.",
@@ -174,8 +174,8 @@ const DAYS=[
   ["Witbuikzeearend","Boven Coles Bay en de Hazards. Kijk omhoog vanaf het uitzichtpunt.",2],
   ["Dolfijn en walvis","In Great Oyster Bay, vanaf het uitzichtpunt over Wineglass Bay. In oktober trekken bultruggen langs; een spuit in de verte is goed mogelijk.",1]],
  body:[
-  "Vandaag brengen we een bezoek aan het Freycinet Nationaal Park. Dit nationale park is één van de oudste van Australië. Het park kenmerkt zich door de vele wandelpaden door bossen en langs prachtige stranden en baaien. Je hebt de mogelijkheid om hier een prachtige wandeling van ruim twee uur naar de schilderachtige Wineglass Bay te maken. Deze baai heeft een vorm van een wijnglas en is omringd door rode granieten pieken, eucalyptusbomen, wilde bloemen en ongerepte witte zandstranden. Aan het eind van de middag arriveren we in Hobart, de hoofdstad van Tasmanië.",
-  "De wandeling naar het uitzichtpunt over Wineglass Bay duurt officieel een tot anderhalf uur heen en terug; Sawadee rekent ruimer, met pauzes en foto's. Het hotel in Hobart ligt vijf tot twaalf minuten van Salamanca Place."
+  "Vandaag brengen we een bezoek aan het Freycinet Nationaal Park. Dit nationale park is één van de oudste van Australië. Het park kenmerkt zich door de vele wandelpaden door bossen en langs prachtige stranden en baaien. Je hebt de mogelijkheid om hier een prachtige wandeling van ruim twee uur naar de schilderachtige Wineglass Bay te maken. Deze baai heeft een vorm van een wijnglas en is omringd door rode granieten pieken, eucalyptusbomen, wilde bloemen en ongerepte witte zandstranden. Naar het uitzichtpunt alleen ben je officieel een tot anderhalf uur kwijt; Sawadee rekent ruimer, met pauzes en foto’s.",
+  "Aan het eind van de middag arriveren we in Hobart, de hoofdstad van Tasmanië. Het is leuk om een wandeling te maken door het oude centrum. Hier maak je kennis met veel cultureel erfgoed van Australië, je loopt langs mooie historische gebouwen en oude arbeidershuisjes. De komende twee nachten slapen we in een comfortabel hotel, vijf tot twaalf minuten van Salamanca Place. Let op: vandaag is er een maaltijd inbegrepen."
  ],
  prac:["De klim naar het uitzichtpunt kost dertig tot veertig minuten en gaat over trappen. Doorlopen naar het strand kost nog een uur extra heen en terug, en die afdaling is steil. Beslis vóór je begint welke van de twee je doet.",
   "Boek vandaag alvast je MONA-tickets voor morgen. Ze zijn geregeld vooraf uitverkocht en de ferry erheen reserveer je apart.",
@@ -190,7 +190,8 @@ const DAYS=[
   ["Bultrug en zuidkaper","Oktober is een goede maand bij Tasman Island; de schipper weet waar ze zitten. Ook vanaf MONA's veerboot heb je soms geluk op de Derwent.",2],
   ["Dolfijn","Bijna standaard bij de boottocht; soms ook in de haven van Hobart.",2]],
  body:[
-  "Na Sydney is Hobart de oudste stad van Australië. Een leuk uitje is een bezoek aan het bijzondere Museum Old New Art (MONA). Van Hobart neem je de ferry naar het museum. Deze overtocht is op zichzelf al de moeite waard. De ruige kustlijn van het zuidoosten van Tasmanië is bekend vanwege de grilligheid en de hoge kliffen. Een echte aanrader is om deel te nemen aan de optionele excursie met een boottocht waarin je dit prachtige gebied verkent. Je vaart langs het geïsoleerde Tasman Island."
+  "Na Sydney is Hobart de oudste stad van Australië. Een leuk uitje is een bezoek aan het bijzondere Museum Old New Art (MONA). Van Hobart neem je de ferry naar het museum. Deze overtocht is op zichzelf al de moeite waard.",
+  "De ruige kustlijn van het zuidoosten van Tasmanië is bekend vanwege de grilligheid en de hoge kliffen. Een echte aanrader is om deel te nemen aan de optionele excursie met een boottocht waarin je dit prachtige gebied verkent. Je vaart langs het geïsoleerde Tasman Island en Cape Pillar, waar we vaak dolfijnen, albatrossen en zelfs walvissen zien."
  ],
  prac:["Salamanca Market is vanochtend, op tien minuten lopen. Hij loopt tot ongeveer 15.00 uur en veel kramen breken eerder af — ga vroeg.",
   "Op de markt is leatherwood honey de beste souvenir: hij mag de EU in en je vindt hem nergens anders ter wereld.",
@@ -203,8 +204,7 @@ const DAYS=[
   ["Rosella's en kaketoes","In de South Parklands, recht voor je hotel. Roze galahs en witte kaketoes grazen er in groepen op het gras.",3]],
  fl:[["JQ 680","Hobart, terminal D","Adelaide, terminal 1","14.20","15.50 (lokale tijd, klok een half uur terug)","Jetstar · 20 kg"]],
  body:[
-  "We vliegen van Tasmanië naar het drogere Zuid-Australië, naar Adelaide. Anders dan je misschien verwacht bij een stad met meer dan een miljoen inwoners, voelt Adelaide meer als een groot dorp dan een drukke stad. Aan het einde van de middag komen we aan bij ons goed gelegen en comfortabele hotel, waar we twee nachten verblijven.",
-  "Het hotel kijkt uit over de South Parklands. Hutt Street, de dichtstbijzijnde restaurantstraat, ligt op een kwartier lopen recht naar het noorden."
+  "We vliegen van Tasmanië naar het drogere Zuid-Australië, naar Adelaide. Anders dan je misschien verwacht bij een stad met meer dan een miljoen inwoners, voelt Adelaide meer als een groot dorp dan een drukke stad. Aan het einde van de middag komen we aan bij ons goed gelegen en comfortabele hotel, waar we twee nachten verblijven. Het kijkt uit over de South Parklands; Hutt Street, de dichtstbijzijnde restaurantstraat, ligt op een kwartier lopen recht naar het noorden."
  ],
  prac:["De klok gaat vandaag een half uur terug. Zuid-Australië loopt dertig minuten achter op Tasmanië en Victoria — een van de weinige halve tijdzones ter wereld.",
   "De tram is gratis binnen het centrum, van South Terrace tot de Entertainment Centre. Jullie hotel ligt aan het beginpunt, dus je komt gratis de stad in en uit. Pas voorbij de stadsgrens richting Glenelg betaal je.",
@@ -219,8 +219,8 @@ const DAYS=[
  wild:[["Dolfijn","Bij Glenelg vanaf de pier en het strand, vooral 's ochtends. De dolfijnen van de Port River komen regelmatig langs de kust.",2],
   ["Grijskopvleerhond","Zie gisteren: de kolonie in de Botanic Garden hangt overdag zichtbaar in de bomen bij het meer.",3]],
  body:[
-  "Het groene Adelaide leent zich uitstekend voor wandel- en fietstochten langs de vele parken, tuinen en musea. Of pak de tram en rijdt in korte tijd naar het mooiste strand van Adelaide, Glenelg. Voor een gezellige avond uit in Adelaide vind je op Hindley Street vele mogelijkheden. Het is heerlijk bijkomen in één van de gezellige restaurants of pubs in de buurt.",
-  "Let op: de Adelaide Central Market, een van de grootste overdekte markten van het zuidelijk halfrond, is van oudsher zondag en maandag gesloten — precies jullie twee dagen. Controleer het ter plaatse, maar reken er niet op."
+  "Het groene Adelaide leent zich uitstekend voor wandel- en fietstochten langs de vele parken, tuinen en musea. Of pak de tram en rijd in korte tijd naar het mooiste strand van Adelaide, Glenelg. Voor een gezellige avond uit in Adelaide vind je op Hindley Street vele mogelijkheden. Het is heerlijk bijkomen in één van de gezellige restaurants of pubs in de buurt.",
+  "Eén ding om rekening mee te houden: de Adelaide Central Market, een van de grootste overdekte markten van het zuidelijk halfrond, is van oudsher zondag en maandag gesloten — precies jullie twee dagen. Controleer het ter plaatse, maar reken er niet op."
  ],
  prac:["Rundle Mall en de zijstraten eromheen zijn het winkelhart; Haigh's Chocolates heeft er zijn oorspronkelijke winkel op Beehive Corner, uit 1915.",
   "Het South Australian Museum en het Migration Museum vragen geen entree. Het eerste heeft de grootste verzameling Aboriginal-voorwerpen ter wereld.",
@@ -236,8 +236,7 @@ const DAYS=[
   ["Kangoeroe","In de wijngaarden van Coonawarra tegen de avond, vaak in groepen tussen de rijen.",2],
   ["Emoe","Op de open velden rond Naracoorte, overdag vanuit de bus.",1]],
  body:[
-  "We vervolgen vandaag onze route richting Mount Gambier. In de buurt van Mount Gambier ligt een uitgedoofde vulkaan met daarin het prachtige kratermeer Blue Lake. Een bijzondere plek met helderblauw water en fraaie tuinen rondom. Daarna vervolgen we onze weg door de wijnregio Coonawarra, beroemd om haar Cabernet Sauvignon. We rijden langs uitgestrekte wijnvelden met prachtige wijnhuizen. De dag eindigt met een bezoek aan het Nationaal Park Naracoorte Caves.",
-  "De Cabernet Sauvignon van Coonawarra dankt zijn faam aan de rode terra rossa-grond. De Naracoorte Caves staan op de UNESCO-lijst vanwege de fossielen van uitgestorven megafauna."
+  "We vervolgen vandaag onze route richting Mount Gambier. In de buurt van Mount Gambier ligt een uitgedoofde vulkaan met daarin het prachtige kratermeer Blue Lake. Een bijzondere plek met helderblauw water en fraaie tuinen rondom. Daarna vervolgen we onze weg door de wijnregio Coonawarra, beroemd om haar Cabernet Sauvignon, die zijn faam dankt aan de rode terra rossa-grond. We rijden langs uitgestrekte wijnvelden met prachtige wijnhuizen. De dag eindigt met een bezoek aan het Nationaal Park Naracoorte Caves. Deze grotten staan op de UNESCO Werelderfgoedlijst vanwege hun uitzonderlijke fossielen en de resten van uitgestorven megafauna."
  ],
  prac:["Blue Lake verschiet pas in november van staalgrijs naar kobaltblauw. In oktober zie je hem nog in zijn winterkleur — mooi, maar niet de ansichtkaart.",
   "Vraag bij de proeverij in Coonawarra naar de munt- en eucalyptustoon in de cabernet. Dat is de handtekening van deze streek.",
@@ -254,8 +253,8 @@ const DAYS=[
   ["Echidna","Langs de wandelpaden, overdag. Lente is de beste tijd.",2],
   ["Wedgestaartarend","Boven de rotswanden bij The Pinnacle en Boroka Lookout.",2]],
  body:[
-  "Vandaag reizen we af naar Het Grampians Nationaal Park: het grootste Nationale Park van de staat Victoria. Vanwege de unieke landschappen en rijke geschiedenis absoluut een bezoek waard. Sinds de jaren 80 is dit park beschermd als Nationaal Park. In de omgeving zijn verschillende mooie wandelingen te maken. Het park is bedekt met bergbossen met verschillende Eucalyptus-soorten en je vind er bijna 1000 plantensoorten. We verblijven in een wat verouderde maar charmante accommodatie.",
-  "De Grampians heten in het Djab Wurrung en Jardwadjali Gariwerd; het park heeft belangrijke Aboriginal-rotskunst. Vraag naar The Pinnacle of de Wonderland Loop."
+  "Vandaag reizen we af naar het Grampians Nationaal Park: het grootste Nationale Park van de staat Victoria. Vanwege de unieke landschappen en rijke geschiedenis absoluut een bezoek waard. Sinds de jaren 80 is dit park beschermd als Nationaal Park. In het Djab Wurrung en Jardwadjali heet het gebied Gariwerd; je vindt er belangrijke Aboriginal-rotskunst.",
+  "In de omgeving zijn verschillende mooie wandelingen te maken; vraag naar The Pinnacle of de Wonderland Loop. Het park is bedekt met bergbossen met verschillende Eucalyptus-soorten en je vindt er bijna 1000 plantensoorten. We verblijven in een wat verouderde maar charmante accommodatie. Vandaag is er een maaltijd inbegrepen."
  ],
  prac:["Bij de grens met Victoria gaat de klok een half uur vooruit. Vergeet dat niet bij het afspreken van vertrektijden met de groep.",
   "Kangoeroes en emoes lopen 's avonds gewoon door het dorp Halls Gap en over het sportveld. Je hoeft er het park niet voor in.",
@@ -273,8 +272,8 @@ const DAYS=[
   ["Echidna","Langs de wandelpaden, overdag.",2],
   ["Zuidkaper","Bij Logans Beach in Warrnambool, vanaf het uitkijkplatform. Het seizoen loopt eind oktober af; dit is de laatste kans.",1]],
  body:[
-  "Onze rondreis vervolgen we door vulkanisch gebied. We rijden naar het Tower Hill reservaat, dat wordt beheerd door de lokale bevolking daar. Hier vind je een vulkanische formatie die meer dan 30.000 jaar geleden is ontstaan. Tijdens een wandeling door dit natuurgebied spot je misschien wel emoes, koala’s, wallaby’s en kangoeroes in hun natuurlijke omgeving. Een prachtige kennismaking met de Australische dierenwereld. We overnachten in Warrnambool, in een typisch Australische accommodatie.",
-  "Het hotel staat op de hoek van Timor en Kepler Street — alle adressen hieronder liggen binnen zes minuten lopen."
+  "Onze rondreis vervolgen we door vulkanisch gebied. We rijden naar het Tower Hill reservaat, dat wordt beheerd door de lokale bevolking daar. Hier vind je een vulkanische formatie die meer dan 30.000 jaar geleden is ontstaan. Tijdens een wandeling door dit natuurgebied spot je misschien wel emoes, koala’s, wallaby’s en kangoeroes in hun natuurlijke omgeving. Een prachtige kennismaking met de Australische dierenwereld.",
+  "We overnachten in Warrnambool, in een typisch Australische accommodatie op de hoek van Timor en Kepler Street. Alle adressen hieronder liggen binnen zes minuten lopen."
  ],
  prac:["Bij Logans Beach staat een gratis uitkijkplatform voor zuidkapers. Het seizoen loopt tot ongeveer eind oktober, dus jullie zitten aan de staart ervan — maar het kost niets om te kijken.",
   "Zoek in Tower Hill omhoog, niet vooruit. Koala's zitten overdag hoog in de gaffelvork van een eucalyptus en bewegen nauwelijks.",
@@ -290,8 +289,8 @@ const DAYS=[
   ["Dwergpinguïn","Onder de kliffen bij de Twelve Apostles broedt een kolonie; ze komen pas na zonsondergang aan land, als jullie waarschijnlijk al weg zijn.",1],
   ["Bultrug","Vanaf de uitzichtpunten bij de Twelve Apostles en Loch Ard Gorge. Kijk naar de horizon.",1]],
  body:[
-  "Vandaag staat één van de mooiste routes van Australië op het programma, the Great Ocean Road. De route van vandaag is ongeveer 350 km lang en we rijden inclusief stops ongeveer negen uur. We maken verschillende stops en je hebt geweldige uitzichten over de oceaan. De Great Ocean Road eindigt bij Peterborough en daarmee ook het spectaculaire landschap van de westkust. Via de Great Ocean Road rijden we naar Melbourne.",
-  "De Twelve Apostles bij Port Campbell zijn het bekendste punt; er staan er allang geen twaalf meer overeind. In Melbourne verblijf je twee nachten in het Ibis aan Therry Street, bij de Queen Victoria Market."
+  "Vandaag staat één van de mooiste routes van Australië op het programma, the Great Ocean Road. De route van vandaag is ongeveer 350 km lang en we rijden inclusief stops ongeveer negen uur. We maken verschillende stops en je hebt geweldige uitzichten over de oceaan. Het bekendste punt zijn de Twelve Apostles bij Port Campbell, al staan er allang geen twaalf meer overeind. De Great Ocean Road eindigt bij Peterborough en daarmee ook het spectaculaire landschap van de westkust.",
+  "Via de Great Ocean Road rijden we naar Melbourne. Qua inwoners is Melbourne heel divers. Er woont een mengelmoes van Australiërs en andere nationaliteiten, waaronder een grote populatie uit India en Azië. De combinatie van deze culturen maakt Melbourne tot een sfeervolle, culinaire en enerverende stad. Melbourne heeft verschillende leuke wijken, waar je de invloeden van de verschillende nationaliteiten terugziet. Je verblijft twee nachten in het Ibis aan Therry Street, aan de noordkant van het centrum bij de Queen Victoria Market."
  ],
  wash:"Leg je waszak vanavond klaar. Morgenochtend kun je hem afgeven en krijg je hem 's middags of 's avonds schoon terug — zie dag 17 voor de adressen.",
  prac:["Stop bij Gibson Steps, net vóór het hoofdbezoekerscentrum van de Twelve Apostles. Daar loop je een trap af naar het strand en sta je aan de vóet van de kliffen. Vrijwel iedereen rijdt er voorbij naar het uitzichtplatform.",
@@ -307,8 +306,8 @@ const DAYS=[
   ["Grijskopvleerhond","Bij Yarra Bend Park, langs de rivier, overdag zichtbaar in de bomen en bij schemering in de lucht.",2],
   ["Kusuwaaierstaartbuidelrat","In Fitzroy Gardens en Carlton Gardens na het donker, in de bomen en op de paden. Mensen voeren ze, wat niet mag.",2]],
  body:[
-  "Vandaag heb je vrij te besteden in de één na grootste en misschien wel de meest karakteristieke stad van Australië. Wat direct opvalt wanneer je door Melbourne loopt, zijn de trammetjes, die je nergens anders in Australië ziet. Naast de gratis toeristenbus is dit een leuke manier om de stad mee te verkennen. Nog een leuke en sportieve manier om de stad te verkennen is per fiets. Tijdens een fietstour laat een gids je kennis maken met alle facetten van Melbourne en geeft je tips over leuke plekken.",
-  "Aanraders: de Queen Victoria Market, de laneways rond Degraves Street, de National Gallery of Victoria, en de straatkunst in Hosier Lane."
+  "Vandaag heb je vrij te besteden in de één na grootste en misschien wel de meest karakteristieke stad van Australië. Wat direct opvalt wanneer je door Melbourne loopt, zijn de trammetjes, die je nergens anders in Australië ziet. Naast de gratis toeristenbus is dit een leuke manier om de stad mee te verkennen; de gratis City Circle-tram rijdt een rondje langs de randen van het centrum.",
+  "Nog een leuke en sportieve manier om de stad te verkennen is per fiets. Tijdens een fietstour laat een gids je kennis maken met alle facetten van Melbourne en geeft je tips over leuke plekken en wat je echt niet mag missen in deze stad. Aanraders op eigen houtje: de Queen Victoria Market, de laneways rond Degraves Street, de National Gallery of Victoria en de straatkunst in Hosier Lane."
  ],
  wash:"Vandaag is dé wasdag van de reis. Geef je was 's ochtends af en je hebt hem vanavond schoon terug. Drie manieren, van duur naar goedkoop: (1) via de receptie van het hotel — makkelijkst, maar per stuk afgerekend en al gauw meer dan honderd dollar; (2) Your Serviced Laundrette in Southbank, 4,5 op Google — haalt op en bezorgt op je hotelkamer, per lading; (3) The Lonely Sock aan Rose Lane, 4,4, bezorgt ook op hotels, gratis nummer 1800 940 602. Zelf doen kan ook: vraag bij de receptie van het Ibis of er een gastenwasruimte is.",
  prac:["Binnen de Free Tram Zone reis je gratis en hoef je nergens in te checken. Ga je verder dan die zone, dan heb je een Myki-kaart nodig; met alleen je bankpas kom je in de tram niet altijd weg.",
@@ -326,9 +325,9 @@ const DAYS=[
   ["Dingo","Rond het resort en langs de wegen, vooral vroeg in de ochtend. Blijf op afstand en laat geen eten liggen.",1]],
  fl:[["JQ 664","Melbourne, terminal 4","Ayers Rock (Connellan)","08.50","10.30 (lokale tijd, klok anderhalf uur terug)","Jetstar · 20 kg"]],
  body:[
-  "In het aangepaste programma vlieg je ’s ochtends van Melbourne naar Uluru. Hierdoor heb je die middag voldoende tijd om de omgeving te verkennen en is er gelegenheid om deel te nemen aan de optionele helikoptervlucht.",
-  "Uluru, ook wel Ayers Rock genoemd, is het spirituele en geografische hart van Australië. Voor de Anangu, de traditionele bewoners, is dit een heilige plaats die met groot respect wordt beschermd. Samen met het omliggende land staat Uluru op de UNESCO Werelderfgoedlijst. Vandaag ervaar je de immense uitgestrektheid en verlatenheid van de Australische woestijn. Bij aankomst in Uluru heb je de mogelijkheid om in een helikopter te stappen en te vliegen boven deze indrukwekkende monoliet.",
-  "Pas vanuit de lucht zie je de schaal: 348 meter hoog, 9,4 kilometer omtrek, en het grootste deel zit nog ónder de grond."
+  "Door beperkte beschikbaarheid op de binnenlandse vluchten is dit deel van de route vanaf 1 oktober 2026 aangepast: het traject van Alice Springs naar Uluru is omgedraaid. Je vliegt vanochtend van Melbourne naar Uluru, zodat je die middag voldoende tijd hebt om de omgeving te verkennen en de optionele helikoptervlucht kunt maken.",
+  "Uluru, ook wel Ayers Rock genoemd, is het spirituele en geografische hart van Australië. Voor de Anangu, de traditionele bewoners, is dit een heilige plaats die met groot respect wordt beschermd. Samen met het omliggende land staat Uluru op de UNESCO Werelderfgoedlijst. Vandaag ervaar je de immense uitgestrektheid en verlatenheid van de Australische woestijn.",
+  "Bij aankomst in Uluru heb je de mogelijkheid om in een helikopter te stappen en te vliegen boven deze indrukwekkende monoliet. Pas dan zie je echt hoe indrukwekkend deze rode reus is. De rots rijst 348 meter boven het landschap uit en heeft een omtrek van maar liefst 9,4 kilometer; het grootste deel zit nog ónder de grond."
  ],
  prac:["De klok gaat vandaag anderhalf uur terug: van Victoria naar het Northern Territory, dat geen zomertijd kent.",
   "Sommige delen van Uluru mag je niet fotograferen. Het gaat om heilige plekken van de Anangu; er staan borden bij. Dat verbod geldt ook voor foto's die je alleen thuis laat zien.",
@@ -348,9 +347,8 @@ const DAYS=[
   ["Rode reuzenkangoeroe en emoe","In het open land langs de weg, in de vroege ochtend en late middag.",2],
   ["Brumby","Verwilderde paarden in kleine groepen, soms vlak langs de weg.",1]],
  body:[
-  "Vandaag reis je vanuit Uluru verder naar Alice Springs.",
-  "Alice Springs ligt in het hart van Australië en is de perfecte uitvalsbasis om de bezienswaardigheden in de omgeving te ontdekken. Het is de op twee na grootste stad van het Northern Territory, maar er wonen slechts zo’n 30.000 mensen.",
-  "Het resort ligt bij de golfbaan en het casino, zo'n twintig minuten lopen ten zuiden van het centrum."
+  "Vandaag reis je door naar Alice Springs, dwars door de outback. Ondanks dat dit de op twee na grootste stad van het Northern Territory is, wonen hier slechts zo’n 30.000 mensen. Alice Springs is de perfecte uitvalsbasis om de bezienswaardigheden in de omgeving te ontdekken en een bijzondere plek om te overnachten midden in de uitgestrekte outback.",
+  "Het resort ligt bij de golfbaan en het casino, zo’n twintig minuten lopen ten zuiden van het centrum."
  ],
  prac:["Onderweg zie je Mount Conner, een enorme tafelberg die veel reizigers voor Uluru aanzien. De Australiërs noemen hem 'Fooluru'. Hij ligt op privéland.",
   "De weg terug naar het hotel over Barrett Drive en Gap Road is 's avonds slecht verlicht. Een taxi kost hier weinig en is onder reizigers gebruikelijk.",
@@ -365,8 +363,8 @@ const DAYS=[
   ["Perentie","De grootste hagedis van Australië, tot twee meter, zonnend op rotsen langs de paden.",1],
   ["Dingo","Rond de picknickplaatsen. Op afstand blijven.",1]],
  body:[
-  "We gaan vroeg uit de veren en vertrekken naar de West MacDonnell Ranges, een prachtig nationaal park met spectaculaire bergruggen, droge valleien en kloven. Tijdens deze excursie bezoeken we onder andere Ormiston Gorge, een kloof die bekend staat om zijn outbacklandschap met hoge rode kliffen, ruige rotsformaties en een permanente waterpoel. Vanaf diverse uitkijkpunten heb je prachtig uitzicht op het omringende landschap. Voor het nemen van een verfrissende duik gaan we naar Ellery Creek Big Hole.",
-  "De West MacDonnell Ranges heten in het Arrernte Tjoritja. Sawadee noemt ook Standley Chasm, waar de wanden bijna honderd meter oprijzen; de volgorde kan ter plaatse anders zijn."
+  "We gaan vroeg uit de veren en vertrekken naar de West MacDonnell Ranges, in het Arrernte Tjoritja geheten: een prachtig nationaal park met spectaculaire bergruggen, droge valleien en kloven. Tijdens deze excursie bezoeken we onder andere Ormiston Gorge, een kloof die bekend staat om zijn outbacklandschap met hoge rode kliffen, ruige rotsformaties en een permanente waterpoel. Vanaf diverse uitkijkpunten heb je prachtig uitzicht op het omringende landschap.",
+  "Voor het nemen van een verfrissende duik gaan we naar Ellery Creek Big Hole, waar je kunt zwemmen tussen twee hoge rotsen in. Vervolgens bezoeken we de Standley Chasm; door eeuwen van erosie strekken de wanden van deze kloof zich bijna 100 meter omhoog. Aan het einde van de middag gaan we weer terug naar Alice Springs."
  ],
  prac:["Standley Chasm is in beheer van de Arrernte-gemeenschap en heeft een eigen entree, los van het nationale park. De wanden lichten alleen rond het middaguur oranje op; een uur eerder of later sta je in de schaduw.",
   "Ellery Creek is dieper dan het lijkt en het water blijft het hele jaar rond de vijftien graden. Laat je er rustig in zakken en spring er niet in.",
@@ -382,9 +380,9 @@ const DAYS=[
   ["Zoutwaterkrokodil","In Trinity Inlet, de mangroven achter de stad. Je gaat er niet naar op zoek, maar het is wel de reden dat je hier niet in zee zwemt.",1]],
  fl:[["TL 361","Alice Springs","Cairns, terminal 2","12.50","15.30 (lokale tijd, klok een half uur vooruit)","Airnorth · 20 kg"]],
  body:[
-  "Vandaag vlieg je ’s middags vanuit Alice Springs verder naar Cairns.",
-  "Je hebt ruim de tijd om de omgeving te ontdekken. Cairns leent zich uitstekend als uitvalsbasis voor enkele fantastische dagexcursies. Deze bieden wij ter plaatse optioneel aan. Ga bijvoorbeeld mee naar het Daintree Rainforest en ontdek alles wat het Daintree Rainforest en Cape Tribulation te bieden hebben. Speur naar krokodillen tijdens een cruise op de Daintree River. Leer meer over de flora, fauna en geschiedenis tijdens een boardwalk-tour.",
-  "Het klimaat verandert volledig: van droge woestijnlucht naar vochtige warmte. Het hotel staat aan het noordelijke deel van de Esplanade, met uitzicht op Trinity Bay."
+  "Vandaag vlieg je in de middag vanuit Alice Springs verder naar Cairns, in het tropische noorden van Queensland. Het klimaat verandert volledig: van droge woestijnlucht naar vochtige warmte. Het hotel staat aan het noordelijke deel van de Esplanade, met uitzicht op Trinity Bay. Vandaag is er een maaltijd inbegrepen.",
+  "Je hebt ruim de tijd om de omgeving te ontdekken. Cairns leent zich uitstekend als uitvalsbasis voor enkele fantastische dagexcursies. Deze bieden wij ter plaatse optioneel aan. Ga bijvoorbeeld mee naar het Daintree Rainforest en ontdek alles wat het Daintree Rainforest en Cape Tribulation te bieden hebben.",
+  "Speur naar krokodillen tijdens een cruise op de Daintree River. Leer meer over de flora, fauna en geschiedenis tijdens een boardwalk-tour met een ervaren gids. Maak een 4WD-tocht door het regenwoud, bezoek Cape Tribulation Beach en geniet van een huisgemaakt Daintree-ijsje op de terugreis."
  ],
  wash:"Tweede waskans, mocht je in Melbourne niet alles hebben meegegeven. Vraag bij de receptie of het hotel een wasservice heeft — het is een kleiner, zelfstandig hotel, dus reken er niet op. Zelf doen kan bij Cairns Laundromat aan Sheridan Street (4,5 op Google), acht minuten lopen, open van 05.00 tot 23.00 uur, betalen met de pas. Gebruik de droger: bij deze luchtvochtigheid droogt niets uit zichzelf.",
  prac:["De klok gaat een half uur vooruit: van het Northern Territory naar Queensland. Queensland kent geen zomertijd, de rest van de oostkust wel.",
@@ -402,8 +400,8 @@ const DAYS=[
   ["Napoleonvis","Een grote, nieuwsgierige lipvis die bij veel boten een vaste bezoeker is en dicht bij snorkelaars komt.",2],
   ["Rog","Op de zandvlaktes tussen het koraal, vaak half ingegraven.",2]],
  body:[
-  "Kies er vandaag voor om mee te gaan naar het grootste koraalrif ter wereld; het populaire Great Barrier Reef, waar we gaan snorkelen. Keer in de avond terug naar de boulevard, want hier zijn genoeg mogelijkheden om heerlijk te eten.",
-  "De catamaran brengt je naar het buitenrif, waar je snorkelt tussen schildpadden, kleurrijke vissen en koraal."
+  "Kies er vandaag voor om mee te gaan naar het grootste koraalrif ter wereld: het populaire Great Barrier Reef, waar we gaan snorkelen. Keer in de avond terug naar de boulevard, want hier zijn genoeg mogelijkheden om heerlijk te eten.",
+  "Met een catamaran ga je naar een uniek koraalrif, waar je kunt snorkelen tussen de schildpadden, kleurrijke vissen en verschillende soorten koraal. Om het kwetsbare koraal te beschermen werkt de organisatie samen met wetenschappers en het Coral Nurturing Program. Gezamenlijk hebben zij zes coral nurseries gebouwd; dankzij nieuwe technologie worden kwetsbare stukjes koraal gered en krijgen ze een nieuw thuis, zodat het rif de ruimte krijgt om gezond uit te groeien. De reisbegeleider kan helpen met het boeken."
  ],
  prac:["Op rifexcursies komt vrijwel altijd een aparte rifheffing bovenop de prijs, zo'n acht dollar per persoon per dag. Die zit meestal níét in het geboekte bedrag; houd contant of pas bij de hand.",
   "Draag het beschermende pak dat de boot aanbiedt, ook als het niet verplicht is. Het beschermt tegen kwallen én zon, en is beter voor het koraal dan zonnebrand.",
@@ -419,8 +417,8 @@ const DAYS=[
   ["Boydbosdraak","Een hagedis die roerloos verticaal tegen een boomstam hangt, op ooghoogte langs de boardwalks. Je loopt er zo voorbij.",2],
   ["Boomkangoeroe","In de kruinen van het Daintree, uiterst zeldzaam. Alleen met een gids en veel geluk.",1]],
  body:[
-  "We verblijven nog een laatste dag in Cairns. Heb je gister gekozen voor een excursie naar het Great Barrier Reef, dan kun je vandaag wellicht een bezoek brengen aan het Daintree Nationaal Park en Cape Tribulation. Of breng deze laatste dag in Cairns door op een van de vele terrassen en geniet van een typische flat white koffie. Morgen vliegen we alweer naar onze laatste bestemming van de reis: Perth.",
-  "Er is nog een derde mogelijkheid: de Kuranda Scenic Railway naar boven en de Skyrail kabelbaan terug over het regenwoud. Alle drie zijn dagvullend, dus het is het een of het ander."
+  "We verblijven nog een laatste dag in Cairns. Heb je gisteren gekozen voor een excursie naar het Great Barrier Reef, dan kun je vandaag wellicht een bezoek brengen aan het Daintree Nationaal Park en Cape Tribulation. Een derde mogelijkheid is de Kuranda Scenic Railway naar boven en de Skyrail kabelbaan terug over het regenwoud; alle drie zijn dagvullend, dus het is het een of het ander.",
+  "Of breng deze laatste dag in Cairns door op een van de vele terrassen en geniet van een typische flat white koffie. Morgen vliegen we alweer naar onze laatste bestemming van de reis: Perth."
  ],
  prac:["In het water bij Cape Tribulation kun je niet zwemmen, hoe uitnodigend het strand ook is. Er leven zoutwaterkrokodillen en de borden staan er niet voor niets.",
   "De Kuranda-trein rijdt maar twee keer per dag omhoog. Trein heen en Skyrail terug is de combinatie die de meeste mensen achteraf aanraden — vooraf boeken als combinatieticket scheelt geld.",
@@ -435,8 +433,9 @@ const DAYS=[
  fl:[["QF 1980","Cairns, terminal 2","Darwin","10.45","12.55 (Darwin-tijd)","Qantas, uitgevoerd door Alliance Airlines · 1 koffer"],
      ["QF 1741","Darwin","Perth, terminal 4","14.55","17.20 (Perth-tijd)","Qantas, uitgevoerd door Network Aviation · 1 koffer"]],
  body:[
-  "Vandaag vliegen we naar Perth, de hoofdstad van West-Australië. Deze levendige stad ligt ingeklemd tussen de Indische Oceaan en de uitgestrekte outback en staat bekend om haar prachtige stranden en relaxte sfeer. Afhankelijk van het vluchtschema heb je vandaag nog tijd om Perth te verkennen. Maak bijvoorbeeld een wandeling door Kings Park, de botanische tuin waar je een indrukwekkende verzameling inheemse plantensoorten vindt en geniet van het panoramische uitzicht over de stad. Liever naar de kust? Met het openbaar vervoer ben je zo op Scarborough.",
-  "Dit is de langste reisdag van de rondreis: dwars over het continent, met een overstap van twee uur in Darwin. Perth is een van de meest afgelegen grote steden ter wereld; Jakarta ligt er dichterbij dan Sydney. Het hotel staat midden in het centrum, alle adressen hieronder binnen vijf minuten lopen."
+  "Vandaag vliegen we naar Perth, de hoofdstad van West-Australië. Dit is de langste reisdag van de rondreis: dwars over het continent, met een overstap van twee uur in Darwin. Perth is een van de meest afgelegen grote steden ter wereld; Jakarta ligt er dichterbij dan Sydney. Deze levendige stad ligt ingeklemd tussen de Indische Oceaan en de uitgestrekte outback en staat bekend om haar prachtige stranden en relaxte sfeer.",
+  "Afhankelijk van het vluchtschema heb je vandaag nog tijd om Perth te verkennen. Maak bijvoorbeeld een wandeling door Kings Park, de botanische tuin waar je een indrukwekkende verzameling inheemse plantensoorten vindt en geniet van het panoramische uitzicht over de stad. Liever naar de kust? Met het openbaar vervoer ben je zo op Scarborough Beach, een van de bekendste stranden van Perth. Hier kun je heerlijk ontspannen of juist de levendige sfeer opsnuiven tijdens de avondmarkt — op donderdag in de zomer en op zaterdag in de winter — met muziek, kraampjes en een prachtige zonsondergang boven de oceaan.",
+  "Het hotel staat midden in het centrum; alle adressen hieronder liggen binnen vijf minuten lopen."
  ],
  prac:["De klok gaat in twee stappen twee uur terug: een half uur bij aankomst in Darwin, nog anderhalf uur bij aankomst in Perth. De overstap in Darwin is twee uur; je bagage gaat door, dus je hoeft alleen van gate te wisselen.",
   "West-Australië heeft eigen quarantaineregels. Vers fruit en groente, honing, ongebrande noten, zaden en planten zijn beperkt of verboden; fabrieksmatig verpakt en bewerkt voedsel — geroosterde noten, chocola, koekjes — mag gewoon mee. Bij twijfel: aangeven of in de bak bij de aankomsthal.",
@@ -453,8 +452,8 @@ const DAYS=[
   ["Visarend","Nestelt op palen en masten in de haven van Fremantle; kijk omhoog op de kades.",2],
   ["Pelikaan","Op de aanlegsteigers bij Fishing Boat Harbour, wachtend op wat overblijft.",3]],
  body:[
-  "Vandaag heb je vrije tijd om Perth en omgeving te ontdekken. Een van de hoogtepunten is de havenstad Fremantle, door de locals vaak Freo genoemd. Vanuit het centrum van Perth reis je in een half uur met de trein naar deze bruisende plek. Onderweg kom je langs de mooiste stranden, waaronder het bekende Cottesloe Beach. Dit strand is ideaal voor een ontspannen dag aan zee, of om simpelweg te genieten van de zonsondergang die hier spectaculair is. In Fremantle zelf vind je prachtig bewaard gebleven Victoriaanse panden.",
-  "In Freo ook het WA Shipwrecks Museum met de resten van de Batavia, en de Fremantle Prison."
+  "Vandaag heb je vrije tijd om Perth en omgeving te ontdekken. Een van de hoogtepunten is de havenstad Fremantle, door de locals vaak Freo genoemd. Vanuit het centrum van Perth reis je in een half uur met de trein naar deze bruisende plek. Onderweg kom je langs de mooiste stranden, waaronder het bekende Cottesloe Beach. Dit strand is ideaal voor een ontspannen dag aan zee, of om simpelweg te genieten van de zonsondergang die hier spectaculair is.",
+  "In Fremantle zelf vind je prachtig bewaard gebleven Victoriaanse panden, variërend van kerken en huizen tot gezellige barretjes. Je kunt er een bezoek brengen aan het WA Shipwrecks Museum, met de resten van de Batavia, of aan de historische Fremantle Prison. Als je er in het weekend bent, is de Fremantle Market een aanrader om rond te struinen voor souvenirs en lekkere hapjes. Voor een verfrissende pauze is bierbrouwerij Little Creatures een fijne plek om lokaal bier te proeven. Of zoek de kust weer op bij Bathers Beach, een fijne plek om neer te strijken bij een strandtent voor een hapje of een drankje."
  ],
  prac:["Perth is de enige grote stad van Australië waar de zon ín zee zakt. Overal elders kijk je oostwaarts. Cottesloe Beach is daar de plek voor, op de terugweg uit Fremantle.",
   "In het Shipwrecks Museum staat het originele achterschip van de Batavia, plus de stenen poort die als ballast meevoer en nooit in Batavia is aangekomen. Voor Nederlanders het merkwaardigste museumstuk van de reis.",
@@ -470,8 +469,8 @@ const DAYS=[
   ["Visarend","Nesten van takken op rotspunten langs de zuidkust, al tientallen jaren in gebruik.",3],
   ["Koningsskink en rifvissen","Skinks in het struikgewas langs de paden; bij The Basin en Little Salmon Bay zwem je tussen felgekleurde rifvissen.",3]],
  body:[
-  "Vandaag heb je de mogelijkheid om Rottnest Island te bezoeken, dat op slechts een half uur varen ligt vanaf de haven van Fremantle. Tickets kun je het beste vooraf reserveren; vraag de reisbegeleider voor meer informatie. Het eiland is autovrij en de fiets is hier het populairste vervoermiddel. Bij aankomst kun je een fiets huren en het eiland verkennen langs felblauwe wateren, witte verlaten stranden, rotsachtige baaien en tropische planten. Vergeet je zwemspullen niet. Naast de prachtige natuur staat Rottnest Island bekend om de beroemde quokka’s.",
-  "De naam komt van Willem de Vlamingh, die de quokka's in 1696 voor grote ratten aanzag: 't Eylandt 't Rottenest."
+  "Vandaag heb je de mogelijkheid om Rottnest Island te bezoeken, dat op slechts een half uur varen ligt vanaf de haven van Fremantle. Tickets kun je het beste vooraf reserveren; vraag de reisbegeleider voor meer informatie. Het eiland is autovrij en de fiets is hier het populairste vervoermiddel. Bij aankomst kun je een fiets huren en het eiland verkennen langs felblauwe wateren, witte verlaten stranden, rotsachtige baaien en tropische planten. Vergeet je zwemspullen niet, want dit is ook de perfecte plek om te zwemmen, snorkelen en duiken.",
+  "Naast de prachtige natuur staat Rottnest Island bekend om de beroemde quokka’s, kleine buideldiertjes die ook wel het gelukkigste dier ter wereld worden genoemd vanwege hun permanente ‘glimlach’ en het gebrek aan natuurlijke vijanden. Aan hen dankt het eiland zijn naam: Willem de Vlamingh zag ze in 1696 voor grote ratten aan en noemde het ’t Eylandt ’t Rottenest. Het is een unieke ervaring om deze vrolijke diertjes van dichtbij te zien terwijl je langs de idyllische kust fietst."
  ],
  prac:["Vaar vanuit Fremantle, niet vanuit Perth of Hillarys. De overtocht is korter en goedkoper; vanuit de stad ben je bijna twee keer zo lang onderweg.",
   "Quokka's aanraken en voeren is verboden en er staat een boete op. Ze komen uit zichzelf dichtbij; ga op je hurken zitten en wacht.",
@@ -488,8 +487,8 @@ const DAYS=[
   ["Stromatolieten","Geen dier maar het oudste leven op aarde: levende kolonies bacteriën in Lake Thetis, vlak bij Cervantes, met een wandelpad eromheen. Vraag of de bus er langsgaat.",3],
   ["Wildflowers","Oktober is het hoogtepunt van de wildflowerbloei in West-Australië. Langs de Indian Ocean Drive kleurt de berm geel, roze en paars.",3]],
  body:[
-  "Vandaag rijden we ten noorden van Perth naar Nambung National Park, waar we de beroemde Pinnacles Woestijn bezoeken. Deze bijzondere plek staat bekend om de duizenden kalkstenen pilaren die uit het gouden zand oprijzen en een surrealistisch landschap creëren. Je kunt hier een korte wandeling maken tussen de Pinnacles door of gewoon genieten van het uitzicht vanaf de aangewezen paden. Vergeet je camera niet, want dit is een perfecte plek voor indrukwekkende foto’s en een unieke ervaring.",
-  "De pilaren zijn ontstaan uit fossiele schelpresten die tot kalksteen verhardden, waarna de wind het losse zand eromheen wegblies. De rit gaat langs de Indian Ocean Drive; aan het einde van de dag ben je terug in Perth."
+  "Vandaag rijden we ten noorden van Perth naar Nambung National Park, waar we de beroemde Pinnacles Woestijn bezoeken. Deze bijzondere plek staat bekend om de duizenden kalkstenen pilaren die uit het gouden zand oprijzen en een surrealistisch landschap creëren. Ze zijn ontstaan uit fossiele schelpresten die tot kalksteen verhardden, waarna de wind het losse zand eromheen wegblies.",
+  "Je kunt hier een korte wandeling maken tussen de Pinnacles door of gewoon genieten van het uitzicht vanaf de aangewezen paden. Vergeet je camera niet, want dit is een perfecte plek voor indrukwekkende foto’s en een unieke ervaring in de Australische natuur. De rit gaat langs de Indian Ocean Drive; aan het einde van de dag rijden we weer terug naar Perth, waar je kunt ontspannen en de ervaringen van vandaag kunt laten bezinken."
  ],
  prac:["De Discovery Drive door de Pinnacles is eenrichtingsverkeer, maar te voet mag je overal tussen de pilaren door lopen. Dat levert veel betere foto's op dan vanuit de bus.",
   "Stopt de groep in Cervantes? Daar zit de Lobster Shack, een kreeftverwerkingsbedrijf met restaurant. De western rock lobster is er vers en relatief betaalbaar."],
@@ -500,8 +499,7 @@ const DAYS=[
  fl:[["SQ 214","Perth, terminal 1","Singapore Changi","17.05","22.10 (Singapore-tijd)","Singapore Airlines · 25 kg"],
      ["SQ 324","Singapore Changi, terminal 3","Amsterdam Schiphol","23.55","06.55 (29 okt, Nederlandse tijd)","Singapore Airlines · 25 kg"]],
  body:[
-  "De rondreis zit er alweer op en waarschijnlijk is de tijd voorbij gevlogen! We vertrekken met het vliegtuig naar Amsterdam, waar je afscheid neemt van de groep.",
-  "Je vliegt pas om 17.05 uur, dus de ochtend in Perth is nog vrij. Overstap in Singapore van 1 uur en 45 minuten, aankomst op Schiphol de volgende ochtend om 06.55 uur."
+  "De rondreis zit er alweer op en waarschijnlijk is de tijd voorbij gevlogen! We vertrekken met het vliegtuig naar Amsterdam, waar je afscheid neemt van de groep. Je vliegt pas om 17.05 uur, dus de ochtend in Perth is nog vrij. Overstap in Singapore van 1 uur en 45 minuten, aankomst op Schiphol de volgende ochtend om 06.55 uur."
  ],
  prac:["Je vertrekt pas om 17.05 uur. Vraag het hotel om een late uitcheck of laat je bagage achter, en gebruik de ochtend voor Kings Park of een laatste wandeling langs de Swan River. Op het vliegveld wil je rond 14.30 uur zijn.",
   "Vraag de GST terug via het Tourist Refund Scheme. Voorwaarden: minimaal A$300 inclusief GST bij één leverancier (zelfde ABN-nummer, mag over meerdere bonnen), gekocht binnen zestig dagen vóór vertrek, met een geldige tax invoice. Boven A$1.000 moet je naam op de bon staan. Het artikel moet je kunnen tonen — dus in je handbagage.",

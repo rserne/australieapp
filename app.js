@@ -91,7 +91,10 @@ function render(){
     (d.temp?`<span class="dm">${THERM}${esc(d.temp)}</span>`:'')+
     (d.wash?`<span class="dm wash">${WASH}Was afgeven</span>`:'')+
     `</div>`;
-  h+=`<div class="prose">${d.body.map(p=>`<p>${esc(p)}</p>`).join('')}</div>`;
+  // Lange dagteksten worden ingekort tot acht regels, met een knop om ze open te vouwen.
+  const langeTekst=d.body.join(' ').length>560;
+  h+=`<div class="prose${langeTekst?' inkort':''}" id="dagtekst">${d.body.map(p=>`<p>${esc(p)}</p>`).join('')}</div>`+
+     (langeTekst?`<button class="meerknop" type="button" id="meertekst">Meer</button>`:'');
   if(d.fl){
     h+=`<div class="flights">`+d.fl.map(([code,from,to,dep,arr,info])=>
       `<div class="flight"><div class="fcode">${PLANE}${esc(code)}</div>`+
@@ -214,6 +217,9 @@ function render(){
   // Toevoegen staat onderaan de dag, in de stroom: geen knop die over de tekst zweeft.
   if(NH.user) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   document.getElementById('day').innerHTML=h;
+  const mt=document.getElementById('meertekst');
+  if(mt) mt.onclick=()=>{ const t=document.getElementById('dagtekst');
+    const dicht=t.classList.toggle('inkort'); mt.textContent=dicht?'Meer':'Minder'; };
   if(NH.user){
     renderNotes(cur);
     document.getElementById('nadd').onclick=()=>openSheet({
@@ -1111,7 +1117,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-64';
+const APP_VERSIE='2026-09-07-65';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
