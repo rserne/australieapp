@@ -191,17 +191,6 @@
   details.rcard[open]>summary .rchev{transform:rotate(90deg)}
   .rbody{padding:0 15px 16px}
   .rbody .badges{margin-top:0}
-  /* Officiële dagtekst van de reisorganisatie: dicht een regel, open het hele verhaal. */
-  .swblok{margin:0 0 4px;border-radius:var(--radius);background:var(--glass);
-    border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft);overflow:hidden}
-  .swblok>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;
-    gap:10px;padding:13px 15px;font-size:13.5px;font-weight:600;letter-spacing:.04em;
-    text-transform:uppercase;color:var(--text-faint);-webkit-tap-highlight-color:transparent}
-  .swblok>summary::-webkit-details-marker{display:none}
-  .swblok>summary:active{opacity:.7}
-  .swblok[open]>summary .rchev{transform:rotate(90deg)}
-  .swblok .prose{padding:0 15px 4px}
-  .swblok .prose p{font-size:15.5px}
   .rmore{display:flex;align-items:center;justify-content:space-between;gap:10px;
     padding:13px 15px;border-radius:var(--radius);text-decoration:none;color:var(--text-dim);
     font-size:15px;background:var(--glass);border:1px solid var(--rim);
