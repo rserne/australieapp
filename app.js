@@ -925,9 +925,10 @@ async function renderAlles(){
   if(items.length){
     h+=`<div class="chips filters" id="typefilter">`+
       `<button type="button" class="chip${filter?'':' on'}" data-f="">Alles<span class="cnt">${naZoek.length}</span></button>`+
-      // Tijdens de reis vooraan een chip voor vandaag; daarbuiten heeft die geen betekenis.
-      (()=>{ if(T.before||T.after) return '';
-        const n=naZoek.filter(it=>it.dag===T.n).length; if(!n) return '';
+      // Vooraan een chip voor vandaag. Hij staat er altijd, ook op nul: een filter dat verdwijnt
+      // zodra er niets te vinden is, is onvoorspelbaar. Buiten de reisperiode wijst T.n naar
+      // dag 1 of dag 29, zodat de chip ook dan iets zinnigs doet.
+      (()=>{ const n=naZoek.filter(it=>it.dag===T.n).length;
         return `<button type="button" class="chip${filter==='vandaag'?' on':''}" data-f="vandaag">Vandaag<span class="cnt">${n}</span></button>`;})()+
       TYPES.filter(([k])=>telling[k]).map(([k,l])=>
         `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}">${l}<span class="cnt">${telling[k]}</span></button>`).join('')+
@@ -1089,7 +1090,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-50';
+const APP_VERSIE='2026-09-07-52';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
