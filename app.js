@@ -113,6 +113,7 @@ function render(){
     const k=1-T.raw;
     h+=cal(IC_ZAND,'Aftellen',`Nog ${k} ${k===1?'dag':'dagen'} tot vertrek. De app springt vanzelf naar de juiste dag zodra de reis begint.`);
   }
+  if(NH.user) h+=`<div id="notes-top" class="notes"></div>`;
   if(d.wash) h+=`<div class="callout washing"><span class="ico">${WASH}</span><span><b>Was afgeven</b>${esc(d.wash)}</span></div>`;
   if(d.note) h+=cal(IC_LET,'Let op',d.note);
   if(d.tip)  h+=cal(IC_TIP,'Tip',d.tip);
@@ -150,6 +151,9 @@ function render(){
     h+=`<h2>Wat je hier moet proeven</h2><ul class="list">`+
       d.food.map(([a,b])=>`<li><strong>${esc(a)}</strong><span class="sub">${esc(b)}</span></li>`).join('')+`</ul>`;
   }
+  // Notities die je vandaag nodig hebt (tickets, reserveringen) staan boven bij het programma;
+  // de rest staat verderop, vlak voor het eten. Beide blokken worden in één slag gevuld.
+  if(NH.user) h+=`<div id="notes-rest" class="notes"></div>`;
   if(cur<29){
     const t2=DAYS[cur],k2=KIND[t2.k];
     const p2=PACK.filter(p=>p[2].includes(cur+1)).map(p=>p[0].toLowerCase());
@@ -161,6 +165,7 @@ function render(){
        `</span><span class="arw">→</span></button></div>`;
   }
   if(d.rest){
+    // Suggesties, geen voorschrift: alleen de eerste keuze staat open, de rest klap je zelf uit.
     h+=`<h2>Eten vanavond</h2>`+
       (d.rnote?`<div class="callout" style="margin:0 0 14px"><span class="ico">${IC_KLOK}</span><span><b>Openingstijden</b>${esc(d.rnote)}</span></div>`:'')+
       d.rest.map(([nm,wh,rt,pr,wk,no,bk],ix)=>{
@@ -172,7 +177,6 @@ function render(){
       }
       const pl=PRICE[pr]; if(pl) b+=`<span class="badge">${pl[0]}</span><span class="badge">${pl[1]}</span>`;
       if(meta.sluit) b+=`<span class="badge">Sluit ${meta.sluit} · keuken vaak eerder</span>`;
-      // reistijd
       const q=encodeURIComponent(nm+', '+wh+', Australia');
       const url='https://www.google.com/maps/search/?api=1&query='+q;
       const origin=d.h?encodeURIComponent(d.h+', '+d.p+', Australia'):'';
@@ -184,22 +188,32 @@ function render(){
         if(wk>=15) travel+=`<span class="badge">≈ ${Math.max(5,Math.round(wk/4)+2)} min taxi</span>`;
         if(d.n===18) travel+=`<span class="badge">Gratis resortshuttle</span>`;
       }
-      // knoppen
       let btns=`<a class="btn" href="${dir}" target="_blank" rel="noopener">Route</a>`+
                `<a class="btn" href="${url}" target="_blank" rel="noopener">Op de kaart</a>`;
       if(meta.tel) btns+=`<a class="btn" href="tel:${meta.tel.replace(/\s+/g,'')}">Bellen</a>`;
-      return `<div class="card"><div class="role">${ROLE[Math.min(ix,2)]}</div>`+
-             `<h3><a href="${url}" target="_blank" rel="noopener">${esc(nm)}${EXT}</a></h3>`+
+      // Samenvatting op één regel: genoeg om te kiezen zonder open te klappen.
+      const kort=[rt?rt.toFixed(1).replace('.',',')+'/5':'', '€'.repeat(pr||1),
+        wk===0?'vervoer nodig':(wk?wk+' min lopen':'')].filter(Boolean).join(' · ');
+      return `<details class="card rcard"${ix===0?' open':''}><summary>`+
+             `<span class="rtop"><span class="role">${ROLE[Math.min(ix,2)]}</span>`+
+             `<span class="rname">${esc(nm)}</span>`+
+             `<span class="rkort">${kort}</span></span><span class="rchev">${ICO_CHEV}</span></summary>`+
+             `<div class="rbody">`+
              `<div class="badges">${b}${travel}</div>`+
              `<div class="where">${PIN}${esc(wh)}</div><p>${esc(no)}</p>`+
              (bk?`<div class="book"><b>Reserveren</b><span>${esc(bk)}</span></div>`:'')+
              `<div class="btns">${btns}</div>`+
-             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse. Looptijd hemelsbreed geschat; tik op Route voor de echte wandelroute vanaf het hotel.</div></div>`;
-    }).join('');
+             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse. Looptijd hemelsbreed geschat; tik op Route voor de echte wandelroute vanaf het hotel.</div>`+
+             `</div></details>`;
+    }).join('')+
+    // De app geeft hints; ter plekke kijk je vaak toch even rond op de kaart.
+    (()=>{const bij=encodeURIComponent('restaurants '+(d.h?d.h+', ':'')+d.p+', Australia');
+      return `<a class="rmore" href="https://www.google.com/maps/search/?api=1&query=${bij}" target="_blank" rel="noopener">`+
+        `<span>${PIN} Meer restaurants in de buurt${d.h?' van het hotel':''}</span><span class="rchev">${ICO_CHEV}</span></a>`;})();
   }
-  if(NH.user) h+=`<h2>Notities</h2><div id="notes" class="notes"></div>`;
   document.getElementById('day').innerHTML=h;
-  if(NH.user) renderNotes(cur,document.getElementById('notes'));
+  document.getElementById('fab').hidden=!NH.user;
+  if(NH.user) renderNotes(cur);
   const tm=document.getElementById('tmw');
   if(tm) tm.addEventListener('click',()=>{if(cur<29){cur++;render()}});
   document.getElementById('prev').disabled=cur<=1;
@@ -428,6 +442,8 @@ function switchTo(v){
   document.getElementById('alles').style.display=v==='alles'?'block':'none';
   document.getElementById('foot').style.display=v==='prakt'?'block':'none';
   document.getElementById('navbar').style.display=v==='day'?'block':'none';
+  // De knop hoort alleen bij de dagweergave: in Notities zit hij al naast het zoekveld.
+  document.getElementById('fab').hidden=!(v==='day'&&NH.user);
   [['btnToday','day'],['btnIndex','index'],['btnPrakt','prakt'],['btnAlles','alles']].forEach(([id,k])=>{
     const b=document.getElementById(id); b.classList.toggle('on',v===k); b.setAttribute('aria-pressed',v===k);
   });
@@ -445,6 +461,10 @@ function toonTabs(){
 }
 document.getElementById('prev').onclick=()=>{if(cur>1){cur--;render()}};
 document.getElementById('next').onclick=()=>{if(cur<29){cur++;render()}};
+document.getElementById('fab').onclick=()=>{
+  if(!NH.user) return;
+  openSheet({dag:cur,wie:NH.user.displayName||NH.user.email,onDone:()=>renderNotes(cur)});
+};
 document.getElementById('btnToday').onclick=()=>{cur=T.n;switchTo('day')};
 document.getElementById('btnIndex').onclick=()=>switchTo(view==='index'?'day':'index');
 document.getElementById('btnPrakt').onclick=()=>switchTo(view==='prakt'?'day':'prakt');
@@ -740,41 +760,44 @@ function koppelKaarten(box){
   box.querySelectorAll('.nmore').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const t=b.previousElementSibling;const open=t.classList.toggle('clamp');b.textContent=open?'Meer':'Minder';});
 }
 
-async function renderNotes(dag,box){
-  if(!box) return;
+async function renderNotes(dag){
+  const top=document.getElementById('notes-top'), rest=document.getElementById('notes-rest');
+  if(!top&&!rest) return;
   const wie=NH.user.displayName||NH.user.email;
   const cacheKey='aus_cache_'+dag;
   let items=LS.get(cacheKey)||[], status='';
-  box.innerHTML=`<div class="nstatus">Laden…</div>`;
   try{ const d=await gql(Q_ITEMS,{dag}); items=d.dagitems; LS.set(cacheKey,items); status=`Bijgewerkt ${fmtWhen(new Date().toISOString())}`; }
   catch(e){ status=navigator.onLine?`Kon niet laden: ${e.message}`:'Geen verbinding — laatst opgeslagen versie'; }
   const pend=pending().filter(p=>p.dag===dag);
-  let h='';
   const all=[...items,...pend.map(p=>({...p,soort:'notitie',pending:true,
     pix:pending().findIndex(q=>q===p||(q.dag===p.dag&&q.tekst===p.tekst&&q.wie===p.wie))}))]
     .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||'')));
   const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
-  if(!all.length) h+=`<div class="empty" style="margin-bottom:12px">Nog geen notities${dag===0?'':' voor deze dag'}.</div>`;
-  else h+=`<ul class="list nlist">`+all.map(it=>noteCard(it,tag(it))).join('')+`</ul>`;
-  h+=`<div class="nrow" style="margin-top:12px"><button class="btn primary" id="nadd">＋ Toevoegen</button></div><div class="nstatus" id="nstat">${status}</div>`;
-  box.innerHTML=h;
-  koppelKaarten(box);
-
-  const refresh=()=>renderNotes(dag,box);
-  box.querySelector('#nadd').onclick=()=>openSheet({dag,wie,onDone:refresh});
-  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
-    const it=all.find(x=>x.id===b.dataset.edit)||all.find(x=>String(x.pix)===b.dataset.pix);
-    if(it) openSheet({dag,wie,item:it,onDone:refresh});
-  });
-  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('Verwijderen?')) return;
-    if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); refresh(); return; }
-    try{ await verwijderItem(b.dataset.del,b.dataset.file); refresh(); }
-    catch(e){ toast('Verwijderen mislukt: '+e.message); }
+  // Tickets en reserveringen heb je op een moment nodig; de rest is naslag.
+  const nodig=all.filter(it=>it.type==='ticket'||it.type==='reservering');
+  const overig=all.filter(it=>!nodig.includes(it));
+  const lijst=(kop,rij)=>rij.length?`<h2>${kop}</h2><ul class="list nlist">`+rij.map(it=>noteCard(it,tag(it))).join('')+`</ul>`:'';
+  // Zonder notities blijft het blok helemaal weg: geen lege kop op een dag zonder items.
+  if(top) top.innerHTML=lijst('Vandaag nodig',nodig);
+  if(rest) rest.innerHTML=lijst('Notities',overig)+
+    (overig.length||nodig.length?`<div class="nstatus">${esc(status)}</div>`:'');
+  [top,rest].forEach(box=>{
+    if(!box||!box.innerHTML) return;
+    koppelKaarten(box);
+    const refresh=()=>renderNotes(dag);
+    box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
+      const it=all.find(x=>x.id===b.dataset.edit)||all.find(x=>String(x.pix)===b.dataset.pix);
+      if(it) openSheet({dag,wie,item:it,onDone:refresh});
+    });
+    box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+      if(!confirm('Verwijderen?')) return;
+      if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); refresh(); return; }
+      try{ await verwijderItem(b.dataset.del,b.dataset.file); refresh(); }
+      catch(e){ toast('Verwijderen mislukt: '+e.message); }
+    });
   });
 }
 
-// ---- Overlay voor toevoegen en bewerken ----
 function openSheet({dag,wie,item,onDone,kiesDag}){
   document.getElementById('sheet')?.remove();
   const isEdit=!!item, isFile=item&&item.soort==='bestand'&&!item.pending;
@@ -810,8 +833,15 @@ function openSheet({dag,wie,item,onDone,kiesDag}){
     if(isEdit){
       st.textContent='Opslaan…';
       try{
+        // Eerst de dag: mislukt dat op de rechten in Nhost, dan is er nog niets half opgeslagen.
+        if(kiesDag&&dagVan()!==item.dag){
+          try{ await gql(M_UPD_DAG,{id:item.id,d:dagVan()}); }
+          catch(e){ st.textContent=/not found in type/.test(e.message)
+            ?'De dag wijzigen mag nog niet. Zet in Nhost bij de update-rechten van dagitems de kolom dag aan.'
+            :'Dag wijzigen mislukt: '+e.message; return; }
+        }
         await gql(M_UPD,{id:item.id,t:t||null,ty:type});
-        if(kiesDag&&dagVan()!==item.dag) await gql(M_UPD_DAG,{id:item.id,d:dagVan()});
+        if(kiesDag) LS.set('aus_laatste_dag',dagVan());
         close(); onDone();
       }catch(e){ st.textContent='Opslaan mislukt: '+e.message; }
       return;
@@ -819,6 +849,7 @@ function openSheet({dag,wie,item,onDone,kiesDag}){
     if(!t){ st.textContent='Typ eerst een notitie, of kies een foto of pdf.'; return; }
     const rec={dag:dagVan(),tekst:t,wie,type};
     if(!navigator.onLine){ LS.set('aus_pending',[...pending(),rec]); close(); toast('Bewaard op de telefoon; wordt verstuurd zodra er verbinding is.'); onDone(); return; }
+    if(kiesDag) LS.set('aus_laatste_dag',dagVan());
     st.textContent='Opslaan…';
     try{ await gql(M_INS,{o:{...rec,soort:'notitie'}}); close(); onDone(); }
     catch(e){ LS.set('aus_pending',[...pending(),rec]); close(); toast('Bewaard op de telefoon; wordt verstuurd zodra er verbinding is.'); onDone(); }
@@ -931,7 +962,9 @@ async function renderAlles(){
         const nz=document.getElementById('nzoek'); if(nz){nz.focus(); try{nz.setSelectionRange(pos,pos)}catch(e){}} }); },250); });
   }
   box.querySelectorAll('.ndag').forEach(b=>b.onclick=()=>{const dg=+b.dataset.dag; if(dg>=1){cur=dg;switchTo('day')} else switchTo('prakt');});
-  box.querySelector('#aadd').onclick=()=>openSheet({dag:(!T.before&&!T.after)?T.n:0,wie,kiesDag:true,onDone:renderAlles});  // tijdens de reis staat de dag van vandaag voorgeselecteerd
+  // Voorgeselecteerd: tijdens de reis vandaag, daarbuiten de dag die je het laatst koos.
+  box.querySelector('#aadd').onclick=()=>openSheet({
+    dag:(!T.before&&!T.after)?T.n:(LS.get('aus_laatste_dag')??0),wie,kiesDag:true,onDone:renderAlles});
   const cb=box.querySelector('#acache');
   if(cb) cb.onclick=async()=>{
     if(!navigator.onLine){ toast('Hiervoor heb je verbinding nodig'); return; }
@@ -1049,7 +1082,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-45';
+const APP_VERSIE='2026-09-07-46';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
