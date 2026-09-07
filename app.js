@@ -92,6 +92,10 @@ function render(){
     (d.wash?`<span class="dm wash">${WASH}Was afgeven</span>`:'')+
     `</div>`;
   h+=`<div class="prose">${d.body.map(p=>`<p>${esc(p)}</p>`).join('')}</div>`;
+  // De officiële dagbeschrijving van Sawadee, ingeklapt: beschikbaar zonder de pagina te verlengen.
+  if(d.sw) h+=`<details class="swblok"><summary><span>Uit het Sawadee-programma</span>`+
+    `<span class="rchev">${ICO_CHEV}</span></summary>`+
+    `<div class="prose">${d.sw.split('\n\n').map(x=>`<p>${esc(x)}</p>`).join('')}</div></details>`;
   if(d.fl){
     h+=`<div class="flights">`+d.fl.map(([code,from,to,dep,arr,info])=>
       `<div class="flight"><div class="fcode">${PLANE}${esc(code)}</div>`+
@@ -254,6 +258,7 @@ const HAY=DAYS.map(d=>{
   EXC.filter(e=>e[1]===d.n).forEach(e=>bits.push([e[0]+' — '+e[3]+' Richtprijs '+e[2]+'.','Optionele excursie']));
   if(d.tip) bits.push([d.tip,'Tip']);
   if(d.wash) bits.push([d.wash,'Was afgeven']);
+  if(d.sw) bits.push([d.sw,'Sawadee-programma']);
   PACK.filter(p=>p[2].includes(d.n)).forEach(p=>bits.push([p[0]+' — '+p[1],'Uit je koffer']));
   return bits;
 });
@@ -1111,7 +1116,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-62';
+const APP_VERSIE='2026-09-07-63';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
