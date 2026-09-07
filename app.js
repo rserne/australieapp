@@ -982,7 +982,7 @@ function tekenLijst(){
     h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':''}.`}`+
        `<button type="button" class="btn wisfilter" id="wisfilters">Alle filters wissen</button></div>`;
   }
-  else if(filter) h+=`<ul class="list nlist" style="margin-top:14px">`+zichtbaar.map(kaart).join('')+`</ul>`;
+  else if(filter) h+=`<ul class="list nlist">`+zichtbaar.map(kaart).join('')+`</ul>`;
   else TYPES.forEach(([key,label])=>{
     const groep=zichtbaar.filter(it=>(it.type||'notitie')===key);
     if(groep.length) h+=`<h2>${label}</h2><ul class="list nlist">`+groep.map(kaart).join('')+`</ul>`;
@@ -1112,7 +1112,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-56';
+const APP_VERSIE='2026-09-07-57';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

@@ -138,7 +138,7 @@
   h2{font-size:13.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
     color:var(--text-faint);margin:38px 0 12px 4px}
   h2:first-child{margin-top:6px}
-  .notes>h2:first-child{margin-top:38px}
+  .notes>h2:first-child{margin-top:38px}   /* dagweergave: 'Vandaag nodig' en 'Notities' */
 
   .callout{display:flex;gap:12px;padding:15px 17px;margin:20px 0 0;font-size:15.5px;line-height:1.5;
     border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);
@@ -434,8 +434,10 @@
   .hits .src{font-size:12px;color:var(--text-faint);margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
   .empty{padding:24px 18px;text-align:center;color:var(--text-dim);font-size:15.5px;
     border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim)}
-  /* Evenveel lucht onder de filters als een kop zou krijgen, zodat de lijst niet verspringt. */
-  .chips.filters+.empty{margin-top:34px}
+  /* De lijst staat in een eigen blok onder de filterrij; het eerste element erin houdt
+     dezelfde afstand als een kop, of de lijst nu gevuld is of leeg. */
+  #nlijst>.empty:first-child,#nlijst>h2:first-child{margin-top:34px}
+  #nlijst>.nlist:first-child{margin-top:20px}
 
   /* ---------- Morgen ---------- */
   .tomorrow{margin-top:0;overflow:hidden;border-radius:var(--radius);
