@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#EEF0F4">
+<title>AustralieApp</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AustralieApp">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="hero" id="hero">
+  <div class="wrap">
+    <p class="eyebrow" id="eyebrow"></p>
+    <h1 class="num" id="num"></h1>
+    <p class="title" id="title"></p>
+    <div class="meta" id="metabox"></div>
+    <div id="flagbox"></div>
+  </div>
+  <div class="track"><i id="track"></i></div>
+</div>
+
+<div class="nav" id="navbar"><div class="inner">
+  <button id="prev" aria-label="Vorige dag">←</button>
+  <span class="label" id="navlabel"></span>
+  <button id="next" aria-label="Volgende dag">→</button>
+</div></div>
+
+<main class="wrap">
+  <div id="day"></div>
+  <div id="index"></div>
+  <div id="prakt"></div>
+  <div id="alles"></div>
+  <footer id="foot" style="display:none"></footer>
+</main>
+
+<div class="tabbar"><div class="inner">
+  <button id="btnToday" class="on">Vandaag</button>
+  <button id="btnIndex">Alle dagen</button>
+  <button id="btnAlles" hidden>Notities</button>
+  <button id="btnPrakt">Praktisch</button>
+</div></div>
+<script src="reis.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

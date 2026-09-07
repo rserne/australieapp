@@ -1,0 +1,25 @@
+{
+  "id": "./",
+  "name": "AustralieApp",
+  "short_name": "Australië",
+  "description": "Dag voor dag door Australië, 1 t/m 29 oktober 2026",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EEF0F4",
+  "theme_color": "#EEF0F4",
+  "lang": "nl",
+  "icons": [
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+# AustralieApp
+
+Reisapp voor de Sawadee-groepsrondreis Australië, 1 t/m 29 oktober 2026.
+Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tickets staan bij Nhost (Frankfurt).
+
+## Bestanden
+
+| Bestand | Wat erin staat | Wanneer aanpassen |
+|---|---|---|
+| `reis.js` | Alle inhoud: dagen, hotels, restaurants, excursies, kofferlijst, noodnummers | Bij elke inhoudelijke wijziging |
+| `app.js` | De code | Alleen bij nieuwe functies of bugfixes |
+| `app.css` | De opmaak | Zelden |
+| `index.html` | Het skelet van de pagina | Zelden |
+| `sw.js` | Service worker: offline-cache en updatemelding | Alleen `VERSION` ophogen |
+| `check.js` | Controleert `reis.js` op fouten | Draaien vóór elke uitgave |
+
+## Een nieuwe versie uitbrengen
+
+1. Pas `reis.js` (of een ander bestand) aan.
+2. `node check.js` — moet eindigen met "reis.js is in orde".
+3. Hoog `APP_VERSIE` in `app.js` op (bijv. `2026-09-08-45`) en `VERSION` in `sw.js` (bijv. `v45`). De laatste cijfers horen gelijk te lopen; `check.js` waarschuwt als dat niet zo is.
+4. Commit en push. Binnen een paar minuten ziet iedereen bij het openen van de app de balk "Er is een nieuwe versie".
+
+## Boekingscodes
+
+De boekingscodes van de vluchten staan bewust **niet** in deze bestanden: de repository is openbaar en met code plus achternaam kan iedereen een boeking wijzigen. De app leest ze uit een notitie achter de login.
+
+Maak eenmalig in het tabblad Notities een notitie van het type **Ticket**, met per regel een maatschappij en de code:
+
+```
+Boekingscodes
+SQ: ABC123
+JQ: DEF456
+QF: GHI789
+TL: GHI789
+Sawadee: 1234567
+```
+
+De sleutels (`SQ`, `JQ`, `QF`, `TL`) zijn de IATA-codes uit `CHECKIN` in `reis.js`; `Sawadee` komt uit `BOEKINGEN`. De codes verschijnen daarna bij de vluchten en in het tabblad Praktisch, ook offline.
+
+## Hotel dag 13 en 14
+
+Sawadee heeft nog niet vastgelegd welk hotel het wordt. Zodra dat bekend is: `h:"…"` toevoegen op dag 13 en 14 in `reis.js`, de coördinaten in `HOTELGEO` zetten en de `note` op beide dagen aanpassen.
