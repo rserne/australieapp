@@ -1089,7 +1089,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-49';
+const APP_VERSIE='2026-09-07-50';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
@@ -1101,10 +1101,18 @@ function toonUpdateBalk(){
   document.body.appendChild(b);
 }
 let swReg=null;
+// Vragen of de service worker tijdens het laden al iets nieuws zag: die melding kan zijn
+// binnengekomen voordat deze code draaide.
+function vraagStatus(){
+  navigator.serviceWorker?.ready.then(reg=>{
+    (reg.active||navigator.serviceWorker.controller)?.postMessage({type:'status'});
+  }).catch(()=>{});
+}
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden) return;
   herbereken();                                  // na middernacht: 'Vandaag' verschuift
   if(swReg&&navigator.onLine) swReg.update().catch(()=>{});   // sw.js opnieuw ophalen: een paar honderd bytes
+  vraagStatus();
 });
 
 // ---- Offline: service worker (alleen als de app van een website komt, niet als los bestand) ----
@@ -1117,4 +1125,6 @@ if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
     });
   }).catch(()=>{});
   navigator.serviceWorker.addEventListener('message',e=>{ if(e.data&&e.data.type==='nieuwe-versie') toonUpdateBalk(); });
+  vraagStatus();                       // meteen bij het laden
+  setTimeout(vraagStatus,3000);        // en nog eens, als het vergelijken op de achtergrond langer duurde
 }

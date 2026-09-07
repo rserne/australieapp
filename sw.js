@@ -1,7 +1,7 @@
 // AustralieApp — service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v49';
+const VERSION='v50';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze vier werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
 const CODE=['./','./index.html','./app.css','./reis.js','./app.js','./manifest.webmanifest'];
@@ -11,6 +11,17 @@ const BEELD=['./icon-180.png','./icon-512.png',
   './reg-nsw.jpg','./reg-tas.jpg','./reg-sa.jpg','./reg-vic.jpg','./reg-red.jpg','./reg-qld.jpg','./reg-wa.jpg','./reg-reis.jpg'];
 // Alleen van deze bestanden vergelijken we oud en nieuw om een nieuwe versie te melden.
 const TEKST=/(\/|\.html|\.js|\.css|\.webmanifest)$/;
+// De pagina haalt app.js op vóórdat app.js zijn luisteraar heeft; een melding op dat moment
+// zou verloren gaan. Daarom onthouden we het ook, zodat de pagina er alsnog naar kan vragen.
+let nieuwGezien=false;
+async function meldNieuw(){
+  nieuwGezien=true;
+  const cl=await self.clients.matchAll({type:'window'});
+  cl.forEach(w=>w.postMessage({type:'nieuwe-versie'}));
+}
+self.addEventListener('message',e=>{
+  if(e.data&&e.data.type==='status'&&nieuwGezien&&e.source) e.source.postMessage({type:'nieuwe-versie'});
+});
 
 // cache:'reload' dwingt een verse kopie af; anders kan de tussencache van GitHub Pages
 // (tien minuten) een oude index.html in een nieuwe versie van onze cache zetten.
@@ -48,10 +59,7 @@ self.addEventListener('fetch',e=>{
       const oud=(isTekst&&cached)?await cached.clone().text():null;
       const nieuw=isTekst?await r.clone().text():null;
       await c.put(e.request,r.clone());
-      if(isTekst&&oud!==null&&oud!==nieuw){
-        const cl=await self.clients.matchAll({type:'window'});
-        cl.forEach(w=>w.postMessage({type:'nieuwe-versie'}));
-      }
+      if(isTekst&&oud!==null&&oud!==nieuw) await meldNieuw();
       return r;
     }).catch(()=>null);
     return cached||(await fresh)||new Response(
