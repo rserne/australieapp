@@ -697,6 +697,8 @@ function linkify(t){
 }
 const fmtWhen=iso=>{const d=new Date(iso);return `${WD[d.getDay()].slice(0,2)} ${d.getDate()} ${MN[d.getMonth()].slice(0,3)} ${pad(d.getHours())}.${pad(d.getMinutes())}`};
 const fmtSize=b=>b>1048576?(b/1048576).toFixed(1).replace('.',',')+' MB':Math.round(b/1024)+' kB';
+const ICO_PDF='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 14h6M9 17h4"/></svg>';
+const ICO_CHEV='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
 const ICO_FILE='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg>';
 
 // Eén kaart voor een notitie of bijlage, gebruikt bij de dag én in het tabblad Notities.
@@ -710,14 +712,24 @@ function noteCard(it,kop){
   const acts=mine?`<span class="nacts"><button class="nbtn" data-edit="${esc(it.id||'')}"${pix} aria-label="Bewerken">✎</button>`+
     `<button class="nbtn ndel" data-del="${esc(it.id||'')}"${pix}${it.file_id?` data-file="${esc(it.file_id)}"`:''} aria-label="Verwijderen">×</button></span>`:'';
   const head=`<div class="nhead">${kop}${acts}</div>`;
-  const meta=`<span class="sub">${esc(wie)} · ${it.pending?'wacht op verbinding':fmtWhen(it.created_at)}${!it.pending&&it.updated_at&&it.updated_at!==it.created_at?' · bewerkt':''}${it.grootte?' · '+fmtSize(it.grootte):''}</span>`;
+  const wanneer=it.pending?'wacht op verbinding':fmtWhen(it.created_at);
+  const bewerkt=(!it.pending&&it.updated_at&&it.updated_at!==it.created_at)?' · bewerkt':'';
   if(it.soort==='bestand'){
     const isImg=/^image\//.test(it.mime||'');
-    return `<li class="nitem" data-id="${esc(it.id||'')}">${head}<a class="nfilelink" href="#" data-open="${esc(it.file_id)}">`+
-      `${isImg?`<img class="nthumb" alt="" data-thumb="${esc(it.file_id)}">`:`<span class="nicon">${ICO_FILE}</span>`}`+
-      `<span class="nbody"><strong>${esc(it.naam||'bestand')}</strong>${txt}${meta}</span></a></li>`;
+    const soort=isImg?'Afbeelding':(/pdf/.test(it.mime||'')?'PDF':'Bestand');
+    // De bestandsregel is de tapzone; het bijschrift staat eronder over de volle breedte,
+    // zodat een lang bijschrift niet in een smalle kolom naast het icoon wordt geperst.
+    return `<li class="nitem" data-id="${esc(it.id||'')}">${head}`+
+      `<a class="nfilelink" href="#" data-open="${esc(it.file_id)}">`+
+      `${isImg?`<img class="nthumb" alt="" data-thumb="${esc(it.file_id)}">`:`<span class="nicon">${isImg?ICO_FILE:ICO_PDF}</span>`}`+
+      `<span class="nfname"><strong>${esc(it.naam||'bestand')}</strong>`+
+      `<span class="nsize">${soort}${it.grootte?' · '+fmtSize(it.grootte):''}</span></span>`+
+      `<span class="nopen">${ICO_CHEV}</span></a>`+
+      (txt?`<span class="nbody">${txt}</span>`:'')+
+      `<span class="sub nmeta">${esc(wie)} · ${wanneer}${bewerkt}</span></li>`;
   }
-  return `<li class="nitem" data-id="${esc(it.id||'')}">${head}<span class="nbody">${txt}${meta}</span></li>`;
+  return `<li class="nitem" data-id="${esc(it.id||'')}">${head}<span class="nbody">${txt}</span>`+
+    `<span class="sub nmeta">${esc(wie)} · ${wanneer}${bewerkt}</span></li>`;
 }
 // Gedrag dat beide lijsten delen: miniaturen laden, bijlagen openen, Meer/Minder
 function koppelKaarten(box){
@@ -1037,7 +1049,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-44';
+const APP_VERSIE='2026-09-07-45';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
