@@ -906,11 +906,16 @@ async function renderAlles(){
     type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}))];
   const zoek=(window._notZoek||'').trim().toLowerCase();
   const filter=window._notType||'';
-  const past=it=>(!zoek||[it.tekst,it.naam,it.wie].filter(Boolean).join(' ').toLowerCase().includes(zoek))
-                 &&(!filter||(it.type||'notitie')===filter);
+  // Ook de dag waar een notitie bij hoort telt mee: 'Uluru' vindt zo de notities van dag 18 tot 20,
+  // ook als dat woord er zelf niet in staat.
+  const dagTekst=d=>{ if(!d) return 'algemeen'; const x=DAYS[d-1];
+    return `dag ${d} ${fmtLong(dateFor(d))} ${x?x.t+' '+x.p:''}`.toLowerCase(); };
+  const hooi=it=>[it.tekst,it.naam,it.wie,dagTekst(it.dag)].filter(Boolean).join(' ').toLowerCase();
+  const raak=it=>!zoek||hooi(it).includes(zoek);
+  const past=it=>raak(it)&&(!filter||(filter==='vandaag'?it.dag===T.n:(it.type||'notitie')===filter));
   const zichtbaar=items.filter(past);
   // aantallen per type, gerekend over wat de zoekterm overlaat
-  const naZoek=items.filter(it=>!zoek||[it.tekst,it.naam,it.wie].filter(Boolean).join(' ').toLowerCase().includes(zoek));
+  const naZoek=items.filter(raak);
   const telling={}; naZoek.forEach(it=>{const t=it.type||'notitie'; telling[t]=(telling[t]||0)+1});
   let h=`<div class="notes"><div class="zoekrij"><div class="search"><span class="mag">${MAG}</span>`+
     `<input id="nzoek" type="search" placeholder="Zoek in notities…" autocomplete="off" `+
@@ -920,20 +925,23 @@ async function renderAlles(){
   if(items.length){
     h+=`<div class="chips filters" id="typefilter">`+
       `<button type="button" class="chip${filter?'':' on'}" data-f="">Alles<span class="cnt">${naZoek.length}</span></button>`+
+      // Tijdens de reis vooraan een chip voor vandaag; daarbuiten heeft die geen betekenis.
+      (()=>{ if(T.before||T.after) return '';
+        const n=naZoek.filter(it=>it.dag===T.n).length; if(!n) return '';
+        return `<button type="button" class="chip${filter==='vandaag'?' on':''}" data-f="vandaag">Vandaag<span class="cnt">${n}</span></button>`;})()+
       TYPES.filter(([k])=>telling[k]).map(([k,l])=>
         `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}">${l}<span class="cnt">${telling[k]}</span></button>`).join('')+
       `</div>`;
   }
   if(!items.length) h+=`<div class="empty">Nog geen notities.</div>`;
-  else if(!zichtbaar.length) h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen notities van het type ${typeLabel(filter).toLowerCase()}.`}</div>`;
-  // eerst wat vandaag speelt
-  if(!zoek&&!filter&&!T.before&&!T.after){
-    const vandaag=items.filter(it=>it.dag===T.n);
-    if(vandaag.length){
-      h+=`<h2>Vandaag · dag ${T.n}</h2><ul class="list nlist">`+vandaag.map(kaart).join('')+`</ul>`;
-    }
-  }
-  if(filter){
+  else if(!zichtbaar.length) h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:(filter==='vandaag'?'Geen notities voor vandaag.':`Geen notities van het type ${typeLabel(filter).toLowerCase()}.`)}</div>`;
+  if(filter==='vandaag'){
+    // Bij het filter op vandaag blijft de indeling naar type staan: dat scheelt zoeken in een lange lijst.
+    TYPES.forEach(([key,label])=>{
+      const groep=zichtbaar.filter(it=>(it.type||'notitie')===key);
+      if(groep.length) h+=`<h2>${label}</h2><ul class="list nlist">`+groep.map(kaart).join('')+`</ul>`;
+    });
+  } else if(filter){
     if(zichtbaar.length) h+=`<ul class="list nlist" style="margin-top:14px">`+zichtbaar.map(kaart).join('')+`</ul>`;
   } else {
     TYPES.forEach(([key,label])=>{
@@ -1081,7 +1089,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-48';
+const APP_VERSIE='2026-09-07-49';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
