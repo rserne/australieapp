@@ -373,6 +373,7 @@
   .chip{font:inherit;font-size:14px;font-weight:600;padding:8px 13px;border-radius:999px;cursor:pointer;
     background:var(--glass-2);border:1px solid var(--rim);color:var(--text-dim)}
   .chip.on{background:var(--pill);color:var(--pill-text);border-color:transparent}
+  .chipsplit{flex:none;width:1px;align-self:stretch;margin:4px 3px;background:var(--rim)}
   .chips.filters{margin:0 0 4px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;
     scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .chips.filters::-webkit-scrollbar{display:none}

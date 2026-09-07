@@ -570,7 +570,7 @@ async function nhLogin(email,pw){
 }
 // Bij uitloggen blijft er niets van de groep op de telefoon achter
 async function wisPriveGegevens(){
-  window._notZoek=''; window._notType='';
+  window._notZoek=''; window._notType=''; window._notVandaag=false;
   try{ Object.keys(localStorage).filter(k=>k.startsWith('aus_')&&k!=='aus_thema'&&k!=='aus_koers').forEach(k=>localStorage.removeItem(k)); }catch(e){}
   try{ const db=await idb(); await new Promise(res=>{const t=db.transaction('files','readwrite').objectStore('files').clear();t.onsuccess=()=>res();t.onerror=()=>res()}); }catch(e){}
 }
@@ -912,37 +912,38 @@ async function renderAlles(){
     return `dag ${d} ${fmtLong(dateFor(d))} ${x?x.t+' '+x.p:''}`.toLowerCase(); };
   const hooi=it=>[it.tekst,it.naam,it.wie,dagTekst(it.dag)].filter(Boolean).join(' ').toLowerCase();
   const raak=it=>!zoek||hooi(it).includes(zoek);
-  const past=it=>raak(it)&&(!filter||(filter==='vandaag'?it.dag===T.n:(it.type||'notitie')===filter));
-  const zichtbaar=items.filter(past);
-  // aantallen per type, gerekend over wat de zoekterm overlaat
+  // Twee losse assen: welke dag (vandaag of alles) en welk soort. Ze werken samen.
+  const vandaag=!!window._notVandaag;
+  const dagOk=it=>!vandaag||it.dag===T.n;
+  const typeOk=it=>!filter||(it.type||'notitie')===filter;
+  const zichtbaar=items.filter(it=>raak(it)&&dagOk(it)&&typeOk(it));
+  // Elk telletje houdt rekening met de andere filters: 'Ticket 1' naast een actieve
+  // Vandaag-chip betekent dus één ticket van vandaag.
   const naZoek=items.filter(raak);
-  const telling={}; naZoek.forEach(it=>{const t=it.type||'notitie'; telling[t]=(telling[t]||0)+1});
+  const inDag=naZoek.filter(dagOk);
+  const telling={}; inDag.forEach(it=>{const t=it.type||'notitie'; telling[t]=(telling[t]||0)+1});
+  const telVandaag=naZoek.filter(it=>it.dag===T.n&&typeOk(it)).length;
   let h=`<div class="notes"><div class="zoekrij"><div class="search"><span class="mag">${MAG}</span>`+
     `<input id="nzoek" type="search" placeholder="Zoek in notities…" autocomplete="off" `+
     `autocorrect="off" autocapitalize="none" spellcheck="false" value="${esc(window._notZoek||'')}">`+
     ((window._notZoek||'')?`<button class="wis" id="nwis" type="button" aria-label="Zoekveld wissen">${WIS}</button>`:'')+`</div>`+
     `<button class="plusknop" id="aadd" aria-label="Notitie toevoegen">${PLUS}</button></div>`;
   if(items.length){
+    // Links de dag, rechts het soort; het streepje ertussen laat zien dat het twee vragen zijn.
     h+=`<div class="chips filters" id="typefilter">`+
-      `<button type="button" class="chip${filter?'':' on'}" data-f="">Alles<span class="cnt">${naZoek.length}</span></button>`+
-      // Vooraan een chip voor vandaag. Hij staat er altijd, ook op nul: een filter dat verdwijnt
-      // zodra er niets te vinden is, is onvoorspelbaar. Buiten de reisperiode wijst T.n naar
-      // dag 1 of dag 29, zodat de chip ook dan iets zinnigs doet.
-      (()=>{ const n=naZoek.filter(it=>it.dag===T.n).length;
-        return `<button type="button" class="chip${filter==='vandaag'?' on':''}" data-f="vandaag">Vandaag<span class="cnt">${n}</span></button>`;})()+
+      `<button type="button" class="chip dagchip${vandaag?' on':''}" data-d="1">Vandaag<span class="cnt">${telVandaag}</span></button>`+
+      `<span class="chipsplit" aria-hidden="true"></span>`+
+      `<button type="button" class="chip${filter?'':' on'}" data-f="">Alles<span class="cnt">${inDag.length}</span></button>`+
       TYPES.filter(([k])=>telling[k]).map(([k,l])=>
         `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}">${l}<span class="cnt">${telling[k]}</span></button>`).join('')+
       `</div>`;
   }
   if(!items.length) h+=`<div class="empty">Nog geen notities.</div>`;
-  else if(!zichtbaar.length) h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:(filter==='vandaag'?'Geen notities voor vandaag.':`Geen notities van het type ${typeLabel(filter).toLowerCase()}.`)}</div>`;
-  if(filter==='vandaag'){
-    // Bij het filter op vandaag blijft de indeling naar type staan: dat scheelt zoeken in een lange lijst.
-    TYPES.forEach(([key,label])=>{
-      const groep=zichtbaar.filter(it=>(it.type||'notitie')===key);
-      if(groep.length) h+=`<h2>${label}</h2><ul class="list nlist">`+groep.map(kaart).join('')+`</ul>`;
-    });
-  } else if(filter){
+  else if(!zichtbaar.length){
+    const wat=filter?`notities van het type ${typeLabel(filter).toLowerCase()}`:'notities';
+    h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':''}.`}</div>`;
+  }
+  if(filter){
     if(zichtbaar.length) h+=`<ul class="list nlist" style="margin-top:14px">`+zichtbaar.map(kaart).join('')+`</ul>`;
   } else {
     TYPES.forEach(([key,label])=>{
@@ -958,7 +959,9 @@ async function renderAlles(){
 
   const tf=box.querySelector('#typefilter');
   if(tf) tf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
-    window._notType=c.dataset.f; renderAlles();
+    if(c.dataset.d) window._notVandaag=!window._notVandaag;
+    else window._notType=c.dataset.f;
+    renderAlles();
   });
   const nw=box.querySelector('#nwis');
   if(nw) nw.onclick=()=>{ window._notZoek=''; renderAlles().then(()=>document.getElementById('nzoek')?.focus()); };
@@ -1090,7 +1093,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-52';
+const APP_VERSIE='2026-09-07-53';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
