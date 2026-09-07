@@ -211,9 +211,14 @@ function render(){
       return `<a class="rmore" href="https://www.google.com/maps/search/?api=1&query=${bij}" target="_blank" rel="noopener">`+
         `<span>${PIN} Meer restaurants in de buurt${d.h?' van het hotel':''}</span><span class="rchev">${ICO_CHEV}</span></a>`;})();
   }
+  // Toevoegen staat onderaan de dag, in de stroom: geen knop die over de tekst zweeft.
+  if(NH.user) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   document.getElementById('day').innerHTML=h;
-  document.getElementById('fab').hidden=!NH.user;
-  if(NH.user) renderNotes(cur);
+  if(NH.user){
+    renderNotes(cur);
+    document.getElementById('nadd').onclick=()=>openSheet({
+      dag:cur,wie:NH.user.displayName||NH.user.email,onDone:()=>renderNotes(cur)});
+  }
   const tm=document.getElementById('tmw');
   if(tm) tm.addEventListener('click',()=>{if(cur<29){cur++;render()}});
   document.getElementById('prev').disabled=cur<=1;
@@ -442,8 +447,6 @@ function switchTo(v){
   document.getElementById('alles').style.display=v==='alles'?'block':'none';
   document.getElementById('foot').style.display=v==='prakt'?'block':'none';
   document.getElementById('navbar').style.display=v==='day'?'block':'none';
-  // De knop hoort alleen bij de dagweergave: in Notities zit hij al naast het zoekveld.
-  document.getElementById('fab').hidden=!(v==='day'&&NH.user);
   [['btnToday','day'],['btnIndex','index'],['btnPrakt','prakt'],['btnAlles','alles']].forEach(([id,k])=>{
     const b=document.getElementById(id); b.classList.toggle('on',v===k); b.setAttribute('aria-pressed',v===k);
   });
@@ -461,10 +464,6 @@ function toonTabs(){
 }
 document.getElementById('prev').onclick=()=>{if(cur>1){cur--;render()}};
 document.getElementById('next').onclick=()=>{if(cur<29){cur++;render()}};
-document.getElementById('fab').onclick=()=>{
-  if(!NH.user) return;
-  openSheet({dag:cur,wie:NH.user.displayName||NH.user.email,onDone:()=>renderNotes(cur)});
-};
 document.getElementById('btnToday').onclick=()=>{cur=T.n;switchTo('day')};
 document.getElementById('btnIndex').onclick=()=>switchTo(view==='index'?'day':'index');
 document.getElementById('btnPrakt').onclick=()=>switchTo(view==='prakt'?'day':'prakt');
@@ -1082,7 +1081,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-46';
+const APP_VERSIE='2026-09-07-47';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
