@@ -198,7 +198,7 @@
   .rmore span:first-child{display:inline-flex;align-items:center;gap:8px}
   .rmore:active{opacity:.7}
   /* Knop onderaan de dag: in de bladerstroom, niet zwevend over de tekst. */
-  .dagadd{margin-top:32px}
+  .dagadd{margin-top:32px;margin-bottom:34px}
   .dagadd .btn{width:100%;text-align:center;font:inherit;font-size:15px;font-weight:600;
     padding:13px 8px;border-radius:14px;cursor:pointer;
     color:var(--text);background:var(--glass);border:1px solid var(--rim);

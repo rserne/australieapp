@@ -165,7 +165,7 @@ function render(){
        `</span><span class="arw">→</span></button></div>`;
   }
   if(d.rest){
-    // Suggesties, geen voorschrift: alleen de eerste keuze staat open, de rest klap je zelf uit.
+    // Suggesties, geen voorschrift: alles staat dicht, je klapt zelf uit wat je wilt lezen.
     h+=`<h2>Eten vanavond</h2>`+
       (d.rnote?`<div class="callout" style="margin:0 0 14px"><span class="ico">${IC_KLOK}</span><span><b>Openingstijden</b>${esc(d.rnote)}</span></div>`:'')+
       d.rest.map(([nm,wh,rt,pr,wk,no,bk],ix)=>{
@@ -194,7 +194,7 @@ function render(){
       // Samenvatting op één regel: genoeg om te kiezen zonder open te klappen.
       const kort=[rt?rt.toFixed(1).replace('.',',')+'/5':'', '€'.repeat(pr||1),
         wk===0?'vervoer nodig':(wk?wk+' min lopen':'')].filter(Boolean).join(' · ');
-      return `<details class="card rcard"${ix===0?' open':''}><summary>`+
+      return `<details class="card rcard"><summary>`+
              `<span class="rtop"><span class="role">${ROLE[Math.min(ix,2)]}</span>`+
              `<span class="rname">${esc(nm)}</span>`+
              `<span class="rkort">${kort}</span></span><span class="rchev">${ICO_CHEV}</span></summary>`+
@@ -1081,7 +1081,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-47';
+const APP_VERSIE='2026-09-07-48';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
