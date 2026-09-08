@@ -7,7 +7,7 @@ const START=new Date(2026,9,1);
 const VOORREIS=13, NAREIS=0;
 // Beeld en tint van de kop voor de voorreis en nareis (ook op het kaartje in de fotostrook en op de
 // startpagina van wie eerder gaat of langer blijft). Nieuwe foto: 1200×500, ook toevoegen aan BEELD in sw.js.
-const BUITEN={voorreis:{foto:"reg-reis.jpg",tone:"#2C313A"}, nareis:{foto:"reg-nareis.jpg",tone:"#640D49"}};
+const BUITEN={voorreis:{foto:"reg-voorreis.jpg",tone:"#014959"}, nareis:{foto:"reg-nareis.jpg",tone:"#640D49"}};
 const TONE={reis:"#2C313A",nsw:"#124C6B",tas:"#1B4C39",sa:"#5A2440",
   vic:"#343A73",red:"#8E3B18",qld:"#0E5B5A",wa:"#8A5411"};
 const HOTELGEO={
