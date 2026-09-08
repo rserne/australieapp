@@ -188,7 +188,8 @@ function render(){
       const origin=d.h?encodeURIComponent(d.h+', '+d.p+', Australia'):'';
       const dir=origin?`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${q}&travelmode=walking`:url;
       let travel='';
-      if(wk===0) travel=`<span class="badge">Vervoer nodig · taxi of bus</span>`;
+      if(wk===-1) travel=`<span class="badge">In je eigen hotel</span>`;   // geen looptijd, je bent er al
+      else if(wk===0) travel=`<span class="badge">Vervoer nodig · taxi of bus</span>`;
       else if(wk){
         travel=`<span class="badge">≈ ${wk} min lopen</span>`;
         if(wk>=15) travel+=`<span class="badge">≈ ${Math.max(5,Math.round(wk/4)+2)} min taxi</span>`;
@@ -199,7 +200,7 @@ function render(){
       if(meta.tel) btns+=`<a class="btn" href="tel:${meta.tel.replace(/\s+/g,'')}">Bellen</a>`;
       // Samenvatting op één regel: genoeg om te kiezen zonder open te klappen.
       const kort=[meta.k||'', rt?rt.toFixed(1).replace('.',',')+'/5':'', '€'.repeat(pr||1),
-        wk===0?'vervoer nodig':(wk?wk+' min lopen':'')].filter(Boolean).join(' · ');
+        wk===-1?'in je eigen hotel':(wk===0?'vervoer nodig':(wk?wk+' min lopen':''))].filter(Boolean).join(' · ');
       return `<details class="card rcard"><summary>`+
              `<span class="rtop"><span class="role">${ROLE[Math.min(ix,2)]}</span>`+
              `<span class="rname">${esc(nm)}</span>`+
@@ -209,7 +210,7 @@ function render(){
              `<div class="where">${PIN}${esc(wh)}</div><p>${esc(no)}</p>`+
              (bk?`<div class="book"><b>Reserveren</b><span>${esc(bk)}</span></div>`:'')+
              `<div class="btns">${btns}</div>`+
-             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse. Looptijd hemelsbreed geschat; tik op Route voor de echte wandelroute vanaf het hotel.</div>`+
+             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse. ${meta.wv?'Looptijd volgens Google Maps, vanaf het hotel.':'Looptijd geschat vanaf het hotel, met een kwart opslag voor de omweg om bouwblokken en water; tik op Route voor de werkelijke wandelroute.'}</div>`+
              `</div></details>`;
     }).join('')+
     // De app geeft hints; ter plekke kijk je vaak toch even rond op de kaart.
@@ -1120,7 +1121,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-69';
+const APP_VERSIE='2026-09-07-73';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

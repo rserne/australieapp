@@ -31,7 +31,8 @@ DAYS.forEach((d,i)=>{
     else if(!RDATA[r[0]].k) waarschuw(`${w}: restaurant '${r[0]}' heeft geen keukentype (k) in RDATA`);
     if(typeof r[2]!=='number'||r[2]<1||r[2]>5) fout(`${w}: restaurant ${r[0]} heeft een vreemde score ${r[2]}`);
     if(![1,2,3,4].includes(r[3])) fout(`${w}: restaurant ${r[0]} heeft prijsklasse ${r[3]}, verwacht 1–4`);
-    if(r[4]!==null&&r[4]!==undefined&&typeof r[4]!=='number') fout(`${w}: restaurant ${r[0]} heeft loopminuten '${r[4]}'`);
+    // loopminuten: een getal, 0 = vervoer nodig, -1 = in het hotel zelf
+    if(r[4]!==null&&r[4]!==undefined&&(typeof r[4]!=='number'||r[4]<-1)) fout(`${w}: restaurant ${r[0]} heeft loopminuten '${r[4]}'`);
   });
   (d.wild||[]).forEach(x=>{ if(x.length!==3||![1,2,3].includes(x[2])) fout(`${w}: dier '${x[0]}' verwacht [naam, tekst, kans 1–3]`); });
   (d.agenda||[]).forEach(a=>{ if(a.length<3||a.length>4) fout(`${w}: agendapunt '${a[1]}' verwacht [tijd, titel, tekst, privé?]`); });
@@ -62,5 +63,7 @@ if(app&&sw&&!app[1].endsWith('-'+sw[1])) waarschuw(`APP_VERSIE (${app[1]}) en VE
 
 waarschuwingen.forEach(m=>console.log('  let op:  '+m));
 fouten.forEach(m=>console.log('  FOUT:    '+m));
+const wvAantal=Object.values(RDATA).filter(m=>m.wv).length;
+console.log(`  info:    ${wvAantal} van de ${Object.keys(RDATA).length} looptijden zijn met Google Maps gecontroleerd.`);
 console.log(fouten.length?`\n${fouten.length} fout(en), ${waarschuwingen.length} waarschuwing(en).`:`\nreis.js is in orde (${DAYS.length} dagen, ${Object.keys(RDATA).length} restaurants, ${EXC.length} excursies). ${waarschuwingen.length} waarschuwing(en).`);
 process.exit(fouten.length?1:0);
