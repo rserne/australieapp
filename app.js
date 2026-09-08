@@ -141,10 +141,6 @@ function render(){
     h+=`<h2>Tijdschema</h2><ol class="agenda">`+d.agenda.map(([tm,ti,tx,pv])=>
       `<li><span class="atime">${esc(tm)}</span><span class="abody"><strong>${esc(ti)}</strong><span class="sub">${esc(tx)}${pv&&NH.user?` <span class="privtag">${esc(pv)}</span>`:''}</span></span></li>`).join('')+`</ol>`;
   }
-  if(T.before&&cur===1){
-    const k=1-T.raw;
-    h+=cal(IC_ZAND,'Aftellen',`Nog ${k} ${k===1?'dag':'dagen'} tot vertrek. De app springt vanzelf naar de juiste dag zodra de reis begint.`);
-  }
   if(NH.user) h+=`<div id="notes-top" class="notes"></div>`;
   if(d.wash) h+=`<div class="callout washing"><span class="ico">${WASH}</span><span><b>Was afgeven</b>${esc(d.wash)}</span></div>`;
   if(d.note) h+=cal(IC_LET,'Let op',d.note);
@@ -1363,7 +1359,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-103';
+const APP_VERSIE='2026-09-08-104';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
