@@ -137,13 +137,13 @@
   .prose p:last-child{margin-bottom:0}
   h2{font-size:13.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
     color:var(--text-faint);margin:38px 0 12px 4px}
-  /* Een tabblad dat met een kopje opent (Praktisch) tegen een tabblad dat met een kaart of zoekveld
-     opent: een kopje is klein en licht, dus het krijgt wat meer ruimte om optisch gelijk te vallen. */
-  h2:first-child{margin-top:16px}
+  /* Elk scherm begint 26 px onder de balk erboven: dat is de padding van main. Een kopje krijgt 10 px
+     extra, want kleine hoofdletters vallen optisch hoger uit dan tekst in een kaart of zoekveld. */
+  h2:first-child{margin-top:10px}
   .notes>h2:first-child{margin-top:38px}   /* dagweergave: 'Vandaag nodig' en 'Notities' */
   /* voorreis- en nareisdag: de notities beginnen direct onder de balk, zonder tekst ertussen */
-  #day>.notes:first-child>h2:first-child{margin-top:16px}
-  #day>.empty:first-child{margin-top:6px}
+  #day>.notes:first-child>h2:first-child{margin-top:10px}
+  #day>.empty:first-child{margin-top:0}
 
   .callout{display:flex;gap:12px;padding:15px 17px;margin:20px 0 0;font-size:15.5px;line-height:1.5;
     border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);
@@ -416,14 +416,14 @@
   .sheet textarea::placeholder{color:var(--text-faint)}
 
   /* ---------- Zoeken ---------- */
-  .zoekrij{display:flex;gap:10px;align-items:center;margin:6px 0 14px}
+  .zoekrij{display:flex;gap:10px;align-items:center;margin:0 0 14px}
   .zoekrij .search{flex:1;margin:0}
   .plusknop{flex:none;width:52px;height:52px;border-radius:18px;cursor:pointer;
     display:grid;place-items:center;color:var(--text);
     background:var(--glass-2);border:1px solid var(--rim);
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
   .plusknop:active{opacity:.6}
-  .search{position:relative;margin:6px 0 16px}
+  .search{position:relative;margin:0 0 16px}
   .search .wis[hidden]{display:none}
   .search .wis{position:absolute;right:10px;top:50%;transform:translateY(-50%);
     width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;
@@ -533,7 +533,7 @@
 
   /* ---------- Startpagina: de reis in beeld, als raster van twee kolommen ---------- */
   /* aftelregel op de startpagina, in de stijl van de kop van een reisdag */
-  .aftel{margin:2px 4px 0}
+  .aftel{margin:0 4px}
   .aftel .anum{font-size:clamp(30px,8vw,40px);font-weight:730;letter-spacing:-.03em;line-height:1.05;color:var(--text)}
   .aftel .anum small{font-size:14px;font-weight:500;letter-spacing:0;color:var(--text-dim);margin-left:8px}
   .aftel .asub{font-size:clamp(17px,4.6vw,20px);font-weight:600;letter-spacing:-.015em;color:var(--text);margin-top:4px}
