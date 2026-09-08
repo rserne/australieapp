@@ -110,7 +110,7 @@
     box-shadow:0 0 10px color-mix(in srgb, var(--accent) 60%, transparent)}
 
   /* ---------- Dagnavigatie (zwevend glas) ---------- */
-  .nav{position:sticky;top:0;z-index:20;margin:10px 12px 0}
+  .nav{position:sticky;top:0;z-index:20;margin:26px 12px 0}   /* dezelfde 26 als onder de balk */
   .nav .inner{max-width:660px;margin:0 auto;padding:6px;display:flex;align-items:center;gap:6px;
     border-radius:20px;background:var(--glass-2);border:1px solid var(--rim);
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow);
