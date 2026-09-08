@@ -17,7 +17,11 @@ const fmtKort=d=>WD[d.getDay()].slice(0,2).replace(/^./,c=>c.toUpperCase())+' '+
 const buitenLabel=d=>`${fmtKort(dagDatum(d))} · ${d<0?'voorreis':'nareis'}`;
 
 function todayInfo(){
-  const n=new Date(), t=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  // Testen op een andere dag: open de app met ?datum=2026-09-27 achter het adres. Geldt alleen
+  // voor die sessie; de geïnstalleerde app start altijd zonder parameter, dus op de echte datum.
+  const par=new URLSearchParams(location.search).get('datum');
+  const n=/^\d{4}-\d{2}-\d{2}$/.test(par||'')?new Date(par+'T12:00:00'):new Date();
+  const t=new Date(n.getFullYear(),n.getMonth(),n.getDate());
   const raw=Math.round((t-START)/864e5)+1;
   const before=raw<1, after=raw>29;
   // n: welke pagina 'Vandaag' toont. Vóór de reis de startpagina (0), na afloop de afsluitpagina
@@ -1277,7 +1281,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-76';
+const APP_VERSIE='2026-09-08-77';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
