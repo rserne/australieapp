@@ -526,11 +526,12 @@
   .ndag.buiten{color:var(--wash);background:color-mix(in srgb, var(--wash) 16%, transparent)}
 
   /* ---------- Startpagina: de reis in beeld, als raster van twee kolommen ---------- */
-  .aftel{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:22px 4px 2px}
-  .aftel b{font-size:26px;font-weight:700;letter-spacing:-.01em}
-  .aftel span{font-size:15px;color:var(--text-dim)}
-  .aftel+h2{margin-top:18px}
-  .regios{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  /* aftelregel op de startpagina, in de stijl van de kop van een reisdag */
+  .aftel{margin:2px 4px 0}
+  .aftel .anum{font-size:clamp(30px,8vw,40px);font-weight:730;letter-spacing:-.03em;line-height:1.05;color:var(--text)}
+  .aftel .anum small{font-size:14px;font-weight:500;letter-spacing:0;color:var(--text-dim);margin-left:8px}
+  .aftel .asub{font-size:clamp(17px,4.6vw,20px);font-weight:600;letter-spacing:-.015em;color:var(--text);margin-top:4px}
+  .regios{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
   .regio{height:124px;border:none;border-radius:var(--radius);padding:0 12px 11px;cursor:pointer;color:#fff;text-align:left;
     font:inherit;position:relative;overflow:hidden;background:var(--tone) center/cover no-repeat;
     display:flex;flex-direction:column;justify-content:flex-end;gap:2px;box-shadow:var(--shadow-soft);
@@ -555,3 +556,10 @@
 
   .callout code{font:inherit;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;
     background:color-mix(in srgb, var(--text) 8%, transparent);padding:1px 6px;border-radius:6px}
+
+  /* ---------- Desktop: geen schermvullende kop, de app als kolom in het midden ---------- */
+  @media (min-width:760px){
+    .hero{max-width:700px;margin:22px auto 0;border-radius:26px}
+    .hero .wrap,.hero.banner .wrap{padding-top:16px}
+    .nav{margin-top:14px}
+  }

@@ -345,11 +345,10 @@ function renderBuiten(){
     const kGroep=1-T.raw, kVoor=(-VOOR+1)-T.raw;   // dagen tot vertrek van de groep / van de voorreis
     // De kop noemt de reis; het aftellen staat eronder, boven het raster.
     const bb=vr?beeldBuiten(true):{tone:TONE.reis,foto:'reg-reis.jpg'};
-    heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:'Rondreis Australië',
-      titel:`${dateFor(1).getDate()} t/m ${dateFor(29).getDate()} ${MN[dateFor(29).getMonth()]} ${dateFor(29).getFullYear()}`,track:'0%'});
-    if(!vr&&NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
+    heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:'Rondreis Australië',titel:'',track:'0%'});
     const k=vr?kVoor:kGroep, vertrek=vr?dagDatum(-VOOR):dateFor(1);
-    h+=`<div class="aftel"><b>Nog ${k} ${k===1?'dag':'dagen'}</b><span>Vertrek ${fmtLong(vertrek)}</span></div>`;
+    h+=`<div class="aftel"><div class="anum">Nog ${k}<small>${k===1?'dag':'dagen'}</small></div><div class="asub">Vertrek ${fmtLong(vertrek)}</div></div>`;
+    if(!vr&&NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
     // De reis in beeld: een raster met per regio de foto die de app al heeft en, als er notities voor
     // zijn, de voorreis en nareis. Vliegdagen ('reis') tellen mee bij de regio waar je heen gaat, of bij
     // de laatste regio als er geen volgende is: dag 1 valt zo onder New South Wales, dag 28–29 onder
@@ -362,7 +361,7 @@ function renderBuiten(){
       const na=DAYS.slice(i+1).find(d=>d.r!=='reis'), voor=[...DAYS.slice(0,i)].reverse().find(d=>d.r!=='reis');
       return (na||voor).r; };
     const per={}; DAYS.forEach((d,i)=>{ (per[regioVan(i)]=per[regioVan(i)]||[]).push(d.n); });
-    h+=`<h2>De reis</h2><div class="regios">`+
+    h+=`<div class="regios">`+
       (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto):'')+
       regios.map(r=>{ const dg=per[r], a=Math.min(...dg), b=Math.max(...dg);
         return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`);}).join('')+
@@ -1365,7 +1364,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-91';
+const APP_VERSIE='2026-09-08-93';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

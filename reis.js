@@ -32,7 +32,7 @@ const REGION={reis:"Onderweg",nsw:"New South Wales",tas:"Tasmanië",sa:"Zuid-Aus
   vic:"Victoria",red:"Northern Territory",qld:"Queensland",wa:"West-Australië"};
 
 const DAYS=[
-{n:1,r:"reis",k:"vlucht",t:"Vlucht Amsterdam – Sydney",p:"Schiphol → Sydney",tz:null,
+{n:1,r:"nsw",k:"vlucht",t:"Vlucht Amsterdam – Sydney",p:"Schiphol → Sydney",tz:null,
  fl:[["SQ 323","Amsterdam Schiphol","Singapore Changi","10.20","05.30 (2 okt, lokale tijd)","Singapore Airlines · 25 kg ruim, 7 kg cabine"]],
  body:[
   "Vertrek om 10.20 uur vanaf Schiphol met Singapore Airlines. Je vliegt in twee etappes met een overstap van 1 uur en 45 minuten in Singapore. Onderweg schuift de klok acht uur vooruit; na het ingaan van de Australische zomertijd op dag 4 wordt dat negen."
