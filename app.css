@@ -137,10 +137,13 @@
   .prose p:last-child{margin-bottom:0}
   h2{font-size:13.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
     color:var(--text-faint);margin:38px 0 12px 4px}
-  h2:first-child{margin-top:6px}
+  /* Een tabblad dat met een kopje opent (Praktisch) tegen een tabblad dat met een kaart of zoekveld
+     opent: een kopje is klein en licht, dus het krijgt wat meer ruimte om optisch gelijk te vallen. */
+  h2:first-child{margin-top:16px}
   .notes>h2:first-child{margin-top:38px}   /* dagweergave: 'Vandaag nodig' en 'Notities' */
   /* voorreis- en nareisdag: de notities beginnen direct onder de balk, zonder tekst ertussen */
-  #day>.notes:first-child>h2:first-child,#day>.empty:first-child{margin-top:6px}
+  #day>.notes:first-child>h2:first-child{margin-top:16px}
+  #day>.empty:first-child{margin-top:6px}
 
   .callout{display:flex;gap:12px;padding:15px 17px;margin:20px 0 0;font-size:15.5px;line-height:1.5;
     border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);
