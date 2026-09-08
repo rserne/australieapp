@@ -491,7 +491,10 @@ function renderIndex(){
 }
 
 function clockHTML(){
-  const d=DAYS[cur-1];
+  // Op de start- en afsluitpagina is er geen dag: neem dan de eerste of laatste dag met een tijdzone,
+  // zodat je vóór vertrek al ziet hoe laat het in Sydney is.
+  const metTz=DAYS.filter(x=>x.tz!==null&&x.tz!==undefined);
+  const d=cur<1?metTz[0]:cur>29?metTz[metTz.length-1]:DAYS[cur-1];
   const heeft=d.tz!==null&&d.tz!==undefined;
   // verschil met Nederland uitrekenen
   let diff='';
@@ -1281,7 +1284,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-77';
+const APP_VERSIE='2026-09-08-78';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
