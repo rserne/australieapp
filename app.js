@@ -148,7 +148,10 @@ function render(){
     }
     h+=`<ul class="list wild">`+
       d.wild.map(([a,b,k])=>`<li>${PAW}<span class="wbody"><span class="wtop"><strong>${esc(a)}</strong>${dots(k)}</span><span class="sub">${esc(b)}</span></span></li>`).join('')+
-      `</ul><div class="legend">● ● ● bijna zeker &nbsp; ● ● ○ goede kans &nbsp; ● ○ ○ geluk nodig</div>`;
+      `</ul><div class="legend">`+
+      // dezelfde bolletjes als in de lijst, zodat de afstanden overeenkomen
+      [[3,'bijna zeker'],[2,'goede kans'],[1,'geluk nodig']]
+        .map(([k,l])=>`<span class="leg">${dots(k)}${l}</span>`).join('')+`</div>`;
   }
   if(d.food){
     h+=`<h2>Wat je hier moet proeven</h2><ul class="list">`+
@@ -1117,7 +1120,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-07-68';
+const APP_VERSIE='2026-09-07-69';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
