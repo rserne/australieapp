@@ -67,7 +67,11 @@
     background-size:cover;background-position:center}
   .hero .wrap{position:relative;z-index:1;height:100%;
     padding:calc(env(safe-area-inset-top) + 14px) 22px 16px;
-    display:flex;flex-direction:column;justify-content:space-between}
+    display:flex;flex-direction:column;justify-content:flex-end}
+  /* De datumknop blijft bovenaan, de rest staat onderaan, net als op de andere tabbladen. */
+  .hero .eyebrow{margin-bottom:auto}
+  /* lege regels op de startpagina (geen ondertitel, geen kenmerken) nemen geen ruimte in */
+  .hero .title:empty,.hero .meta:empty,.hero #flagbox:empty{display:none}
   .eyebrow{display:inline-flex;align-self:flex-start;width:fit-content;max-width:100%;
     align-items:center;gap:8px;font-size:13px;color:#fff;margin:0 0 10px;
     background:rgba(10,14,22,.34);border:1px solid rgba(255,255,255,.16);
