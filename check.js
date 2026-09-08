@@ -2,10 +2,10 @@
 // Controleert reis.js vóór je een nieuwe versie online zet:  node check.js
 // Sluit af met code 1 als er iets mis is, zodat je het ook in een git pre-commit hook kunt zetten.
 const fs=require('fs'), vm=require('vm');
-const NAMEN=['DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS'];
+const NAMEN=['DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN'];
 // const-declaraties komen niet op het context-object terecht; daarom halen we ze expliciet terug
 const data=vm.runInNewContext(fs.readFileSync(__dirname+'/reis.js','utf8')+`;({${NAMEN.join(',')}})`,{});
-const {DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS}=data;
+const {DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN}=data;
 
 const fouten=[], waarschuwingen=[];
 const fout=m=>fouten.push(m), waarschuw=m=>waarschuwingen.push(m);
@@ -50,6 +50,7 @@ Object.entries(CHECKIN).forEach(([k,c])=>{ if(c.length!==3||!/^https:\/\//.test(
 BOEKINGEN.forEach(b=>{ if(b.length!==3) fout(`BOEKINGEN '${b[0]}': verwacht [naam, tekst, sleutel]`); });
 NOOD.forEach(n=>{ if(n.length!==2) fout(`NOOD '${n[0]}': verwacht [naam, tekst]`); });
 if(typeof BAGAGE!=='string') fout('BAGAGE ontbreekt');
+['voorreis','nareis'].forEach(k=>{ const b=BUITEN&&BUITEN[k]; if(!b||!/\.(jpg|png|svg)$/.test(b.foto||'')||!/^#[0-9A-Fa-f]{6}$/.test(b.tone||'')) fout(`BUITEN.${k}: verwacht {foto:"….jpg", tone:"#rrggbb"}`); });
 [['VOORREIS',VOORREIS],['NAREIS',NAREIS]].forEach(([n,v])=>{ if(!Number.isInteger(v)||v<0||v>60) fout(`${n} moet een geheel getal van 0 t/m 60 zijn (nu ${v})`); });
 
 // Geen boekingscodes in openbare bestanden. Een PNR is 6 hoofdletters/cijfers; we zoeken naar bekende sleutels.
