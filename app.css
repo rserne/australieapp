@@ -105,9 +105,10 @@
   .hero.banner .wrap{position:relative;z-index:1;height:100%;
     padding:calc(env(safe-area-inset-top) + 14px) 22px 16px;
     display:flex;flex-direction:column;justify-content:flex-end}
-  .btitel{margin:0;font-size:clamp(28px,7.5vw,36px);font-weight:730;letter-spacing:-.03em;
+  /* dezelfde regelhoogte als de titel op Vandaag, anders staat de tekst optisch hoger */
+  .btitel{margin:0;font-size:clamp(28px,7.5vw,36px);font-weight:730;letter-spacing:-.03em;line-height:1.05;
     color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6), 0 1px 3px rgba(0,0,0,.45)}
-  .bsub{margin:5px 0 0;font-size:14.5px;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.7), 0 1px 2px rgba(0,0,0,.5)}
+  .bsub{margin:5px 0 0;font-size:14.5px;line-height:1.3;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.7), 0 1px 2px rgba(0,0,0,.5)}
   .hero.banner .track{position:relative;z-index:1;background:rgba(255,255,255,.15)}
   .track{height:3px;background:rgba(255,255,255,.22)}
   .track i{display:block;height:100%;background:var(--accent);transition:width .35s ease;
