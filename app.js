@@ -484,19 +484,20 @@ function drawResults(term){
   const box=document.getElementById('results');
   term=(term||'').trim().toLowerCase();
   if(term.length<2){
-    // Voorreis en nareis staan als eigen blok voor en na de reisdagen, met de datum in plaats van een
-    // dagnummer en het aantal notities erachter; ze bestaan alleen voor wie is ingelogd.
-    const tel={}; alleNotities().forEach(it=>{ if(isBuiten(it.dag)) tel[it.dag]=(tel[it.dag]||0)+1; });
-    const buitenLijst=dg=>dg.map(n=>{
-      const aantal=tel[n]||0, kl=beeldBuiten(n<0).tone;
-      return `<li${T.dag===n?' class="now"':''}><button data-n="${n}"><span class="bar" style="background:${kl}"></span>`+
-        `<span class="n">·</span><span class="t">${aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Geen notities'}</span>`+
-        `<span class="d">${fmtKort(dagDatum(n))}</span></button></li>`;
-    }).join('');
-    const voor=heeftVoor()?buitenDagen().filter(n=>n<0):[], na=heeftNa()?buitenDagen().filter(n=>n>29):[];
+    // Voorreis en nareis krijgen één samenvattende regel; per dag zou het een rij lege regels worden,
+    // want zonder programma is er alleen een datum. De notities zelf vind je via het zoekveld hierboven.
+    const aantal=b=>alleNotities().filter(it=>b==='voor'?it.dag<0:it.dag>29).length;
+    const buitenRegel=(b,eerste,laatste)=>{
+      const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29);
+      return `<ul class="idx"><li${vandaag?' class="now"':''}><button data-n="${vandaag?T.dag:eerste}">`+
+        `<span class="bar" style="background:${beeldBuiten(b==='voor').tone}"></span>`+
+        `<span class="t">${b==='voor'?'Voorreis':'Nareis'} · ${n?`${n} ${n===1?'notitie':'notities'}`:'nog geen notities'}</span>`+
+        `<span class="d">${fmtShort(dagDatum(eerste))} – ${fmtShort(dagDatum(laatste))}</span></button></li></ul>`;
+    };
+    const heeftV=heeftVoor(), heeftN=heeftNa();
     let h='';
-    if(voor.length) h+=`<h2>Voorreis</h2><ul class="idx">`+buitenLijst(voor)+`</ul>`;
-    if(voor.length||na.length) h+=`<h2>Groepsreis</h2>`;
+    if(heeftV) h+=`<h2>Voorreis</h2>`+buitenRegel('voor',-VOOR,-1);
+    if(heeftV||heeftN) h+=`<h2>Groepsreis</h2>`;
     h+=`<ul class="idx">`;
     DAYS.forEach(d=>{
       const now=(!T.before&&!T.after&&d.n===T.n)?' class="now"':'';
@@ -508,7 +509,7 @@ function drawResults(term){
          `<span class="d">${fmtShort(dateFor(d.n))}</span></button></li>`;
     });
     h+=`</ul>`;
-    if(na.length) h+=`<h2>Nareis</h2><ul class="idx">`+buitenLijst(na)+`</ul>`;
+    if(heeftN) h+=`<h2>Nareis</h2>`+buitenRegel('na',30,29+NA);
     box.innerHTML=h;
   }else{
     let h='',hits=0;
@@ -631,15 +632,22 @@ function renderPrakt(){
   },20000);
 }
 
+// De periode onder 'Alle dagen' loopt vanaf de eerste voorreisdag als iemand die heeft.
+const reisPeriode=()=>{
+  const eind=dateFor(29), start=heeftVoor()?dagDatum(-VOOR):dateFor(1);
+  return `${start.getDate()} ${start.getMonth()===eind.getMonth()?'':MN[start.getMonth()]} `.replace('  ',' ')+
+    `t/m ${eind.getDate()} ${MN[eind.getMonth()]} ${eind.getFullYear()}`;
+};
 const BANNERS={
-  index:['banner-dagen.jpg','Alle dagen','1 t/m 29 oktober 2026'],
+  index:['banner-dagen.jpg','Alle dagen',null],
   alles:['banner-notities.jpg','Notities',''],
   prakt:['banner-praktisch.jpg','Praktisch','']
 };
 function renderKop(v){
   const hero=document.getElementById('hero');
   if(v==='day'){ hero.classList.remove('banner'); hero.innerHTML=HERO_HTML; render(); return; }
-  const [img,titel,sub]=BANNERS[v];
+  const [img,titel,sub0]=BANNERS[v];
+  const sub=v==='index'?reisPeriode():sub0;
   hero.classList.add('banner'); hero.classList.remove('foto');
   hero.style.backgroundImage=`url(${img})`;
   hero.innerHTML=`<div class="wrap"><p class="btitel">${titel}</p>${sub?`<p class="bsub">${sub}</p>`:''}</div>`+
@@ -1355,7 +1363,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-96';
+const APP_VERSIE='2026-09-08-97';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
