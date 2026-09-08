@@ -350,20 +350,22 @@ function renderBuiten(){
         num:`Nog ${kGroep}<small>${kGroep===1?'dag':'dagen'}</small>`,titel:`Vertrek ${fmtLong(dateFor(1))}`,track:'0%'});
       if(NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
     }
-    // De reis in beeld: een raster met per regio de foto die de app al heeft, plus heen- en terugreis
-    // en, als er notities voor zijn, de voorreis en nareis. Tik op een kaart en je staat op die dag.
+    // De reis in beeld: een raster met per regio de foto die de app al heeft en, als er notities voor
+    // zijn, de voorreis en nareis. Vliegdagen ('reis') tellen mee bij de regio waar je heen gaat, of bij
+    // de laatste regio als er geen volgende is: dag 1 valt zo onder New South Wales, dag 28–29 onder
+    // West-Australië. Tik op een kaart en je staat op de eerste dag ervan.
     const kaart=(go,naam,dagen,tone,foto)=>`<button type="button" class="regio ganaar" data-go="${go}" style="--tone:${tone};background-image:url(${foto})">`+
       `<span class="rnaam">${esc(naam)}</span><span class="rdagen">${dagen}</span></button>`;
     const bereik=(a,b)=>a.getMonth()===b.getMonth()?`${a.getDate()}–${fmtShort(b)}`:`${fmtShort(a)} – ${fmtShort(b)}`;
     const dagen=(a,b)=>a===b?`Dag ${a}`:`Dag ${a}–${b}`;
-    const reisDagen=DAYS.filter(d=>d.r==='reis').map(d=>d.n), heen=reisDagen.filter(n=>n<15), terug=reisDagen.filter(n=>n>=15);
+    const regioVan=i=>{ if(DAYS[i].r!=='reis') return DAYS[i].r;
+      const na=DAYS.slice(i+1).find(d=>d.r!=='reis'), voor=[...DAYS.slice(0,i)].reverse().find(d=>d.r!=='reis');
+      return (na||voor).r; };
+    const per={}; DAYS.forEach((d,i)=>{ (per[regioVan(i)]=per[regioVan(i)]||[]).push(d.n); });
     h+=`<h2>De reis</h2><div class="regios">`+
       (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto):'')+
-      (heen.length?kaart(heen[0],'Heenreis',dagen(heen[0],heen[heen.length-1]),TONE.reis,'reg-reis.jpg'):'')+
-      regios.map(r=>{
-        const dg=DAYS.filter(d=>d.r===r).map(d=>d.n), a=Math.min(...dg), b=Math.max(...dg);
+      regios.map(r=>{ const dg=per[r], a=Math.min(...dg), b=Math.max(...dg);
         return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`);}).join('')+
-      (terug.length?kaart(terug[0],'Terugreis',dagen(terug[0],terug[terug.length-1]),TONE.reis,'reg-reis.jpg'):'')+
       (heeftNa()?kaart(T.dag!=null&&T.dag>29?T.dag:30,'Nareis',bereik(dagDatum(30),dagDatum(29+NA)),beeldBuiten(false).tone,beeldBuiten(false).foto):'')+`</div>`;
     // Alvast regelen gaat over de heenvlucht van de groep; wie eerder gaat heeft daar niets aan.
     if(!vr){
@@ -1379,7 +1381,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-88';
+const APP_VERSIE='2026-09-08-89';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
