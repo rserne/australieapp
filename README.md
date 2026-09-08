@@ -40,7 +40,7 @@ De sleutels (`SQ`, `JQ`, `QF`, `TL`) zijn de IATA-codes uit `CHECKIN` in `reis.j
 
 ## Voorreis en nareis
 
-Wie eerder gaat of langer blijft, kan notities maken voor dagen buiten de groepsreis. In `reis.js` staat hoeveel dagen dat zijn: `VOORREIS=6` (25 t/m 30 september) en `NAREIS=0`. Die dagen verschijnen in de dagkiezer van Notities boven 'Algemeen', als datum ("Zo 27 sep · voorreis"); intern hebben ze de nummers -1 t/m -6 (nareis: 30 en hoger). Wie er gaat, staat nergens in de code: de app leest de naam uit de notities zelf.
+Wie eerder gaat of langer blijft, kan notities maken voor dagen buiten de groepsreis. In `reis.js` staat hoeveel dagen dat zijn: `VOORREIS=13` (18 t/m 30 september) en `NAREIS=0`. Die dagen verschijnen in de dagkiezer van Notities boven 'Algemeen', als datum ("Zo 27 sep · voorreis"); intern hebben ze de nummers -1 t/m -13 (nareis: 30 en hoger). Wie er gaat, staat nergens in de code: de app leest de naam uit de notities zelf.
 
 Vóór 1 oktober toont het tabblad Vandaag een startpagina met het aftellen, inchecken, bagage en de kofferlijst. Wie is ingelogd ziet daar ook het blok Voorreis: eerst het aftellen tot de eerste voorreisdag, daarna de notities van die dag. Het blok en de chip Voorreis in Notities verschijnen pas als er voorreis-notities zijn.
 

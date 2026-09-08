@@ -4,7 +4,7 @@
 const START=new Date(2026,9,1);
 // Wie eerder gaat of langer blijft: aantal dagen vóór 1 oktober en na 29 oktober waarvoor
 // notities gemaakt kunnen worden (0 = uit). Wie er gaat, leest de app af uit de notities zelf.
-const VOORREIS=6, NAREIS=0;
+const VOORREIS=13, NAREIS=0;
 const TONE={reis:"#2C313A",nsw:"#124C6B",tas:"#1B4C39",sa:"#5A2440",
   vic:"#343A73",red:"#8E3B18",qld:"#0E5B5A",wa:"#8A5411"};
 const HOTELGEO={

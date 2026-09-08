@@ -926,14 +926,14 @@ async function renderNotes(dag){
 }
 
 // Dagkiezer: voorreis bovenaan, dan Algemeen, dan de groepsreis, eventueel de nareis.
-// De extra dagen tonen alleen een datum; het nummer erachter ziet niemand.
+// De extra dagen tonen alleen een datum: het kopje van de groep zegt al wat het is.
 function dagOpties(dag){
   const opt=(v,l)=>`<option value="${v}"${v===dag?' selected':''}>${l}</option>`;
   const voor=buitenDagen().filter(d=>d<0), na=buitenDagen().filter(d=>d>29);
-  return (voor.length?`<optgroup label="Voorreis">${voor.map(d=>opt(d,buitenLabel(d))).join('')}</optgroup>`:'')+
+  return (voor.length?`<optgroup label="Voorreis">${voor.map(d=>opt(d,fmtKort(dagDatum(d)))).join('')}</optgroup>`:'')+
     opt(0,'Algemeen — niet aan een dag')+
     `<optgroup label="Groepsreis">${DAYS.map(x=>opt(x.n,`Dag ${x.n} · ${fmtShort(dateFor(x.n))} · ${esc(x.t)}`)).join('')}</optgroup>`+
-    (na.length?`<optgroup label="Nareis">${na.map(d=>opt(d,buitenLabel(d))).join('')}</optgroup>`:'');
+    (na.length?`<optgroup label="Nareis">${na.map(d=>opt(d,fmtKort(dagDatum(d)))).join('')}</optgroup>`:'');
 }
 function openSheet({dag,wie,item,onDone,kiesDag}){
   document.getElementById('sheet')?.remove();
@@ -1277,7 +1277,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-75';
+const APP_VERSIE='2026-09-08-76';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
