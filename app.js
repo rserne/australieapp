@@ -985,7 +985,9 @@ async function renderNotes(dag){
 
   function teken(items,status){
   const pend=pending().filter(p=>p.dag===dag);
-  const all=[...items,...pend.map(p=>({...p,soort:'notitie',pending:true,
+  // user_id meegeven, anders herkent noteCard een wachtende notitie niet als de jouwe
+  // en verschijnen de knoppen Bewerken en Verwijderen niet.
+  const all=[...items,...pend.map(p=>({...p,soort:'notitie',pending:true,user_id:NH.user.id,
     pix:pending().findIndex(q=>q===p||(q.dag===p.dag&&q.tekst===p.tekst&&q.wie===p.wie))}))]
     .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||'')));
   const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
@@ -1366,7 +1368,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-105';
+const APP_VERSIE='2026-09-08-106';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
