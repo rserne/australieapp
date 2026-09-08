@@ -526,6 +526,10 @@
   .ndag.buiten{color:var(--wash);background:color-mix(in srgb, var(--wash) 16%, transparent)}
 
   /* ---------- Startpagina: de reis in beeld, als raster van twee kolommen ---------- */
+  .aftel{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:22px 4px 2px}
+  .aftel b{font-size:26px;font-weight:700;letter-spacing:-.01em}
+  .aftel span{font-size:15px;color:var(--text-dim)}
+  .aftel+h2{margin-top:18px}
   .regios{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .regio{height:124px;border:none;border-radius:var(--radius);padding:0 12px 11px;cursor:pointer;color:#fff;text-align:left;
     font:inherit;position:relative;overflow:hidden;background:var(--tone) center/cover no-repeat;
