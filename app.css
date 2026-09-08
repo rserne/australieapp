@@ -139,6 +139,8 @@
     color:var(--text-faint);margin:38px 0 12px 4px}
   h2:first-child{margin-top:6px}
   .notes>h2:first-child{margin-top:38px}   /* dagweergave: 'Vandaag nodig' en 'Notities' */
+  /* voorreis- en nareisdag: de notities beginnen direct onder de balk, zonder tekst ertussen */
+  #day>.notes:first-child>h2:first-child,#day>.empty:first-child{margin-top:6px}
 
   .callout{display:flex;gap:12px;padding:15px 17px;margin:20px 0 0;font-size:15.5px;line-height:1.5;
     border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);
