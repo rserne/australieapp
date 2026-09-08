@@ -177,9 +177,7 @@ const DAYS=[
   "Vandaag brengen we een bezoek aan het Freycinet Nationaal Park. Dit nationale park is één van de oudste van Australië. Het park kenmerkt zich door de vele wandelpaden door bossen en langs prachtige stranden en baaien. Je hebt de mogelijkheid om hier een prachtige wandeling van ruim twee uur naar de schilderachtige Wineglass Bay te maken. Deze baai heeft een vorm van een wijnglas en is omringd door rode granieten pieken, eucalyptusbomen, wilde bloemen en ongerepte witte zandstranden. Naar het uitzichtpunt alleen ben je officieel een tot anderhalf uur kwijt; Sawadee rekent ruimer, met pauzes en foto’s.",
   "Aan het eind van de middag arriveren we in Hobart, de hoofdstad van Tasmanië. Het is leuk om een wandeling te maken door het oude centrum. Hier maak je kennis met veel cultureel erfgoed van Australië, je loopt langs mooie historische gebouwen en oude arbeidershuisjes. De komende twee nachten slapen we in een comfortabel hotel, vijf tot twaalf minuten van Salamanca Place. Let op: vandaag is er een maaltijd inbegrepen."
  ],
- prac:["De klim naar het uitzichtpunt kost dertig tot veertig minuten en gaat over trappen. Doorlopen naar het strand kost nog een uur extra heen en terug, en die afdaling is steil. Beslis vóór je begint welke van de twee je doet.",
-  "Boek vandaag alvast je MONA-tickets voor morgen. Ze zijn geregeld vooraf uitverkocht en de ferry erheen reserveer je apart.",
-  "Ontbijt is vandaag inbegrepen."],
+ prac:["Boek vandaag alvast je MONA-tickets voor morgen. Ze zijn geregeld vooraf uitverkocht en de ferry erheen reserveer je apart."],
  rest:[["Syra","Salamanca Square",4.7,2,10,"Midden-Oosters, de hoogste waardering van Salamanca. Kies de 'feed me' en laat de keuken beslissen.","Online. Klein, dus vooraf boeken."],
    ["Peppina","Salamanca Place",4.6,3,5,"Het dichtstbij en uitstekend. Italiaans met Tasmaanse producten; iets duurder.","Online via de website van het restaurant of de reserveerknop in Google Maps."],
    ["Ball & Chain Grill","Salamanca Place",4.4,2,12,"Klassieke grill in een historisch pakhuis, houtskoolvuur.","Online via de website van het restaurant."]]},
@@ -334,7 +332,6 @@ const DAYS=[
   "Er rijdt een gratis pendelbus die elke twintig minuten alle hotels van het resort aandoet.",
   "Het resort is de enige plek om iets te kopen en de prijzen liggen hoog. Sla je snacks in Melbourne in. Water hoef je niet te kopen: het kraanwater hier en in Alice Springs is grondwater, veilig maar mineraalrijk en wat zouterig van smaak. Wie het je afraadt, wil je een fles verkopen.",
   "Het is hier overdag ruim tien graden warmer dan in Melbourne. Pak je warme kleren onder in je koffer en leg je zomerkleren bovenop."],
- note:"Aangepast programma; dit was oorspronkelijk de vlucht naar Alice Springs.",
  food:[["Kangoeroe","Mager en donker, als steak of in worst."],["Kameel","Australië heeft de grootste wilde kamelenpopulatie ter wereld. Mild en iets zoet."],["Quandong","Inheemse woestijnperzik, zurig, vaak in chutney of dessert."],["Wattleseed","Geroosterd acaciazaad, smaakt naar koffie en hazelnoot."],["Damper","Sodabrood dat oorspronkelijk in de as van het kampvuur werd gebakken. Vaak met golden syrup."],["Bush tomato","Kakadu-pruim en bushtomaat: kleine inheemse vruchten met een scherpe, bijna kaneelachtige smaak, meestal als chutney."]],
  rest:[["Arnguli Grill","Desert Gardens Hotel",4.5,2,10,"Het beste à-la-carterestaurant van het resort. 18.00–20.30 uur. Sounds of Silence staat apart, onder 'Optioneel vandaag'.","Online via de site van Ayers Rock Resort, of aan de receptie. Zonder reservering word je weggestuurd — boek nu al."],
    ["Ilkari Restaurant","Sails in the Desert",4.3,2,12,"Uitgebreid buffet rond de A$105 p.p., met oesters, krab, kangoeroe en lamskoteletten. Reserve als Arnguli vol zit; onder je norm van 4,4, maar de keus in Yulara is klein.","Via de site van Ayers Rock Resort of de receptie."],
@@ -353,7 +350,6 @@ const DAYS=[
  prac:["Onderweg zie je Mount Conner, een enorme tafelberg die veel reizigers voor Uluru aanzien. De Australiërs noemen hem 'Fooluru'. Hij ligt op privéland.",
   "De weg terug naar het hotel over Barrett Drive en Gap Road is 's avonds slecht verlicht. Een taxi kost hier weinig en is onder reizigers gebruikelijk.",
   "Alice Springs heeft strenge regels rond alcoholverkoop; slijterijen zijn maar een deel van de dag open en je moet je paspoort tonen. In restaurants merk je er niets van."],
- note:"Aangepast programma; dit was oorspronkelijk de dagexcursie naar de West MacDonnell Ranges.",
  rest:[["Q Eats","Todd Street / Gap Road",4.7,2,18,"Thais, de hoogste waardering van Alice Springs en het dichtst bij het hotel. De rode eendencurry is het gerecht.","Telefonisch: +61 476 763 067, of binnenlopen."],
    ["Warung Makan","Hartley Street",4.8,2,22,"Indonesisch, buiten eten. Nasi goreng, rendang en beef rib.","Telefonisch: +61 418 391 119. Zonder reservering moet je meestal even wachten."]]},
 
@@ -369,7 +365,6 @@ const DAYS=[
  prac:["Standley Chasm is in beheer van de Arrernte-gemeenschap en heeft een eigen entree, los van het nationale park. De wanden lichten alleen rond het middaguur oranje op; een uur eerder of later sta je in de schaduw.",
   "Ellery Creek is dieper dan het lijkt en het water blijft het hele jaar rond de vijftien graden. Laat je er rustig in zakken en spring er niet in.",
   "Ormiston Gorge heeft als enige stop een bezoekerscentrum met toiletten en schaduw. Plan je pauze daar."],
- note:"Aangepast programma; dit was oorspronkelijk de reisdag naar Uluru.",
  rest:[["Warung Makan","Hartley Street",4.8,2,22,"Ook dinsdag open. De beste keuken van de stad volgens de beoordelingen.","Telefonisch: +61 418 391 119."],
    ["Q Eats","Todd Street / Gap Road",4.7,2,18,"Ook dinsdag open, en het dichtst bij het hotel.","Telefonisch: +61 476 763 067."]]},
 
@@ -388,7 +383,6 @@ const DAYS=[
  prac:["De klok gaat een half uur vooruit: van het Northern Territory naar Queensland. Queensland kent geen zomertijd, de rest van de oostkust wel.",
   "Zwemmen in zee is hier niet vanzelfsprekend, ook niet op mooie stranden. Er is een gratis lagune aan de Esplanade waar je wel veilig het water in kunt.",
   "Tropische kwallen komen hier het hele jaar voor. Van november tot mei is het risico het grootst, maar in oktober is het niet nul. Volg de aanwijzingen van de bemanning en trek het beschermende pak aan dat je aan boord krijgt. Krokodillen zitten er altijd, dus blijf uit riviermondingen en mangroven."],
- note:"Aangepast programma; je vliegt nu vanuit Alice Springs in plaats van Uluru. In het oude programma was het ontbijt op deze dag inbegrepen — controleer in je reisbescheiden of dat nog geldt.",
  food:[["Mud crab","Grote modderkrab met chili of zwarte bonensaus. Je krijgt er een slabbetje bij, en dat heb je nodig."],["Moreton Bay bugs","Platte kreeftachtigen met zoet, stevig vlees."],["Coral trout","De fijnste rifvis, delicaat en duur."],["Tropisch fruit","Mango, papaja, lychee, passievrucht — en durian op de markten."],["Bundaberg ginger beer","Alcoholvrij gemberbier uit Queensland, gebrouwen sinds 1968. Overal verkrijgbaar."],["Barramundi","Hier op zijn best, vaak met mango-salsa."]],
  rest:[["Little Sister","Esplanade",4.6,2,8,"Het dichtstbij en uitstekend. Aziatische fusion, verse zeevruchten, oesters en lobster roll.","Telefonisch: +61 7 4031 5400, of online."],
    ["Dundees on the Waterfront","Marlin Parade",4.6,2,18,"Aan de jachthaven, 4,6 over ruim 5.500 beoordelingen. Het Australische proefplankje met kangoeroe en krokodil is de klassieker.","Online via de website van het restaurant. Reserveren nodig."]]},
