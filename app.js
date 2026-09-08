@@ -19,11 +19,14 @@ const EINDE=100;   // positie van de afsluitpagina bij het bladeren
 // Beeld en tint voor voorreis (voor=true) of nareis, met terugval op de reisfoto
 const beeldBuiten=voor=>(typeof BUITEN==='object'&&BUITEN[voor?'voorreis':'nareis'])||{foto:'reg-reis.jpg',tone:TONE.reis};
 
-function todayInfo(){
-  // Testen op een andere dag: open de app met ?datum=2026-09-27 achter het adres. Geldt alleen
-  // voor die sessie; de geïnstalleerde app start altijd zonder parameter, dus op de echte datum.
+// De datum van vandaag. Testen op een andere dag: open de app met ?datum=2026-09-27 achter het adres.
+// Geldt alleen voor die sessie; de geïnstalleerde app start altijd zonder parameter, dus op de echte datum.
+function vandaagDatum(){
   const par=new URLSearchParams(location.search).get('datum');
-  const n=/^\d{4}-\d{2}-\d{2}$/.test(par||'')?new Date(par+'T12:00:00'):new Date();
+  return /^\d{4}-\d{2}-\d{2}$/.test(par||'')?new Date(par+'T12:00:00'):new Date();
+}
+function todayInfo(){
+  const n=vandaagDatum();
   const t=new Date(n.getFullYear(),n.getMonth(),n.getDate());
   const raw=Math.round((t-START)/864e5)+1;
   const before=raw<1, after=raw>29;
@@ -274,10 +277,11 @@ const nareiziger=()=>!!NH.user&&alleNotities().some(it=>it.dag>29&&it.user_id===
 // Voorreis en nareis bestaan voor iedereen die is ingelogd, ook zonder notities, zodat je kunt meekijken.
 const heeftVoor=()=>!!NH.user&&VOOR>0;
 const heeftNa=()=>!!NH.user&&NA>0;
-// Welke pagina 'Vandaag' toont. Voor een voorreiziger tijdens de voorreis: die dag; anders de startpagina.
+// Welke pagina 'Vandaag' toont. Tijdens de voorreis of nareis is dat voor iedereen die is ingelogd de
+// dag zelf, met de notities van wie onderweg is; daarbuiten (en zonder login) de start- of afsluitpagina.
 function vandaagPagina(){
-  if(T.before) return (T.dag!=null&&voorreiziger())?T.dag:0;
-  if(T.after) return NA>0?((T.dag!=null&&nareiziger())?T.dag:EINDE):29;
+  if(T.before) return (T.dag!=null&&NH.user)?T.dag:0;
+  if(T.after) return NA>0?((T.dag!=null&&NH.user)?T.dag:EINDE):29;
   return T.raw;
 }
 // Bladeren. De pijl vanaf de startpagina volgt je eigen reis: een voorreiziger gaat naar de eerste
@@ -338,7 +342,7 @@ function heroBuiten({tone,foto,eyebrow,num,titel,meta,track}){
 // Startpagina (vóór 1 oktober) en afsluitpagina (na de reis, als er een nareis is).
 function renderBuiten(){
   const start=cur===0, vr=voorreiziger();
-  const vandaagTxt=`<span class="dot live"></span>Vandaag · ${fmtLong(new Date())}`;
+  const vandaagTxt=`<span class="dot live"></span>Vandaag · ${fmtLong(vandaagDatum())}`;
   const regios=Object.keys(REGION).filter(r=>r!=='reis'&&DAYS.some(d=>d.r===r));
   let h='';
   if(start){
@@ -348,7 +352,6 @@ function renderBuiten(){
     heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:'Rondreis Australië',titel:'',track:'0%'});
     const k=vr?kVoor:kGroep, vertrek=vr?dagDatum(-VOOR):dateFor(1);
     h+=`<div class="aftel"><div class="anum">Nog ${k}<small>${k===1?'dag':'dagen'}</small></div><div class="asub">Vertrek ${fmtLong(vertrek)}</div></div>`;
-    if(!vr&&NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
     // De reis in beeld: een raster met per regio de foto die de app al heeft en, als er notities voor
     // zijn, de voorreis en nareis. Vliegdagen ('reis') tellen mee bij de regio waar je heen gaat, of bij
     // de laatste regio als er geen volgende is: dag 1 valt zo onder New South Wales, dag 28–29 onder
@@ -369,7 +372,6 @@ function renderBuiten(){
   } else {
     heroBuiten({tone:beeldBuiten(false).tone,foto:beeldBuiten(false).foto,eyebrow:vandaagTxt,num:`Reis voorbij<small>29 dagen Australië</small>`,
       titel:`De groepsreis eindigde ${fmtLong(dateFor(29))}`,track:'100%'});
-    if(NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
     h+=`<h2>Terugkijken</h2>`+dagKnop(29);
   }
   document.getElementById('navlabel').textContent='Vandaag';
@@ -377,7 +379,6 @@ function renderBuiten(){
   document.getElementById('day').innerHTML=h;
   koppelGaNaar();
   if(NH.user){
-    renderBuitenNotes(start);
     document.getElementById('nadd').onclick=()=>openSheet({
       dag:T.dag??(LS.get('aus_laatste_dag')??0),wie:NH.user.displayName||NH.user.email,kiesDag:true,onDone:versRender});
   }
@@ -385,37 +386,7 @@ function renderBuiten(){
   window.scrollTo(0,0);
 }
 
-// Het blok Voorreis of Nareis op de start- en afsluitpagina, voor wie zelf niet meegaat. Alleen als
-// er notities voor zijn; wie er gaat, staat in die notities (het veld wie), niet in de code.
 const versRender=()=>syncAlles(true).then(()=>render());
-function renderBuitenNotes(voor){
-  const box=document.getElementById('buiten-notes'); if(!box) return;
-  const wie=NH.user.displayName||NH.user.email;
-  const alle=[...alleNotities(),...pending().map((p,i)=>({...p,id:'wacht'+i,pix:i,user_id:NH.user.id,soort:'notitie',type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}))];
-  const items=alle.filter(it=>voor?it.dag<0:it.dag>29);
-  if(!items.length){ box.innerHTML=''; return; }
-  const namen=[...new Set(items.map(it=>it.wie).filter(Boolean))];
-  const wieTekst=namen.length>1?namen.slice(0,-1).join(', ')+' en '+namen[namen.length-1]:(namen[0]||'Iemand');
-  const bezig=T.dag!=null&&(voor?T.dag<0:T.dag>29);
-  // Alleen tijdens de voorreis of nareis, en alleen de notities van vandaag; de weg ernaartoe loopt via het raster.
-  const vandaag=bezig?items.filter(it=>it.dag===T.dag)
-    .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||''))):[];
-  if(!vandaag.length){ box.innerHTML=''; return; }
-  const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
-  const h=`<h2>Vandaag bij ${esc(wieTekst)}</h2><ul class="list nlist">`+vandaag.map(it=>noteCard(it,tag(it))).join('')+`</ul>`;
-  box.innerHTML=h;
-  koppelKaarten(box); koppelGaNaar();
-  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
-    const it=items.find(x=>x.id===b.dataset.edit)||items.find(x=>String(x.pix)===b.dataset.pix);
-    if(it) openSheet({dag:it.dag,wie,item:it,onDone:versRender,kiesDag:true});
-  });
-  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('Verwijderen?')) return;
-    if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); render(); return; }
-    try{ await verwijderItem(b.dataset.del,b.dataset.file); versRender(); }
-    catch(e){ toast('Verwijderen mislukt: '+e.message); }
-  });
-}
 
 // Eén voorreis- of nareisdag: dezelfde opbouw als een reisdag, met alleen notities als inhoud.
 function renderBuitenDag(){
@@ -1364,7 +1335,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-93';
+const APP_VERSIE='2026-09-08-94';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
