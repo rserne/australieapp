@@ -271,8 +271,9 @@ const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span>
 const alleNotities=()=>LS.get('aus_cache_all')||[];
 const voorreiziger=()=>!!NH.user&&alleNotities().some(it=>it.dag<0&&it.user_id===NH.user.id);
 const nareiziger=()=>!!NH.user&&alleNotities().some(it=>it.dag>29&&it.user_id===NH.user.id);
-const heeftVoor=()=>!!NH.user&&VOOR>0&&alleNotities().some(it=>it.dag<0);
-const heeftNa=()=>!!NH.user&&NA>0&&alleNotities().some(it=>it.dag>29);
+// Voorreis en nareis bestaan voor iedereen die is ingelogd, ook zonder notities, zodat je kunt meekijken.
+const heeftVoor=()=>!!NH.user&&VOOR>0;
+const heeftNa=()=>!!NH.user&&NA>0;
 // Welke pagina 'Vandaag' toont. Voor een voorreiziger tijdens de voorreis: die dag; anders de startpagina.
 function vandaagPagina(){
   if(T.before) return (T.dag!=null&&voorreiziger())?T.dag:0;
@@ -342,14 +343,13 @@ function renderBuiten(){
   let h='';
   if(start){
     const kGroep=1-T.raw, kVoor=(-VOOR+1)-T.raw;   // dagen tot vertrek van de groep / van de voorreis
-    if(vr){
-      heroBuiten({tone:beeldBuiten(true).tone,foto:beeldBuiten(true).foto,eyebrow:vandaagTxt,
-        num:`Nog ${kVoor}<small>${kVoor===1?'dag':'dagen'}</small>`,titel:`Vertrek ${fmtLong(dagDatum(-VOOR))}`,track:'0%'});
-    } else {
-      heroBuiten({tone:TONE.reis,foto:'reg-reis.jpg',eyebrow:vandaagTxt,
-        num:`Nog ${kGroep}<small>${kGroep===1?'dag':'dagen'}</small>`,titel:`Vertrek ${fmtLong(dateFor(1))}`,track:'0%'});
-      if(NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
-    }
+    // De kop noemt de reis; het aftellen staat eronder, boven het raster.
+    const bb=vr?beeldBuiten(true):{tone:TONE.reis,foto:'reg-reis.jpg'};
+    heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:'Rondreis Australië',
+      titel:`${dateFor(1).getDate()} t/m ${dateFor(29).getDate()} ${MN[dateFor(29).getMonth()]} ${dateFor(29).getFullYear()}`,track:'0%'});
+    if(!vr&&NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
+    const k=vr?kVoor:kGroep, vertrek=vr?dagDatum(-VOOR):dateFor(1);
+    h+=`<div class="aftel"><b>Nog ${k} ${k===1?'dag':'dagen'}</b><span>Vertrek ${fmtLong(vertrek)}</span></div>`;
     // De reis in beeld: een raster met per regio de foto die de app al heeft en, als er notities voor
     // zijn, de voorreis en nareis. Vliegdagen ('reis') tellen mee bij de regio waar je heen gaat, of bij
     // de laatste regio als er geen volgende is: dag 1 valt zo onder New South Wales, dag 28–29 onder
@@ -367,22 +367,6 @@ function renderBuiten(){
       regios.map(r=>{ const dg=per[r], a=Math.min(...dg), b=Math.max(...dg);
         return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`);}).join('')+
       (heeftNa()?kaart(T.dag!=null&&T.dag>29?T.dag:30,'Nareis',bereik(dagDatum(30),dagDatum(29+NA)),beeldBuiten(false).tone,beeldBuiten(false).foto):'')+`</div>`;
-    // Alvast regelen gaat over de heenvlucht van de groep; wie eerder gaat heeft daar niets aan.
-    if(!vr){
-      const f=(DAYS[0].fl||[])[0], mij=f&&CHECKIN[f[0].split(' ')[0]];
-      const uren=mij&&(mij[2].match(/(\d+)\s*uur/)||[])[1];
-      let opent=''; if(uren){ const o=new Date(dateFor(1)); o.setHours(o.getHours()-uren); opent=fmtLong(o); }
-      const codes=Object.keys(CHECKIN).some(boekingscode);
-      const kilo=(BAGAGE.match(/[^.]*\bPak\b[^.]*\./)||[BAGAGE.split('. ')[0]+'.'])[0].trim().replace(/\bdus\s/,'');
-      h+=`<h2>Alvast regelen</h2><ul class="list prac">`+
-        (mij?`<li><span class="b">${IC_KLOK}</span><span><strong><a href="${mij[1]}" target="_blank" rel="noopener">Inchecken ${esc(mij[0])}${EXT}</a></strong>`+
-          `<span class="sub">${esc(f[0])}, ${esc(mij[2])}${opent?`; dat is ${opent}`:''}.</span></span></li>`:'')+
-        `<li><span class="b">${IC_SLOT}</span><span><strong>Boekingscodes</strong><span class="sub">${!NH.user?'Na inloggen zichtbaar bij Praktisch en bij de vluchten.'
-          :codes?'Staan klaar bij Praktisch en bij de vluchten.':'Nog niet ingevuld: maak in Notities één Ticket-notitie met per regel een maatschappij en de code, bijvoorbeeld SQ: ABC123.'}</span></span></li>`+
-        `<li><span class="b">${IC_KOFFER}</span><span><strong>Bagage</strong><span class="sub">${esc(kilo)} Alle regels per maatschappij staan bij Praktisch.</span></span></li>`+
-        `<li><span class="b">${IC_LET}</span><span><strong>In de koffer</strong><span class="sub">${PACK.map(p=>esc(p[0])).join(' · ')}.</span></span></li>`+
-        `</ul>`;
-    }
   } else {
     heroBuiten({tone:beeldBuiten(false).tone,foto:beeldBuiten(false).foto,eyebrow:vandaagTxt,num:`Reis voorbij<small>29 dagen Australië</small>`,
       titel:`De groepsreis eindigde ${fmtLong(dateFor(29))}`,track:'100%'});
@@ -1381,7 +1365,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-89';
+const APP_VERSIE='2026-09-08-91';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
