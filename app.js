@@ -975,9 +975,15 @@ async function renderNotes(dag){
   if(!top&&!rest) return;
   const wie=NH.user.displayName||NH.user.email;
   const cacheKey='aus_cache_'+dag;
+  // Eerst tekenen met wat er op de telefoon staat, daarna pas het antwoord van Nhost afwachten.
+  // Anders staat een dag offline seconden leeg terwijl de notities er allang zijn.
+  teken(LS.get(cacheKey)||[],'');
   let items=LS.get(cacheKey)||[], status='';
   try{ const d=await gql(Q_ITEMS,{dag}); items=d.dagitems; LS.set(cacheKey,items); status=`Bijgewerkt ${fmtWhen(new Date().toISOString())}`; }
   catch(e){ status=navigator.onLine?`Kon niet laden: ${e.message}`:'Geen verbinding — laatst opgeslagen versie'; }
+  teken(items,status);
+
+  function teken(items,status){
   const pend=pending().filter(p=>p.dag===dag);
   const all=[...items,...pend.map(p=>({...p,soort:'notitie',pending:true,
     pix:pending().findIndex(q=>q===p||(q.dag===p.dag&&q.tekst===p.tekst&&q.wie===p.wie))}))]
@@ -1006,6 +1012,7 @@ async function renderNotes(dag){
       catch(e){ toast('Verwijderen mislukt: '+e.message); }
     });
   });
+  }
 }
 
 // Dagkiezer: voorreis bovenaan, dan Algemeen, dan de groepsreis, eventueel de nareis.
@@ -1359,7 +1366,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-104';
+const APP_VERSIE='2026-09-08-105';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
