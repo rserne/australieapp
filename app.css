@@ -522,6 +522,8 @@
     color:var(--accent-ink);background:color-mix(in srgb, var(--accent) 20%, transparent);
     border:none;border-radius:7px;padding:3px 9px;cursor:pointer;text-align:left}
   .ndag:active{opacity:.6}
+  /* daglabel van een voorreis- of nareisnotitie: blauw, zodat hij zich onderscheidt van de reisdagen */
+  .ndag.buiten{color:var(--wash);background:color-mix(in srgb, var(--wash) 16%, transparent)}
   .shsel{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--glass-2);
     border:1px solid var(--rim);border-radius:14px;padding:12px 14px;-webkit-appearance:none;appearance:none}
   .tabbar button{flex:1;font:inherit;font-size:15px;font-weight:600;min-height:46px;

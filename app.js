@@ -6,17 +6,35 @@ const fmtLong=d=>`${WD[d.getDay()]} ${d.getDate()} ${MN[d.getMonth()]}`;
 const fmtShort=d=>`${d.getDate()} ${MN[d.getMonth()].slice(0,3)}`;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+// Dagen buiten de groepsreis, alleen voor notities. Voorreis: dag -1 is 30 september, -6 is
+// 25 september (0 blijft 'Algemeen', daarom slaat de telling 0 over). Nareis: dag 30 is 30 oktober.
+// De aantallen staan in reis.js; wie er gaat, leest de app af uit de notities zelf.
+const VOOR=typeof VOORREIS==='number'?VOORREIS:0, NA=typeof NAREIS==='number'?NAREIS:0;
+const dagDatum=d=>dateFor(d<0?d+1:d);
+const isBuiten=d=>d<0||d>29;
+const buitenDagen=()=>[...Array.from({length:VOOR},(_,i)=>-VOOR+i),...Array.from({length:NA},(_,i)=>30+i)];
+const fmtKort=d=>WD[d.getDay()].slice(0,2).replace(/^./,c=>c.toUpperCase())+' '+fmtShort(d);
+const buitenLabel=d=>`${fmtKort(dagDatum(d))} · ${d<0?'voorreis':'nareis'}`;
+
 function todayInfo(){
   const n=new Date(), t=new Date(n.getFullYear(),n.getMonth(),n.getDate());
   const raw=Math.round((t-START)/864e5)+1;
-  return {n:Math.min(29,Math.max(1,raw)),before:raw<1,after:raw>29,raw};
+  const before=raw<1, after=raw>29;
+  // n: welke pagina 'Vandaag' toont. Vóór de reis de startpagina (0), na afloop de afsluitpagina
+  // (30) als er een nareis is, anders dag 29. dag: bij welk notitienummer vandaag hoort, ook een
+  // voorreis- of nareisdag; null als vandaag buiten alles valt.
+  const nPag=before?0:(after?(NA>0?30:29):raw);
+  const dag=(!before&&!after)?raw:(before&&raw-1>=-VOOR)?raw-1:(after&&raw<=29+NA)?raw:null;
+  return {n:nPag,before,after,raw,dag};
 }
 let T=todayInfo();
 let cur=T.n,view='day',clockTimer=null;
+// Grenzen van het bladeren: de start- en afsluitpagina bestaan alleen op het moment zelf.
+const MIN=()=>T.before?0:1, MAX=()=>(T.after&&NA>0)?30:29;
 // Een geïnstalleerde app blijft dagen open staan; na middernacht moet 'Vandaag' meebewegen.
 function herbereken(){
   const oud=T; T=todayInfo();
-  if(oud.n===T.n&&oud.before===T.before&&oud.after===T.after) return;
+  if(oud.n===T.n&&oud.before===T.before&&oud.after===T.after&&oud.dag===T.dag) return;
   if(view==='day'){ if(cur===oud.n) cur=T.n; render(); }
   else if(view==='index') renderIndex();
   else if(view==='alles') renderAlles();
@@ -56,6 +74,7 @@ function nlTime(){
 }
 
 function render(){
+  if(cur===0||cur===30){ renderBuiten(); return; }
   const d=DAYS[cur-1],date=dateFor(cur),tone=TONE[d.r];
   const isToday=!T.before&&!T.after&&cur===T.n;
 
@@ -231,11 +250,109 @@ function render(){
   }
   const tm=document.getElementById('tmw');
   if(tm) tm.addEventListener('click',()=>{if(cur<29){cur++;render()}});
-  document.getElementById('prev').disabled=cur<=1;
-  document.getElementById('next').disabled=cur>=29;
+  document.getElementById('prev').disabled=cur<=MIN();
+  document.getElementById('next').disabled=cur>=MAX();
   window.scrollTo(0,0);
 }
 const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span><span><b>${label}</b>${esc(txt)}</span></div>`;
+
+// Knop naar een dag, in dezelfde vorm als het blok 'Morgen'.
+function dagKnop(n){
+  const d=DAYS[n-1],k=KIND[d.k];
+  return `<div class="tomorrow"><button class="ganaar" data-go="${n}">`+
+    `<span class="txt"><span class="lbl">Dag ${d.n} · ${fmtLong(dateFor(n))}</span><span class="tt">${esc(d.t)}</span>`+
+    `<span class="sub">${k?k[1]+k[0]:''} · ${esc(d.p)}</span></span><span class="arw">→</span></button></div>`;
+}
+
+// Startpagina (vóór 1 oktober) en afsluitpagina (na 29 oktober, als er een nareis is).
+// Vandaag heeft hier geen dagpagina; in plaats daarvan het aftellen, de voorbereiding en,
+// voor wie is ingelogd, de notities van wie eerder gaat of langer blijft.
+function renderBuiten(){
+  const voor=cur===0, tone=TONE.reis;
+  const hero=document.getElementById('hero');
+  hero.style.setProperty('--tone',tone); hero.style.backgroundImage='url(reg-reis.jpg)'; hero.classList.add('foto');
+  document.documentElement.style.setProperty('--tone',tone);
+  document.querySelector('meta[name=theme-color]').setAttribute('content',tone);
+  const k=voor?1-T.raw:T.raw-29;
+  document.getElementById('eyebrow').innerHTML=`<span class="dot live"></span>Vandaag · ${fmtLong(new Date())}`;
+  document.getElementById('num').innerHTML=voor?`Nog ${k}<small>${k===1?'dag':'dagen'}</small>`:`Reis voorbij<small>29 dagen Australië</small>`;
+  document.getElementById('title').textContent=voor?`Vertrek ${fmtLong(dateFor(1))}`:`De groepsreis eindigde ${fmtLong(dateFor(29))}`;
+  document.getElementById('metabox').innerHTML=''; document.getElementById('flagbox').innerHTML='';
+  document.getElementById('track').style.width=voor?'0%':'100%';
+  document.getElementById('navlabel').textContent='Vandaag';
+
+  let h='';
+  if(NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
+  if(voor){
+    const f=(DAYS[0].fl||[])[0], mij=f&&CHECKIN[f[0].split(' ')[0]];
+    if(mij) h+=`<div class="callout"><span class="ico">${IC_KLOK}</span><span><b>Inchecken</b>${esc(f[0])} · ${esc(mij[0])}, ${esc(mij[2])}. `+
+      `<a href="${mij[1]}" target="_blank" rel="noopener">Inchecken bij ${esc(mij[0])}${EXT}</a></span></div>`;
+    h+=cal(IC_KOFFER,'Bagage',BAGAGE);
+    h+=`<h2>Niet vergeten in de koffer</h2><ul class="list prac">`+
+      PACK.map(([a,b,dg])=>`<li><span class="b">✓</span><span><strong>${esc(a)}</strong>`+
+        `<span class="sub">${esc(b)} Nodig op dag ${dg.join(', ')}.</span></span></li>`).join('')+`</ul>`;
+    h+=`<h2>De reis begint</h2>`+dagKnop(1);
+  } else {
+    h+=`<h2>Terugkijken</h2>`+dagKnop(29);
+  }
+  if(NH.user) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
+  document.getElementById('day').innerHTML=h;
+  document.querySelectorAll('.ganaar').forEach(b=>b.onclick=()=>{cur=+b.dataset.go;render()});
+  if(NH.user){
+    renderBuitenNotes(voor);
+    document.getElementById('nadd').onclick=()=>openSheet({
+      dag:T.dag??(LS.get('aus_laatste_dag')??0),wie:NH.user.displayName||NH.user.email,kiesDag:true,onDone:versRender});
+  }
+  document.getElementById('prev').disabled=voor;
+  document.getElementById('next').disabled=!voor;
+  window.scrollTo(0,0);
+}
+
+// Het blok Voorreis of Nareis op de start- en afsluitpagina. Alleen als er notities voor zijn;
+// wie er gaat, staat in die notities (het veld wie), niet in de code.
+// eerst de lokale kopie bijwerken, dan tekenen; offline tekenen we meteen met wat er is
+const versRender=()=>syncAlles(true).then(()=>render());
+function renderBuitenNotes(voor){
+  const box=document.getElementById('buiten-notes'); if(!box) return;
+  const wie=NH.user.displayName||NH.user.email;
+  const alle=[...(LS.get('aus_cache_all')||[]),...pending().map((p,i)=>({...p,id:'wacht'+i,pix:i,user_id:NH.user.id,soort:'notitie',type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}))];
+  const items=alle.filter(it=>voor?it.dag<0:it.dag>29);
+  if(!items.length){ box.innerHTML=''; return; }
+  const namen=[...new Set(items.map(it=>it.wie).filter(Boolean))];
+  const wieTekst=namen.length>1?namen.slice(0,-1).join(', ')+' en '+namen[namen.length-1]:(namen[0]||'Iemand');
+  const meervoud=namen.length>1;
+  const label=voor?'Voorreis':'Nareis';
+  const naar=`<button type="button" class="btn" id="naarbuiten">Alle ${label.toLowerCase()}-notities</button>`;
+  let h='';
+  if(T.dag==null){
+    // nog vóór de voorreis: aftellen tot de eerste voorreisdag
+    const eerste=-VOOR, k=voor?(eerste+1)-T.raw:null;
+    h+=`<div class="callout"><span class="ico">${IC_ZAND}</span><span><b>${label}</b>`+
+      (voor?`${esc(wieTekst)} ${meervoud?'vertrekken':'vertrekt'} ${k===0?'vandaag':k===1?'morgen':`over ${k} dagen`}, ${fmtLong(dagDatum(eerste))}. `:'')+
+      `${items.length} ${items.length===1?'notitie':'notities'}.</span></div><div class="dagadd">${naar}</div>`;
+  } else {
+    const vandaag=items.filter(it=>it.dag===T.dag)
+      .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||'')));
+    const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
+    h+=`<h2>${label} · ${esc(wieTekst)}</h2>`;
+    h+=vandaag.length?`<ul class="list nlist">`+vandaag.map(it=>noteCard(it,tag(it))).join('')+`</ul>`
+      :`<div class="callout"><span class="ico">${IC_LET}</span><span><b>Vandaag</b>Geen notities voor ${fmtLong(new Date())}.</span></div>`;
+    h+=`<div class="dagadd">${naar}</div>`;
+  }
+  box.innerHTML=h;
+  koppelKaarten(box);
+  box.querySelector('#naarbuiten').onclick=()=>{ window._notBuiten=voor?'voor':'na'; window._notVandaag=false; switchTo('alles'); };
+  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
+    const it=items.find(x=>x.id===b.dataset.edit)||items.find(x=>String(x.pix)===b.dataset.pix);
+    if(it) openSheet({dag:it.dag,wie,item:it,onDone:versRender,kiesDag:true});
+  });
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Verwijderen?')) return;
+    if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); render(); return; }
+    try{ await verwijderItem(b.dataset.del,b.dataset.file); versRender(); }
+    catch(e){ toast('Verwijderen mislukt: '+e.message); }
+  });
+}
 
 const IC_LET='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4.5M12 17.2h.01"/></svg>';
 const IC_TIP='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>';
@@ -291,7 +408,8 @@ function boekingscode(sleutel){
   if(!NH.user) return null;
   const alle=LS.get('aus_cache_all')||[];
   const re=new RegExp('^\\s*'+sleutel+'\\s*[:=\\-–]\\s*([A-Z0-9]{4,12})\\s*$','im');
-  for(const it of alle){ if(it.type!=='ticket'||!it.tekst) continue; const m=it.tekst.match(re); if(m) return m[1].toUpperCase(); }
+  // Tickets van een voorreis of nareis zijn van één persoon en tellen niet mee voor de groepsvluchten.
+  for(const it of alle){ if(it.type!=='ticket'||!it.tekst||isBuiten(it.dag)) continue; const m=it.tekst.match(re); if(m) return m[1].toUpperCase(); }
   return null;
 }
 // notities uit de lokale kopie, zodat zoeken ook offline werkt
@@ -472,8 +590,8 @@ function toonTabs(){
   document.querySelector('.tabbar .inner').classList.toggle('vier',!!NH.user);
   if(!NH.user&&view==='alles') switchTo('day');
 }
-document.getElementById('prev').onclick=()=>{if(cur>1){cur--;render()}};
-document.getElementById('next').onclick=()=>{if(cur<29){cur++;render()}};
+document.getElementById('prev').onclick=()=>{if(cur>MIN()){cur--;render()}};
+document.getElementById('next').onclick=()=>{if(cur<MAX()){cur++;render()}};
 document.getElementById('btnToday').onclick=()=>{cur=T.n;switchTo('day')};
 document.getElementById('btnIndex').onclick=()=>switchTo(view==='index'?'day':'index');
 document.getElementById('btnPrakt').onclick=()=>switchTo(view==='prakt'?'day':'prakt');
@@ -481,8 +599,8 @@ document.getElementById('btnAlles').onclick=()=>switchTo(view==='alles'?'day':'a
 document.addEventListener('keydown',e=>{
   if(view!=='day')return;
   if(e.target.matches('input,textarea,select')||document.getElementById('sheet'))return;
-  if(e.key==='ArrowLeft'&&cur>1){cur--;render()}
-  if(e.key==='ArrowRight'&&cur<29){cur++;render()}
+  if(e.key==='ArrowLeft'&&cur>MIN()){cur--;render()}
+  if(e.key==='ArrowRight'&&cur<MAX()){cur++;render()}
 });
 const THEMES=[
  ['light','Licht','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'],
@@ -518,7 +636,7 @@ document.addEventListener('touchend',e=>{
   if(Math.abs(dy)>45) return;               // te veel verticaal
   if(Math.abs(dx)<3*Math.abs(dy)) return;   // te schuin
   if(dt>700) return;                        // te traag: dat is slepen, geen vegen
-  if(dx<0&&cur<29){cur++;render()}else if(dx>0&&cur>1){cur--;render()}
+  if(dx<0&&cur<MAX()){cur++;render()}else if(dx>0&&cur>MIN()){cur--;render()}
 },{passive:true});
 // ============================================================
 //  NOTITIES EN TICKETS — opslag bij Nhost (Frankfurt)
@@ -649,7 +767,7 @@ async function syncAlles(force){
       const d=await gql(Q_ALL); const items=d.dagitems;
       LS.set('aus_cache_all',items);
       const perDag={}; items.forEach(it=>{(perDag[it.dag]=perDag[it.dag]||[]).push(it)});
-      for(let i=0;i<=29;i++) LS.set('aus_cache_'+i,perDag[i]||[]);
+      for(const i of [...Array.from({length:30},(_,k)=>k),...buitenDagen()]) LS.set('aus_cache_'+i,perDag[i]||[]);
       // bijlagen die weg zijn ook uit de opslag halen
       const geldig=new Set(items.filter(x=>x.file_id).map(x=>x.file_id));
       (await idbKeys()).forEach(k=>{ if(!geldig.has(k)) idbDel(k); });
@@ -807,14 +925,24 @@ async function renderNotes(dag){
   });
 }
 
+// Dagkiezer: voorreis bovenaan, dan Algemeen, dan de groepsreis, eventueel de nareis.
+// De extra dagen tonen alleen een datum; het nummer erachter ziet niemand.
+function dagOpties(dag){
+  const opt=(v,l)=>`<option value="${v}"${v===dag?' selected':''}>${l}</option>`;
+  const voor=buitenDagen().filter(d=>d<0), na=buitenDagen().filter(d=>d>29);
+  return (voor.length?`<optgroup label="Voorreis">${voor.map(d=>opt(d,buitenLabel(d))).join('')}</optgroup>`:'')+
+    opt(0,'Algemeen — niet aan een dag')+
+    `<optgroup label="Groepsreis">${DAYS.map(x=>opt(x.n,`Dag ${x.n} · ${fmtShort(dateFor(x.n))} · ${esc(x.t)}`)).join('')}</optgroup>`+
+    (na.length?`<optgroup label="Nareis">${na.map(d=>opt(d,buitenLabel(d))).join('')}</optgroup>`:'');
+}
 function openSheet({dag,wie,item,onDone,kiesDag}){
   document.getElementById('sheet')?.remove();
   const isEdit=!!item, isFile=item&&item.soort==='bestand'&&!item.pending;
   const el=document.createElement('div'); el.id='sheet'; el.className='sheetwrap';
   el.innerHTML=`<div class="sheetbg"></div><div class="sheet" role="dialog" aria-modal="true">
-    <div class="sheethead"><strong>${isEdit?'Bewerken':'Toevoegen'}${dag?` · dag ${dag}`:''}</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
+    <div class="sheethead"><strong>${isEdit?'Bewerken':'Toevoegen'}${dag?` · ${isBuiten(dag)?buitenLabel(dag):'dag '+dag}`:''}</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
     <div class="chips" id="shtypes">${TYPES.map(([k,l])=>`<button type="button" class="chip${(item?.type||'notitie')===k?' on':''}" data-t="${k}">${l}</button>`).join('')}</div>
-    ${kiesDag?`<select id="shdag" class="shsel"><option value="0"${!dag?' selected':''}>Algemeen — niet aan een dag</option>${DAYS.map(x=>`<option value="${x.n}"${x.n===dag?' selected':''}>Dag ${x.n} · ${fmtShort(dateFor(x.n))} · ${esc(x.t)}</option>`).join('')}</select>`:''}
+    ${kiesDag?`<select id="shdag" class="shsel">${dagOpties(dag)}</select>`:''}
     ${isFile?`<div class="shfile">${ICO_FILE}<span>${esc(item.naam)}</span></div>`:''}
     <textarea id="shtext" rows="6" placeholder="${isFile?'Bijschrift…':'Notitie…'}">${esc(item?.tekst||'')}</textarea>
     <div class="nrow">
@@ -935,7 +1063,7 @@ async function renderAlles(){
   box.querySelector('#nwis').onclick=()=>{ window._notZoek=''; zv.value=''; box.querySelector('#nwis').hidden=true; zv.focus(); tekenLijst(); };
   box.querySelector('#aadd').onclick=()=>openSheet({
     // Voorgeselecteerd: tijdens de reis vandaag, daarbuiten de dag die je het laatst koos.
-    dag:(!T.before&&!T.after)?T.n:(LS.get('aus_laatste_dag')??0),wie,kiesDag:true,onDone:renderAlles});
+    dag:T.dag??(LS.get('aus_laatste_dag')??0),wie,kiesDag:true,onDone:renderAlles});
   const cb=box.querySelector('#acache');
   if(cb) cb.onclick=async()=>{
     if(!navigator.onLine){ toast('Hiervoor heb je verbinding nodig'); return; }
@@ -951,19 +1079,23 @@ function tekenLijst(){
   const rij=box?.querySelector('#filterrij'), lijst=box?.querySelector('#nlijst');
   if(!rij||!lijst) return;
   const items=alleItems, wie=alleWie;
-  const dagLabel=d=>d===0?'Algemeen':`Dag ${d} · ${fmtLong(dateFor(d))}`;
-  const kaart=it=>noteCard(it,`<button class="ndag" data-dag="${it.dag}">${dagLabel(it.dag)}</button>`);
+  const dagLabel=d=>d===0?'Algemeen':isBuiten(d)?buitenLabel(d):`Dag ${d} · ${fmtLong(dateFor(d))}`;
+  const kaart=it=>noteCard(it,`<button class="ndag${isBuiten(it.dag)?' buiten':''}" data-dag="${it.dag}">${dagLabel(it.dag)}</button>`);
   const zoek=(window._notZoek||'').trim().toLowerCase();
   const filter=window._notType||'';
   // Ook de dag waar een notitie bij hoort telt mee: 'Uluru' vindt zo de notities van dag 18 tot 20,
   // ook als dat woord er zelf niet in staat.
-  const dagTekst=d=>{ if(!d) return 'algemeen'; const x=DAYS[d-1];
-    return `dag ${d} ${fmtLong(dateFor(d))} ${x?x.t+' '+x.p:''}`.toLowerCase(); };
+  const dagTekst=d=>{ if(!d) return 'algemeen';
+    if(isBuiten(d)) return `${buitenLabel(d)} ${fmtLong(dagDatum(d))}`.toLowerCase();
+    const x=DAYS[d-1]; return `dag ${d} ${fmtLong(dateFor(d))} ${x?x.t+' '+x.p:''}`.toLowerCase(); };
   const hooi=it=>[it.tekst,it.naam,it.wie,dagTekst(it.dag)].filter(Boolean).join(' ').toLowerCase();
   const raak=it=>!zoek||hooi(it).includes(zoek);
-  // Twee losse assen: welke dag (vandaag of alles) en welk soort. Ze werken samen.
-  const vandaag=!!window._notVandaag;
-  const dagOk=it=>!vandaag||it.dag===T.n;
+  // Twee losse assen: welke dag (vandaag, voorreis, nareis of alles) en welk soort. Ze werken samen.
+  // 'Vandaag' volgt de echte datum: tijdens de voorreis dus de voorreisdag van vandaag.
+  const vandaag=!!window._notVandaag&&T.dag!=null;
+  const buiten=window._notBuiten||'';
+  const inBuiten=(it,b)=>b==='voor'?it.dag<0:it.dag>29;
+  const dagOk=it=>vandaag?it.dag===T.dag:(!buiten||inBuiten(it,buiten));
   const typeOk=it=>!filter||(it.type||'notitie')===filter;
   const zichtbaar=items.filter(it=>raak(it)&&dagOk(it)&&typeOk(it));
   // Elk telletje houdt rekening met de andere filters: 'Ticket 1' naast een actieve
@@ -971,14 +1103,20 @@ function tekenLijst(){
   const naZoek=items.filter(raak);
   const inDag=naZoek.filter(dagOk);
   const telling={}; inDag.forEach(it=>{const t=it.type||'notitie'; telling[t]=(telling[t]||0)+1});
-  const telVandaag=naZoek.filter(it=>it.dag===T.n&&typeOk(it)).length;
+  const telVandaag=naZoek.filter(it=>it.dag===T.dag&&typeOk(it)).length;
+  const telBuiten=b=>naZoek.filter(it=>inBuiten(it,b)&&typeOk(it)).length;
+  // De chips Voorreis en Nareis verschijnen pas als iemand er een notitie voor heeft gemaakt.
+  const dagChips=[];
+  if(T.dag!=null) dagChips.push(['1','Vandaag',telVandaag,vandaag]);
+  if(items.some(it=>it.dag<0)||buiten==='voor') dagChips.push(['voor','Voorreis',telBuiten('voor'),buiten==='voor']);
+  if(items.some(it=>it.dag>29)||buiten==='na') dagChips.push(['na','Nareis',telBuiten('na'),buiten==='na']);
 
   // Links de dag, rechts het soort; het streepje ertussen laat zien dat het twee vragen zijn.
   // Een actieve chip krijgt een kruisje, zodat zichtbaar is dat je hem ook weer uit kunt zetten.
   const uit=`<span class="chipx" aria-hidden="true">×</span>`;
   rij.innerHTML=items.length?`<div class="chips filters" id="typefilter">`+
-    `<button type="button" class="chip dagchip${vandaag?' on':''}" data-d="1"${vandaag?' aria-pressed="true"':''}>Vandaag<span class="cnt">${telVandaag}</span>${vandaag?uit:''}</button>`+
-    `<span class="chipsplit" aria-hidden="true"></span>`+
+    dagChips.map(([d,l,n,on])=>`<button type="button" class="chip dagchip${on?' on':''}" data-d="${d}"${on?' aria-pressed="true"':''}>${l}<span class="cnt">${n}</span>${on?uit:''}</button>`).join('')+
+    (dagChips.length?`<span class="chipsplit" aria-hidden="true"></span>`:'')+
     TYPES.filter(([k])=>telling[k]||filter===k).map(([k,l])=>
       `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}"${filter===k?' aria-pressed="true"':''}>${l}<span class="cnt">${telling[k]||0}</span>${filter===k?uit:''}</button>`).join('')+
     `</div>`:'';
@@ -988,29 +1126,47 @@ function tekenLijst(){
   else if(!zichtbaar.length){
     const wat=filter?`notities van het type ${typeLabel(filter).toLowerCase()}`:'notities';
     // Wie op nul uitkomt moet er in één tik weer uit kunnen, zonder te puzzelen welke chip het deed.
-    h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':''}.`}`+
+    h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':buiten?` van de ${buiten==='voor'?'voorreis':'nareis'}`:''}.`}`+
        `<button type="button" class="btn wisfilter" id="wisfilters">Alle filters wissen</button></div>`;
   }
-  else if(filter) h+=`<ul class="list nlist">`+zichtbaar.map(kaart).join('')+`</ul>`;
-  else TYPES.forEach(([key,label])=>{
-    const groep=zichtbaar.filter(it=>(it.type||'notitie')===key);
-    if(groep.length) h+=`<h2>${label}</h2><ul class="list nlist">`+groep.map(kaart).join('')+`</ul>`;
-  });
+  else if(filter||buiten) h+=`<ul class="list nlist">`+zichtbaar.map(kaart).join('')+`</ul>`;
+  else {
+    // Voorreis en nareis staan als eigen blok, op datum. De voorreis staat bovenaan zolang de
+    // groepsreis nog niet begonnen is; daarna zakt hij onder de gewone notities.
+    const opDag=(a,b)=>a.dag-b.dag||String(a.created_at||'').localeCompare(String(b.created_at||''));
+    const blok=(kop,rij)=>rij.length?`<h2>${kop}</h2><ul class="list nlist">`+rij.sort(opDag).map(kaart).join('')+`</ul>`:'';
+    const voor=blok('Voorreis',zichtbaar.filter(it=>it.dag<0)), na=blok('Nareis',zichtbaar.filter(it=>it.dag>29));
+    if(T.before) h+=voor;
+    TYPES.forEach(([key,label])=>{
+      const groep=zichtbaar.filter(it=>!isBuiten(it.dag)&&(it.type||'notitie')===key);
+      if(groep.length) h+=`<h2>${label}</h2><ul class="list nlist">`+groep.map(kaart).join('')+`</ul>`;
+    });
+    if(!T.before) h+=voor;
+    h+=na;
+  }
   lijst.innerHTML=h;
 
   const wf=lijst.querySelector('#wisfilters');
-  if(wf) wf.onclick=()=>{ window._notVandaag=false; window._notType=''; window._notZoek='';
+  if(wf) wf.onclick=()=>{ window._notVandaag=false; window._notBuiten=''; window._notType=''; window._notZoek='';
     const zv=box.querySelector('#nzoek'); if(zv){ zv.value=''; box.querySelector('#nwis').hidden=true; }
     tekenLijst(); };
   rij.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
     // Elke chip is een schakelaar: nog een tik zet hem weer uit. Een aparte knop 'Alles'
     // is daarmee overbodig; het totaal staat al in de banner.
-    if(c.dataset.d) window._notVandaag=!window._notVandaag;
+    // De dagchips sluiten elkaar uit: een notitie hoort bij één dag.
+    if(c.dataset.d==='1'){ window._notVandaag=!window._notVandaag; window._notBuiten=''; }
+    else if(c.dataset.d){ window._notBuiten=(window._notBuiten===c.dataset.d)?'':c.dataset.d; window._notVandaag=false; }
     else window._notType=(window._notType===c.dataset.f)?'':c.dataset.f;
     tekenLijst();
   });
   koppelKaarten(lijst);
-  lijst.querySelectorAll('.ndag').forEach(b=>b.onclick=()=>{const dg=+b.dataset.dag; if(dg>=1){cur=dg;switchTo('day')} else switchTo('prakt');});
+  lijst.querySelectorAll('.ndag').forEach(b=>b.onclick=()=>{const dg=+b.dataset.dag;
+    if(dg>=1&&dg<=29){cur=dg;switchTo('day')}
+    // Een voorreis- of nareisdag heeft alleen een pagina op het moment zelf; anders filteren we hier.
+    else if(dg<0&&T.before){cur=0;switchTo('day')}
+    else if(dg>29&&T.after&&NA>0){cur=30;switchTo('day')}
+    else if(isBuiten(dg)){window._notBuiten=dg<0?'voor':'na';window._notVandaag=false;tekenLijst();}
+    else switchTo('prakt');});
   lijst.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
     const it=items.find(x=>x.id===b.dataset.edit); if(it) openSheet({dag:it.dag,wie,item:it,onDone:renderAlles,kiesDag:true});
   });
@@ -1121,7 +1277,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-74';
+const APP_VERSIE='2026-09-08-75';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
