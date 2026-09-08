@@ -334,10 +334,6 @@ function heroBuiten({tone,foto,eyebrow,num,titel,meta,track}){
   document.getElementById('track').style.width=track;
 }
 
-// Kaart in de stijl van het blok 'Morgen', voor een sprong naar een andere plek in de app
-const kaartKnop=(go,lbl,tt,sub)=>`<div class="tomorrow"><button class="ganaar" data-go="${go}">`+
-  `<span class="txt"><span class="lbl">${lbl}</span><span class="tt">${tt}</span>${sub?`<span class="sub">${sub}</span>`:''}</span><span class="arw">→</span></button></div>`;
-
 // Startpagina (vóór 1 oktober) en afsluitpagina (na de reis, als er een nareis is).
 function renderBuiten(){
   const start=cur===0, vr=voorreiziger();
@@ -345,26 +341,29 @@ function renderBuiten(){
   const regios=Object.keys(REGION).filter(r=>r!=='reis'&&DAYS.some(d=>d.r===r));
   let h='';
   if(start){
-    const kGroep=1-T.raw, kVoor=(-VOOR+1)-T.raw;
+    const kGroep=1-T.raw, kVoor=(-VOOR+1)-T.raw;   // dagen tot vertrek van de groep / van de voorreis
     if(vr){
       heroBuiten({tone:beeldBuiten(true).tone,foto:beeldBuiten(true).foto,eyebrow:vandaagTxt,
         num:`Nog ${kVoor}<small>${kVoor===1?'dag':'dagen'}</small>`,titel:`Vertrek ${fmtLong(dagDatum(-VOOR))}`,track:'0%'});
-      h+=`<h2>De groepsreis</h2>`+kaartKnop(1,`Groepsreis · dag 1`,`Vertrek ${dagenTekst(kGroep)}`,
-        `${fmtLong(dateFor(1)).replace(/^./,c=>c.toUpperCase())} · ${esc(DAYS[0].t)}`);
     } else {
       heroBuiten({tone:TONE.reis,foto:'reg-reis.jpg',eyebrow:vandaagTxt,
         num:`Nog ${kGroep}<small>${kGroep===1?'dag':'dagen'}</small>`,titel:`Vertrek ${fmtLong(dateFor(1))}`,track:'0%'});
       if(NH.user) h+=`<div id="buiten-notes" class="notes"></div>`;
     }
-    // De reis in beeld: per regio de foto die de app al heeft, met de dagen erbij
-    const kaart=(go,naam,dagen,tone,foto)=>`<button type="button" class="regio" data-go="${go}" style="--tone:${tone};background-image:url(${foto})">`+
+    // De reis in beeld: een raster met per regio de foto die de app al heeft, plus heen- en terugreis
+    // en, als er notities voor zijn, de voorreis en nareis. Tik op een kaart en je staat op die dag.
+    const kaart=(go,naam,dagen,tone,foto)=>`<button type="button" class="regio ganaar" data-go="${go}" style="--tone:${tone};background-image:url(${foto})">`+
       `<span class="rnaam">${esc(naam)}</span><span class="rdagen">${dagen}</span></button>`;
     const bereik=(a,b)=>a.getMonth()===b.getMonth()?`${a.getDate()}–${fmtShort(b)}`:`${fmtShort(a)} – ${fmtShort(b)}`;
-    h+=`<h2>Zo ziet de reis eruit</h2><p class="strooksub">29 dagen · ${regios.length} regio's. Tik op een foto om vooruit te kijken.</p><div class="regios" id="regios">`+
+    const dagen=(a,b)=>a===b?`Dag ${a}`:`Dag ${a}–${b}`;
+    const reisDagen=DAYS.filter(d=>d.r==='reis').map(d=>d.n), heen=reisDagen.filter(n=>n<15), terug=reisDagen.filter(n=>n>=15);
+    h+=`<h2>De reis</h2><div class="regios">`+
       (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto):'')+
+      (heen.length?kaart(heen[0],'Heenreis',dagen(heen[0],heen[heen.length-1]),TONE.reis,'reg-reis.jpg'):'')+
       regios.map(r=>{
         const dg=DAYS.filter(d=>d.r===r).map(d=>d.n), a=Math.min(...dg), b=Math.max(...dg);
-        return kaart(a,REGION[r],a===b?`Dag ${a}`:`Dag ${a}–${b}`,TONE[r],`reg-${r}.jpg`);}).join('')+
+        return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`);}).join('')+
+      (terug.length?kaart(terug[0],'Terugreis',dagen(terug[0],terug[terug.length-1]),TONE.reis,'reg-reis.jpg'):'')+
       (heeftNa()?kaart(T.dag!=null&&T.dag>29?T.dag:30,'Nareis',bereik(dagDatum(30),dagDatum(29+NA)),beeldBuiten(false).tone,beeldBuiten(false).foto):'')+`</div>`;
     // Alvast regelen gaat over de heenvlucht van de groep; wie eerder gaat heeft daar niets aan.
     if(!vr){
@@ -392,23 +391,6 @@ function renderBuiten(){
   if(NH.user) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   document.getElementById('day').innerHTML=h;
   koppelGaNaar();
-  // De kaartjes reageren niet op 'click': iOS stuurt die ook na een veeg of na een tik die het scrollen
-  // stopt. In plaats daarvan volgen we de aanraking zelf: kort, stilstaand, en de strook lag al stil.
-  const strook=document.getElementById('regios');
-  if(strook){
-    let down=null,laatsteScroll=0;
-    strook.addEventListener('scroll',()=>{laatsteScroll=performance.now();},{passive:true});
-    strook.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,t:performance.now(),s:strook.scrollLeft};},{passive:true});
-    strook.addEventListener('pointercancel',()=>{down=null;});   // de browser heeft de veeg overgenomen
-    strook.addEventListener('pointerup',e=>{
-      const d=down; down=null; if(!d) return;
-      const k=e.target.closest('.regio'); if(!k) return;
-      const stil=Math.abs(e.clientX-d.x)<8&&Math.abs(e.clientY-d.y)<8&&performance.now()-d.t<500;
-      const lag=strook.scrollLeft===d.s&&performance.now()-laatsteScroll>150;
-      if(stil&&lag) ga(+k.dataset.go);
-    });
-    strook.addEventListener('click',e=>e.preventDefault(),true);
-  }
   if(NH.user){
     renderBuitenNotes(start);
     document.getElementById('nadd').onclick=()=>openSheet({
@@ -429,28 +411,13 @@ function renderBuitenNotes(voor){
   if(!items.length){ box.innerHTML=''; return; }
   const namen=[...new Set(items.map(it=>it.wie).filter(Boolean))];
   const wieTekst=namen.length>1?namen.slice(0,-1).join(', ')+' en '+namen[namen.length-1]:(namen[0]||'Iemand');
-  const meervoud=namen.length>1, label=voor?'Voorreis':'Nareis';
-  const eerste=voor?-VOOR:30, tot=voor?VOOR:NA;
   const bezig=T.dag!=null&&(voor?T.dag<0:T.dag>29);
-  const n=x=>`${x} ${x===1?'notitie':'notities'}`;
-  let h=`<h2>${label} · ${esc(wieTekst)}</h2>`;
-  if(bezig){
-    // onderweg: eerst de notities van vandaag, dan de kaart naar die dag
-    const vandaag=items.filter(it=>it.dag===T.dag)
-      .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||'')));
-    const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
-    if(vandaag.length) h+=`<ul class="list nlist">`+vandaag.map(it=>noteCard(it,tag(it))).join('')+`</ul>`;
-    const nr=voor?T.dag+VOOR+1:T.dag-29;
-    h+=kaartKnop(T.dag,`${label} · dag ${nr} van ${tot}`,vandaag.length?`Vandaag ${n(vandaag.length)}`:'Vandaag geen notities',
-      `${fmtLong(new Date()).replace(/^./,c=>c.toUpperCase())} · in totaal ${n(items.length)}`);
-  } else if(voor){
-    const k=(eerste+1)-T.raw;
-    h+=kaartKnop(eerste,`${label} · ${esc(wieTekst)}`,`${meervoud?'Vertrekken':'Vertrekt'} ${dagenTekst(k)}`,
-      `${fmtLong(dagDatum(eerste)).replace(/^./,c=>c.toUpperCase())} · ${VOOR} dagen · ${n(items.length)}`);
-  } else {
-    h+=kaartKnop(eerste,`${label} · ${esc(wieTekst)}`,`${meervoud?'Blijven':'Blijft'} nog ${NA} ${NA===1?'dag':'dagen'}`,
-      `${fmtLong(dagDatum(eerste)).replace(/^./,c=>c.toUpperCase())} · ${n(items.length)}`);
-  }
+  // Alleen tijdens de voorreis of nareis, en alleen de notities van vandaag; de weg ernaartoe loopt via het raster.
+  const vandaag=bezig?items.filter(it=>it.dag===T.dag)
+    .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||''))):[];
+  if(!vandaag.length){ box.innerHTML=''; return; }
+  const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
+  const h=`<h2>Vandaag bij ${esc(wieTekst)}</h2><ul class="list nlist">`+vandaag.map(it=>noteCard(it,tag(it))).join('')+`</ul>`;
   box.innerHTML=h;
   koppelKaarten(box); koppelGaNaar();
   box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
@@ -469,10 +436,10 @@ function renderBuitenNotes(voor){
 function renderBuitenDag(){
   const dag=cur, voor=dag<0, date=dagDatum(dag);
   const isToday=T.dag===dag;
-  const nr=voor?dag+VOOR+1:dag-29, tot=voor?VOOR:NA;
+  const volgnr=voor?dag+VOOR+1:dag-29, tot=voor?VOOR:NA;
   heroBuiten({tone:beeldBuiten(voor).tone,foto:beeldBuiten(voor).foto,
     eyebrow:(isToday?`<span class="dot live"></span>Vandaag · `:`<span class="dot" style="background:rgba(255,255,255,.4)"></span>`)+fmtLong(date),
-    num:`${voor?'Voorreis':'Nareis'}<small>dag ${nr} van ${tot}</small>`,
+    num:`${voor?'Voorreis':'Nareis'}<small>dag ${volgnr} van ${tot}</small>`,
     titel:fmtLong(date).replace(/^./,c=>c.toUpperCase()),track:'0%'});
   document.getElementById('navlabel').textContent=isToday?'Vandaag':fmtShort(date);
   const aantal=alleNotities().filter(it=>it.dag===dag).length+pending().filter(p=>p.dag===dag).length;
@@ -1412,7 +1379,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-84';
+const APP_VERSIE='2026-09-08-87';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
