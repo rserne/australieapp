@@ -484,7 +484,20 @@ function drawResults(term){
   const box=document.getElementById('results');
   term=(term||'').trim().toLowerCase();
   if(term.length<2){
-    let h=`<ul class="idx">`;
+    // Voorreis en nareis staan als eigen blok voor en na de reisdagen, met de datum in plaats van een
+    // dagnummer en het aantal notities erachter; ze bestaan alleen voor wie is ingelogd.
+    const tel={}; alleNotities().forEach(it=>{ if(isBuiten(it.dag)) tel[it.dag]=(tel[it.dag]||0)+1; });
+    const buitenLijst=dg=>dg.map(n=>{
+      const aantal=tel[n]||0, kl=beeldBuiten(n<0).tone;
+      return `<li${T.dag===n?' class="now"':''}><button data-n="${n}"><span class="bar" style="background:${kl}"></span>`+
+        `<span class="n">·</span><span class="t">${aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Geen notities'}</span>`+
+        `<span class="d">${fmtKort(dagDatum(n))}</span></button></li>`;
+    }).join('');
+    const voor=heeftVoor()?buitenDagen().filter(n=>n<0):[], na=heeftNa()?buitenDagen().filter(n=>n>29):[];
+    let h='';
+    if(voor.length) h+=`<h2>Voorreis</h2><ul class="idx">`+buitenLijst(voor)+`</ul>`;
+    if(voor.length||na.length) h+=`<h2>Groepsreis</h2>`;
+    h+=`<ul class="idx">`;
     DAYS.forEach(d=>{
       const now=(!T.before&&!T.after&&d.n===T.n)?' class="now"':'';
       h+=`<li${now}><button data-n="${d.n}"><span class="bar" style="background:${TONE[d.r]}"></span>`+
@@ -494,16 +507,18 @@ function drawResults(term){
          (d.wash?`<span class="w">${WASH}</span>`:'')+
          `<span class="d">${fmtShort(dateFor(d.n))}</span></button></li>`;
     });
-    box.innerHTML=h+`</ul>`;
+    h+=`</ul>`;
+    if(na.length) h+=`<h2>Nareis</h2><ul class="idx">`+buitenLijst(na)+`</ul>`;
+    box.innerHTML=h;
   }else{
     let h='',hits=0;
     // eerst je eigen notities: die zoek je meestal gerichter
     notitieTreffers(term).forEach(t=>{
       hits++;
       h+=`<li><button data-n="${t.dag}"><div class="top">`+
-         `<span class="dn">${t.dag===0?'Algemeen':'Dag '+t.dag}</span>`+
-         `<span class="dt">${t.dag===0?'Niet aan een dag':esc(DAYS[t.dag-1].t)}</span>`+
-         `<span class="dd">${t.dag===0?'':fmtShort(dateFor(t.dag))}</span></div>`+
+         `<span class="dn">${t.dag===0?'Algemeen':isBuiten(t.dag)?(t.dag<0?'Voorreis':'Nareis'):'Dag '+t.dag}</span>`+
+         `<span class="dt">${t.dag===0?'Niet aan een dag':isBuiten(t.dag)?fmtLong(dagDatum(t.dag)):esc(DAYS[t.dag-1].t)}</span>`+
+         `<span class="dd">${t.dag===0?'':fmtShort(dagDatum(t.dag))}</span></div>`+
          `<div class="sn">${snippet(t.tekst,term)}</div>`+
          `<div class="src">${esc(t.bron)}</div></button></li>`;
     });
@@ -519,14 +534,19 @@ function drawResults(term){
     });
     HAY_PRAKT.filter(([txt])=>txt.toLowerCase().includes(term)).slice(0,3).forEach(hit=>{
       hits++;
-      h+=`<li><button data-n="-1"><div class="top"><span class="dn">Praktisch</span><span class="dt">${esc(hit[1])}</span></div>`+
+      h+=`<li><button data-n="prakt"><div class="top"><span class="dn">Praktisch</span><span class="dt">${esc(hit[1])}</span></div>`+
          `<div class="sn">${snippet(hit[0],term)}</div><div class="src">Tabblad Praktisch</div></button></li>`;
     });
     box.innerHTML=hits?`<ul class="hits">${h}</ul>`
       :`<div class="empty">Niets gevonden voor “${esc(term)}”.</div>`;
   }
   box.querySelectorAll('button[data-n]').forEach(b=>
-    b.addEventListener('click',()=>{const dg=+b.dataset.n; if(dg>=1){cur=dg;switchTo('day')} else if(dg<0) switchTo('prakt'); else switchTo('alles');}));
+    b.addEventListener('click',()=>{const n=b.dataset.n;
+      // 'prakt' is het tabblad Praktisch, 0 is een algemene notitie; al het andere is een dag,
+      // ook een negatieve (voorreis) of een boven de 29 (nareis).
+      if(n==='prakt') switchTo('prakt');
+      else if(+n===0) switchTo('alles');
+      else {cur=+n;switchTo('day')}}));
 }
 
 function renderIndex(){
@@ -1335,7 +1355,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-08-95';
+const APP_VERSIE='2026-09-08-96';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

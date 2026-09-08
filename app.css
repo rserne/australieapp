@@ -487,6 +487,7 @@
   .idx .e{color:var(--accent-ink);flex:none;display:flex}
   .idx .d{font-size:13.5px;color:var(--text-faint);white-space:nowrap}
   .idx li.now{background:var(--glass-2)}
+  .idx .n:only-of-type,.idx li .n{text-align:center}
   .idx li.now .t{font-weight:640}
   .idx li.now .n{color:var(--accent-ink)}
 
