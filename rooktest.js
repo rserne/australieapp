@@ -229,9 +229,9 @@ function zoek(w,fouten,term){
     await sleep(50);
     const q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
     eis(fouten,q.length===1&&q[0].tabel==='waarnemingen'&&q[0].dier==='koala'&&q[0].dag===6&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d:\d\d$/.test(q[0].gezien_op),`waarneming zonder verbinding in de wachtrij met tabel, dag en tijd (nu ${JSON.stringify(q[0])})`);
-    eis(fouten,/Koala/.test($(w,'dieren').textContent)&&/wacht op verbinding/.test($(w,'dieren').textContent),'waarneming staat onder Vandaag gezien met de status');
+    eis(fouten,/Vandaag gespot/.test($(w,'dieren').textContent)&&/Koala/.test($(w,'dieren').textContent)&&/1 waarneming wacht op verbinding/.test($(w,'dieren').textContent),'waarneming staat onder Vandaag gespot met de statusregel');
     eis(fouten,koala&&koala.classList.contains('mijn')||w.document.querySelector('#dieren button.dier[data-dier="koala"] .dtel'),'teller op de knop na de waarneming');
-    const t=$(w,'toast'); eis(fouten,t&&/Koala genoteerd/.test(t.textContent)&&t.querySelector('button'),'melding met Ongedaan maken');
+    const t=$(w,'toast'); eis(fouten,t&&/Koala gespot om \d\d\.\d\d uur/.test(t.textContent)&&t.querySelector('button'),'melding met Ongedaan maken');
     if(t&&t.querySelector('button')) t.querySelector('button').click();
     await sleep(50);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'Ongedaan maken haalt de waarneming uit de wachtrij');
@@ -249,7 +249,7 @@ function zoek(w,fouten,term){
     w.localStorage.setItem('aus_pending',JSON.stringify([{tabel:'waarnemingen',dier:'vogelbekdier',dag:6,gezien_op:'2026-10-06T09:10:00+10:30',wie:'Test'}]));
     klik(w,'btnToday',fouten); klik(w,'btnIndex',fouten);
     const rij=[...w.document.querySelectorAll('#results .idx button')].find(b=>b.dataset.n==='6'); if(rij) rij.click();
-    eis(fouten,/keer gezien door de groep/.test($(w,'day').textContent),'dagpagina toont hoe vaak de groep een dier uit het blok zag');
+    eis(fouten,!/gespot/.test($(w,'day').textContent),'dagpagina toont geen tellers');
     klik(w,'btnDieren',fouten);
     const lijst=w.document.querySelector('#dieren .dlijst');
     eis(fouten,lijst&&/Vogelbekdier/.test(lijst.textContent)&&!/\u00AD/.test(lijst.textContent),'naam in de lijst zonder zacht afbreekstreepje');
@@ -265,17 +265,17 @@ function zoek(w,fouten,term){
       if(/insert_dagitems_one/.test(q)) return {insert_dagitems_one:{id:'n1',created_at:'2026-10-06T00:00:00Z'}};
       if(/delete_waarnemingen_by_pk/.test(q)) return {delete_waarnemingen_by_pk:{id:v.id}};
       throw new Error('onverwachte query'); };
-    w.localStorage.setItem('aus_waarn_fout',JSON.stringify("field 'dag' not found in type: 'waarnemingen_insert_input'"));
     w.localStorage.setItem('aus_pending',JSON.stringify([
       {dag:6,tekst:'Oude notitie zonder tabel',wie:'Test',type:'notitie'},
       {tabel:'waarnemingen',dier:'emoe',dag:6,gezien_op:'2026-10-06T08:00:00+10:30',wie:'Test',fout:"field 'dag' not found in type: 'waarnemingen_insert_input'"}]));
     klik(w,'btnDieren',fouten);
-    eis(fouten,/kunnen nog niet worden verstuurd/i.test($(w,'dieren').textContent)&&/recht of kolom/.test($(w,'dieren').textContent)&&$(w,'dopnieuw'),'melding met hint en knop Opnieuw proberen bij een rechtenfout');
+    eis(fouten,/1 waarneming kon niet worden verstuurd/.test($(w,'dieren').textContent)&&/versturen mislukt: field 'dag'/.test($(w,'dieren').textContent),'mislukte waarneming staat er net als een mislukte notitie, met de reden');
     const n=await w.flushPending();
     eis(fouten,n===2&&mutaties.join(',')==='insert_dagitems_one,insert_waarnemingen_one',`wachtrij stuurt elk item naar zijn eigen tabel, ook na een eerdere fout (nu ${n}, ${mutaties.join(',')})`);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'wachtrij leeg na versturen');
-    eis(fouten,!w.localStorage.getItem('aus_waarn_fout')&&opgehaald===1,'na het versturen is de foutmelding weg en is de kopie ververst');
-    eis(fouten,!/kunnen nog niet worden verstuurd/i.test($(w,'dieren').textContent),'melding verdwijnt van het scherm');
+    eis(fouten,opgehaald===1,'na het versturen is de kopie ververst');
+    eis(fouten,!/kon niet worden verstuurd/.test($(w,'dieren').textContent),'statusregel verdwijnt van het scherm');
+    eis(fouten,w.verstuurdTekst()==='Je notitie en je waarneming zijn verstuurd',`melding na versturen (nu '${w.verstuurdTekst()}')`);
     // met verbinding gaat een waarneming direct naar Nhost en komt in de kopie
     w.document.querySelector('#dieren button.dier[data-dier="quokka"]').click(); await sleep(50);
     const kopie=JSON.parse(w.localStorage.getItem('aus_cache_waarn')||'[]');

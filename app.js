@@ -206,10 +206,7 @@ function render(){
       h+=`<div class="emoealert">${EMU}<span><b>Emoe-alert <span class="chance">${'●'.repeat(k)}${'○'.repeat(3-k)}</span></b>${esc(d.emoe[1])}</span></div>`;
     }
     h+=`<ul class="list wild">`+
-      d.wild.map(([a,b,k])=>{
-        const dier=NH.user?dierBijNaam(a):null, n=dier?(dierTelling()[dier.k]||0):0;
-        return `<li>${PAW}<span class="wbody"><span class="wtop"><strong>${esc(a)}</strong>${dots(k)}</span><span class="sub">${esc(b)}</span>`+
-          (n?`<span class="sub gezien">${n===1?'1 keer':n+' keer'} gezien door de groep</span>`:'')+`</span></li>`; }).join('')+
+      d.wild.map(([a,b,k])=>`<li>${PAW}<span class="wbody"><span class="wtop"><strong>${esc(a)}</strong>${dots(k)}</span><span class="sub">${esc(b)}</span></span></li>`).join('')+
       `</ul><div class="legend">`+
       // dezelfde bolletjes als in de lijst, zodat de afstanden overeenkomen
       [[3,'bijna zeker'],[2,'goede kans'],[1,'geluk nodig']]
@@ -721,7 +718,7 @@ const BANNERS={
   index:['banner-dagen.jpg','Alle dagen',null],
   alles:['banner-notities.jpg','Notities',''],
   prakt:['banner-praktisch.jpg','Praktisch',''],
-  dieren:['banner-dieren.jpg','Dieren','Wat de groep heeft gezien']
+  dieren:['banner-dieren.jpg','Dieren','Gespot onderweg']
 };
 function renderKop(v){
   const hero=document.getElementById('hero');
@@ -983,8 +980,7 @@ async function syncAlles(force){
 // de notities gewoon werken en onthouden we de reden voor het scherm Dieren.
 async function syncWaarnemingen(){
   if(!NH.user||!navigator.onLine) return;
-  try{ const d=await gql(Q_WAARN); LS.set('aus_cache_waarn',d.waarnemingen); LS.del('aus_waarn_fout'); }
-  catch(e){ if(!e.tijdelijk) LS.set('aus_waarn_fout',e.message); }
+  try{ const d=await gql(Q_WAARN); LS.set('aus_cache_waarn',d.waarnemingen); }catch(e){}
 }
 const MAX_UPLOAD=20*1024*1024;
 const TOEGESTAAN=['image/jpeg','image/png','image/heic','image/heif','image/webp','application/pdf'];
@@ -1044,8 +1040,9 @@ function pendingDelete(ix){ const q=pending(); q.splice(ix,1); LS.set('aus_pendi
 async function flushPending(){
   const q=pending(); if(!q.length||!navigator.onLine) return 0;
   const rest=[]; let verstuurd=0, waarn=0;
+  LAATST_VERSTUURD.notities=0; LAATST_VERSTUURD.waarnemingen=0;
   for(const it of q){
-    try{ await verstuurPending(it); verstuurd++; if(tabelVan(it)==='waarnemingen') waarn++; }
+    try{ await verstuurPending(it); verstuurd++; if(tabelVan(it)==='waarnemingen') waarn++; LAATST_VERSTUURD[tabelVan(it)==='waarnemingen'?'waarnemingen':'notities']++; }
     // Tijdelijk: gewoon laten staan. Blijvend (rechten, ongeldige invoer): ook laten staan, want de
     // tekst mag niet verloren gaan, maar met de reden erbij zodat je hem kunt aanpassen of weggooien.
     catch(e){ rest.push(e.tijdelijk?it:{...it,fout:e.message}); }
@@ -1053,10 +1050,19 @@ async function flushPending(){
   LS.set('aus_pending',rest);
   // Zijn er waarnemingen doorgekomen, dan is de eerdere reden voorbij. Kopie verversen zodat
   // de tellers kloppen, en het scherm Dieren bijwerken als dat openstaat.
-  if(waarn){ LS.del('aus_waarn_fout'); await syncWaarnemingen(); if(view==='dieren') renderDieren(); }
+  if(waarn){ await syncWaarnemingen(); if(view==='dieren') renderDieren(); }
   return verstuurd;
 }
 const mislukt=(tabel='dagitems')=>pendingVan(tabel).filter(p=>p.fout).length;
+const LAATST_VERSTUURD={notities:0,waarnemingen:0};
+// 'Je notitie is verstuurd', '2 notities en je waarneming zijn verstuurd'
+function verstuurdTekst(){
+  const n=LAATST_VERSTUURD.notities, w=LAATST_VERSTUURD.waarnemingen, d=[];
+  if(n) d.push(n===1?'je notitie':`${n} notities`); if(w) d.push(w===1?'je waarneming':`${w} waarnemingen`);
+  if(!d.length) return '';
+  const t=d.join(' en ')+(n+w===1?' is':' zijn')+' verstuurd';
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
 
 // Tekst veilig weergeven én links aanklikbaar maken. Eerst escapen tegen kwaadaardige
 // invoer, daarna pas de gevonden adressen omzetten in een link.
@@ -1563,8 +1569,6 @@ const DIER_ICOON=typeof DIER_ICONEN==='object'&&DIER_ICONEN?DIER_ICONEN:{};
 const dierVan=k=>DIER_LIJST.find(d=>d.k===k)||null;
 // Namen in dieren.js kunnen een zacht afbreekstreepje bevatten voor op de knop. Overal elders weg.
 const schoon=n=>String(n||'').replace(/\u00AD/g,'');
-// Dier bij een naam uit een wild-blok van een dag, via de naam of een synoniem
-const dierBijNaam=naam=>DIER_LIJST.find(d=>schoon(d.n)===naam||(d.syn||[]).includes(naam))||null;
 const dierNaam=w=>w.dier==='overig'?(w.opmerking||'Onbekend dier'):schoon((dierVan(w.dier)||{n:w.dier}).n);
 // De dag waar een waarneming bij hoort: de dag waarin we zitten, anders de dag die openstaat
 const waarnDag=()=>T.dag!=null?T.dag:(isBuiten(cur)||(cur>=1&&cur<=29)?cur:0);
@@ -1593,15 +1597,15 @@ async function registreerWaarneming(dier,opmerking){
       id=d.insert_waarnemingen_one.id;
       LS.set('aus_cache_waarn',[...alleWaarnemingen(),{...rec,id,user_id:NH.user.id,created_at:rec.gezien_op}]);
     }catch(e){
-      // Tijdelijk: in de wachtrij. Blijvend (tabel ontbreekt, rechten): ook in de wachtrij, met de reden,
-      // want de waarneming mag niet verloren gaan. Het scherm toont de reden.
-      if(e.tijdelijk) inWachtrij(); else { LS.set('aus_pending',[...pending(),{...rec,fout:e.message}]); LS.set('aus_waarn_fout',e.message); }
+      // Tijdelijk: in de wachtrij. Blijvend (tabel ontbreekt, rechten): ook in de wachtrij, met de reden
+      // erbij, net als bij een notitie. De waarneming mag niet verloren gaan.
+      if(e.tijdelijk) inWachtrij(); else LS.set('aus_pending',[...pending(),{...rec,fout:e.message}]);
     }
   } else inWachtrij();
   renderDieren();
-  toast(`${naam} genoteerd, ${tijdVan(rec.gezien_op)} uur`,'Ongedaan maken',async()=>{
+  toast(`${naam} gespot om ${tijdVan(rec.gezien_op)} uur`,'Ongedaan maken',async()=>{
     if(id){
-      try{ await gql(M_DEL_WAARN,{id}); }catch(e){ toast('Ongedaan maken lukte niet'); return; }
+      try{ await gql(M_DEL_WAARN,{id}); }catch(e){ toast('Weghalen lukte niet. Probeer het straks opnieuw.'); return; }
       LS.set('aus_cache_waarn',alleWaarnemingen().filter(w=>w.id!==id));
     }else{
       const ix=pending().findIndex(q=>tabelVan(q)==='waarnemingen'&&q.gezien_op===rec.gezien_op&&q.dier===rec.dier);
@@ -1612,7 +1616,8 @@ async function registreerWaarneming(dier,opmerking){
 }
 async function verwijderWaarneming(w){
   if(w.pending){ pendingDelete(w.pix); renderDieren(); return; }
-  if(!confirm(`${dierNaam(w)} van ${tijdVan(w.gezien_op)} uur weghalen?`)) return;
+  const n=dierNaam(w);
+  if(!confirm(`Je ${n.charAt(0).toLowerCase()+n.slice(1)} van ${tijdVan(w.gezien_op)} uur weghalen?`)) return;
   try{ await gql(M_DEL_WAARN,{id:w.id}); }catch(e){ toast(e.tijdelijk?'Geen verbinding. Probeer het straks opnieuw.':'Weghalen lukte niet. '+e.message); return; }
   LS.set('aus_cache_waarn',alleWaarnemingen().filter(x=>x.id!==w.id));
   renderDieren();
@@ -1627,42 +1632,35 @@ function renderDieren(){
   if(!NH.user){ box.innerHTML=''; return; }
   const alle=waarnemingen(), tel=dierTelling();
   const mijn={}; alle.filter(w=>w.user_id===NH.user.id).forEach(w=>{ mijn[w.dier]=(mijn[w.dier]||0)+1; });
-  let h=`<p class="dintro">Tik op een dier zodra je het ziet. De app noteert het dier, jou en de tijd, en de hele groep ziet het. Het getal is hoe vaak de groep het dier al zag.</p>`;
-  const blijvend=pendingWaarnemingen().find(p=>p.fout);
-  const fout=LS.get('aus_waarn_fout')||(blijvend&&blijvend.fout);
-  if(fout){
-    const hint=/not found in type|permission|field '/.test(fout)?' Waarschijnlijk ontbreekt een recht of kolom op de tabel waarnemingen in Nhost.':'';
-    h+=`<div class="callout"><span class="ico">${IC_LET}</span><span><b>Waarnemingen kunnen nog niet worden verstuurd</b>`+
-      `De server antwoordde "${esc(fout)}".${hint} Ze blijven op deze telefoon staan tot het lukt.`+
-      (navigator.onLine?` <a href="#" id="dopnieuw">Opnieuw proberen</a>`:'')+`</span></div>`;
-  }
-  const wacht=pendingWaarnemingen().length;
-  if(wacht&&!fout) h+=`<p class="dstatus">${wacht} ${wacht===1?'waarneming wacht':'waarnemingen wachten'} op verbinding.</p>`;
+  let h=`<p class="dintro">Tik op een dier zodra je het ziet.</p>`;
+  // Statusregel in dezelfde vorm als die in Notities
+  const fout=mislukt('waarnemingen'), wacht=pendingWaarnemingen().length-fout, st=[];
+  if(wacht) st.push(`${wacht} ${wacht===1?'waarneming wacht':'waarnemingen wachten'} op verbinding`);
+  if(fout) st.push(`${fout} ${fout===1?'waarneming kon':'waarnemingen konden'} niet worden verstuurd`);
+  if(st.length) h+=`<p class="dstatus">${st.join(' · ')}</p>`;
   DIER_GROEP.forEach(([g,label])=>{
     const ds=DIER_LIJST.filter(d=>d.g===g); if(!ds.length) return;
     h+=`<h2>${esc(label)}</h2><div class="dgrid">`+ds.map(d=>dierKnop(d,tel[d.k]||0,mijn[d.k]||0)).join('')+`</div>`;
   });
-  h+=`<h2>Iets anders</h2><div class="dgrid"><button class="dier overig${mijn.overig?' mijn':''}" data-dier="overig">`+
+  h+=`<h2>Staat je dier er niet bij?</h2><div class="dgrid"><button class="dier overig${mijn.overig?' mijn':''}" data-dier="overig">`+
     (tel.overig?`<span class="dtel">${tel.overig}</span>`:'')+`<span class="dletter">?</span><span class="dn">Ander dier</span></button></div>`+
-    `<div id="doverig" class="doverig" hidden><input id="doverignaam" type="text" maxlength="60" placeholder="Welk dier?" autocomplete="off"><button id="doverigok" type="button">Noteer</button></div>`;
+    `<div id="doverig" class="doverig" hidden><input id="doverignaam" type="text" maxlength="60" placeholder="Wat heb je gezien?" autocomplete="off"><button id="doverigok" type="button">Noteer</button></div>`;
   // De waarnemingen van vandaag (of van de dag die openstaat), nieuwste bovenaan
   const dag=waarnDag();
   const lijst=alle.filter(w=>w.dag===dag).sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
-  h+=`<h2>${dag===T.dag?'Vandaag gezien':`Gezien op ${isBuiten(dag)?fmtShort(dagDatum(dag)):dag>=1?'dag '+dag:'deze dag'}`}</h2>`;
-  if(!lijst.length) h+=`<p class="dstatus">Nog niets genoteerd.</p>`;
+  h+=`<h2>${dag===T.dag?'Vandaag gespot':`Gespot op ${isBuiten(dag)?fmtShort(dagDatum(dag)):dag>=1?'dag '+dag:'deze dag'}`}</h2>`;
+  if(!lijst.length) h+=`<p class="dstatus">${dag===T.dag?'Nog niets gespot vandaag.':'Niemand heeft iets gespot.'}</p>`;
   else h+=`<ul class="list dlijst">`+lijst.map(w=>{
     const eigen=w.user_id===NH.user.id;
     return `<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}</strong>`+
-      `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?' · niet verstuurd':' · wacht op verbinding'):''}</span></span>`+
+      `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · wacht op verbinding'):''}</span></span>`+
       (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
   }).join('')+`</ul>`;
-  // Stand van de groep
+  // Tot nu toe
   const soorten=new Set(alle.map(w=>w.dier==='overig'?'overig:'+(w.opmerking||'').toLowerCase():w.dier)).size;
-  const mensen=new Set(alle.map(w=>w.user_id)).size;
-  if(alle.length) h+=`<h2>Stand van de groep</h2><p class="dstatus">${alle.length} ${alle.length===1?'waarneming':'waarnemingen'}, ${soorten} ${soorten===1?'soort':'soorten'}, door ${mensen} ${mensen===1?'persoon':'mensen'}.</p>`;
+  const jij=alle.filter(w=>w.user_id===NH.user.id).length;
+  if(alle.length) h+=`<h2>Tot nu toe</h2><p class="dstatus">Jullie hebben samen ${alle.length} ${alle.length===1?'dier':'dieren'} gespot, ${soorten} ${soorten===1?'soort':'verschillende soorten'} en ${jij?jij:'nog geen'} door jou.</p>`;
   box.innerHTML=h;
-  const opnieuw=box.querySelector('#dopnieuw');
-  if(opnieuw) opnieuw.onclick=async e=>{ e.preventDefault(); opnieuw.textContent='Bezig…'; await flushPending(); if(mislukt('waarnemingen')) toast('Het lukt nog niet'); renderDieren(); };
   box.querySelectorAll('button.dier').forEach(b=>b.onclick=()=>{
     if(b.dataset.dier==='overig'){ const o=box.querySelector('#doverig'); o.hidden=!o.hidden; if(!o.hidden) o.querySelector('input').focus(); return; }
     registreerWaarneming(b.dataset.dier);
@@ -1700,9 +1698,10 @@ window.addEventListener('online',()=>{
   if(!NH.user) return;
   // even wachten tot de verbinding echt staat, dan pas vernieuwen en synchroniseren
   setTimeout(()=>{ nhRefresh().then(()=>flushPending()).then(aantal=>{
-    const fout=mislukt();
-    if(fout) toast(fout===1?'Eén notitie kon niet worden verstuurd. Kijk in Notities.':`${fout} notities konden niet worden verstuurd; kijk in Notities.`);
-    else if(aantal) toast(aantal===1?'Je notitie is verstuurd':`${aantal} notities zijn verstuurd`);
+    const fn=mislukt('dagitems'), fw=mislukt('waarnemingen');
+    if(fn) toast(fn===1?'Eén notitie kon niet worden verstuurd. Kijk in Notities.':`${fn} notities konden niet worden verstuurd. Kijk in Notities.`);
+    else if(fw) toast(fw===1?'Eén waarneming kon niet worden verstuurd. Kijk bij Dieren.':`${fw} waarnemingen konden niet worden verstuurd. Kijk bij Dieren.`);
+    else if(aantal) toast(verstuurdTekst());
     syncAlles(true).then(items=>{
       if(view==='alles') renderAlles(); else if(view==='day') render(); });
   }); },1500);
@@ -1712,7 +1711,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-126';
+const APP_VERSIE='2026-09-09-127';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
