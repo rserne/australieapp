@@ -84,6 +84,38 @@ VOORDAGEN.forEach((d,i)=>{
   controleerDag(d,w,true);
 });
 
+// Dieren (dieren.js): sleutels uniek en in een bekende groep. Elk dier uit een wild-blok dat op naam
+// of synoniem aan de lijst is te koppelen, krijgt in de app een teller; de rest kan onder 'Ander dier'.
+let DIEREN=[], DIER_GROEPEN=[];
+if(!fs.existsSync(__dirname+'/dieren.js')) fout('dieren.js ontbreekt');
+else{
+  ({DIEREN,DIER_GROEPEN}=vm.runInNewContext(fs.readFileSync(__dirname+'/dieren.js','utf8')+';({DIEREN,DIER_GROEPEN})',{}));
+  let ICONEN={};
+  if(!fs.existsSync(__dirname+'/dieren-iconen.js')) fout('dieren-iconen.js ontbreekt');
+  else ICONEN=vm.runInNewContext(fs.readFileSync(__dirname+'/dieren-iconen.js','utf8')+';DIER_ICONEN',{});
+  Object.entries(ICONEN).forEach(([k,svg])=>{
+    if(!/^<svg[\s>]/.test(svg)||!/viewBox=/.test(svg)) fout(`dieren-iconen.js: icoon '${k}' is geen svg met viewBox`);
+    if(!DIEREN.some(d=>d.k===k)) waarschuw(`dieren-iconen.js: icoon '${k}' hoort bij geen enkel dier in dieren.js`);
+  });
+  const groepen=new Set(DIER_GROEPEN.map(g=>g[0])), sleutels=new Set();
+  DIEREN.forEach(d=>{
+    if(!/^[a-z0-9-]+$/.test(d.k||'')) fout(`dieren.js: sleutel '${d.k}' mag alleen kleine letters, cijfers en streepjes bevatten`);
+    if(sleutels.has(d.k)) fout(`dieren.js: sleutel '${d.k}' staat er twee keer in`);
+    sleutels.add(d.k);
+    if(d.k==='overig') fout(`dieren.js: 'overig' is gereserveerd voor een dier buiten de lijst`);
+    if(!d.n) fout(`dieren.js: dier '${d.k}' heeft geen naam`);
+    if(!groepen.has(d.g)) fout(`dieren.js: dier '${d.k}' heeft onbekende groep '${d.g}'`);
+    if('ic' in d&&!/^<svg[\s>]/.test(d.ic||'')) fout(`dieren.js: icoon van '${d.k}' is geen svg`);
+    if(d.syn&&!Array.isArray(d.syn)) fout(`dieren.js: syn van '${d.k}' moet een lijst zijn`);
+  });
+  const bekend=naam=>DIEREN.some(d=>d.n===naam||(d.syn||[]).includes(naam));
+  const zonder=new Set();
+  alleDagen.forEach(d=>(d.wild||[]).forEach(w=>{ if(!bekend(w[0])) zonder.add(w[0]); }));
+  const metIcoon=DIEREN.filter(d=>d.ic||ICONEN[d.k]).length;
+  DIEREN.filter(d=>!d.ic&&!ICONEN[d.k]).forEach(d=>waarschuw(`dieren.js: '${d.k}' heeft geen icoon en krijgt de eerste letter`));
+  console.log(`  info:    ${DIEREN.length} dieren in dieren.js, ${metIcoon} met icoon. ${zonder.size} ${zonder.size===1?'dier uit de dagen heeft':'dieren uit de dagen hebben'} geen eigen knop (die vallen onder Ander dier).`);
+}
+
 // Losse lijsten
 Object.keys(HOTELGEO).forEach(h=>{ if(!alleDagen.some(d=>d.h===h)) waarschuw(`HOTELGEO: '${h}' wordt op geen enkele dag gebruikt`); });
 // Coördinaten binnen Australië. Vangt vooral verwisselde breedte- en lengtegraad
@@ -117,6 +149,10 @@ const html=fs.readFileSync(__dirname+'/index.html','utf8'), manifest=fs.readFile
 // voorreis.js moet worden geladen én offline beschikbaar zijn
 if(!/<script src="voorreis\.js">/.test(html)) fout('index.html laadt voorreis.js niet');
 if(!/'\.\/voorreis\.js'/.test(swBron)) fout('sw.js: CODE mist ./voorreis.js');
+if(!/<script src="dieren\.js">/.test(html)) fout('index.html laadt dieren.js niet');
+if(!/'\.\/dieren\.js'/.test(swBron)) fout('sw.js: CODE mist ./dieren.js');
+if(!/<script src="dieren-iconen\.js">/.test(html)) fout('index.html laadt dieren-iconen.js niet');
+if(!/'\.\/dieren-iconen\.js'/.test(swBron)) fout('sw.js: CODE mist ./dieren-iconen.js');
 const beeldBlok=(swBron.match(/const BEELD=\[([\s\S]*?)\];/)||['',''])[1];
 const inBeeld=new Set([...beeldBlok.matchAll(/'\.\/([^']+)'/g)].map(m=>m[1]));
 const verwezen=new Set([

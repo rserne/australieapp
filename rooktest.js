@@ -16,7 +16,7 @@ const lees=n=>fs.readFileSync(path.join(__dirname,n),'utf8');
 const html=lees('index.html').replace(/<script[^>]*src="[^"]+"[^>]*><\/script>/g,'');   // scripts laden we zelf
 // De scenario's draaien met het echte voorreis.js. De scenario's 'met programma' vervangen het door
 // een testprogramma, zodat de dagopbouw ook wordt beproefd als het echte bestand leeg is.
-const codeMet=voorreis=>lees('reis.js')+'\n;\n'+(voorreis??lees('voorreis.js'))+'\n;\n'+lees('app.js');
+const codeMet=voorreis=>lees('reis.js')+'\n;\n'+(voorreis??lees('voorreis.js'))+'\n;\n'+lees('dieren.js')+'\n;\n'+lees('dieren-iconen.js')+'\n;\n'+lees('app.js');
 const VOORTEST=`const VOORDAGEN=[
 {datum:"2026-09-18",k:"vlucht",t:"Vlucht Amsterdam – Cairns",p:"Schiphol → Cairns",tz:null,
  fl:[["SQ 323","Amsterdam Schiphol","Singapore Changi","10.20","05.30 (19 sep, lokale tijd)","Singapore Airlines · 25 kg"]],
@@ -93,7 +93,7 @@ function zoek(w,fouten,term){
       blader(w,fouten);
       klik(w,'btnIndex',fouten); zoek(w,fouten,'uluru'); zoek(w,fouten,'& bar'); zoek(w,fouten,'sq');
       klik(w,'btnPrakt',fouten);
-      if(login){ klik(w,'btnAlles',fouten); klik(w,'btnToday',fouten); const n=$(w,'nadd'); if(n) n.click(); const s=$(w,'shclose'); if(s) s.click(); }
+      if(login){ klik(w,'btnAlles',fouten); klik(w,'btnDieren',fouten); klik(w,'btnToday',fouten); const n=$(w,'nadd'); if(n) n.click(); const s=$(w,'shclose'); if(s) s.click(); }
       klik(w,'btnToday',fouten);
       await sleep(150);
       meld(naam,fouten);
@@ -215,6 +215,67 @@ function zoek(w,fouten,term){
     eis(fouten,tmw&&/Dag 6/.test(tmw.textContent)&&tmw.querySelector('.ganaar'),'Morgen-blok op een groepsdag werkt via dagKnop');
     if(tmw){ tmw.querySelector('.ganaar').click(); eis(fouten,kop(w)==='Dag 6van 29',`tik op Morgen gaat naar dag 6 (nu: '${kop(w)}')`); }
     meld('5 okt: Morgen-blok op een gewone reisdag',fouten); }
+
+  // Dieren: waarnemingen
+  { const {w,fouten}=start('2026-10-06',{login:'groep'});
+    eis(fouten,$(w,'btnDieren').hidden===false,'tabblad Dieren zichtbaar na inloggen');
+    klik(w,'btnDieren',fouten);
+    eis(fouten,$(w,'dieren').style.display==='block','tabblad Dieren opent');
+    const knoppen=w.document.querySelectorAll('#dieren button.dier');
+    eis(fouten,knoppen.length>=70,`raster met dieren (nu ${knoppen.length} knoppen)`);
+    const koala=w.document.querySelector('#dieren button.dier[data-dier="koala"]');
+    eis(fouten,!!koala,'knop Koala staat in het raster');
+    if(koala) koala.click();
+    await sleep(50);
+    const q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q.length===1&&q[0].tabel==='waarnemingen'&&q[0].dier==='koala'&&q[0].dag===6&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d:\d\d$/.test(q[0].gezien_op),`waarneming zonder verbinding in de wachtrij met tabel, dag en tijd (nu ${JSON.stringify(q[0])})`);
+    eis(fouten,/Koala/.test($(w,'dieren').textContent)&&/wacht op verbinding/.test($(w,'dieren').textContent),'waarneming staat onder Vandaag gezien met de status');
+    eis(fouten,koala&&koala.classList.contains('mijn')||w.document.querySelector('#dieren button.dier[data-dier="koala"] .dtel'),'teller op de knop na de waarneming');
+    const t=$(w,'toast'); eis(fouten,t&&/Koala genoteerd/.test(t.textContent)&&t.querySelector('button'),'melding met Ongedaan maken');
+    if(t&&t.querySelector('button')) t.querySelector('button').click();
+    await sleep(50);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'Ongedaan maken haalt de waarneming uit de wachtrij');
+    // een ander dier via het tekstveld
+    w.document.querySelector('#dieren button.dier[data-dier="overig"]').click();
+    const inp=$(w,'doverignaam'); inp.value='Wombat met jong'; $(w,'doverigok').click();
+    await sleep(50);
+    const q2=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q2.length===1&&q2[0].dier==='overig'&&q2[0].opmerking==='Wombat met jong','ander dier met naam in opmerking');
+    eis(fouten,/Wombat met jong/.test($(w,'dieren').textContent),'ander dier staat met zijn naam in de lijst');
+    // weghalen van een wachtende waarneming
+    const weg=w.document.querySelector('#dieren .dweg'); if(weg) weg.click(); await sleep(50);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'eigen wachtende waarneming weghalen');
+    // de teller op de dagpagina
+    w.localStorage.setItem('aus_pending',JSON.stringify([{tabel:'waarnemingen',dier:'vogelbekdier',dag:6,gezien_op:'2026-10-06T09:10:00+10:30',wie:'Test'}]));
+    klik(w,'btnToday',fouten); klik(w,'btnIndex',fouten);
+    const rij=[...w.document.querySelectorAll('#results .idx button')].find(b=>b.dataset.n==='6'); if(rij) rij.click();
+    eis(fouten,/keer gezien door de groep/.test($(w,'day').textContent),'dagpagina toont hoe vaak de groep een dier uit het blok zag');
+    meld('6 okt: waarnemingen zonder verbinding',fouten); }
+  { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
+    // Nhost nagebootst: de wachtrij bevat een notitie en een waarneming, beide moeten naar hun eigen tabel
+    const mutaties=[];
+    w.gql=async(q,v)=>{ mutaties.push(q.match(/insert_\w+_one|delete_\w+_by_pk/)[0]);
+      if(/insert_waarnemingen_one/.test(q)) return {insert_waarnemingen_one:{id:'w1'}};
+      if(/insert_dagitems_one/.test(q)) return {insert_dagitems_one:{id:'n1',created_at:'2026-10-06T00:00:00Z'}};
+      if(/delete_waarnemingen_by_pk/.test(q)) return {delete_waarnemingen_by_pk:{id:v.id}};
+      throw new Error('onverwachte query'); };
+    w.localStorage.setItem('aus_pending',JSON.stringify([
+      {dag:6,tekst:'Oude notitie zonder tabel',wie:'Test',type:'notitie'},
+      {tabel:'waarnemingen',dier:'emoe',dag:6,gezien_op:'2026-10-06T08:00:00+10:30',wie:'Test'}]));
+    const n=await w.flushPending();
+    eis(fouten,n===2&&mutaties.join(',')==='insert_dagitems_one,insert_waarnemingen_one',`wachtrij stuurt elk item naar zijn eigen tabel (nu ${n}, ${mutaties.join(',')})`);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'wachtrij leeg na versturen');
+    // met verbinding gaat een waarneming direct naar Nhost en komt in de kopie
+    klik(w,'btnDieren',fouten);
+    w.document.querySelector('#dieren button.dier[data-dier="quokka"]').click(); await sleep(50);
+    const kopie=JSON.parse(w.localStorage.getItem('aus_cache_waarn')||'[]');
+    eis(fouten,kopie.length===1&&kopie[0].id==='w1'&&kopie[0].dier==='quokka','waarneming met verbinding staat meteen in de kopie op de telefoon');
+    $(w,'toast').querySelector('button').click(); await sleep(50);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_cache_waarn')||'[]').length===0&&mutaties[mutaties.length-1]==='delete_waarnemingen_by_pk','Ongedaan maken verwijdert bij Nhost');
+    meld('6 okt: wachtrij en waarnemingen met verbinding',fouten); }
+  { const {w,fouten}=start('2026-10-06');
+    eis(fouten,$(w,'btnDieren').hidden===true,'tabblad Dieren verborgen zonder login');
+    meld('6 okt anoniem: Dieren achter de login',fouten); }
 
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);

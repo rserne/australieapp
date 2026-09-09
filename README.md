@@ -9,6 +9,8 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 |---|---|---|
 | `reis.js` | Alle inhoud, dus dagen, hotels, restaurants, excursies, kofferlijst, noodnummers | Bij elke inhoudelijke wijziging |
 | `voorreis.js` | Programma van de voorreis, in dezelfde vorm als de dagen in `reis.js`. Leeg als de voorreis alleen uit notities bestaat | Bij een wijziging in het voorreisprogramma |
+| `dieren.js` | De dieren voor de waarnemingen, met naam, groep en synoniemen | Bij een nieuw dier of een andere naam |
+| `dieren-iconen.js` | De iconen bij die dieren, per sleutel één svg als tekst | Bij een nieuw of ander icoon |
 | `app.js` | De code | Alleen bij nieuwe functies of bugfixes |
 | `app.css` | De opmaak | Zelden |
 | `index.html` | Het skelet van de pagina | Zelden |
@@ -62,6 +64,33 @@ Alle dertien dagen hebben een programma, van de vlucht vanaf Schiphol via Sydney
 - **Slaapplekken.** Voor de kampeertour staan de twee privékampen met coördinaten in `HOTELGEO`. De hotels in Sydney, Cairns, Nhulunbuy en Darwin zijn onbekend. Daarom hebben de restaurants geen looptijd, maar `null` in plaats van het aantal minuten. Zodra de adressen er zijn, kun je `h` toevoegen, de coördinaten in `HOTELGEO` zetten en de looptijden invullen.
 - **1 en 2 oktober vallen buiten de voorreis**, want dat zijn groepsdag 1 en 2. De vlucht van Darwin naar Sydney (QF 841, 13.05 tot 17.55) hoort dus in een Ticket-notitie op dag 1 en niet in `voorreis.js`.
 - Wie een voorreis heeft, wordt pas voorreiziger zodra hij één voorreisnotitie heeft geschreven. Eén Ticket-notitie op de eerste dag is genoeg. Daarna telt Vandaag af naar het eigen vertrek.
+
+## Dieren en waarnemingen
+
+Het tabblad Dieren (het pootje onderin, alleen voor wie is ingelogd) toont een raster met de dieren uit `dieren.js`, per groep. Eén tik op een dier is een waarneming. De app noteert het dier, wie het zag, de dag en de plaatselijke tijd, en de hele groep ziet het. Onder het raster staat wat er die dag is gezien, en op de dagpagina staat bij elk dier uit het blok Dieren spotten hoe vaak de groep het al zag. Wie mis tikt, gebruikt Ongedaan maken in de melding. Een dier dat niet in het raster staat, gaat via Ander dier met een naam erbij.
+
+Waarnemingen staan bij Nhost in een eigen tabel `waarnemingen`, los van de notities. Zonder verbinding gaan ze in dezelfde wachtrij als notities, elk item weet zelf naar welke tabel het moet. Het tijdstip komt uit de kolom `gezien_op` en niet uit `created_at`, want die laatste is het moment van versturen, dat in Kakadu uren later kan zijn.
+
+De tabel maak je eenmalig aan in de Nhost-console (Database, SQL):
+
+```sql
+create table public.waarnemingen (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  wie text,
+  dier text not null,
+  dag integer not null,
+  gezien_op timestamptz not null,
+  opmerking text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index waarnemingen_dag_idx on public.waarnemingen (dag);
+```
+
+Zet daarna bij Hasura (Permissions) voor de rol `user` dezelfde rechten als op `dagitems`. Select op alle kolommen zonder filter. Insert op de kolommen `wie`, `dier`, `dag`, `gezien_op` en `opmerking`, met als column preset `user_id` gelijk aan `X-Hasura-User-Id`. Update en delete alleen waar `user_id` gelijk is aan `X-Hasura-User-Id`. Zolang de tabel of de rechten ontbreken, blijft de rest van de app werken. Het tabblad Dieren meldt dan dat waarnemingen nog niet verstuurd kunnen worden en bewaart ze op de telefoon.
+
+In `dieren.js` heeft elk dier een sleutel `k` (die komt in de tabel), een naam `n` voor op de knop en een groep `g`. Het icoon staat onder dezelfde sleutel in `dieren-iconen.js`, een svg als tekst met `fill="currentColor"`, zodat het de tekstkleur van het thema volgt. Met `syn` koppel je de namen uit de `wild`-blokken van de dagen aan een dier, zodat de teller op de dagpagina klopt. `check.js` meldt hoeveel dieren uit de dagen geen eigen knop hebben. Het tabblad heeft een eigen banner, `banner-dieren.jpg`, die net als de andere banners in de map en in `BEELD` moet staan.
 
 ## Verzekeringen
 

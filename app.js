@@ -82,7 +82,8 @@ const KIND={
 const CHECK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.5l2 2 4.5-5"/><rect x="3.5" y="3.5" width="17" height="17" rx="4"/></svg>';
 const PAW='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="flex:none;margin-top:3px;opacity:.7"><ellipse cx="7" cy="8.5" rx="2" ry="2.6"/><ellipse cx="17" cy="8.5" rx="2" ry="2.6"/><ellipse cx="11" cy="5" rx="2" ry="2.6"/><ellipse cx="13" cy="5" rx="2" ry="2.6" transform="translate(4 0)"/><path d="M12 11c-3 0-6 2.6-6 5.2 0 1.7 1.2 2.8 3 2.8 1 0 1.8-.4 3-.4s2 .4 3 .4c1.8 0 3-1.1 3-2.8C18 13.6 15 11 12 11Z"/></svg>';
 const HOME='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg>';
-const EMU='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><ellipse cx="9.5" cy="14.5" rx="6" ry="4.6"/><path d="M13.5 12.2c1.2-3.2 2.2-6 3.6-8.2.5-.8 1.5-1 2.1-.4l.9.9c.3.3.2.8-.2 1l-1.3.5c-.9 2.4-1.5 4.7-2.3 7z"/><path d="M6.5 18.5 5.6 23h1.3l1-4.2zM11.5 18.5l.9 4.5h-1.3l-1-4.2z"/></svg>';
+// De emoe uit de iconenset (dieren-iconen.js), bijgesneden tot de tekening zelf
+const EMU='<svg width="18" height="18" viewBox="57.2 65.8 284.0 358.4" fill="currentColor" stroke="none"><path d="M283.5 80.2c-4 1.4-9.2 6.3-11.8 11.3-3.3 6.1-2.9 28.2.8 50 3.7 21.3 3.9 44.9.6 53.5-1.1 3-3.2 6.8-4.5 8.5l-2.4 2.9-6.4-5.9c-6.9-6.4-24.5-17.4-33.7-21.1-13.8-5.5-36.8-7.3-52.4-3.9-25.3 5.3-46.2 16.8-65.1 35.8-20 20-29.8 38.2-36.2 67.2-2.9 12.6-2.4 31.5 1 43 3.4 11.2 9.3 22.5 12.9 24.5 2.4 1.3 3 1.3 5.4 0 1.6-.9 6.5-6.5 11-12.5 4.6-6.1 8.7-11.1 9.2-11.3.6-.2 1.7 1.3 2.5 3.2.8 2 2 3.6 2.6 3.6 1.7 0 5.9-2.9 12-8.2 8.2-7.3 29.7-17.8 36.3-17.8 3.5 0 3.5.7.1 18.2l-2.7 13.8 2.7 21.2c5.3 40.2 5.2 38.1 2.1 44.2-1.5 2.9-2.5 6.4-2.3 7.7l.3 2.4 18.9.3 18.8.2-.7-3.7c-.4-2.1-.7-4.2-.8-4.7-.5-2.6 2.9-1.1 7.7 3.4 6.1 5.8 8.3 6.1 10.2 1.4 1.1-2.7 1-3.5-.6-6.2-2.5-4-6.4-6-13.7-6.8-6.5-.8-7.3-1.4-7.3-6.3 0-1.9-1.4-14.5-3.1-28-1.7-13.6-2.8-26.5-2.5-28.8.7-5.3 8.8-25.7 12.7-31.7 2-3.3 4.2-5.2 7.2-6.5 5.2-2.2 18.1-5.6 26.7-7.1 9-1.5 15.3-3.6 23.8-7.8 21.7-10.8 35.7-30.3 41.3-57.6 2.9-13.8 2.3-35.2-1.6-54.6-5.8-30-7.6-41.3-7.3-47.8l.3-6.7 9.1-.3c7.4-.2 10.2.1 14.5 1.8l5.4 2.2 1.7-2.2c1-1.2 1.8-2.8 1.8-3.5 0-1.5-4.5-5.5-11.4-10.3-2.6-1.8-5.5-4.7-6.4-6.5-5.7-10.8-16.7-16-26.7-12.5m14.6 10.5c3.5 3.2 6.4 8.7 5.6 10.5-.3 1-3.3 2-8.6 2.8l-8.1 1.4-.6 3.4c-1.2 6.3.4 25.4 3.1 36.7 3.8 15.9 7.5 37.7 8.2 47.5.7 10.1-1.7 27.3-5.2 36.7-3.8 10.7-10.5 21.3-18.5 29.4-9.9 10.1-18.2 14.1-37.5 18.1-15.2 3.1-28.3 7-32.1 9.5-3 1.9-14.6 21-19.3 31.7-3.3 7.7-3.5 8.6-3.3 18.6.1 6.3 1.2 16.3 2.7 25 1.4 8 3.3 19.2 4.1 25 .8 5.7 1.8 10.8 2.2 11.1.4.4 2.2.9 4.1 1.1s3.6.9 3.9 1.6c.3 1-1.8 1.2-9.8 1l-10.1-.3-.5-12.5c-.2-6.9-1.3-17-2.3-22.5-1.1-5.5-2.5-15.3-3.2-21.8-1.1-10.8-1.1-12.6.9-23.5 3.9-21.5 3.8-29.2-.3-29.2-4.8 0-24.3 5.2-31.5 8.5-4.1 1.8-9 3.6-10.8 4-2.4.5-4.3 1.9-6.5 5.1-1.7 2.4-3.6 4.4-4.2 4.4-1.4 0-3.9-2.8-4.8-5.3-.9-2.4-2.4-2.1-5.4 1.1-8.4 9-15.4 17.3-17.7 21.1-1.6 2.4-3.1 3.9-3.6 3.5-.5-.5-2.2-4.1-3.9-7.9-9.6-22.7-7.5-50 6-76.8 9.2-18.1 24.9-36.3 40.3-46.7 16.1-10.8 37.5-19 53.6-20.5 15.4-1.5 38.4 4 53 12.5 4.3 2.5 11.4 8.2 16.8 13.4l9.4 9.1 3.6-2.1c4.7-2.7 10.4-10.8 12.5-17.6 4.9-16 4.6-43.2-.8-71.3-2.3-11.9-2-26.6.5-31.6 4.1-7.9 12.2-9.8 18.1-4.2"/><path d="M290.1 91.9c-2 3.6-1 6.6 2.2 6.9 2.3.3 2.7 0 2.7-2.1 0-1.4-.8-3.5-1.9-4.8l-1.8-2.3z"/></svg>';
 const PLANE='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5a2.4 2.4 0 0 0-3.4-3.4L12.6 7.6 4.4 5.8 3 7.2l6.6 3.8-2.6 2.6-3-.4L3 14.6l3.4 1.3L7.7 19l1.4-1 -.4-3 2.6-2.6L15.1 19l1.4-1.4Z"/></svg>';
 const EXTW='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.75"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>';
 const EXT='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;vertical-align:baseline;opacity:.55"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>';
@@ -205,7 +206,10 @@ function render(){
       h+=`<div class="emoealert">${EMU}<span><b>Emoe-alert <span class="chance">${'●'.repeat(k)}${'○'.repeat(3-k)}</span></b>${esc(d.emoe[1])}</span></div>`;
     }
     h+=`<ul class="list wild">`+
-      d.wild.map(([a,b,k])=>`<li>${PAW}<span class="wbody"><span class="wtop"><strong>${esc(a)}</strong>${dots(k)}</span><span class="sub">${esc(b)}</span></span></li>`).join('')+
+      d.wild.map(([a,b,k])=>{
+        const dier=NH.user?dierBijNaam(a):null, n=dier?(dierTelling()[dier.k]||0):0;
+        return `<li>${PAW}<span class="wbody"><span class="wtop"><strong>${esc(a)}</strong>${dots(k)}</span><span class="sub">${esc(b)}</span>`+
+          (n?`<span class="sub gezien">${n===1?'1 keer':n+' keer'} gezien door de groep</span>`:'')+`</span></li>`; }).join('')+
       `</ul><div class="legend">`+
       // dezelfde bolletjes als in de lijst, zodat de afstanden overeenkomen
       [[3,'bijna zeker'],[2,'goede kans'],[1,'geluk nodig']]
@@ -430,7 +434,7 @@ function renderBuitenDag(){
     num:`${voor?'Voorreis':'Nareis'}<small>dag ${volgnr} van ${tot}</small>`,
     titel:fmtLong(date).replace(/^./,c=>c.toUpperCase()),track:'0%'});
   document.getElementById('navlabel').textContent=isToday?'Vandaag':fmtShort(date);
-  const aantal=alleNotities().filter(it=>it.dag===dag).length+pending().filter(p=>p.dag===dag).length;
+  const aantal=alleNotities().filter(it=>it.dag===dag).length+pendingVan('dagitems').filter(p=>p.dag===dag).length;
   // Alleen #notes-rest: dan zet renderNotes alles in één lijst, op soort gesorteerd zoals in het tabblad Notities.
   let h=aantal?`<div id="notes-rest" class="notes"></div>`:`<div class="empty">Nog geen notities voor deze dag.</div>`;
   h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
@@ -716,7 +720,8 @@ const reisPeriode=()=>{
 const BANNERS={
   index:['banner-dagen.jpg','Alle dagen',null],
   alles:['banner-notities.jpg','Notities',''],
-  prakt:['banner-praktisch.jpg','Praktisch','']
+  prakt:['banner-praktisch.jpg','Praktisch',''],
+  dieren:['banner-dieren.jpg','Dieren','Wat de groep heeft gezien']
 };
 function renderKop(v){
   const hero=document.getElementById('hero');
@@ -735,22 +740,24 @@ function switchTo(v){
   document.getElementById('index').style.display=v==='index'?'block':'none';
   document.getElementById('prakt').style.display=v==='prakt'?'block':'none';
   document.getElementById('alles').style.display=v==='alles'?'block':'none';
+  document.getElementById('dieren').style.display=v==='dieren'?'block':'none';
   document.getElementById('foot').style.display=v==='prakt'?'block':'none';
   document.getElementById('navbar').style.display=v==='day'?'block':'none';
-  [['btnToday','day'],['btnIndex','index'],['btnPrakt','prakt'],['btnAlles','alles']].forEach(([id,k])=>{
+  [['btnToday','day'],['btnIndex','index'],['btnPrakt','prakt'],['btnAlles','alles'],['btnDieren','dieren']].forEach(([id,k])=>{
     const b=document.getElementById(id); b.classList.toggle('on',v===k); b.setAttribute('aria-pressed',v===k);
   });
   renderKop(v);
   if(v==='index'){renderIndex();window.scrollTo(0,0)}
   else if(v==='prakt'){renderPrakt();window.scrollTo(0,0)}
   else if(v==='alles'){renderAlles();window.scrollTo(0,0)}
+  else if(v==='dieren'){renderDieren();window.scrollTo(0,0)}
 }
-// het vierde tabblad bestaat alleen voor wie is ingelogd
+// Notities en Dieren bestaan alleen voor wie is ingelogd, want beide schrijven op naam.
 function toonTabs(){
-  const b=document.getElementById('btnAlles');
-  b.hidden=!NH.user;
+  document.getElementById('btnAlles').hidden=!NH.user;
+  document.getElementById('btnDieren').hidden=!NH.user;
   document.querySelector('.tabbar .inner').classList.toggle('vier',!!NH.user);
-  if(!NH.user&&view==='alles') switchTo('day');
+  if(!NH.user&&(view==='alles'||view==='dieren')) switchTo('day');
 }
 document.getElementById('prev').onclick=()=>ga(vorige(cur));
 document.getElementById('next').onclick=()=>ga(volgende(cur));
@@ -758,6 +765,7 @@ document.getElementById('btnToday').onclick=()=>{cur=vandaagPagina();switchTo('d
 document.getElementById('btnIndex').onclick=()=>switchTo(view==='index'?'day':'index');
 document.getElementById('btnPrakt').onclick=()=>switchTo(view==='prakt'?'day':'prakt');
 document.getElementById('btnAlles').onclick=()=>switchTo(view==='alles'?'day':'alles');
+document.getElementById('btnDieren').onclick=()=>switchTo(view==='dieren'?'day':'dieren');
 document.addEventListener('keydown',e=>{
   if(view!=='day')return;
   if(e.target.matches('input,textarea,select')||document.getElementById('sheet'))return;
@@ -903,6 +911,11 @@ const typeLabel=t=>(TYPES.find(x=>x[0]===t)||TYPES[TYPE_STD])[1];
 const typeRank=t=>{const i=TYPES.findIndex(x=>x[0]===t);return i<0?TYPE_STD:i};
 const isVerz=it=>(it.type||'notitie')==='verzekering';
 const M_DEL=`mutation($id:uuid!){delete_dagitems_by_pk(id:$id){id}}`;
+// Waarnemingen van dieren: eigen tabel, dezelfde wachtrij en dezelfde kopie op de telefoon als notities.
+const Q_WAARN=`query{waarnemingen(order_by:{gezien_op:asc}){id user_id dier dag gezien_op wie opmerking created_at}}`;
+const M_INS_WAARN=`mutation($o:waarnemingen_insert_input!){insert_waarnemingen_one(object:$o){id}}`;
+const M_DEL_WAARN=`mutation($id:uuid!){delete_waarnemingen_by_pk(id:$id){id}}`;
+const alleWaarnemingen=()=>LS.get('aus_cache_waarn')||[];
 // Dag apart bijwerken, alleen als hij echt verandert. Zo blijft gewoon bewerken werken
 // ook als de rechten op de kolom dag ontbreken.
 const M_UPD_DAG=`mutation($id:uuid!,$d:Int!){update_dagitems_by_pk(pk_columns:{id:$id},_set:{dag:$d}){id}}`;
@@ -959,12 +972,20 @@ async function syncAlles(force){
       (await idbKeys()).forEach(k=>{ if(!geldig.has(k)) idbDel(k); });
       for(const it of items.filter(x=>x.soort==='bestand')) await cacheFile(it);
       LS.set('aus_sync',{tijd:new Date().toISOString()});
+      await syncWaarnemingen();
       return items;
     }catch(e){ return null; } finally { _sync=null; }
   })();
   return _sync;
 }
 
+// Waarnemingen apart ophalen. Mislukt dit (bijvoorbeeld omdat de tabel nog niet bestaat), dan blijven
+// de notities gewoon werken en onthouden we de reden voor het scherm Dieren.
+async function syncWaarnemingen(){
+  if(!NH.user||!navigator.onLine) return;
+  try{ const d=await gql(Q_WAARN); LS.set('aus_cache_waarn',d.waarnemingen); LS.del('aus_waarn_fout'); }
+  catch(e){ if(!e.tijdelijk) LS.set('aus_waarn_fout',e.message); }
+}
 const MAX_UPLOAD=20*1024*1024;
 const TOEGESTAAN=['image/jpeg','image/png','image/heic','image/heif','image/webp','application/pdf'];
 async function uploadFile(file){
@@ -998,12 +1019,24 @@ async function deleteFile(id){
   }catch(e){ return false; }
 }
 
-// wachtrij voor notities die zonder verbinding zijn getypt
+// Wachtrij voor alles wat zonder verbinding is vastgelegd. Elk item draagt de tabel waar het heen moet
+// (dagitems voor notities, waarnemingen voor dieren). Items van vóór de waarnemingen hebben geen tabel
+// en zijn notities. pending() geeft de hele rij, de rest kijkt alleen naar de eigen tabel, maar de
+// plek in de rij (pix) blijft die in de hele rij, zodat bewerken en weggooien op de juiste landen.
 function pending(){return LS.get('aus_pending')||[]}
+const tabelVan=p=>p.tabel||'dagitems';
+const pendingVan=tabel=>pending().map((p,i)=>({...p,pix:i})).filter(p=>tabelVan(p)===tabel);
 // Wachtende notities in dezelfde vorm als de notities van Nhost, met hun plek in de wachtrij (pix)
 // erbij zodat je ze kunt bewerken of weggooien voordat ze zijn verstuurd.
-const pendingAlsItems=()=>pending().map((p,i)=>({...p,id:'wacht'+i,pix:i,user_id:NH.user.id,soort:'notitie',
+const pendingAlsItems=()=>pendingVan('dagitems').map(p=>({...p,id:'wacht'+p.pix,user_id:NH.user.id,soort:'notitie',
   type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}));
+// Hetzelfde voor waarnemingen
+const pendingWaarnemingen=()=>pendingVan('waarnemingen').map(p=>({...p,id:'wacht'+p.pix,user_id:NH.user.id,pending:true}));
+// Eén item in de wachtrij versturen, naar de eigen tabel
+async function verstuurPending(it){
+  if(tabelVan(it)==='waarnemingen') return gql(M_INS_WAARN,{o:{dier:it.dier,dag:it.dag,gezien_op:it.gezien_op,wie:it.wie,opmerking:it.opmerking||null}});
+  return gql(M_INS,{o:{dag:it.dag,soort:'notitie',tekst:it.tekst,wie:it.wie,type:it.type||'notitie'}});
+}
 // Notities die nog op verbinding wachten staan alleen op deze telefoon. Ze krijgen een eigen
 // index als sleutel, zodat je ze kunt aanpassen of weggooien voordat ze zijn verstuurd.
 function pendingUpdate(ix,velden){ const q=pending(); if(!q[ix])return; q[ix]={...q[ix],...velden}; LS.set('aus_pending',q); }
@@ -1012,7 +1045,7 @@ async function flushPending(){
   const q=pending(); if(!q.length||!navigator.onLine) return 0;
   const rest=[]; let verstuurd=0;
   for(const it of q){
-    try{ await gql(M_INS,{o:{dag:it.dag,soort:'notitie',tekst:it.tekst,wie:it.wie,type:it.type||'notitie'}}); verstuurd++; }
+    try{ await verstuurPending(it); verstuurd++; }
     // Tijdelijk: gewoon laten staan. Blijvend (rechten, ongeldige invoer): ook laten staan, want de
     // tekst mag niet verloren gaan, maar met de reden erbij zodat je hem kunt aanpassen of weggooien.
     catch(e){ rest.push(e.tijdelijk?it:{...it,fout:e.message}); }
@@ -1020,7 +1053,7 @@ async function flushPending(){
   LS.set('aus_pending',rest);
   return verstuurd;
 }
-const mislukt=()=>pending().filter(p=>p.fout).length;
+const mislukt=(tabel='dagitems')=>pendingVan(tabel).filter(p=>p.fout).length;
 
 // Tekst veilig weergeven én links aanklikbaar maken. Eerst escapen tegen kwaadaardige
 // invoer, daarna pas de gevonden adressen omzetten in een link.
@@ -1111,11 +1144,10 @@ async function renderNotes(dag){
   teken(items,status);
 
   function teken(items,status){
-  const pend=pending().filter(p=>p.dag===dag);
+  const pend=pendingVan('dagitems').filter(p=>p.dag===dag);
   // user_id meegeven, anders herkent noteCard een wachtende notitie niet als de jouwe
-  // en verschijnen de knoppen Bewerken en Verwijderen niet.
-  const all=[...items,...pend.map(p=>({...p,soort:'notitie',pending:true,user_id:NH.user.id,
-    pix:pending().findIndex(q=>q===p||(q.dag===p.dag&&q.tekst===p.tekst&&q.wie===p.wie))}))]
+  // en verschijnen de knoppen Bewerken en Verwijderen niet. pix is de plek in de hele wachtrij.
+  const all=[...items,...pend.map(p=>({...p,soort:'notitie',pending:true,user_id:NH.user.id}))]
     .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||'')));
   const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
   // Tickets en reserveringen heb je op een moment nodig. De rest is naslag.
@@ -1251,7 +1283,7 @@ async function renderAlles(){
   const verse=await syncAlles(true);
   if(verse){ items=verse; const t=LS.get('aus_sync'); status=`Bijgewerkt ${fmtWhen(t.tijd)}`; }
   else status=navigator.onLine?'Kon niet bijwerken, laatst opgeslagen versie':'Geen verbinding, laatst opgeslagen versie';
-  const fout=mislukt(), wacht=pending().length-fout;
+  const fout=mislukt(), wacht=pendingVan('dagitems').length-fout;
   if(wacht) status+=` · ${wacht} ${wacht===1?'notitie wacht':'notities wachten'} op verbinding`;
   if(fout) status+=` · ${fout} ${fout===1?'notitie kon':'notities konden'} niet worden verstuurd`;
   // hoeveel bijlagen staan er op de telefoon?
@@ -1492,7 +1524,7 @@ function renderAccount(box){
     box.querySelector('#logout').onclick=async e=>{e.preventDefault();
       if(navigator.onLine) await flushPending();
       const w=pending().length;
-      if(w&&!confirm(`${w===1?'Er wacht nog 1 notitie':'Er wachten nog '+w+' notities'} op verbinding. Bij uitloggen ${w===1?'gaat die':'gaan die'} verloren. Toch uitloggen?`)) return;
+      if(w&&!confirm(`${w===1?'Er wacht nog 1 notitie of waarneming':'Er wachten nog '+w+' notities of waarnemingen'} op verbinding. Bij uitloggen ${w===1?'gaat die':'gaan die'} verloren. Toch uitloggen?`)) return;
       await nhLogout(); await wisPriveGegevens(); toonTabs(); renderPrakt();};
     return;
   }
@@ -1509,9 +1541,123 @@ function renderAccount(box){
   });
 }
 
-function toast(msg){
+function toast(msg,knop,actie){
   let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);}
-  t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),3200);
+  t.textContent=msg;
+  // Met een knop (Ongedaan maken) blijft de melding langer staan en verdwijnt na de tik meteen.
+  if(knop){ const b=document.createElement('button'); b.type='button'; b.textContent=knop;
+    b.onclick=()=>{ t.classList.remove('on'); clearTimeout(t._h); actie(); }; t.appendChild(b); }
+  t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),knop?6000:3200);
+}
+
+// ---- Dieren: waarnemingen ----
+// De lijst staat in dieren.js. Een waarneming is een rij in de tabel waarnemingen bij Nhost, met het
+// dier (de sleutel uit de lijst, of 'overig' met de naam in opmerking), de dag, de plaatselijke tijd
+// en wie het zag. Zonder verbinding gaat hij in dezelfde wachtrij als een notitie.
+const DIER_LIJST=typeof DIEREN!=='undefined'&&Array.isArray(DIEREN)?DIEREN:[];
+const DIER_GROEP=typeof DIER_GROEPEN!=='undefined'&&Array.isArray(DIER_GROEPEN)?DIER_GROEPEN:[];
+const DIER_ICOON=typeof DIER_ICONEN==='object'&&DIER_ICONEN?DIER_ICONEN:{};
+const dierVan=k=>DIER_LIJST.find(d=>d.k===k)||null;
+// Dier bij een naam uit een wild-blok van een dag, via de naam of een synoniem
+const dierBijNaam=naam=>DIER_LIJST.find(d=>d.n===naam||(d.syn||[]).includes(naam))||null;
+const dierNaam=w=>w.dier==='overig'?(w.opmerking||'Onbekend dier'):(dierVan(w.dier)||{n:w.dier}).n;
+// De dag waar een waarneming bij hoort: de dag waarin we zitten, anders de dag die openstaat
+const waarnDag=()=>T.dag!=null?T.dag:(isBuiten(cur)||(cur>=1&&cur<=29)?cur:0);
+// Tijdstip als tekst mét het tijdverschil van de telefoon, zodat 15.32 uur in Kakadu 15.32 blijft,
+// ook als de rij pas uren later bij de server aankomt en ook als iemand hem thuis bekijkt.
+function nuISO(){
+  const d=new Date(), p=n=>String(n).padStart(2,'0'), o=-d.getTimezoneOffset(), a=Math.abs(o);
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}${o<0?'-':'+'}${p(Math.floor(a/60))}:${p(a%60)}`;
+}
+// Uur en minuut uit de tekst, zonder omrekening naar de tijdzone van de telefoon
+const tijdVan=iso=>{ const m=String(iso||'').match(/T(\d\d):(\d\d)/); return m?`${m[1]}.${m[2]}`:''; };
+const waarnemingen=()=>[...alleWaarnemingen(),...pendingWaarnemingen()];
+// Aantal keer dat de groep een dier zag, op de sleutel
+function dierTelling(){ const t={}; waarnemingen().forEach(w=>{ t[w.dier]=(t[w.dier]||0)+1; }); return t; }
+
+async function registreerWaarneming(dier,opmerking){
+  if(!NH.user) return;
+  const wie=NH.user.displayName||NH.user.email;
+  const rec={tabel:'waarnemingen',dier,dag:waarnDag(),gezien_op:nuISO(),wie,opmerking:opmerking||null};
+  const naam=dierNaam(rec);
+  let id=null;
+  const inWachtrij=()=>LS.set('aus_pending',[...pending(),rec]);
+  if(navigator.onLine){
+    try{
+      const d=await gql(M_INS_WAARN,{o:{dier:rec.dier,dag:rec.dag,gezien_op:rec.gezien_op,wie:rec.wie,opmerking:rec.opmerking}});
+      id=d.insert_waarnemingen_one.id;
+      LS.set('aus_cache_waarn',[...alleWaarnemingen(),{...rec,id,user_id:NH.user.id,created_at:rec.gezien_op}]);
+    }catch(e){
+      // Tijdelijk: in de wachtrij. Blijvend (tabel ontbreekt, rechten): ook in de wachtrij, met de reden,
+      // want de waarneming mag niet verloren gaan. Het scherm toont de reden.
+      if(e.tijdelijk) inWachtrij(); else { LS.set('aus_pending',[...pending(),{...rec,fout:e.message}]); LS.set('aus_waarn_fout',e.message); }
+    }
+  } else inWachtrij();
+  renderDieren();
+  toast(`${naam} genoteerd, ${tijdVan(rec.gezien_op)} uur`,'Ongedaan maken',async()=>{
+    if(id){
+      try{ await gql(M_DEL_WAARN,{id}); }catch(e){ toast('Ongedaan maken lukte niet'); return; }
+      LS.set('aus_cache_waarn',alleWaarnemingen().filter(w=>w.id!==id));
+    }else{
+      const ix=pending().findIndex(q=>tabelVan(q)==='waarnemingen'&&q.gezien_op===rec.gezien_op&&q.dier===rec.dier);
+      if(ix>=0) pendingDelete(ix);
+    }
+    renderDieren();
+  });
+}
+async function verwijderWaarneming(w){
+  if(w.pending){ pendingDelete(w.pix); renderDieren(); return; }
+  if(!confirm(`${dierNaam(w)} van ${tijdVan(w.gezien_op)} uur weghalen?`)) return;
+  try{ await gql(M_DEL_WAARN,{id:w.id}); }catch(e){ toast(e.tijdelijk?'Geen verbinding. Probeer het straks opnieuw.':'Weghalen lukte niet. '+e.message); return; }
+  LS.set('aus_cache_waarn',alleWaarnemingen().filter(x=>x.id!==w.id));
+  renderDieren();
+}
+function dierKnop(d,tel,mijn){
+  const ic=DIER_ICOON[d.k]||d.ic||`<span class="dletter">${esc(d.n.charAt(0))}</span>`;
+  return `<button class="dier${mijn?' mijn':''}" data-dier="${d.k}" aria-label="${esc(d.n)}${tel?`, ${tel} keer gezien`:''}">`+
+    (tel?`<span class="dtel">${tel}</span>`:'')+ic+`<span class="dn">${esc(d.n)}</span></button>`;
+}
+function renderDieren(){
+  const box=document.getElementById('dieren');
+  if(!NH.user){ box.innerHTML=''; return; }
+  const alle=waarnemingen(), tel=dierTelling();
+  const mijn={}; alle.filter(w=>w.user_id===NH.user.id).forEach(w=>{ mijn[w.dier]=(mijn[w.dier]||0)+1; });
+  let h=`<p class="dintro">Tik op een dier zodra je het ziet. De app noteert het dier, jou en de tijd, en de hele groep ziet het. Het getal is hoe vaak de groep het dier al zag.</p>`;
+  const fout=LS.get('aus_waarn_fout');
+  if(fout) h+=cal(IC_LET,'Waarnemingen kunnen nog niet worden verstuurd',`De server antwoordde "${fout}". Ze blijven op deze telefoon staan tot het lukt.`);
+  const wacht=pendingWaarnemingen().length;
+  if(wacht&&!fout) h+=`<p class="dstatus">${wacht} ${wacht===1?'waarneming wacht':'waarnemingen wachten'} op verbinding.</p>`;
+  DIER_GROEP.forEach(([g,label])=>{
+    const ds=DIER_LIJST.filter(d=>d.g===g); if(!ds.length) return;
+    h+=`<h2>${esc(label)}</h2><div class="dgrid">`+ds.map(d=>dierKnop(d,tel[d.k]||0,mijn[d.k]||0)).join('')+`</div>`;
+  });
+  h+=`<h2>Iets anders</h2><div class="dgrid"><button class="dier overig${mijn.overig?' mijn':''}" data-dier="overig">`+
+    (tel.overig?`<span class="dtel">${tel.overig}</span>`:'')+`<span class="dletter">?</span><span class="dn">Ander dier</span></button></div>`+
+    `<div id="doverig" class="doverig" hidden><input id="doverignaam" type="text" maxlength="60" placeholder="Welk dier?" autocomplete="off"><button id="doverigok" type="button">Noteer</button></div>`;
+  // De waarnemingen van vandaag (of van de dag die openstaat), nieuwste bovenaan
+  const dag=waarnDag();
+  const lijst=alle.filter(w=>w.dag===dag).sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
+  h+=`<h2>${dag===T.dag?'Vandaag gezien':`Gezien op ${isBuiten(dag)?fmtShort(dagDatum(dag)):dag>=1?'dag '+dag:'deze dag'}`}</h2>`;
+  if(!lijst.length) h+=`<p class="dstatus">Nog niets genoteerd.</p>`;
+  else h+=`<ul class="list dlijst">`+lijst.map(w=>{
+    const eigen=w.user_id===NH.user.id;
+    return `<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}</strong>`+
+      `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?' · niet verstuurd':' · wacht op verbinding'):''}</span></span>`+
+      (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
+  }).join('')+`</ul>`;
+  // Stand van de groep
+  const soorten=new Set(alle.map(w=>w.dier==='overig'?'overig:'+(w.opmerking||'').toLowerCase():w.dier)).size;
+  const mensen=new Set(alle.map(w=>w.user_id)).size;
+  if(alle.length) h+=`<h2>Stand van de groep</h2><p class="dstatus">${alle.length} ${alle.length===1?'waarneming':'waarnemingen'}, ${soorten} ${soorten===1?'soort':'soorten'}, door ${mensen} ${mensen===1?'persoon':'mensen'}.</p>`;
+  box.innerHTML=h;
+  box.querySelectorAll('button.dier').forEach(b=>b.onclick=()=>{
+    if(b.dataset.dier==='overig'){ const o=box.querySelector('#doverig'); o.hidden=!o.hidden; if(!o.hidden) o.querySelector('input').focus(); return; }
+    registreerWaarneming(b.dataset.dier);
+  });
+  const ok=()=>{ const v=box.querySelector('#doverignaam').value.trim(); if(!v) return; registreerWaarneming('overig',v); };
+  box.querySelector('#doverigok').onclick=ok;
+  box.querySelector('#doverignaam').onkeydown=e=>{ if(e.key==='Enter') ok(); };
+  box.querySelectorAll('.dweg').forEach(b=>b.onclick=()=>{ const w=alle.find(x=>String(x.id)===b.dataset.weg); if(w) verwijderWaarneming(w); });
 }
 
 // Bij het openen: eerst de sessie en de notities uit de kopie op de telefoon, zodat alles er meteen
@@ -1553,7 +1699,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-120';
+const APP_VERSIE='2026-09-09-123';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
