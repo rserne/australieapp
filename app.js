@@ -167,7 +167,11 @@ function render(){
       `</div>`).join('')+`</div>`;
   }
   if(d.agenda){
-    h+=`<h2>Tijdschema</h2><ol class="agenda">`+d.agenda.map(([tm,ti,tx,pv])=>
+    // Staat er ergens een dagdeel in plaats van een kloktijd ('Ochtend'), dan krijgt de hele lijst een
+    // bredere tijdkolom in een kleinere letter. Zo blijven de titels onder elkaar staan en loopt een
+    // woord niet over de titel heen. Houd dagdelen daarom kort, hoogstens een woord van acht letters.
+    const dagdeel=d.agenda.some(a=>!/\d/.test(a[0]));
+    h+=`<h2>Tijdschema</h2><ol class="agenda${dagdeel?' woorden':''}">`+d.agenda.map(([tm,ti,tx,pv])=>
       `<li><span class="atime">${esc(tm)}</span><span class="abody"><strong>${esc(ti)}</strong><span class="sub">${esc(tx)}${pv&&NH.user?` <span class="privtag">${esc(pv)}</span>`:''}</span></span></li>`).join('')+`</ol>`;
   }
   if(NH.user) h+=`<div id="notes-top" class="notes"></div>`;
@@ -1549,7 +1553,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-119';
+const APP_VERSIE='2026-09-09-120';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
