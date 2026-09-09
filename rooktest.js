@@ -128,7 +128,7 @@ function zoek(w,fouten,term){
     meld('5 okt: verzekeringen in Praktisch, Notities en zoeken',fouten); }
   { const {w,fouten}=start('2026-10-05');
     klik(w,'btnPrakt',fouten);
-    eis(fouten,$(w,'verz')&&/Na inloggen/.test($(w,'verz').textContent),'zonder login toont Verzekeringen alleen een uitleg');
+    eis(fouten,!$(w,'verz')&&!/Verzekeringen/.test($(w,'prakt').textContent),'zonder login staat het blok Verzekeringen er niet');
     meld('5 okt anoniem: Verzekeringen achter de login',fouten); }
   { const {w,fouten}=start('2026-10-05',{login:'groep',online:true});
     await sleep(4200);   // drie mislukte vernieuwpogingen: 0 + 1,2 + 2,4 s

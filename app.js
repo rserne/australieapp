@@ -603,7 +603,8 @@ function renderPrakt(){
    <ul class="list">`+NOOD.map(([a,b])=>`<li><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></li>`).join('')+`</ul>`;
   // Verzekeringsgegevens: notities van het type Verzekering, voor iedereen zichtbaar, door de
   // schrijver te wijzigen. Ze staan hier omdat je ze in een noodgeval als eerste zoekt.
-  h+=`<h2>Verzekeringen</h2><div id="verz"></div>`;
+  // Zonder login bestaat het blok niet, net als het tabblad Notities.
+  if(NH.user) h+=`<h2>Verzekeringen</h2><div id="verz"></div>`;
 
   // Vluchten per maatschappij, afgeleid uit de dagen zelf: één bron
   const perMij={};
@@ -1383,13 +1384,9 @@ function renderKoers(box){
 }
 
 // Verzekeringen in het tabblad Praktisch: per persoon of huishouden één notitie met verzekeraar,
-// polisnummer en alarmcentrale. Uit de lokale kopie, dus ook offline. Zonder login alleen een uitleg.
+// polisnummer en alarmcentrale. Uit de lokale kopie, dus ook offline.
 function renderVerzekeringen(box){
-  if(!box) return;
-  if(!NH.user){
-    box.innerHTML=`<div class="callout" style="margin:0"><span class="ico">${IC_SLOT}</span><span><b>Na inloggen</b>Polisnummers en alarmcentrales van de groep, ook offline. Inloggen kan onderaan dit tabblad.</span></div>`;
-    return;
-  }
+  if(!box||!NH.user) return;
   const wie=NH.user.displayName||NH.user.email;
   const items=[...alleNotities(),...pendingAlsItems()].filter(isVerz)
     .sort((a,b)=>String(a.created_at||'').localeCompare(String(b.created_at||'')));
@@ -1483,7 +1480,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-109';
+const APP_VERSIE='2026-09-09-110';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
