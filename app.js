@@ -475,7 +475,7 @@ function notitieTreffers(term){
   alle.forEach(it=>{
     const tekst=[it.tekst,it.naam].filter(Boolean).join(' — ');
     if(!tekst.toLowerCase().includes(term)) return;
-    uit.push({dag:it.dag,tekst,bron:(it.soort==='bestand'?'Bijlage':'Notitie')+' · '+typeLabel(it.type)+' · '+(it.wie||'')});
+    uit.push({dag:it.dag,type:it.type,tekst,bron:(it.soort==='bestand'?'Bijlage':'Notitie')+' · '+typeLabel(it.type)+' · '+(it.wie||'')});
   });
   return uit;
 }
@@ -515,9 +515,10 @@ function drawResults(term){
     // eerst je eigen notities: die zoek je meestal gerichter
     notitieTreffers(term).forEach(t=>{
       hits++;
-      h+=`<li><button data-n="${t.dag}"><div class="top">`+
-         `<span class="dn">${t.dag===0?'Algemeen':isBuiten(t.dag)?(t.dag<0?'Voorreis':'Nareis'):'Dag '+t.dag}</span>`+
-         `<span class="dt">${t.dag===0?'Niet aan een dag':isBuiten(t.dag)?fmtLong(dagDatum(t.dag)):esc(DAYS[t.dag-1].t)}</span>`+
+      const verz=isVerz(t);
+      h+=`<li><button data-n="${verz?'verz':t.dag}"><div class="top">`+
+         `<span class="dn">${verz?'Praktisch':t.dag===0?'Algemeen':isBuiten(t.dag)?(t.dag<0?'Voorreis':'Nareis'):'Dag '+t.dag}</span>`+
+         `<span class="dt">${verz?'Verzekeringen':t.dag===0?'Niet aan een dag':isBuiten(t.dag)?fmtLong(dagDatum(t.dag)):esc(DAYS[t.dag-1].t)}</span>`+
          `<span class="dd">${t.dag===0?'':fmtShort(dagDatum(t.dag))}</span></div>`+
          `<div class="sn">${snippet(t.tekst,term)}</div>`+
          `<div class="src">${esc(t.bron)}</div></button></li>`;
@@ -542,9 +543,10 @@ function drawResults(term){
   }
   box.querySelectorAll('button[data-n]').forEach(b=>
     b.addEventListener('click',()=>{const n=b.dataset.n;
-      // 'prakt' is het tabblad Praktisch, 0 is een algemene notitie; al het andere is een dag,
-      // ook een negatieve (voorreis) of een boven de 29 (nareis).
+      // 'prakt' is het tabblad Praktisch, 'verz' het blok Verzekeringen daarin, 0 is een algemene
+      // notitie; al het andere is een dag, ook een negatieve (voorreis) of een boven de 29 (nareis).
       if(n==='prakt') switchTo('prakt');
+      else if(n==='verz') naarPraktisch('verz');
       else if(+n===0) switchTo('alles');
       else {cur=+n;switchTo('day')}}));
 }
@@ -599,6 +601,9 @@ function renderPrakt(){
    <div class="sos"><div class="big">${esc(SOS[0])}</div>
    <p>${esc(SOS[1])}</p></div>
    <ul class="list">`+NOOD.map(([a,b])=>`<li><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></li>`).join('')+`</ul>`;
+  // Verzekeringsgegevens: notities van het type Verzekering, voor iedereen zichtbaar, door de
+  // schrijver te wijzigen. Ze staan hier omdat je ze in een noodgeval als eerste zoekt.
+  h+=`<h2>Verzekeringen</h2><div id="verz"></div>`;
 
   // Vluchten per maatschappij, afgeleid uit de dagen zelf: één bron
   const perMij={};
@@ -619,6 +624,7 @@ function renderPrakt(){
   h+=`<h2>Notities</h2><div id="acct"></div>`;
   document.getElementById('prakt').innerHTML=h;
   renderKoers(document.getElementById('koers'));
+  renderVerzekeringen(document.getElementById('verz'));
   const tk=document.getElementById('themekeuze');
   const markeer=()=>tk.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.th===THEMES[themeIx][0]));
   tk.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ themeIx=THEMES.findIndex(t=>t[0]===c.dataset.th); applyTheme(); markeer(); });
@@ -798,7 +804,8 @@ async function nhLogin(email,pw){
 }
 // Bij uitloggen blijft er niets van de groep op de telefoon achter
 async function wisPriveGegevens(){
-  window._notZoek=''; window._notType=''; window._notVandaag=false;
+  window._notZoek=''; window._notType=''; window._notVandaag=false; window._notBuiten='';
+  await wisThumbUrls();
   try{ Object.keys(localStorage).filter(k=>k.startsWith('aus_')&&k!=='aus_thema'&&k!=='aus_koers').forEach(k=>localStorage.removeItem(k)); }catch(e){}
   try{ const db=await idb(); await new Promise(res=>{const t=db.transaction('files','readwrite').objectStore('files').clear();t.onsuccess=()=>res();t.onerror=()=>res()}); }catch(e){}
 }
@@ -818,10 +825,13 @@ const Q_ITEMS=`query($dag:Int!){dagitems(where:{dag:{_eq:$dag}},order_by:{create
 const Q_ALL=`query{dagitems(order_by:{dag:asc,created_at:asc}){id user_id dag soort type tekst wie file_id naam mime grootte created_at updated_at}}`;
 const M_INS=`mutation($o:dagitems_insert_input!){insert_dagitems_one(object:$o){id created_at}}`;
 const M_UPD=`mutation($id:uuid!,$t:String,$ty:String){update_dagitems_by_pk(pk_columns:{id:$id},_set:{tekst:$t,type:$ty}){id}}`;
-// types, in de volgorde waarin ze in de lijst staan
-const TYPES=[['ticket','Ticket'],['reservering','Reservering'],['adres','Adres'],['tip','Tip'],['notitie','Notitie']];
-const typeLabel=t=>(TYPES.find(x=>x[0]===t)||TYPES[4])[1];
-const typeRank=t=>{const i=TYPES.findIndex(x=>x[0]===t);return i<0?4:i};
+// types, in de volgorde waarin ze in de lijst staan. Verzekering staat achteraan: die gegevens
+// hoop je niet nodig te hebben, dus in Notities staan ze helemaal onderin (en in Praktisch bij Noodgevallen).
+const TYPES=[['ticket','Ticket'],['reservering','Reservering'],['adres','Adres'],['tip','Tip'],['notitie','Notitie'],['verzekering','Verzekering']];
+const TYPE_STD=TYPES.findIndex(x=>x[0]==='notitie');
+const typeLabel=t=>(TYPES.find(x=>x[0]===t)||TYPES[TYPE_STD])[1];
+const typeRank=t=>{const i=TYPES.findIndex(x=>x[0]===t);return i<0?TYPE_STD:i};
+const isVerz=it=>(it.type||'notitie')==='verzekering';
 const M_DEL=`mutation($id:uuid!){delete_dagitems_by_pk(id:$id){id}}`;
 // Dag apart bijwerken, alleen als hij echt verandert; zo blijft gewoon bewerken werken
 // ook als de rechten op de kolom dag ontbreken.
@@ -920,6 +930,10 @@ async function deleteFile(id){
 
 // wachtrij voor notities die zonder verbinding zijn getypt
 function pending(){return LS.get('aus_pending')||[]}
+// Wachtende notities in dezelfde vorm als de notities van Nhost, met hun plek in de wachtrij (pix)
+// erbij zodat je ze kunt bewerken of weggooien voordat ze zijn verstuurd.
+const pendingAlsItems=()=>pending().map((p,i)=>({...p,id:'wacht'+i,pix:i,user_id:NH.user.id,soort:'notitie',
+  type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}));
 // Notities die nog op verbinding wachten staan alleen op deze telefoon; ze krijgen een eigen
 // index als sleutel, zodat je ze kunt aanpassen of weggooien voordat ze zijn verstuurd.
 function pendingUpdate(ix,velden){ const q=pending(); if(!q[ix])return; q[ix]={...q[ix],...velden}; LS.set('aus_pending',q); }
@@ -989,12 +1003,26 @@ function noteCard(it,kop){
   return `<li class="nitem" data-id="${esc(it.id||'')}">${head}<span class="nbody">${txt}</span>`+
     `<span class="sub nmeta">${esc(wie)} · ${wanneer}${bewerkt}</span></li>`;
 }
+// Object-URL's voor miniaturen: één per bestand voor de hele sessie, in plaats van een nieuwe bij
+// elke hertekening (die bleven tot nu toe allemaal in het geheugen staan). Bij uitloggen gaan ze weg.
+const _thumbUrls=new Map();   // file_id → belofte van een URL
+function thumbUrl(id){
+  if(!_thumbUrls.has(id)){
+    const p=(async()=>{ const u=await localFileUrl(id)||await fileUrl(id); if(!u) _thumbUrls.delete(id); return u; })();
+    _thumbUrls.set(id,p);
+  }
+  return _thumbUrls.get(id);
+}
+async function wisThumbUrls(){ for(const p of _thumbUrls.values()){ const u=await p; if(u) URL.revokeObjectURL(u); } _thumbUrls.clear(); }
 // Gedrag dat beide lijsten delen: miniaturen laden, bijlagen openen, Meer/Minder
 function koppelKaarten(box){
-  box.querySelectorAll('[data-thumb]').forEach(async img=>{const u=await localFileUrl(img.dataset.thumb)||await fileUrl(img.dataset.thumb); if(u) img.src=u;});
+  box.querySelectorAll('[data-thumb]').forEach(async img=>{const u=await thumbUrl(img.dataset.thumb); if(u) img.src=u;});
   box.querySelectorAll('[data-open]').forEach(a=>a.addEventListener('click',async e=>{ if(e.target.closest('.nmore')||e.target.closest('.nlink')) return; e.preventDefault();
     const u=await localFileUrl(a.dataset.open)||await fileUrl(a.dataset.open);
-    if(u){const w=window.open(u,'_blank'); if(!w) location.href=u;} else toast('Deze bijlage staat nog niet op je telefoon; open de app een keer met verbinding.');}));
+    if(u){
+      const w=window.open(u,'_blank'); if(!w) location.href=u;
+      setTimeout(()=>URL.revokeObjectURL(u),60000);   // het geopende venster heeft het bestand dan al
+    } else toast('Deze bijlage staat nog niet op je telefoon; open de app een keer met verbinding.');}));
   box.querySelectorAll('.nmore').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const t=b.previousElementSibling;const open=t.classList.toggle('clamp');b.textContent=open?'Meer':'Minder';});
 }
 
@@ -1055,16 +1083,20 @@ function dagOpties(dag){
     `<optgroup label="Groepsreis">${DAYS.map(x=>opt(x.n,`Dag ${x.n} · ${fmtShort(dateFor(x.n))} · ${esc(x.t)}`)).join('')}</optgroup>`+
     (na.length?`<optgroup label="Nareis">${na.map(d=>opt(d,fmtKort(dagDatum(d)))).join('')}</optgroup>`:'');
 }
-function openSheet({dag,wie,item,onDone,kiesDag}){
+// type: vooraf gekozen type voor een nieuwe notitie; vast: de typekeuze verbergen, zodat een
+// verzekeringsnotitie niet per ongeluk van type verandert en uit het tabblad Praktisch verdwijnt.
+function openSheet({dag,wie,item,onDone,kiesDag,type:typeStart,vast}){
   document.getElementById('sheet')?.remove();
   const isEdit=!!item, isFile=item&&item.soort==='bestand'&&!item.pending;
+  let type=item?.type||typeStart||'notitie';
+  const kop=vast?`${typeLabel(type)} ${isEdit?'bewerken':'toevoegen'}`:`${isEdit?'Bewerken':'Toevoegen'}${dag?` · ${isBuiten(dag)?buitenLabel(dag):'dag '+dag}`:''}`;
   const el=document.createElement('div'); el.id='sheet'; el.className='sheetwrap';
   el.innerHTML=`<div class="sheetbg"></div><div class="sheet" role="dialog" aria-modal="true">
-    <div class="sheethead"><strong>${isEdit?'Bewerken':'Toevoegen'}${dag?` · ${isBuiten(dag)?buitenLabel(dag):'dag '+dag}`:''}</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
-    <div class="chips" id="shtypes">${TYPES.map(([k,l])=>`<button type="button" class="chip${(item?.type||'notitie')===k?' on':''}" data-t="${k}">${l}</button>`).join('')}</div>
+    <div class="sheethead"><strong>${kop}</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
+    ${vast?'':`<div class="chips" id="shtypes">${TYPES.map(([k,l])=>`<button type="button" class="chip${type===k?' on':''}" data-t="${k}">${l}</button>`).join('')}</div>`}
     ${kiesDag?`<select id="shdag" class="shsel">${dagOpties(dag)}</select>`:''}
     ${isFile?`<div class="shfile">${ICO_FILE}<span>${esc(item.naam)}</span></div>`:''}
-    <textarea id="shtext" rows="6" placeholder="${isFile?'Bijschrift…':'Notitie…'}">${esc(item?.tekst||'')}</textarea>
+    <textarea id="shtext" rows="6" placeholder="${isFile?'Bijschrift…':type==='verzekering'?'Verzekeraar, polisnummer en het nummer van de alarmcentrale…':'Notitie…'}">${esc(item?.tekst||'')}</textarea>
     <div class="nrow">
       ${!isEdit?`<label class="btn nupload">${ICO_FILE} Foto of pdf<input type="file" id="shfile" accept="image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf" multiple hidden></label>`:''}
       <button class="btn primary" id="shsave">${isEdit?'Opslaan':'Bewaar notitie'}</button>
@@ -1074,7 +1106,6 @@ function openSheet({dag,wie,item,onDone,kiesDag}){
   requestAnimationFrame(()=>el.classList.add('on'));
   const close=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),220)};
   el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
-  let type=item?.type||'notitie';
   const dagVan=()=>kiesDag?+el.querySelector('#shdag').value:dag;
   el.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{type=c.dataset.t;el.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c));});
   const ta=el.querySelector('#shtext'), st=el.querySelector('#shstat');
@@ -1167,8 +1198,7 @@ async function renderAlles(){
     else { const w=document.querySelector('#hero .wrap'); if(w) w.insertAdjacentHTML('beforeend',`<p class="bsub">${tekst}</p>`); }
   }
   // notities die nog op verbinding wachten, horen ook hier zichtbaar te zijn
-  alleItems=[...items,...pending().map((p,i)=>({...p,id:'wacht'+i,pix:i,user_id:NH.user.id,soort:'notitie',
-    type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}))];
+  alleItems=[...items,...pendingAlsItems()];
 
   box.innerHTML=`<div class="notes"><div class="zoekrij"><div class="search"><span class="mag">${MAG}</span>`+
     `<input id="nzoek" type="search" placeholder="Zoek in notities…" autocomplete="off" `+
@@ -1206,7 +1236,9 @@ function tekenLijst(){
   if(!rij||!lijst) return;
   const items=alleItems, wie=alleWie;
   const dagLabel=d=>d===0?'Algemeen':isBuiten(d)?buitenLabel(d):`Dag ${d} · ${fmtLong(dateFor(d))}`;
-  const kaart=it=>noteCard(it,`<button class="ndag${isBuiten(it.dag)?' buiten':''}" data-dag="${it.dag}">${dagLabel(it.dag)}</button>`);
+  const kaart=it=>noteCard(it,isVerz(it)
+    ?`<button class="ndag verz" data-dag="prakt">Praktisch · Verzekeringen</button>`
+    :`<button class="ndag${isBuiten(it.dag)?' buiten':''}" data-dag="${it.dag}">${dagLabel(it.dag)}</button>`);
   const zoek=(window._notZoek||'').trim().toLowerCase();
   const filter=window._notType||'';
   // Ook de dag waar een notitie bij hoort telt mee: 'Uluru' vindt zo de notities van dag 18 tot 20,
@@ -1261,14 +1293,16 @@ function tekenLijst(){
     // groepsreis nog niet begonnen is; daarna zakt hij onder de gewone notities.
     const opDag=(a,b)=>a.dag-b.dag||String(a.created_at||'').localeCompare(String(b.created_at||''));
     const blok=(kop,rij)=>rij.length?`<h2>${kop}</h2><ul class="list nlist">`+rij.sort(opDag).map(kaart).join('')+`</ul>`:'';
-    const voor=blok('Voorreis',zichtbaar.filter(it=>it.dag<0)), na=blok('Nareis',zichtbaar.filter(it=>it.dag>29));
+    const voor=blok('Voorreis',zichtbaar.filter(it=>it.dag<0&&!isVerz(it))), na=blok('Nareis',zichtbaar.filter(it=>it.dag>29&&!isVerz(it)));
     if(T.before) h+=voor;
-    TYPES.forEach(([key,label])=>{
+    TYPES.filter(([key])=>key!=='verzekering').forEach(([key,label])=>{
       const groep=zichtbaar.filter(it=>!isBuiten(it.dag)&&(it.type||'notitie')===key);
       if(groep.length) h+=`<h2>${label}</h2><ul class="list nlist">`+groep.map(kaart).join('')+`</ul>`;
     });
     if(!T.before) h+=voor;
     h+=na;
+    // Verzekeringen helemaal onderaan: die gegevens hoop je niet nodig te hebben.
+    h+=blok('Verzekeringen',zichtbaar.filter(isVerz));
   }
   lijst.innerHTML=h;
 
@@ -1286,7 +1320,9 @@ function tekenLijst(){
     tekenLijst();
   });
   koppelKaarten(lijst);
-  lijst.querySelectorAll('.ndag').forEach(b=>b.onclick=()=>{const dg=+b.dataset.dag;
+  lijst.querySelectorAll('.ndag').forEach(b=>b.onclick=()=>{
+    if(b.dataset.dag==='prakt'){ naarPraktisch('verz'); return; }
+    const dg=+b.dataset.dag;
     if(dg>=1&&dg<=29||isBuiten(dg)){cur=dg;switchTo('day')}
     else switchTo('prakt');});
   lijst.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
@@ -1345,6 +1381,39 @@ function renderKoers(box){
     else teken(opgeslagen,false);
   }
 }
+
+// Verzekeringen in het tabblad Praktisch: per persoon of huishouden één notitie met verzekeraar,
+// polisnummer en alarmcentrale. Uit de lokale kopie, dus ook offline. Zonder login alleen een uitleg.
+function renderVerzekeringen(box){
+  if(!box) return;
+  if(!NH.user){
+    box.innerHTML=`<div class="callout" style="margin:0"><span class="ico">${IC_SLOT}</span><span><b>Na inloggen</b>Polisnummers en alarmcentrales van de groep, ook offline. Inloggen kan onderaan dit tabblad.</span></div>`;
+    return;
+  }
+  const wie=NH.user.displayName||NH.user.email;
+  const items=[...alleNotities(),...pendingAlsItems()].filter(isVerz)
+    .sort((a,b)=>String(a.created_at||'').localeCompare(String(b.created_at||'')));
+  const kop=it=>`<span class="ntype verzekering">${esc(it.wie||'Onbekend')}</span>`;   // wie: daar zoek je op
+  box.innerHTML=(items.length
+    ?`<ul class="list nlist">${items.map(it=>noteCard(it,kop(it))).join('')}</ul>`
+    :`<div class="empty">Nog geen verzekeringsgegevens. Zet per persoon of huishouden één notitie neer: verzekeraar, polisnummer en het nummer van de alarmcentrale.</div>`)+
+    `<div class="nstatus">Zichtbaar voor de hele groep; alleen de schrijver kan wijzigen.</div>`+
+    `<div class="dagadd" style="margin-top:14px"><button class="btn" id="vadd">＋ Verzekering toevoegen</button></div>`;
+  const refresh=()=>syncAlles(true).then(()=>renderVerzekeringen(document.getElementById('verz')));
+  box.querySelector('#vadd').onclick=()=>openSheet({dag:0,wie,type:'verzekering',vast:true,onDone:refresh});
+  koppelKaarten(box);
+  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
+    const it=items.find(x=>x.id===b.dataset.edit); if(it) openSheet({dag:it.dag,wie,item:it,vast:true,onDone:refresh});
+  });
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Verwijderen?')) return;
+    if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); refresh(); return; }
+    try{ await verwijderItem(b.dataset.del,b.dataset.file); refresh(); }
+    catch(e){ toast('Verwijderen mislukt: '+e.message); }
+  });
+}
+// Na een sprong naar Praktisch het blok in beeld brengen; eerst tekenen, dan scrollen.
+function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView({block:'start'})); }
 
 function renderAccount(box){
   if(!box) return;
@@ -1415,7 +1484,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-107';
+const APP_VERSIE='2026-09-09-108';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

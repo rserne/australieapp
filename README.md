@@ -50,6 +50,14 @@ Elke voorreisdag is een pagina met alleen notities, in dezelfde vorm als een rei
 
 Boekingscodes in voorreis- of nareisnotities tellen niet mee voor de groepsvluchten. Testen op een andere datum: open de app met `?datum=2026-09-27` achter het adres.
 
+## Verzekeringen
+
+In het tabblad Praktisch staat onder Noodgevallen het blok **Verzekeringen**. Iedereen die is ingelogd zet daar met "Verzekering toevoegen" één notitie neer, per persoon of per huishouden: verzekeraar, polisnummer en het nummer van de alarmcentrale. Telefoonnummers in de tekst zijn aanklikbaar. De notities krijgen het type Verzekering, zijn zichtbaar voor de hele groep en offline beschikbaar; alleen de schrijver kan ze wijzigen of verwijderen, net als bij alle andere notities.
+
+Ze staan ook in het tabblad Notities, helemaal onderaan onder een eigen kop, omdat je ze normaal gesproken niet nodig hoopt te hebben. Het label op de kaart brengt je naar het blok in Praktisch, en een zoektreffer ook. Het type Verzekering is ook te kiezen in het gewone notitieformulier; vanuit Praktisch staat het vast, zodat een notitie niet per ongeluk uit dat blok verdwijnt.
+
+De polisnummers staan bewust niet in `reis.js`: de repository is openbaar.
+
 ## Notities zonder verbinding
 
 Een notitie die je zonder verbinding schrijft, blijft op de telefoon staan en wordt verstuurd zodra er weer verbinding is. Dat geldt ook als de server even niet antwoordt. Weigert Nhost de notitie om een andere reden (rechten, ongeldige invoer), dan blijft hij ook staan, maar met de reden erbij, zodat je hem kunt aanpassen of weggooien. De statusregel in Notities telt beide soorten apart.

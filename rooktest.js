@@ -23,7 +23,8 @@ const NOTITIES=[
   {id:'a',user_id:'u1',dag:-13,soort:'notitie',type:'notitie',tekst:'Eerste voorreisdag',wie:'Test',created_at:'2026-09-01T10:00:00Z',updated_at:'2026-09-01T10:00:00Z'},
   {id:'b',user_id:'u1',dag:0,soort:'notitie',type:'ticket',tekst:'Boekingscodes\nSQ: ABC123\nJQ: DEF456\nSawadee: 1234567',wie:'Test',created_at:'2026-09-01T10:00:00Z',updated_at:'2026-09-01T10:00:00Z'},
   {id:'c',user_id:'u2',dag:5,soort:'bestand',type:'reservering',tekst:null,wie:null,file_id:'f1',naam:'ticket.pdf',mime:'application/pdf',grootte:12345,created_at:'2026-09-02T10:00:00Z',updated_at:'2026-09-02T10:00:00Z'},
-  {id:'d',user_id:'u1',dag:9,soort:'notitie',type:'ticket',tekst:'MONA-ticket 10.30 uur',wie:'Test',created_at:'2026-09-03T10:00:00Z',updated_at:'2026-09-03T10:00:00Z'}
+  {id:'d',user_id:'u1',dag:9,soort:'notitie',type:'ticket',tekst:'MONA-ticket 10.30 uur',wie:'Test',created_at:'2026-09-03T10:00:00Z',updated_at:'2026-09-03T10:00:00Z'},
+  {id:'e',user_id:'u2',dag:0,soort:'notitie',type:'verzekering',tekst:'Allianz, polis 12345678. Alarmcentrale +31 20 123 4567.',wie:'Anna',created_at:'2026-09-04T10:00:00Z',updated_at:'2026-09-04T10:00:00Z'}
 ];
 
 // Start de app op een datum. login: 'voor' (voorreiziger), 'groep' (ingelogd, geen voorreis) of null.
@@ -40,6 +41,7 @@ function start(datum,{login=null,online=false}={}){
   w.indexedDB=undefined; w.confirm=()=>true; w.scrollTo=()=>{};
   w.requestAnimationFrame=cb=>setTimeout(cb,0);
   w.getComputedStyle=()=>({getPropertyValue:()=>''});
+  if(!w.Element.prototype.scrollIntoView) w.Element.prototype.scrollIntoView=()=>{};   // jsdom kent het niet
   if(login){
     const notities=login==='voor'?NOTITIES:NOTITIES.filter(n=>n.dag>=0);
     w.localStorage.setItem('aus_sess',JSON.stringify({refreshToken:'x',tijd:Date.now(),user:{id:'u1',displayName:'Test',email:'test@example.org'}}));
@@ -105,6 +107,29 @@ function zoek(w,fouten,term){
     klik(w,'btnIndex',fouten); klik(w,'btnIndex',fouten);
     eis(fouten,kop(w).length>0,'na uitloggen op een voorreisdag toont het dagtabblad weer een pagina');
     meld('25 sep: uitloggen op een voorreisdag en terug naar Vandaag',fouten); }
+  { const {w,fouten}=start('2026-10-05',{login:'groep'});
+    klik(w,'btnPrakt',fouten);
+    const verz=$(w,'verz');
+    eis(fouten,verz&&verz.querySelector('.nitem .ntext')&&/12345678/.test(verz.textContent),'Praktisch toont de verzekeringsnotitie onder Verzekeringen');
+    eis(fouten,verz&&!verz.querySelector('[data-edit]'),'andermans verzekeringsnotitie heeft geen bewerkknop');
+    klik(w,'vadd',fouten);
+    const sheet=$(w,'sheet');
+    eis(fouten,sheet&&!sheet.querySelector('#shtypes')&&/Verzekering toevoegen/.test(sheet.textContent),'formulier vanuit Verzekeringen heeft het type vast op Verzekering');
+    klik(w,'shclose',fouten);
+    klik(w,'btnAlles',fouten); await sleep(50);
+    const koppen=[...w.document.querySelectorAll('#nlijst h2')].map(x=>x.textContent);
+    eis(fouten,koppen.length&&koppen[koppen.length-1]==='Verzekeringen',`Verzekeringen staat onderaan in Notities (nu: ${koppen.join(' | ')})`);
+    const label=w.document.querySelector('#nlijst .ndag.verz');
+    eis(fouten,label&&/Praktisch/.test(label.textContent),'verzekeringskaart in Notities draagt het label Praktisch');
+    if(label){ label.click(); eis(fouten,$(w,'prakt').style.display==='block','label Praktisch opent het tabblad Praktisch'); }
+    klik(w,'btnIndex',fouten); zoek(w,fouten,'polis');
+    const dn=w.document.querySelector('#results .dn');
+    eis(fouten,dn&&dn.textContent==='Praktisch',`zoektreffer op een verzekering wijst naar Praktisch (nu: '${dn&&dn.textContent}')`);
+    meld('5 okt: verzekeringen in Praktisch, Notities en zoeken',fouten); }
+  { const {w,fouten}=start('2026-10-05');
+    klik(w,'btnPrakt',fouten);
+    eis(fouten,$(w,'verz')&&/Na inloggen/.test($(w,'verz').textContent),'zonder login toont Verzekeringen alleen een uitleg');
+    meld('5 okt anoniem: Verzekeringen achter de login',fouten); }
   { const {w,fouten}=start('2026-10-05',{login:'groep',online:true});
     await sleep(4200);   // drie mislukte vernieuwpogingen: 0 + 1,2 + 2,4 s
     eis(fouten,$(w,'btnAlles').hidden===false,'na mislukte vernieuwing blijft de sessie uit de kopie staan');
