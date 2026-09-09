@@ -382,7 +382,13 @@
   .ntype.adres{background:color-mix(in srgb, #4A9B5B 22%, transparent);color:#2F7A3E;border-color:transparent}
   .ntype.tip{background:color-mix(in srgb, #B05AA8 20%, transparent);color:#8A3F84;border-color:transparent}
   .ntype.verzekering{background:color-mix(in srgb, var(--alert) 18%, transparent);color:var(--alert);border-color:transparent}
-  .ntext.clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+  /* Ingeklapte notitie: vijf regels. Niet met -webkit-line-clamp — WebKit trekt dan het laatste
+     inline element (bij ons de tel:-link die linkify maakt) naar de afkapregel, zodat er een
+     telefoonnummer achter het beletselteken verscheen. Knippen op hoogte kent dat probleem niet;
+     de vervaging over de onderste regel vertelt dat er meer volgt. Regelhoogte 1.5 × 5 = 7.5em. */
+  .ntext.clamp{max-height:7.5em;overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 1.5em),transparent);
+    mask-image:linear-gradient(180deg,#000 calc(100% - 1.5em),transparent)}
   .nmore{align-self:flex-start;margin-top:8px;font:inherit;font-size:13.5px;font-weight:600;
     color:var(--accent-ink);background:var(--glass-2);border:1px solid var(--rim);
     border-radius:999px;padding:5px 12px;cursor:pointer}
