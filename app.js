@@ -1397,7 +1397,6 @@ function renderVerzekeringen(box){
   box.innerHTML=(items.length
     ?`<ul class="list nlist">${items.map(it=>noteCard(it,kop(it))).join('')}</ul>`
     :`<div class="empty">Nog geen verzekeringsgegevens. Zet per persoon of huishouden één notitie neer: verzekeraar, polisnummer en het nummer van de alarmcentrale.</div>`)+
-    `<div class="nstatus">Zichtbaar voor de hele groep; alleen de schrijver kan wijzigen.</div>`+
     `<div class="dagadd" style="margin-top:14px"><button class="btn" id="vadd">＋ Verzekering toevoegen</button></div>`;
   const refresh=()=>syncAlles(true).then(()=>renderVerzekeringen(document.getElementById('verz')));
   box.querySelector('#vadd').onclick=()=>openSheet({dag:0,wie,type:'verzekering',vast:true,onDone:refresh});
