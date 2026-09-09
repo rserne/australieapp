@@ -57,10 +57,9 @@ Standaard bestaat een voorreisdag alleen uit notities. Wie een programma heeft, 
 
 Een dag met programma ziet er in de app uit als een gewone reisdag, met dezelfde blokken en de notities ertussen. Een datum die niet in `VOORDAGEN` staat, blijft een dag met alleen notities. Een lege lijst is de voorreis zoals hij was. Zodra er programma is, toont het tabblad Alle dagen de voorreis per dag, vindt zoeken het programma en gebruikt de klok in Praktisch de plaats en tijdzone van de voorreisdag. Het programma is alleen zichtbaar voor wie is ingelogd, net als de voorreisdagen zelf. `check.js` controleert `voorreis.js` mee. Het bestand moet er altijd zijn, ook als de lijst leeg is. Een nareis met programma kan later op dezelfde manier via `NADAGEN` in `nareis.js`, want de code kent het al.
 
-Wat er nu in staat, is 18 tot en met 25 september, van de vlucht vanaf Schiphol via Sydney, Cairns en Nhulunbuy naar Darwin. Nog openstaand:
+Alle dertien dagen hebben een programma, van de vlucht vanaf Schiphol via Sydney, Cairns en Nhulunbuy naar Darwin, en daarna de vijfdaagse kampeertour door Kakadu, Nitmiluk en Litchfield. Nog openstaand:
 
-- **26 tot en met 30 september (Kakadu)** zijn nog notitiedagen, want het programma is nog niet bekend.
-- **Hotels ontbreken.** Daarom staat er nergens een `h` en hebben de restaurants geen looptijd, maar `null` in plaats van het aantal minuten. Zodra de adressen er zijn, kun je `h` toevoegen, de coördinaten in `HOTELGEO` zetten en de looptijden invullen.
+- **Slaapplekken.** Voor de kampeertour staan de twee privékampen met coördinaten in `HOTELGEO`. De hotels in Sydney, Cairns, Nhulunbuy en Darwin zijn onbekend. Daarom hebben de restaurants geen looptijd, maar `null` in plaats van het aantal minuten. Zodra de adressen er zijn, kun je `h` toevoegen, de coördinaten in `HOTELGEO` zetten en de looptijden invullen.
 - **1 en 2 oktober vallen buiten de voorreis**, want dat zijn groepsdag 1 en 2. De vlucht van Darwin naar Sydney (QF 841, 13.05 tot 17.55) hoort dus in een Ticket-notitie op dag 1 en niet in `voorreis.js`.
 - Wie een voorreis heeft, wordt pas voorreiziger zodra hij één voorreisnotitie heeft geschreven. Eén Ticket-notitie op de eerste dag is genoeg. Daarna telt Vandaag af naar het eigen vertrek.
 

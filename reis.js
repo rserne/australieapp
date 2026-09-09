@@ -11,6 +11,9 @@ const BUITEN={voorreis:{foto:"reg-voorreis.jpg",tone:"#014959"}, nareis:{foto:"r
 const TONE={reis:"#2C313A",nsw:"#124C6B",tas:"#1B4C39",sa:"#5A2440",
   vic:"#343A73",red:"#8E3B18",qld:"#0E5B5A",wa:"#8A5411"};
 const HOTELGEO={
+ // Voorreis. De kampen van de Kakadu-tour, coördinaten van de organisatie.
+ "Privékamp bij Jabiru, Kakadu":[-12.660915,132.835829],
+ "Privékamp bij Katherine":[-14.391381,132.392261],
  "The Ultimo, Haymarket":[-33.8806794,151.2034411],
  "Hotel Grand Chancellor, Cameron Street":[-41.4344888,147.1405693],
  "Beachfront Bicheno, Tasman Highway":[-41.8743592,148.2998864],

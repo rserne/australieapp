@@ -215,7 +215,7 @@ function render(){
   // De rest staat verderop, vlak voor het eten. Beide blokken worden in één slag gevuld.
   if(NH.user) h+=`<div id="notes-rest" class="notes"></div>`;
   const morgen=volgende(cur);
-  if(morgen!=null&&morgen!==EINDE) h+=`<h2>Morgen</h2>`+dagKnop(morgen,true);
+  if(morgen!=null&&morgen!==EINDE) h+=`<h2>Morgen</h2>`+dagKnop(morgen,true,!buiten);
   if(d.rest){
     // Suggesties, geen voorschrift: alles staat dicht, je klapt zelf uit wat je wilt lezen.
     h+=`<h2>Eten vanavond</h2>`+
@@ -329,9 +329,10 @@ function zetPijlen(){
 }
 
 // Knop naar een dag. Werkt voor reisdagen en voor voorreis- en nareisdagen, met of zonder programma.
-// Als blok 'Morgen' (morgen=true) staat eronder wat je vanavond moet klaarleggen en of er een
-// emoe-alert of wasdag aankomt. Anders de plaats.
-function dagKnop(n,morgen){
+// Als blok 'Morgen' (morgen=true) staat eronder of er een emoe-alert of wasdag aankomt, anders de plaats.
+// koffer=false laat weg wat je vanavond moet klaarleggen. Dat hoort bij de groepsreis, dus wie op de
+// laatste voorreisdag naar dag 1 kijkt, krijgt niet de paklijst van de vertrekdag uit Amsterdam.
+function dagKnop(n,morgen,koffer){
   const d=dagData(n), buiten=isBuiten(n);
   const lbl=buiten?`${n<0?'Voorreis':'Nareis'} · ${fmtLong(dagDatum(n))}`:`Dag ${n} · ${fmtLong(dateFor(n))}`;
   let tt,sub='';
@@ -344,7 +345,7 @@ function dagKnop(n,morgen){
     const aantal=alleNotities().filter(it=>it.dag===n).length;
     tt=aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Nog geen notities';
   }
-  const p2=morgen?PACK.filter(p=>p[2].some(x=>dagNr(x)===n)).map(p=>p[0].toLowerCase()):[];
+  const p2=(morgen&&koffer!==false)?PACK.filter(p=>p[2].some(x=>dagNr(x)===n)).map(p=>p[0].toLowerCase()):[];
   return `<div class="tomorrow"><button class="ganaar" data-go="${n}">`+
     `<span class="txt"><span class="lbl">${lbl}</span><span class="tt">${tt}</span>`+
     (sub?`<span class="sub">${sub}</span>`:'')+
@@ -1548,7 +1549,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-118';
+const APP_VERSIE='2026-09-09-119';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

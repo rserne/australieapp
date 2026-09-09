@@ -145,6 +145,93 @@ const VOORDAGEN=[
   ["Beef & Bar Restaurant","Kitchener Drive, aan de Waterfront",4.6,2,null,"Steaks en zeevruchten aan de waterkant, tien minuten van het centrum.","Telefonisch, +61 8 8941 6178."],
   ["Snapper Rocks","Kitchener Drive, aan de Waterfront",4.3,2,null,"Vis en kleine gerechten met uitzicht over de haven. Ook laat op de avond nog rustig een tafel.","Telefonisch, +61 8 8900 6928."]],
  rnote:"Je bent pas aan het eind van de dag terug in Darwin. De keukens sluiten hier rond 21.00 uur, dus bel onderweg even als je zeker wilt zijn van een tafel.",
- note:"Vanaf morgen tot en met 30 september staat Kakadu op het programma. Zodra dat programma bekend is, komen die dagen hier ook in de app te staan. Tot die tijd kun je er notities bij zetten."}
+ note:"Pak vanavond je kampeerspullen. Morgenochtend om half zeven word je opgehaald voor vijf dagen Kakadu, Katherine en Litchfield, met een overnachtingstas van hoogstens vijftien kilo. De rest van je bagage laat je in Darwin achter."},
+
+{datum:"2026-09-26",k:"bus",t:"Darwin naar Kakadu",p:"Kakadu, Ubirr en Jabiru",h:"Privékamp bij Jabiru, Kakadu",tz:9.5,temp:"22–35°",
+ agenda:[["06.30","Ophalen in Darwin","De bus haalt je op bij een van de vaste opstappunten in de stad. Sta er tien minuten eerder."],
+  ["Ochtend","Door de wetlands naar Kakadu","Onderweg veel vogels en de eerste krokodillen. Bij het Bowali Visitor Centre krijg je de inleiding op het park."],
+  ["Middag","Kamp bij Jabiru","Inchecken op het privékamp, waar je twee nachten blijft."],
+  ["Late middag","Cahills Crossing","De doorwaadbare plek in de East Alligator River, aan de grens met Arnhemland."],
+  ["Zonsondergang","Ubirr","Rotskunst en de klim naar het uitzicht over de Nadab-vlakte."]],
+ body:[
+  "De eerste dag van vijf. Je rijdt in een terreinbus door het wetlandgebied ten oosten van Darwin naar Kakadu, ruim vierhonderd kilometer. Kakadu staat op de werelderfgoedlijst om twee redenen tegelijk, om de natuur en om de cultuur. Het park is zo groot als half Nederland en wordt beheerd door de Bininj en Mungguy samen met de parkdienst.",
+  "Aan het eind van de middag kom je opnieuw bij Cahills Crossing, waar je gisteren ook al was. Daarna is Ubirr aan de beurt. De rotsen zitten vol schilderingen, van vissen in röntgenstijl tot de Rainbow Serpent, en vanaf de top kijk je bij zonsondergang uit over de Nadab-vlakte. Terug op het kamp kook je samen met de groep."
+ ],
+ prac:["Je slaapt in een vaste tent of in een swag, een canvas bedrol onder de blote hemel. Slaap je in een swag, dan heb je je eigen slaapzak nodig. Handdoeken zitten er niet bij.",
+  "Douches en toiletten staan een paar minuten van het kamp. Neem een zaklamp of hoofdlamp mee voor 's nachts.",
+  "Stroom is er nauwelijks, alleen wat zonnepanelen en niets in de tenten. Een powerbank is geen luxe.",
+  "Bereik is er buiten Jabiru vrijwel niet. Zeg thuis dat je vijf dagen slecht bereikbaar bent en zet wat je nodig hebt vooraf offline klaar."],
+ wild:[["Zoutwaterkrokodil","Bij Cahills Crossing rond de wisseling van het tij, en onderweg in elke rivier en billabong.",3],
+  ["Brolga","Een grijze kraanvogel van meer dan een meter, in paren op de vlakten. Ze dansen, ook buiten het broedseizoen.",2],
+  ["Behendige wallaby","In de schemering rond het kamp en langs de weg. Rustig en gewend aan mensen.",3]],
+ tip:"Op Ubirr is de klim naar het uitzicht kort maar over rots. Ga vroeg genoeg omhoog, want iedereen wil er op hetzelfde moment zitten.",
+ note:"Maaltijden zitten bij de tour in, maar je kookt en ruimt samen met de groep op. Vandaag lunch en avondeten, morgen ook ontbijt."},
+
+{datum:"2026-09-27",k:"excursie",t:"Wandelen en zwemmen in Kakadu",p:"Zuid-Kakadu",h:"Privékamp bij Jabiru, Kakadu",tz:9.5,temp:"22–35°",
+ agenda:[["Vroeg","Naar het zuiden van het park","Een deel van de rit gaat over onverharde tracks."],
+  ["Overdag","Watervallen en zwemgaten","Welke het worden, hangt af van de toegang en van de groep. Jim Jim Falls, Gunlom Falls, Motor Car Falls of Moline Rockhole."],
+  ["Eind van de dag","Warradjan Cultural Centre","Als de tijd het toelaat. Over de cultuur van de traditionele eigenaren, in hun eigen woorden."]],
+ body:[
+  "De dag waarvoor je de wandelschoenen hebt meegenomen. Je loopt door moessonbos en over rotsige rivierbeddingen naar zwemgaten onder watervallen, met steile escarpmentwanden eromheen. Reken op anderhalf tot vier kilometer lopen, deels over lastig terrein.",
+  "Eind september is het einde van het droge seizoen. Sommige watervallen staan dan laag en een enkele is dicht, terwijl de tracks naar Jim Jim en Gunlom juist wél open zijn. De gids kiest ter plekke wat het beste uitpakt."
+ ],
+ prac:["Zwemmen mag alleen waar de gids het zegt. De parkdienst controleert de zwemgaten op krokodillen, maar niet elke plas is vrijgegeven.",
+  "Drie liter water per persoon per dag, en drink ook als je geen dorst hebt. Bij vijfendertig graden en hoge luchtvochtigheid loop je sneller leeg dan je denkt.",
+  "Dichte wandelschoenen zijn geen aanbeveling maar een eis. De rotsen zijn scherp en nat glad.",
+  "Er zijn vandaag panoramavluchten mogelijk boven Kakadu. Wie meegaat, mist een stuk van het programma en betaalt apart."],
+ wild:[["Zoetwaterkrokodil","In de bovenloop bij de zwemgaten, kleiner dan de zoutwaterkrokodil en met een smalle snuit. Ze gaan zelf op de vlucht.",2],
+  ["Regenboogbijeneter","Felgroen met een blauwe stuit, boven het water op jacht naar insecten. Overal in het park.",3],
+  ["Kortoorrotswallaby","Op de rotsblokken bij de watervallen, vroeg in de ochtend en tegen de avond.",2]],
+ tip:"Neem je zwemkleren aan onder je wandelkleding. Omkleden doe je bij het water tussen de rotsen, en dat schiet niet op."},
+
+{datum:"2026-09-28",k:"bus",t:"Kakadu naar Katherine",p:"Burrungkuy en Maguk",h:"Privékamp bij Katherine",tz:9.5,temp:"19–35°",
+ agenda:[["Ochtend","Burrungkuy (Nourlangie)","Rotskunst en het Kunwarddewardde Lookout, met kans op Nawurlandja en de Anbangbang-billabong."],
+  ["Middag","Maguk (Barramundi Gorge)","Twee kilometer lopen door moessonbos naar het zwemgat, met picknicklunch."],
+  ["Avond","Kamp bij Katherine","Twee nachten op een privékamp, met een vuur en een open sterrenhemel."]],
+ body:[
+  "Je begint bij Burrungkuy, dat lang Nourlangie heette. Onder de overhang staan Namarrgon, de bliksemman, en Nabulwinjbulwinj geschilderd, figuren uit de verhalen van de Bininj. De schilderingen zijn niet alleen oud maar ook onderhouden, want tot ver in de twintigste eeuw werden ze door de eigenaren opnieuw aangebracht.",
+  "Daarna rijd je zuidwaarts het park uit, met onderweg de wandeling naar Maguk. Het pad kruist een paar keer de kreek en eindigt bij een diep zwemgat onder een waterval. Aan het eind van de middag kom je aan bij Katherine, ruim vierhonderd kilometer verder."
+ ],
+ prac:["De wandeling naar Maguk gaat over losse keien en door ondiep water. Schoenen die nat mogen worden zijn hier handiger dan gympen.",
+  "Katherine ligt hoger en droger dan Kakadu. 's Nachts koelt het af tot een graad of twintig, wat na vier dagen zweten prettig aanvoelt maar wel om een extra laag vraagt.",
+  "Bij het kamp brandt een vuur. Muggenspul werkt beter dan dichter bij het vuur gaan zitten."],
+ wild:[["Roodstaartraafkaketoe","Grote zwarte kaketoes met rode staartvlekken, in luidruchtige groepen boven de eucalyptus.",2],
+  ["Waterpython","Een glanzende, ongevaarlijke python rond de billabongs. Meestal in de schemering.",1],
+  ["Waterbuffel","Verwilderde buffels in de vlakten van Kakadu, nakomelingen van dieren die in de negentiende eeuw zijn ingevoerd. Blijf op afstand.",2]],
+ tip:"Vraag de gids naar Namarrgon. Het verhaal van de bliksemman verklaart precies wat er in november boven deze vlakten losbarst."},
+
+{datum:"2026-09-29",k:"excursie",t:"Katherine Gorge en Edith Falls",p:"Nitmiluk National Park",h:"Privékamp bij Katherine",tz:9.5,temp:"19–35°",
+ agenda:[["Vroeg","Naar Nitmiluk National Park","Vroeg vertrek om de eerste boot te halen."],
+  ["Ochtend","Cruise door de Katherine Gorge","Twee uur varen tussen wanden van zeventig meter hoog."],
+  ["Middag","Edith Falls","Picknicklunch en zwemmen in het grote bassin onder de waterval."],
+  ["Avond","Sterrenkijken bij het kamp","Zonder stadslicht is de Melkweg hier van horizon tot horizon te zien."]],
+ body:[
+  "Nitmiluk is dertien kloven achter elkaar, uitgesleten door de Katherine River door zandsteen van 1,6 miljard jaar oud. De naam komt van de Jawoyn en betekent de plek van de cicade-droom. Het park is in 1989 aan hen teruggegeven en zij beheren het samen met de parkdienst.",
+  "De cruise van twee uur brengt je door de eerste kloven, met tussendoor een korte overstap over de rotsen als het water laag staat. Daarna is Edith Falls aan de beurt, aan de noordkant van het park, met een bassin waar je zonder haast in kunt liggen."
+ ],
+ prac:["Neem in de boot een hoed en zonnebrand mee. Er is geen schaduw en het water kaatst alles terug.",
+  "De zoetwaterkrokodillen in de kloof zijn ongevaarlijk voor mensen, maar de rangers sluiten na de eerste regens af als er een zoutwaterkrokodil naar boven is gezwommen.",
+  "Na de cruise kun je een rondvlucht met de helikopter boeken boven de kloven. Dat gaat buiten de tour om en je betaalt het ter plekke.",
+  "Het bovenste bassin bij Edith Falls vraagt een steile klim. Het onderste is groter en zo ingestapt."],
+ wild:[["Zoetwaterkrokodil","Op de zandbanken in de kloof, tot ongeveer twee meter. Ze liggen er bijna altijd.",3],
+  ["Vliegende vos","Een kolonie in de bomen bij de aanlegsteiger, luidruchtig en zichtbaar. Tegen de avond vliegen ze uit.",3],
+  ["Kortoorrotswallaby","Tussen de rotsblokken langs de kloofwanden, vroeg en laat op de dag.",2]],
+ tip:"Het licht in de kloof is het mooist op de vroege boot, als de zon nog laag staat en de wand aan één kant oplicht."},
+
+{datum:"2026-09-30",k:"bus",t:"Litchfield en terug naar Darwin",p:"Litchfield National Park",tz:9.5,temp:"22–35°",
+ agenda:[["Ochtend","Naar het noorden","Van Katherine naar Litchfield, door regenwoud en over de Stuart Highway."],
+  ["Overdag","Termietenheuvels en watervallen","De magnetische termietenheuvels, en zwemmen bij Buley Rockholes of Wangi Falls. Daarna Florence Falls of Tolmer Falls."],
+  ["18.30","Terug in Darwin","Afzetten bij de opstappunten in de stad."]],
+ body:[
+  "De laatste dag van de tour, en de natste. Litchfield is kleiner dan Kakadu maar zit vol watervallen en zwemgaten, met stukken tropisch regenwoud die koelte geven. De magnetische termietenheuvels staan als grafstenen op een veld, allemaal noord-zuid gericht zodat de platte kant de middagzon ontloopt. De grootste zijn rond de honderd jaar oud.",
+  "Bij Buley Rockholes stroomt de kreek van bassin naar bassin, zodat iedereen zijn eigen bad heeft. Wangi Falls is groter en drukker. Rond half zeven ben je terug in Darwin, aan het eind van vijf dagen kamperen."
+ ],
+ prac:["Houd één droge set kleren apart voor de rit terug. Alles wat je vandaag aanhebt, wordt nat.",
+  "Morgen vlieg je om 13.05 uur naar Sydney. Regel je slaapplek in Darwin voor vanavond en houd er rekening mee dat de tour pas om half zeven aankomt.",
+  "Wangi Falls sluit soms voor zwemmers wanneer er een krokodil is gesignaleerd. De borden ter plekke zijn leidend, niet de reisgids."],
+ wild:[["Magnetische termiet","Geen dier om te spotten maar om te bekijken. Duizenden heuvels van twee meter, allemaal in dezelfde richting.",3],
+  ["Vliegende vos","Een grote kolonie boven het bassin van Wangi Falls, de hele dag hoorbaar.",3],
+  ["Australische boomkikker","Groen, handpalmgroot en verrassend tam. In de toiletgebouwen bij de watervallen, waar het vochtig blijft.",2]],
+ note:"Hier eindigt de voorreis. Morgen vlieg je met QF 841 naar Sydney, waar de groep uit Amsterdam aankomt. Die vlucht staat als notitie bij dag 1."}
 
 ];

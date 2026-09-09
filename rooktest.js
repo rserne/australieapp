@@ -178,6 +178,7 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-09-30',{login:'voor',voorreis:VOORTEST});
     eis(fouten,/dag 13 van 13/.test(kop(w)),`laatste voorreisdag (nu: '${kop(w)}')`);
     eis(fouten,/Dag 1 · donderdag 1 oktober/.test($(w,'day').textContent),'Morgen op 30 sep wijst naar dag 1 van de groepsreis');
+    eis(fouten,!/Vanavond klaarleggen/.test($(w,'day').textContent),'de kofferlijst van de groepsvertrekdag staat niet op een voorreisdag');
     klik(w,'next',fouten); eis(fouten,kop(w)==='Dag 1van 29','na de laatste voorreisdag volgt dag 1');
     klik(w,'prev',fouten); eis(fouten,$(w,'title').textContent==='Vlucht naar Sydney','terug vanaf dag 1 komt op de voorreisdag met programma');
     meld('30 sep: overgang van voorreis naar groepsreis',fouten); }
