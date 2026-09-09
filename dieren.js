@@ -3,7 +3,7 @@
 //
 // Groepen in de volgorde waarin ze op het scherm staan.
 const DIER_GROEPEN=[
- ["zoogdier","Zoogdieren"],["vogel","Vogels"],["reptiel","Reptielen"],["slang","Slangen"],["klein","Spinnen en insecten"],
+ ["zoogdier","Zoogdieren"],["vogel","Vogels"],["reptiel","Reptielen"],["klein","Spinnen en insecten"],
  ["zee","In zee"],["rif","Op het rif"],["zoetwater","Zoetwater"]
 ];
 // Per dier een sleutel (k, komt zo in de tabel waarnemingen), de naam op de knop (n) en de groep (g).
@@ -40,18 +40,17 @@ const DIEREN=[
  {k:"ibis",n:"Ibis",g:"vogel",syn:["Australische witte ibis"]},
  {k:"brolga",n:"Brolga",g:"vogel"},
  {k:"dwergpinguin",n:"Dwerg\u00ADpinguïn",g:"vogel"},
-// Reptielen
+// Reptielen. Eerst de krokodillen, dan de hagedissen, dan de slangen.
  {k:"zoutwaterkrokodil",n:"Zoutwater\u00ADkrokodil",g:"reptiel"},
  {k:"zoetwaterkrokodil",n:"Zoetwater\u00ADkrokodil",g:"reptiel"},
  {k:"varaan",n:"Varaan (goanna)",g:"reptiel",syn:["Goanna","Perentie","Reuzenvaraan"]},
  {k:"kraaghagedis",n:"Kraag\u00ADhagedis",g:"reptiel"},
  {k:"blauwtongskink",n:"Blauwtong\u00ADskink",g:"reptiel",syn:["Bobtail"]},
  {k:"skink",n:"Skink",g:"reptiel"},
-// Slangen
- {k:"bruine-slang",n:"Bruine slang",g:"slang",syn:["Oostelijke bruine slang"]},
- {k:"roodbuikzwarte-slang",n:"Roodbuik\u00ADslang",g:"slang",syn:["Roodbuikzwarte slang"]},
- {k:"tijgerslang",n:"Tijgerslang",g:"slang"},
- {k:"python",n:"Python",g:"slang",syn:["Tapijtpython","Waterpython"]},
+ {k:"bruine-slang",n:"Bruine slang",g:"reptiel",syn:["Oostelijke bruine slang"]},
+ {k:"roodbuikzwarte-slang",n:"Roodbuik\u00ADslang",g:"reptiel",syn:["Roodbuikzwarte slang"]},
+ {k:"tijgerslang",n:"Tijgerslang",g:"reptiel"},
+ {k:"python",n:"Python",g:"reptiel",syn:["Tapijtpython","Waterpython"]},
 // Spinnen en insecten
  {k:"trechterspin",n:"Trechter\u00ADspin",g:"klein"},
  {k:"roodrugspin",n:"Redback",g:"klein",syn:["Roodrugspin"]},
