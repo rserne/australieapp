@@ -559,11 +559,18 @@ const CHECKIN={
 "SQ":["Singapore Airlines","https://www.singaporeair.com/en_UK/plan-and-book/check-in-online/","vanaf 48 uur vooraf"],
 "JQ":["Jetstar","https://www.jetstar.com/au/en/help/checking-in","vanaf 48 uur vooraf, sluit 1 uur voor vertrek"],
 "QF":["Qantas","https://www.qantas.com/au/en/travel-info/check-in.html","vanaf 24 uur vooraf"],
+"VA":["Virgin Australia","https://www.virginaustralia.com/","vanaf 24 uur vooraf"],
 "TL":["Airnorth","https://www.airnorth.com.au/","vanaf 24 uur vooraf"]};
 // Overige partijen in het blok Vluchten en boekingen (naam, omschrijving, sleutel in de codenotitie)
 const BOEKINGEN=[["Sawadee","Reisbureau, +31 20 420 2220","Sawadee"]];
 const SRC='Google';
 const RDATA={
+// Voorreis (Nhulunbuy en Darwin). Geen looptijd: er is nog geen hotel bekend.
+"Latitude 12":{k:"Australisch · bij het zwembad van de lodge",c:20,tel:"+61 8 8939 2000"},
+"The Waterfront Kitchen":{k:"Clubkeuken · aan het water",c:5,tel:"+61 400 338 127",sluit:"20.00"},
+"MERAKI Greek Taverna":{k:"Grieks",c:735,tel:"+61 486 030 985",sluit:"21.00"},
+"Beef & Bar Restaurant":{k:"Steakhouse · zeevruchten",c:483,tel:"+61 8 8941 6178",sluit:"21.30"},
+"Snapper Rocks":{k:"Zeevruchten",c:768,tel:"+61 8 8900 6928",sluit:"21.00"},
 "Chef Chen Dumplings":{wv:1,k:"Chinees",c:521,tel:"+61 412 740 664",sluit:"21.30"},
 "Ho Jiak":{wv:1,k:"Maleisisch",c:5884,tel:"+61 2 8040 0252",sluit:"23.00"},
 "Porkfat":{wv:1,k:"Thais",c:987,tel:"+61 478 565 691",sluit:"22.00"},

@@ -14,7 +14,21 @@ catch(e){
 
 const lees=n=>fs.readFileSync(path.join(__dirname,n),'utf8');
 const html=lees('index.html').replace(/<script[^>]*src="[^"]+"[^>]*><\/script>/g,'');   // scripts laden we zelf
-const code=lees('reis.js')+'\n;\n'+lees('app.js');
+// De scenario's draaien met het echte voorreis.js; de scenario's 'met programma' vervangen het door
+// een testprogramma, zodat de dagopbouw ook wordt beproefd als het echte bestand leeg is.
+const codeMet=voorreis=>lees('reis.js')+'\n;\n'+(voorreis??lees('voorreis.js'))+'\n;\n'+lees('app.js');
+const VOORTEST=`const VOORDAGEN=[
+{datum:"2026-09-18",k:"vlucht",t:"Vlucht Amsterdam – Cairns",p:"Schiphol → Cairns",tz:null,
+ fl:[["SQ 323","Amsterdam Schiphol","Singapore Changi","10.20","05.30 (19 sep, lokale tijd)","Singapore Airlines · 25 kg"]],
+ body:["Vertrek vanaf Schiphol."]},
+{datum:"2026-09-19",k:"auto",t:"Naar Port Douglas",p:"Port Douglas",tz:10,body:["Met de huurauto langs de kust."],
+ agenda:[["09.00","Ophalen huurauto","Bij de balie op het vliegveld."]],note:"Rijden aan de linkerkant."},
+{datum:"2026-09-20",k:"vrij",t:"Port Douglas en het rif",p:"Port Douglas",h:"Cairns Plaza Hotel, Esplanade",tz:10,temp:"21–29°",
+ body:["Een dag op het water."],prac:["Zonnebrand en een hoed."],
+ wild:[["Kasuaris","Schuwe loopvogel in het regenwoud.",1],["Wombat","Alleen in de dierentuin.",3]],emoe:[2,"Langs de weg naar het noorden."],
+ food:[["Barramundi","Witvis."]],rest:[["Ho Jiak","Hay Street",4.5,2,5,"Maleisisch.","Online."]],wash:"Wasserij naast het hotel.",tip:"Vroeg op."},
+{datum:"2026-09-30",k:"vlucht",t:"Vlucht naar Sydney",p:"Cairns → Sydney",tz:10,body:["Naar de groep."]}
+];`;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 // Een paar notities zoals ze uit Nhost komen: één voorreisnotitie (maakt u1 voorreiziger),
@@ -29,7 +43,9 @@ const NOTITIES=[
 
 // Start de app op een datum. login: 'voor' (voorreiziger), 'groep' (ingelogd, geen voorreis) of null.
 // online: navigator.onLine; het netwerk zelf faalt altijd, zodat ook de herhaalpogingen doorlopen.
-function start(datum,{login=null,online=false}={}){
+// voorreis: JavaScript dat voorreis.js vervangt (VOORTEST), anders het echte bestand.
+function start(datum,{login=null,online=false,voorreis=null}={}){
+  const code=codeMet(voorreis);
   const fouten=[];
   const vc=new VirtualConsole();
   vc.on('jsdomError',e=>fouten.push((e.detail&&e.detail.stack)||e.message));
@@ -69,10 +85,10 @@ function zoek(w,fouten,term){
   const eis=(fouten,ok,tekst)=>{ if(!ok) fouten.push('verwachting: '+tekst); };
 
   const datums=['2026-09-09','2026-09-18','2026-09-25','2026-09-30','2026-10-01','2026-10-04','2026-10-18','2026-10-29','2026-10-30','2026-11-15'];
-  for(const login of [null,'groep','voor']){
+  for(const [login,voorreis] of [[null,null],['groep',null],['voor',null],[null,VOORTEST],['groep',VOORTEST],['voor',VOORTEST]]){
     for(const datum of datums){
-      const {w,fouten}=start(datum,{login});
-      const naam=`${datum} ${login==null?'anoniem':login==='voor'?'ingelogd, voorreiziger':'ingelogd, groep'}`;
+      const {w,fouten}=start(datum,{login,voorreis});
+      const naam=`${datum} ${login==null?'anoniem':login==='voor'?'ingelogd, voorreiziger':'ingelogd, groep'}${voorreis?', voorreis met programma':''}`;
       if(login) eis(fouten,$(w,'btnAlles').hidden===false,'tabblad Notities zichtbaar na herstel uit de kopie');
       blader(w,fouten);
       klik(w,'btnIndex',fouten); zoek(w,fouten,'uluru'); zoek(w,fouten,'& bar'); zoek(w,fouten,'sq');
@@ -134,6 +150,70 @@ function zoek(w,fouten,term){
     await sleep(4200);   // drie mislukte vernieuwpogingen: 0 + 1,2 + 2,4 s
     eis(fouten,$(w,'btnAlles').hidden===false,'na mislukte vernieuwing blijft de sessie uit de kopie staan');
     meld('5 okt: online zonder werkend netwerk, herhaalpogingen',fouten); }
+
+  // Voorreis met programma
+  const koppen=w=>[...w.document.querySelectorAll('#day h2')].map(x=>x.textContent);
+  { const {w,fouten}=start('2026-09-20',{login:'voor',voorreis:VOORTEST});
+    eis(fouten,/^Voorreis/.test(kop(w))&&/dag 3 van 13/.test(kop(w)),`kop van een voorreisdag met programma (nu: '${kop(w)}')`);
+    eis(fouten,$(w,'title').textContent==='Port Douglas en het rif',`titel uit voorreis.js (nu: '${$(w,'title').textContent}')`);
+    const k=koppen(w);
+    ['Goed om te weten','Dieren spotten','Wat je hier moet proeven','Eten vanavond','Morgen'].forEach(x=>eis(fouten,k.includes(x),`blok '${x}' op een voorreisdag (nu: ${k.join(' | ')})`));
+    eis(fouten,/Emoe-alert/.test($(w,'day').textContent),'emoe-alert op een voorreisdag');
+    eis(fouten,/Cairns Plaza Hotel/.test($(w,'day').textContent),'hotel uit HOTELGEO op een voorreisdag');
+    eis(fouten,!/Nog geen notities voor deze dag/.test($(w,'day').textContent),'geen lege-notitiesmelding op een dag met programma');
+    const tmw=w.document.querySelector('#day .tomorrow .tt');
+    eis(fouten,tmw&&tmw.textContent==='Nog geen notities',`Morgen wijst naar 21 sep, een dag zonder programma en zonder notities (nu: '${tmw&&tmw.textContent}')`);
+    eis(fouten,/Voorreis · maandag 21 september/.test($(w,'day').textContent),'Morgen-label noemt de voorreisdag van morgen');
+    klik(w,'nadd',fouten); klik(w,'shclose',fouten);
+    meld('20 sep: voorreisdag met programma',fouten); }
+  { const {w,fouten}=start('2026-09-19',{login:'voor',voorreis:VOORTEST});
+    const tmw=w.document.querySelector('#day .tomorrow .tt');
+    eis(fouten,tmw&&tmw.textContent==='Port Douglas en het rif',`Morgen toont de titel van 20 sep (nu: '${tmw&&tmw.textContent}')`);
+    eis(fouten,/emoe-alert/.test(w.document.querySelector('#day .tomorrow').textContent)&&/was afgeven/.test(w.document.querySelector('#day .tomorrow').textContent),'Morgen meldt emoe-alert en was afgeven van een voorreisdag');
+    eis(fouten,koppen(w).includes('Tijdschema'),'tijdschema op een voorreisdag');
+    eis(fouten,/Reisdag · per auto/.test($(w,'day').textContent),'dagtype auto op een voorreisdag');
+    klik(w,'next',fouten);
+    eis(fouten,$(w,'title').textContent==='Port Douglas en het rif','volgende pijl komt op de dag met programma');
+    meld('19 sep: Morgen-blok naar een voorreisdag met programma',fouten); }
+  { const {w,fouten}=start('2026-09-30',{login:'voor',voorreis:VOORTEST});
+    eis(fouten,/dag 13 van 13/.test(kop(w)),`laatste voorreisdag (nu: '${kop(w)}')`);
+    eis(fouten,/Dag 1 · donderdag 1 oktober/.test($(w,'day').textContent),'Morgen op 30 sep wijst naar dag 1 van de groepsreis');
+    klik(w,'next',fouten); eis(fouten,kop(w)==='Dag 1van 29','na de laatste voorreisdag volgt dag 1');
+    klik(w,'prev',fouten); eis(fouten,$(w,'title').textContent==='Vlucht naar Sydney','terug vanaf dag 1 komt op de voorreisdag met programma');
+    meld('30 sep: overgang van voorreis naar groepsreis',fouten); }
+  { const {w,fouten}=start('2026-09-25',{login:'voor',voorreis:VOORTEST});
+    const t=$(w,'title').textContent;
+    eis(fouten,/^Voorreis/.test(kop(w))&&t==='Vrijdag 25 september',`dag zonder programma tussen dagen met programma blijft een notitiedag (nu: '${kop(w)}' / '${t}')`);
+    eis(fouten,/Nog geen notities voor deze dag/.test($(w,'day').textContent),'notitiedag zonder notities toont de lege melding');
+    meld('25 sep: voorreisdag zonder programma tussen dagen met programma',fouten); }
+  { const {w,fouten}=start('2026-09-20',{login:'groep',voorreis:VOORTEST});
+    eis(fouten,kop(w)==='Rondreis Australië',`groepslid zonder voorreisnotities ziet nog steeds de startpagina (nu: '${kop(w)}')`);
+    const kaart=w.document.querySelector('.regio[data-go="-11"]');
+    eis(fouten,!!kaart,'kaart Voorreis op de startpagina brengt je naar de voorreisdag van vandaag');
+    if(kaart){ kaart.click(); eis(fouten,$(w,'title').textContent==='Port Douglas en het rif','via de kaart Voorreis kom je op het programma van vandaag'); }
+    klik(w,'btnIndex',fouten);
+    const rijen=[...w.document.querySelectorAll('#results .idx button')].filter(b=>+b.dataset.n<0);
+    eis(fouten,rijen.length===13,`Alle dagen toont de voorreis per dag zodra er programma is (nu ${rijen.length} rijen)`);
+    const rij20=rijen.find(b=>b.dataset.n==='-11');
+    eis(fouten,rij20&&/Port Douglas en het rif/.test(rij20.textContent)&&/^3/.test(rij20.querySelector('.n').textContent),'rij van 20 sep toont volgnummer 3 en de titel');
+    zoek(w,fouten,'wombat');
+    const dn=w.document.querySelector('#results .dn'), src=w.document.querySelector('#results .src');
+    eis(fouten,dn&&dn.textContent==='Voorreis'&&src&&src.textContent==='Dieren spotten',`zoeken vindt het voorreisprogramma (nu: '${dn&&dn.textContent}' / '${src&&src.textContent}')`);
+    zoek(w,fouten,'huurauto');
+    eis(fouten,[...w.document.querySelectorAll('#results .dn')].some(x=>x.textContent==='Voorreis'),'zoeken vindt het tijdschema van een voorreisdag');
+    klik(w,'btnPrakt',fouten);
+    eis(fouten,/Port Douglas/.test($(w,'clockbox').textContent),'klok in Praktisch gebruikt plaats en tijdzone van de voorreisdag');
+    meld('20 sep: groepslid, Alle dagen, zoeken en klok met voorreisprogramma',fouten); }
+  { const {w,fouten}=start('2026-09-20',{voorreis:VOORTEST});
+    eis(fouten,kop(w)==='Rondreis Australië','anoniem blijft het programma van de voorreis verborgen');
+    klik(w,'btnIndex',fouten); zoek(w,fouten,'wombat');
+    eis(fouten,!w.document.querySelector('#results .dn')||[...w.document.querySelectorAll('#results .dn')].every(x=>x.textContent!=='Voorreis'),'anoniem zoeken vindt het voorreisprogramma niet');
+    meld('20 sep anoniem: voorreisprogramma achter de login',fouten); }
+  { const {w,fouten}=start('2026-10-05',{login:'groep',voorreis:VOORTEST});
+    const tmw=w.document.querySelector('#day .tomorrow');
+    eis(fouten,tmw&&/Dag 6/.test(tmw.textContent)&&tmw.querySelector('.ganaar'),'Morgen-blok op een groepsdag werkt via dagKnop');
+    if(tmw){ tmw.querySelector('.ganaar').click(); eis(fouten,kop(w)==='Dag 6van 29',`tik op Morgen gaat naar dag 6 (nu: '${kop(w)}')`); }
+    meld('5 okt: Morgen-blok op een gewone reisdag',fouten); }
 
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);

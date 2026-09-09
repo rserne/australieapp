@@ -20,6 +20,23 @@ const buitenLabel=d=>`${fmtKort(dagDatum(d))} · ${d<0?'voorreis':'nareis'}`;
 const EINDE=100;   // positie van de afsluitpagina bij het bladeren
 // Beeld en tint voor voorreis (voor=true) of nareis, met terugval op de reisfoto
 const beeldBuiten=voor=>(typeof BUITEN==='object'&&BUITEN[voor?'voorreis':'nareis'])||{foto:'reg-reis.jpg',tone:TONE.reis};
+// Volgnummer binnen de voorreis of nareis: dag -13 is voorreisdag 1, dag 30 is nareisdag 1.
+const buitenVolgnr=n=>n<0?n+VOOR+1:n-29;
+
+// Programma voor voorreis- en nareisdagen (VOORDAGEN in voorreis.js, later eventueel NADAGEN in
+// nareis.js): dezelfde dagobjecten als DAYS, maar gekoppeld aan een datum in plaats van een nummer,
+// zodat een langere voorreis de bestaande dagen niet verschuift. Een datum zonder programma blijft
+// een dag met alleen notities; ontbreekt het bestand of is de lijst leeg, dan is dat elke dag.
+const VOORDG=typeof VOORDAGEN!=='undefined'&&Array.isArray(VOORDAGEN)?VOORDAGEN:[];
+const NADG=typeof NADAGEN!=='undefined'&&Array.isArray(NADAGEN)?NADAGEN:[];
+const isoDatum=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const buitenData=n=>{ if(!isBuiten(n)) return null; const iso=isoDatum(dagDatum(n)); return (n<0?VOORDG:NADG).find(d=>d.datum===iso)||null; };
+// Programma van een dag: uit DAYS, of een voorreis-/nareisdag met programma; null als er geen is.
+const dagData=n=>isBuiten(n)?buitenData(n):(DAYS[n-1]||null);
+// Dagnummer van een verwijzing in EXC of PACK: een nummer (1–29) of de datum van een voorreis- of
+// nareisdag ('2026-09-20'), omgerekend naar het interne nummer (voorreis negatief, nareis 30 en hoger).
+const dagNr=x=>{ if(typeof x!=='string') return x; const d=new Date(x+'T12:00:00');
+  const v=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-START)/864e5); return v<0?v:v+1; };
 
 // De datum van vandaag. Testen op een andere dag: open de app met ?datum=2026-09-27 achter het adres.
 // Geldt alleen voor die sessie; de geïnstalleerde app start altijd zonder parameter, dus op de echte datum.
@@ -58,6 +75,7 @@ const WALK='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="
 const KIND={
  vlucht:["Reisdag · vlucht",'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5a2.4 2.4 0 0 0-3.4-3.4L12.6 7.6 4.4 5.8 3 7.2l6.6 3.8-2.6 2.6-3-.4L3 14.6l3.4 1.3L7.7 19l1.4-1 -.4-3 2.6-2.6L15.1 19l1.4-1.4Z"/></svg>'],
  bus:["Reisdag · per bus",'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v11M4 11h16M6 17v2M18 17v2"/><circle cx="7.5" cy="14.5" r=".8"/><circle cx="16.5" cy="14.5" r=".8"/></svg>'],
+ auto:["Reisdag · per auto",'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2.2-5.3A2 2 0 0 1 7 6.5h10a2 2 0 0 1 1.8 1.2L21 13v5H3Z"/><path d="M3 13h18M5.5 18v2M18.5 18v2"/><circle cx="7.5" cy="15.5" r=".9"/><circle cx="16.5" cy="15.5" r=".9"/></svg>'],
  excursie:["Excursiedag",'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 20 6-11 4.5 8M11 20l4-7 6 7Z"/></svg>'],
  vrij:["Vrije dag",'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>']
 };
@@ -86,14 +104,20 @@ function nlTime(){
 
 function render(){
   if(cur===0||cur===EINDE){ renderBuiten(); return; }
-  // voorreis- en nareisdagen bestaan alleen voor wie is ingelogd
-  if(isBuiten(cur)){ if(NH.user){ renderBuitenDag(); return; } cur=T.before?0:1; render(); return; }
-  const d=DAYS[cur-1],date=dateFor(cur),tone=TONE[d.r];
-  const isToday=!T.before&&!T.after&&cur===T.n;
+  // Voorreis- en nareisdagen bestaan alleen voor wie is ingelogd. Zonder programma is het een dag met
+  // alleen notities; mét programma tekent deze functie hem als een gewone reisdag.
+  if(isBuiten(cur)){
+    if(!NH.user){ cur=T.before?0:1; render(); return; }
+    if(!buitenData(cur)){ renderBuitenDag(); return; }
+  }
+  const buiten=isBuiten(cur), d=dagData(cur), date=dagDatum(cur);
+  // buiten de groepsreis: één vaste foto en kleur (BUITEN in reis.js), geen regio per dag
+  const bb=buiten?beeldBuiten(cur<0):{tone:TONE[d.r],foto:`reg-${d.r}.jpg`}, tone=bb.tone;
+  const isToday=T.dag===cur;
 
   const hero=document.getElementById('hero');
   hero.style.setProperty('--tone',tone);
-  hero.style.backgroundImage=`url(reg-${d.r}.jpg)`;
+  hero.style.backgroundImage=`url(${bb.foto})`;
   hero.classList.add('foto');
   document.documentElement.style.setProperty('--tone',tone);
   document.querySelector('meta[name=theme-color]').setAttribute('content',tone);
@@ -101,19 +125,21 @@ function render(){
   document.getElementById('eyebrow').innerHTML=
     (isToday?`<span class="dot live"></span>`:`<span class="dot" style="background:rgba(255,255,255,.4)"></span>`)
     +(isToday?`Vandaag · ${fmtLong(date)}`:fmtLong(date));
-  document.getElementById('num').innerHTML=`Dag ${d.n}<small>van 29</small>`;
+  document.getElementById('num').innerHTML=buiten
+    ?`${cur<0?'Voorreis':'Nareis'}<small>dag ${buitenVolgnr(cur)} van ${cur<0?VOOR:NA}</small>`
+    :`Dag ${d.n}<small>van 29</small>`;
   document.getElementById('title').textContent=d.t;
 
   const kd=KIND[d.k];
   document.getElementById('metabox').innerHTML='';
   document.getElementById('flagbox').innerHTML='';
 
-  document.getElementById('track').style.width=(cur/29*100)+'%';
+  document.getElementById('track').style.width=buiten?'0%':(cur/29*100)+'%';
   document.getElementById('navlabel').textContent=isToday?'Vandaag':fmtShort(date);
 
   let h=`<div class="dagmeta">`+
     (kd?`<span class="dm">${kd[1]}${kd[0]}</span>`:'')+
-    `<span class="dm">${PIN}${esc(d.p)} · ${REGION[d.r]}</span>`+
+    `<span class="dm">${PIN}${esc(d.p)}${REGION[d.r]?' · '+REGION[d.r]:''}</span>`+
     (d.h?(()=>{
       const g=HOTELGEO[d.h];
       // met coördinaten wijst de link naar precies dít pand, niet naar een andere vestiging
@@ -149,7 +175,7 @@ function render(){
   if(d.note) h+=cal(IC_LET,'Let op',d.note);
   if(d.tip)  h+=cal(IC_TIP,'Tip',d.tip);
 
-  const exToday=EXC.filter(e=>e[1]===cur);
+  const exToday=EXC.filter(e=>dagNr(e[1])===cur);
   if(exToday.length){
     h+=`<h2>${exToday.some(e=>/^Geboekt/.test(e[2]))?'Geboekt en optioneel vandaag':'Optioneel vandaag'}</h2><ul class="list">`+
       exToday.map(([a,,c,om])=>`<li><div class="row"><span><strong>${esc(a)}</strong></span>`+
@@ -157,7 +183,7 @@ function render(){
         (om?`<span class="sub" style="display:block;margin-top:4px">${esc(om)}</span>`:'')+
         `</li>`).join('')+`</ul>`;
   }
-  const packToday=PACK.filter(p=>p[2].includes(cur));
+  const packToday=PACK.filter(p=>p[2].some(x=>dagNr(x)===cur));
   if(packToday.length){
     h+=`<h2>Uit je koffer vandaag</h2><ul class="list prac">`+
       packToday.map(([a,b])=>`<li><span class="b">✓</span><span><strong>${esc(a)}</strong>`+
@@ -188,17 +214,8 @@ function render(){
   // Notities die je vandaag nodig hebt (tickets, reserveringen) staan boven bij het programma;
   // de rest staat verderop, vlak voor het eten. Beide blokken worden in één slag gevuld.
   if(NH.user) h+=`<div id="notes-rest" class="notes"></div>`;
-  if(cur===29&&volgende(29)!=null&&volgende(29)!==EINDE) h+=`<h2>Morgen</h2>`+dagKnop(volgende(29));
-  if(cur<29){
-    const t2=DAYS[cur],k2=KIND[t2.k];
-    const p2=PACK.filter(p=>p[2].includes(cur+1)).map(p=>p[0].toLowerCase());
-    h+=`<h2>Morgen</h2><div class="tomorrow"><button id="tmw">`+
-       `<span class="txt"><span class="lbl">Dag ${t2.n} · ${fmtLong(dateFor(cur+1))}</span>`+
-       `<span class="tt">${esc(t2.t)}</span>`+
-       `<span class="sub">${k2?k2[1]+k2[0]:''}${t2.emoe?' · emoe-alert':''}${t2.wash?' · was afgeven':''}</span>`+
-       (p2.length?`<span class="need">${CHECK}<span><b>Vanavond klaarleggen</b>${esc(p2.map((x,i)=>i?x:x.charAt(0).toUpperCase()+x.slice(1)).join(' · '))}</span></span>`:'')+
-       `</span><span class="arw">→</span></button></div>`;
-  }
+  const morgen=volgende(cur);
+  if(morgen!=null&&morgen!==EINDE) h+=`<h2>Morgen</h2>`+dagKnop(morgen,true);
   if(d.rest){
     // Suggesties, geen voorschrift: alles staat dicht, je klapt zelf uit wat je wilt lezen.
     h+=`<h2>Eten vanavond</h2>`+
@@ -239,7 +256,7 @@ function render(){
              `<div class="where">${PIN}${esc(wh)}</div><p>${esc(no)}</p>`+
              (bk?`<div class="book"><b>Reserveren</b><span>${esc(bk)}</span></div>`:'')+
              `<div class="btns">${btns}</div>`+
-             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse. ${meta.wv?'Looptijd volgens Google Maps, vanaf het hotel.':'Looptijd geschat vanaf het hotel, met een kwart opslag voor de omweg om bouwblokken en water; tik op Route voor de werkelijke wandelroute.'}</div>`+
+             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse.${wk>0?(meta.wv?' Looptijd volgens Google Maps, vanaf het hotel.':' Looptijd geschat vanaf het hotel, met een kwart opslag voor de omweg om bouwblokken en water; tik op Route voor de werkelijke wandelroute.'):''}</div>`+
              `</div></details>`;
     }).join('')+
     // De app geeft hints; ter plekke kijk je vaak toch even rond op de kaart.
@@ -255,11 +272,11 @@ function render(){
     const dicht=t.classList.toggle('inkort'); mt.textContent=dicht?'Meer':'Minder'; };
   if(NH.user){
     renderNotes(cur);
+    // Buiten de groepsreis kan een nieuwe notitie je voorreiziger of nareiziger maken; dan moet
+    // ook het bladeren mee, dus alles verversen in plaats van alleen de notities.
     document.getElementById('nadd').onclick=()=>openSheet({
-      dag:cur,wie:NH.user.displayName||NH.user.email,onDone:()=>renderNotes(cur)});
+      dag:cur,wie:NH.user.displayName||NH.user.email,onDone:buiten?versRender:()=>renderNotes(cur)});
   }
-  const tm=document.getElementById('tmw');
-  if(tm) tm.addEventListener('click',()=>ga(volgende(cur)));
   koppelGaNaar();
   zetPijlen();
   window.scrollTo(0,0);
@@ -311,19 +328,28 @@ function zetPijlen(){
   document.getElementById('next').disabled=volgende(cur)==null;
 }
 
-// Knop naar een dag, in dezelfde vorm als het blok 'Morgen'. Werkt voor reisdagen en extra dagen.
-function dagKnop(n){
-  if(isBuiten(n)){
+// Knop naar een dag. Werkt voor reisdagen en voor voorreis- en nareisdagen, met of zonder programma.
+// Als blok 'Morgen' (morgen=true) staat eronder wat je vanavond moet klaarleggen en of er een
+// emoe-alert of wasdag aankomt; anders de plaats.
+function dagKnop(n,morgen){
+  const d=dagData(n), buiten=isBuiten(n);
+  const lbl=buiten?`${n<0?'Voorreis':'Nareis'} · ${fmtLong(dagDatum(n))}`:`Dag ${n} · ${fmtLong(dateFor(n))}`;
+  let tt,sub='';
+  if(d){
+    const k=KIND[d.k];
+    tt=esc(d.t);
+    sub=morgen?[k?k[1]+k[0]:'',d.emoe?'emoe-alert':'',d.wash?'was afgeven':''].filter(Boolean).join(' · ')
+              :[k?k[1]+k[0]:'',esc(d.p)].filter(Boolean).join(' · ');
+  }else{
     const aantal=alleNotities().filter(it=>it.dag===n).length;
-    return `<div class="tomorrow"><button class="ganaar" data-go="${n}">`+
-      `<span class="txt"><span class="lbl">${n<0?'Voorreis':'Nareis'} · ${fmtLong(dagDatum(n))}</span>`+
-      `<span class="tt">${aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Nog geen notities'}</span></span>`+
-      `<span class="arw">→</span></button></div>`;
+    tt=aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Nog geen notities';
   }
-  const d=DAYS[n-1],k=KIND[d.k];
+  const p2=morgen?PACK.filter(p=>p[2].some(x=>dagNr(x)===n)).map(p=>p[0].toLowerCase()):[];
   return `<div class="tomorrow"><button class="ganaar" data-go="${n}">`+
-    `<span class="txt"><span class="lbl">Dag ${d.n} · ${fmtLong(dateFor(n))}</span><span class="tt">${esc(d.t)}</span>`+
-    `<span class="sub">${k?k[1]+k[0]:''} · ${esc(d.p)}</span></span><span class="arw">→</span></button></div>`;
+    `<span class="txt"><span class="lbl">${lbl}</span><span class="tt">${tt}</span>`+
+    (sub?`<span class="sub">${sub}</span>`:'')+
+    (p2.length?`<span class="need">${CHECK}<span><b>Vanavond klaarleggen</b>${esc(p2.map((x,i)=>i?x:x.charAt(0).toUpperCase()+x.slice(1)).join(' · '))}</span></span>`:'')+
+    `</span><span class="arw">→</span></button></div>`;
 }
 const koppelGaNaar=()=>document.querySelectorAll('.ganaar').forEach(b=>b.onclick=()=>ga(+b.dataset.go));
 // Kop van de hero voor pagina's zonder eigen foto
@@ -388,11 +414,12 @@ function renderBuiten(){
 
 const versRender=()=>syncAlles(true).then(()=>render());
 
-// Eén voorreis- of nareisdag: dezelfde opbouw als een reisdag, met alleen notities als inhoud.
+// Eén voorreis- of nareisdag zonder programma: dezelfde kop als een reisdag, met alleen notities als
+// inhoud. Een dag mét programma (voorreis.js) gaat via render().
 function renderBuitenDag(){
   const dag=cur, voor=dag<0, date=dagDatum(dag);
   const isToday=T.dag===dag;
-  const volgnr=voor?dag+VOOR+1:dag-29, tot=voor?VOOR:NA;
+  const volgnr=buitenVolgnr(dag), tot=voor?VOOR:NA;
   heroBuiten({tone:beeldBuiten(voor).tone,foto:beeldBuiten(voor).foto,
     eyebrow:(isToday?`<span class="dot live"></span>Vandaag · `:`<span class="dot" style="background:rgba(255,255,255,.4)"></span>`)+fmtLong(date),
     num:`${voor?'Voorreis':'Nareis'}<small>dag ${volgnr} van ${tot}</small>`,
@@ -419,9 +446,10 @@ const PLUS='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="
 const WIS='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg>';
 const MAG='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 
-// doorzoekbare tekst per dag, met vermelding waar het vandaan komt
-const HAY=DAYS.map(d=>{
-  const bits=[[d.t,'Titel'],[d.p,'Plaats'],[REGION[d.r],'Regio']];
+// doorzoekbare tekst per dag, met vermelding waar het vandaan komt; n is het dagnummer voor EXC en PACK
+function hooiberg(d,n){
+  const bits=[[d.t,'Titel'],[d.p,'Plaats']];
+  if(REGION[d.r]) bits.push([REGION[d.r],'Regio']);
   if(d.h) bits.push([d.h,'Hotel']);
   if(d.emoe) bits.push(['Emoe-alert: '+d.emoe[1],'Emoe-alert']);
   (d.wild||[]).forEach(w=>bits.push([w[0]+' — '+w[1],'Dieren spotten']));
@@ -433,12 +461,15 @@ const HAY=DAYS.map(d=>{
   (d.rest||[]).forEach(r=>bits.push([r[0]+((RDATA[r[0]]||{}).k?' — '+RDATA[r[0]].k:'')+' — '+r[1]+'. '+r[5]+(r[6]?' Reserveren: '+r[6]:''),'Restaurant']));
   if(d.note) bits.push([d.note,'Let op']);
   if(d.rnote) bits.push([d.rnote,'Openingstijden']);
-  EXC.filter(e=>e[1]===d.n).forEach(e=>bits.push([e[0]+' — '+e[3]+' Richtprijs '+e[2]+'.','Optionele excursie']));
+  EXC.filter(e=>dagNr(e[1])===n).forEach(e=>bits.push([e[0]+' — '+e[3]+' Richtprijs '+e[2]+'.','Optionele excursie']));
   if(d.tip) bits.push([d.tip,'Tip']);
   if(d.wash) bits.push([d.wash,'Was afgeven']);
-  PACK.filter(p=>p[2].includes(d.n)).forEach(p=>bits.push([p[0]+' — '+p[1],'Uit je koffer']));
+  PACK.filter(p=>p[2].some(x=>dagNr(x)===n)).forEach(p=>bits.push([p[0]+' — '+p[1],'Uit je koffer']));
   return bits;
-});
+}
+const HAY=DAYS.map(d=>hooiberg(d,d.n));
+// Voorreis- en nareisdagen met programma, op interne dagnummer; alleen doorzocht voor wie is ingelogd.
+const HAY_BUITEN=[...VOORDG,...NADG].map(d=>[dagNr(d.datum),hooiberg(d,dagNr(d.datum))]);
 // Praktische informatie is niet aan een dag gebonden; zoekresultaten hiervan openen het tabblad Praktisch
 const HAY_PRAKT=[
   [SOS[0]+' — '+SOS[1],'Noodgevallen'],
@@ -493,9 +524,25 @@ function drawResults(term){
         `<span class="t">${b==='voor'?'Voorreis':'Nareis'} · ${n?`${n} ${n===1?'notitie':'notities'}`:'nog geen notities'}</span>`+
         `<span class="d">${fmtShort(dagDatum(eerste))} – ${fmtShort(dagDatum(laatste))}</span></button></li></ul>`;
     };
+    // Zodra er programma is, staat elke dag apart, net als bij de groepsreis; een dag zonder
+    // programma toont dan het aantal notities.
+    const buitenLijst=(eerste,laatste)=>{
+      let s=`<ul class="idx">`;
+      for(let n=eerste;n<=laatste;n++){
+        const d=buitenData(n), aantal=alleNotities().filter(it=>it.dag===n).length;
+        s+=`<li${T.dag===n?' class="now"':''}><button data-n="${n}"><span class="bar" style="background:${beeldBuiten(n<0).tone}"></span>`+
+          `<span class="n">${buitenVolgnr(n)}</span>`+
+          `<span class="t">${d?esc(d.t):(aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Nog geen notities')}</span>`+
+          (d&&KIND[d.k]?`<span class="k" title="${KIND[d.k][0]}">${KIND[d.k][1]}</span>`:'')+
+          (d&&d.emoe?`<span class="e" title="Emoe-alert">${EMU}</span>`:'')+
+          (d&&d.wash?`<span class="w">${WASH}</span>`:'')+
+          `<span class="d">${fmtShort(dagDatum(n))}</span></button></li>`;
+      }
+      return s+`</ul>`;
+    };
     const heeftV=heeftVoor(), heeftN=heeftNa();
     let h='';
-    if(heeftV) h+=`<h2>Voorreis</h2>`+buitenRegel('voor',-VOOR,-1);
+    if(heeftV) h+=`<h2>Voorreis</h2>`+(VOORDG.length?buitenLijst(-VOOR,-1):buitenRegel('voor',-VOOR,-1));
     if(heeftV||heeftN) h+=`<h2>Groepsreis</h2>`;
     h+=`<ul class="idx">`;
     DAYS.forEach(d=>{
@@ -508,7 +555,7 @@ function drawResults(term){
          `<span class="d">${fmtShort(dateFor(d.n))}</span></button></li>`;
     });
     h+=`</ul>`;
-    if(heeftN) h+=`<h2>Nareis</h2>`+buitenRegel('na',30,29+NA);
+    if(heeftN) h+=`<h2>Nareis</h2>`+(NADG.length?buitenLijst(30,29+NA):buitenRegel('na',30,29+NA));
     box.innerHTML=h;
   }else{
     let h='',hits=0;
@@ -518,11 +565,25 @@ function drawResults(term){
       const verz=isVerz(t);
       h+=`<li><button data-n="${verz?'verz':t.dag}"><div class="top">`+
          `<span class="dn">${verz?'Praktisch':t.dag===0?'Algemeen':isBuiten(t.dag)?(t.dag<0?'Voorreis':'Nareis'):'Dag '+t.dag}</span>`+
-         `<span class="dt">${verz?'Verzekeringen':t.dag===0?'Niet aan een dag':isBuiten(t.dag)?fmtLong(dagDatum(t.dag)):esc(DAYS[t.dag-1].t)}</span>`+
+         `<span class="dt">${verz?'Verzekeringen':t.dag===0?'Niet aan een dag':isBuiten(t.dag)?(buitenData(t.dag)?esc(buitenData(t.dag).t):fmtLong(dagDatum(t.dag))):esc(DAYS[t.dag-1].t)}</span>`+
          `<span class="dd">${t.dag===0?'':fmtShort(dagDatum(t.dag))}</span></div>`+
          `<div class="sn">${snippet(t.tekst,term)}</div>`+
          `<div class="src">${esc(t.bron)}</div></button></li>`;
     });
+    // Programma van de voorreis en nareis, alleen voor wie is ingelogd (net als de dagen zelf).
+    // De voorreis staat vóór de groepsreis, de nareis erna: op volgorde van de reis.
+    const buitenHits=voor=>{ if(!NH.user) return;
+      HAY_BUITEN.filter(([n])=>voor?n<0:n>29).forEach(([n,bits])=>{
+        const hit=bits.find(([txt])=>txt.toLowerCase().includes(term));
+        if(!hit) return;
+        hits++;
+        h+=`<li><button data-n="${n}"><div class="top">`+
+           `<span class="dn">${n<0?'Voorreis':'Nareis'}</span><span class="dt">${esc(buitenData(n).t)}</span>`+
+           `<span class="dd">${fmtShort(dagDatum(n))}</span></div>`+
+           `<div class="sn">${snippet(hit[0],term)}</div>`+
+           `<div class="src">${hit[1]}</div></button></li>`;
+      }); };
+    buitenHits(true);
     DAYS.forEach((d,ix)=>{
       const hit=HAY[ix].find(([txt])=>txt.toLowerCase().includes(term));
       if(!hit)return;
@@ -533,6 +594,7 @@ function drawResults(term){
          `<div class="sn">${snippet(hit[0],term)}</div>`+
          `<div class="src">${hit[1]}</div></button></li>`;
     });
+    buitenHits(false);
     HAY_PRAKT.filter(([txt])=>txt.toLowerCase().includes(term)).slice(0,3).forEach(hit=>{
       hits++;
       h+=`<li><button data-n="prakt"><div class="top"><span class="dn">Praktisch</span><span class="dt">${esc(hit[1])}</span></div>`+
@@ -568,7 +630,9 @@ function clockHTML(){
   // Op de start- en afsluitpagina is er geen dag: neem dan de eerste of laatste dag met een tijdzone,
   // zodat je vóór vertrek al ziet hoe laat het in Sydney is.
   const metTz=DAYS.filter(x=>x.tz!==null&&x.tz!==undefined);
-  const d=cur<1?metTz[0]:cur>29?metTz[metTz.length-1]:DAYS[cur-1];
+  // Een voorreis- of nareisdag met programma én tijdzone telt als eigen dag (null is 'onderweg').
+  const b=isBuiten(cur)?buitenData(cur):null;
+  const d=(b&&'tz' in b)?b:cur<1?metTz[0]:cur>29?metTz[metTz.length-1]:DAYS[cur-1];
   const heeft=d.tz!==null&&d.tz!==undefined;
   // verschil met Nederland uitrekenen
   let diff='';
@@ -1076,14 +1140,15 @@ async function renderNotes(dag){
 }
 
 // Dagkiezer: voorreis bovenaan, dan Algemeen, dan de groepsreis, eventueel de nareis.
-// De extra dagen tonen alleen een datum: het kopje van de groep zegt al wat het is.
+// De extra dagen tonen een datum (het kopje van de groep zegt al wat het is) en, als er programma is, de titel.
 function dagOpties(dag){
   const opt=(v,l)=>`<option value="${v}"${v===dag?' selected':''}>${l}</option>`;
   const voor=buitenDagen().filter(d=>d<0), na=buitenDagen().filter(d=>d>29);
-  return (voor.length?`<optgroup label="Voorreis">${voor.map(d=>opt(d,fmtKort(dagDatum(d)))).join('')}</optgroup>`:'')+
+  const bl=d=>{ const x=buitenData(d); return fmtKort(dagDatum(d))+(x?` · ${esc(x.t)}`:''); };
+  return (voor.length?`<optgroup label="Voorreis">${voor.map(d=>opt(d,bl(d))).join('')}</optgroup>`:'')+
     opt(0,'Algemeen — niet aan een dag')+
     `<optgroup label="Groepsreis">${DAYS.map(x=>opt(x.n,`Dag ${x.n} · ${fmtShort(dateFor(x.n))} · ${esc(x.t)}`)).join('')}</optgroup>`+
-    (na.length?`<optgroup label="Nareis">${na.map(d=>opt(d,fmtKort(dagDatum(d)))).join('')}</optgroup>`:'');
+    (na.length?`<optgroup label="Nareis">${na.map(d=>opt(d,bl(d))).join('')}</optgroup>`:'');
 }
 // type: vooraf gekozen type voor een nieuwe notitie; vast: de typekeuze verbergen, zodat een
 // verzekeringsnotitie niet per ongeluk van type verandert en uit het tabblad Praktisch verdwijnt.
@@ -1246,7 +1311,7 @@ function tekenLijst(){
   // Ook de dag waar een notitie bij hoort telt mee: 'Uluru' vindt zo de notities van dag 18 tot 20,
   // ook als dat woord er zelf niet in staat.
   const dagTekst=d=>{ if(!d) return 'algemeen';
-    if(isBuiten(d)) return `${buitenLabel(d)} ${fmtLong(dagDatum(d))}`.toLowerCase();
+    if(isBuiten(d)){ const x=buitenData(d); return `${buitenLabel(d)} ${fmtLong(dagDatum(d))} ${x?x.t+' '+x.p:''}`.toLowerCase(); }
     const x=DAYS[d-1]; return `dag ${d} ${fmtLong(dateFor(d))} ${x?x.t+' '+x.p:''}`.toLowerCase(); };
   const hooi=it=>[it.tekst,it.naam,it.wie,dagTekst(it.dag)].filter(Boolean).join(' ').toLowerCase();
   const raak=it=>!zoek||hooi(it).includes(zoek);
@@ -1483,7 +1548,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-115';
+const APP_VERSIE='2026-09-09-117';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

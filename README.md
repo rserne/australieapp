@@ -8,11 +8,12 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 | Bestand | Wat erin staat | Wanneer aanpassen |
 |---|---|---|
 | `reis.js` | Alle inhoud: dagen, hotels, restaurants, excursies, kofferlijst, noodnummers | Bij elke inhoudelijke wijziging |
+| `voorreis.js` | Programma van de voorreis, in dezelfde vorm als de dagen in `reis.js`; leeg als de voorreis alleen uit notities bestaat | Bij een wijziging in het voorreisprogramma |
 | `app.js` | De code | Alleen bij nieuwe functies of bugfixes |
 | `app.css` | De opmaak | Zelden |
 | `index.html` | Het skelet van de pagina | Zelden |
 | `sw.js` | Service worker: offline-cache en updatemelding | `VERSION` ophogen; een nieuwe foto ook aan `BEELD` toevoegen |
-| `check.js` | Controleert `reis.js`, de beelden en de versienummers | Draaien vóór elke uitgave |
+| `check.js` | Controleert `reis.js`, `voorreis.js`, de beelden en de versienummers | Draaien vóór elke uitgave |
 | `rooktest.js` | Start de app in een kale browser (jsdom) op een reeks datums en meldt elke JavaScript-fout | Draaien na een wijziging in `app.js` |
 
 ## Een nieuwe versie uitbrengen
@@ -49,6 +50,19 @@ Vóór 1 oktober toont het tabblad Vandaag een startpagina: het aftellen tot het
 Elke voorreisdag is een pagina met alleen notities, in dezelfde vorm als een reisdag. Bladeren loopt door: startpagina → voorreis → dag 1 t/m 29. Alleen de pijl vanaf de startpagina slaat de voorreis over voor wie er niet bij hoort; via de kaart Voorreis of terugbladeren vanaf dag 1 kom je er wel.
 
 Boekingscodes in voorreis- of nareisnotities tellen niet mee voor de groepsvluchten. Testen op een andere datum: open de app met `?datum=2026-09-27` achter het adres.
+
+### Programma van de voorreis
+
+Standaard bestaat een voorreisdag alleen uit notities. Wie een programma heeft, zet dat in `voorreis.js`: een lijst `VOORDAGEN` met per dag hetzelfde object als een dag in `reis.js`, maar met `datum:"2026-09-20"` in plaats van `n:` (zo verschuift niets als `VOORREIS` verandert) en zonder `r:` (de voorreis heeft één vaste foto en kleur, `BUITEN` in `reis.js`). Alleen `t`, `p` en `body` zijn verplicht; `k` (vlucht, bus, auto, excursie, vrij), `tz`, `h`, `temp`, `fl`, `agenda`, `note`, `tip`, `prac`, `wild` en `emoe`, `food` en `rest` werken zoals in de groepsreis. Hotels komen uit `HOTELGEO`, restaurants uit `RDATA`. Een excursie of koffer-item voor zo'n dag zet je in `EXC` of `PACK` met de datum in plaats van het dagnummer.
+
+Een dag met programma ziet er in de app uit als een gewone reisdag, met dezelfde blokken en de notities ertussen. Een datum die niet in `VOORDAGEN` staat, blijft een dag met alleen notities; een lege lijst is de voorreis zoals hij was. Zodra er programma is, toont het tabblad Alle dagen de voorreis per dag, vindt zoeken het programma en gebruikt de klok in Praktisch de plaats en tijdzone van de voorreisdag. Het programma is alleen zichtbaar voor wie is ingelogd, net als de voorreisdagen zelf. `check.js` controleert `voorreis.js` mee; het bestand moet er altijd zijn, ook als de lijst leeg is. Een nareis met programma kan later op dezelfde manier (`NADAGEN` in `nareis.js`); de code kent het al.
+
+Wat er nu in staat: 18 t/m 25 september, van de vlucht vanaf Schiphol via Sydney, Cairns en Nhulunbuy naar Darwin. Nog openstaand:
+
+- **26 t/m 30 september (Kakadu)** zijn nog notitiedagen; het programma is nog niet bekend.
+- **Hotels ontbreken.** Daarom staat er nergens een `h:` en hebben de restaurants geen looptijd (`null` in plaats van het aantal minuten). Zodra de adressen er zijn: `h:` toevoegen, de coördinaten in `HOTELGEO` zetten en de looptijden invullen.
+- **1 en 2 oktober vallen buiten de voorreis**, want dat zijn groepsdag 1 en 2. De vlucht van Darwin naar Sydney (QF 841, 13.05–17.55) hoort dus in een Ticket-notitie op dag 1, niet in `voorreis.js`.
+- Wie een voorreis heeft, wordt pas voorreiziger zodra hij één voorreisnotitie heeft geschreven. Eén Ticket-notitie op de eerste dag is genoeg; daarna telt Vandaag af naar het eigen vertrek.
 
 ## Verzekeringen
 
