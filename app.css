@@ -16,6 +16,9 @@
     --blob:color-mix(in srgb, var(--tone) 60%, transparent);
     --blob2:color-mix(in srgb, var(--accent) 16%, transparent);
     --pill:rgba(255,255,255,.92); --pill-text:#0A0C10;
+    /* Het blad ligt vóór de pagina en is daarom iets lichter dan de achtergrond: in het donker
+       is een slagschaduw onzichtbaar, dus het verschil in helderheid moet het werk doen. */
+    --sheet:#171B23; --scrim:rgba(0,0,0,.62); --grip:rgba(255,255,255,.30);
     --radius:22px;
   }
   html[data-theme="dark"]{color-scheme:dark}
@@ -34,6 +37,9 @@
     --blob:color-mix(in srgb, var(--tone) 26%, transparent);
     --blob2:color-mix(in srgb, var(--accent) 22%, transparent);
     --pill:#111418; --pill-text:#FFFFFF;
+    /* In het licht blijft het blad de achtergrondkleur: de velden erin zijn wit en zouden
+       tegen een lichter blad wegvallen. Daar doen de schaduw en het waas het werk. */
+    --sheet:#EEF0F4; --scrim:rgba(24,32,44,.34); --grip:rgba(17,20,24,.20);
   }
 
   /* ---------- Basis ---------- */
@@ -385,11 +391,16 @@
   .nlink:active{opacity:.6}
   .sheetwrap{position:fixed;inset:0;z-index:80;opacity:0;transition:opacity .2s}
   .sheetwrap.on{opacity:1}
-  .sheetbg{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+  .sheetbg{position:absolute;inset:0;background:var(--scrim);
+    -webkit-backdrop-filter:blur(4px) saturate(80%);backdrop-filter:blur(4px) saturate(80%)}
   .sheet{position:absolute;left:0;right:0;bottom:0;max-height:88dvh;overflow:auto;
-    padding:14px 16px calc(16px + env(safe-area-inset-bottom));border-radius:24px 24px 0 0;
-    background:var(--bg);box-shadow:0 -10px 40px rgba(0,0,0,.25);
+    padding:10px 16px calc(16px + env(safe-area-inset-bottom));border-radius:24px 24px 0 0;
+    background:var(--sheet);
+    box-shadow:inset 0 1px 0 var(--rim-hi), 0 -22px 55px rgba(0,0,0,.5);
     transform:translateY(24px);transition:transform .22s ease;display:flex;flex-direction:column;gap:12px}
+  /* Greepje bovenaan: maakt in één oogopslag duidelijk dat dit een blad is dat je kunt wegvegen. */
+  .sheet::before{content:"";flex:none;align-self:center;
+    width:38px;height:5px;border-radius:999px;background:var(--grip);margin-bottom:2px}
   .sheetwrap.on .sheet{transform:none}
   .sheethead{display:flex;align-items:center;justify-content:space-between;font-size:17px}
   .chips{display:flex;gap:8px;flex-wrap:wrap}
