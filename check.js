@@ -108,7 +108,8 @@ else{
     if('ic' in d&&!/^<svg[\s>]/.test(d.ic||'')) fout(`dieren.js: icoon van '${d.k}' is geen svg`);
     if(d.syn&&!Array.isArray(d.syn)) fout(`dieren.js: syn van '${d.k}' moet een lijst zijn`);
   });
-  const bekend=naam=>DIEREN.some(d=>d.n===naam||(d.syn||[]).includes(naam));
+  const schoon=n=>String(n||'').replace(/\u00AD/g,'');
+  const bekend=naam=>DIEREN.some(d=>schoon(d.n)===naam||(d.syn||[]).includes(naam));
   const zonder=new Set();
   alleDagen.forEach(d=>(d.wild||[]).forEach(w=>{ if(!bekend(w[0])) zonder.add(w[0]); }));
   const metIcoon=DIEREN.filter(d=>d.ic||ICONEN[d.k]).length;

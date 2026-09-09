@@ -250,6 +250,10 @@ function zoek(w,fouten,term){
     klik(w,'btnToday',fouten); klik(w,'btnIndex',fouten);
     const rij=[...w.document.querySelectorAll('#results .idx button')].find(b=>b.dataset.n==='6'); if(rij) rij.click();
     eis(fouten,/keer gezien door de groep/.test($(w,'day').textContent),'dagpagina toont hoe vaak de groep een dier uit het blok zag');
+    klik(w,'btnDieren',fouten);
+    const lijst=w.document.querySelector('#dieren .dlijst');
+    eis(fouten,lijst&&/Vogelbekdier/.test(lijst.textContent)&&!/\u00AD/.test(lijst.textContent),'naam in de lijst zonder zacht afbreekstreepje');
+    eis(fouten,/\u00AD/.test(w.document.querySelector('#dieren button.dier[data-dier="vogelbekdier"] .dn').textContent),'naam op de knop mét zacht afbreekstreepje');
     meld('6 okt: waarnemingen zonder verbinding',fouten); }
   { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
     // Nhost nagebootst: de wachtrij bevat een notitie en een waarneming, beide moeten naar hun eigen tabel

@@ -1561,9 +1561,11 @@ const DIER_LIJST=typeof DIEREN!=='undefined'&&Array.isArray(DIEREN)?DIEREN:[];
 const DIER_GROEP=typeof DIER_GROEPEN!=='undefined'&&Array.isArray(DIER_GROEPEN)?DIER_GROEPEN:[];
 const DIER_ICOON=typeof DIER_ICONEN==='object'&&DIER_ICONEN?DIER_ICONEN:{};
 const dierVan=k=>DIER_LIJST.find(d=>d.k===k)||null;
+// Namen in dieren.js kunnen een zacht afbreekstreepje bevatten voor op de knop. Overal elders weg.
+const schoon=n=>String(n||'').replace(/\u00AD/g,'');
 // Dier bij een naam uit een wild-blok van een dag, via de naam of een synoniem
-const dierBijNaam=naam=>DIER_LIJST.find(d=>d.n===naam||(d.syn||[]).includes(naam))||null;
-const dierNaam=w=>w.dier==='overig'?(w.opmerking||'Onbekend dier'):(dierVan(w.dier)||{n:w.dier}).n;
+const dierBijNaam=naam=>DIER_LIJST.find(d=>schoon(d.n)===naam||(d.syn||[]).includes(naam))||null;
+const dierNaam=w=>w.dier==='overig'?(w.opmerking||'Onbekend dier'):schoon((dierVan(w.dier)||{n:w.dier}).n);
 // De dag waar een waarneming bij hoort: de dag waarin we zitten, anders de dag die openstaat
 const waarnDag=()=>T.dag!=null?T.dag:(isBuiten(cur)||(cur>=1&&cur<=29)?cur:0);
 // Tijdstip als tekst mét het tijdverschil van de telefoon, zodat 15.32 uur in Kakadu 15.32 blijft,
@@ -1616,8 +1618,8 @@ async function verwijderWaarneming(w){
   renderDieren();
 }
 function dierKnop(d,tel,mijn){
-  const ic=DIER_ICOON[d.k]||d.ic||`<span class="dletter">${esc(d.n.charAt(0))}</span>`;
-  return `<button class="dier${mijn?' mijn':''}" data-dier="${d.k}" aria-label="${esc(d.n)}${tel?`, ${tel} keer gezien`:''}">`+
+  const ic=DIER_ICOON[d.k]||d.ic||`<span class="dletter">${esc(schoon(d.n).charAt(0))}</span>`;
+  return `<button class="dier${mijn?' mijn':''}" data-dier="${d.k}" aria-label="${esc(schoon(d.n))}${tel?`, ${tel} keer gezien`:''}">`+
     (tel?`<span class="dtel">${tel}</span>`:'')+ic+`<span class="dn">${esc(d.n)}</span></button>`;
 }
 function renderDieren(){
@@ -1710,7 +1712,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-124';
+const APP_VERSIE='2026-09-09-125';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
