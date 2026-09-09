@@ -1,7 +1,7 @@
 // AustralieApp — service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v106';
+const VERSION='v107';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze vier werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
 const CODE=['./','./index.html','./app.css','./reis.js','./app.js','./manifest.webmanifest'];
@@ -27,6 +27,22 @@ self.addEventListener('message',e=>{
 // (tien minuten) een oude index.html in een nieuwe versie van onze cache zetten.
 const vers=u=>new Request(u,{cache:'reload'});
 
+// Eén gewijzigd tekstbestand betekent een nieuwe uitgave. Dan halen we eerst álle codebestanden
+// vers op en melden pas daarna, zodat de pagina na 'Vernieuwen' geen mengsel van oud en nieuw
+// krijgt: GitHub Pages cachet per bestand, dus app.js kan al nieuw zijn terwijl reis.js nog oud is.
+// Dat sluit een mengsel niet helemaal uit (de tussencache kan één bestand nog even vasthouden),
+// maar het venster wordt van 'tot de volgende keer openen' teruggebracht tot één moment.
+let _vernieuwing=null;
+function vernieuwAlles(c){
+  if(!_vernieuwing) _vernieuwing=(async()=>{
+    await Promise.allSettled(CODE.map(async u=>{
+      try{ const r=await fetch(vers(u)); if(r.ok) await c.put(u,r); }catch(err){}
+    }));
+    await meldNieuw();
+  })().finally(()=>{_vernieuwing=null});
+  return _vernieuwing;
+}
+
 self.addEventListener('install',e=>{
   e.waitUntil((async()=>{
     const c=await caches.open(CACHE);
@@ -49,17 +65,19 @@ self.addEventListener('activate',e=>{
 self.addEventListener('fetch',e=>{
   const url=new URL(e.request.url);
   if(e.request.method!=='GET'||url.origin!==self.location.origin) return;
+  // Sleutel zonder ?datum=… en dergelijke, anders komt elke testdatum als aparte kopie in de cache.
+  const sleutel=url.origin+url.pathname;
   e.respondWith((async()=>{
     const c=await caches.open(CACHE);
-    const cached=await c.match(e.request,{ignoreSearch:true});
+    const cached=await c.match(sleutel,{ignoreVary:true});
     const fresh=fetch(new Request(e.request.url,{cache:'no-cache'})).then(async r=>{
       if(!r||!r.ok) return r;
       const isTekst=TEKST.test(url.pathname);
       // alleen voor codebestanden lezen we de inhoud; foto's vergelijken kost alleen maar stroom
       const oud=(isTekst&&cached)?await cached.clone().text():null;
       const nieuw=isTekst?await r.clone().text():null;
-      await c.put(e.request,r.clone());
-      if(isTekst&&oud!==null&&oud!==nieuw) await meldNieuw();
+      await c.put(sleutel,r.clone());
+      if(isTekst&&oud!==null&&oud!==nieuw) await vernieuwAlles(c);
       return r;
     }).catch(()=>null);
     return cached||(await fresh)||new Response(

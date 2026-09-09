@@ -323,6 +323,7 @@ const DAYS=[
    ["Pastuso","AC/DC Lane",4.6,3,23,"Zaterdag tot 22.30 uur.","Online via de website van het restaurant."]]},
 
 {n:18,r:"red",k:"vlucht",t:"Vlucht Melbourne – Uluru",p:"Uluru / Yulara",h:"Outback Hotel & Lodge, Ayers Rock Resort",tz:9.5,temp:"18–32°",
+ shuttle:"Gratis resortshuttle",   // extra badge bij restaurants waar je heen loopt: er rijdt een pendelbus
  wild:[["Doornduivel","De lente is het seizoen voor deze kleine, stekelige hagedis. Op zandpaden en wegranden rond het resort, langzaam bewegend. Kijk omlaag.",2],
   ["Rode reuzenkangoeroe","Langs de weg tussen het resort en Uluru, vooral in de schemering. Grote roodbruine mannetjes.",2],
   ["Zebravink en woestijnparkiet","Zwermen bij elk stukje water, ook de sproeiers van het resort. Woestijnparkieten alleen als het geregend heeft.",3],
@@ -611,7 +612,6 @@ const RDATA={
 "The Standard":{wv:1,k:"Mediterraan · deelgerechten · rooftop",c:1109,tel:"+61 8 6285 7068",sluit:"00.00"},
 "Italian Street Kitchen":{wv:1,k:"Italiaans",c:1051,tel:"+61 8 6163 8808",sluit:"22.00"}
 };
-const fmtCount=c=>c>=1000?'±'+(Math.round(c/100)*100).toLocaleString('nl-NL'):c>=200?'±'+String(Math.round(c/10)*10):String(c);
 // Prijsindicatie afgeleid van de Google-prijsklasse — schatting, geen menuprijs
 const PRICE={
  1:["Hoofdgerecht tot AUD 20","Diner ± AUD 30–40 p.p. excl. drank"],
@@ -622,6 +622,7 @@ const ROLE=["Eerste keuze","Alternatief","Reserve"];
 const MIN_SCORE=4.4;
 
 // Praktisch: noodgevallen en bagage. Wordt in het tabblad Praktisch getoond én doorzocht.
+const SOS=["000","Politie, brandweer en ambulance in heel Australië. Vanaf een mobiel werkt 112 ook."];
 const NOOD=[
  ["Consulaat-generaal Sydney","+61 2 8305 6800 — je aanspreekpunt bij verlies van je paspoort. Level 23, Westfield Tower 2, 101 Grafton Street, Bondi Junction."],
  ["Ambassade Canberra","+61 2 6220 9400 — geen consulaire balie, maar wel bereikbaar."],

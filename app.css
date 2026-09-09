@@ -16,7 +16,7 @@
     --blob:color-mix(in srgb, var(--tone) 60%, transparent);
     --blob2:color-mix(in srgb, var(--accent) 16%, transparent);
     --pill:rgba(255,255,255,.92); --pill-text:#0A0C10;
-    --radius:22px; --radius-s:16px;
+    --radius:22px;
   }
   html[data-theme="dark"]{color-scheme:dark}
   html[data-theme="light"]{color-scheme:light}
@@ -429,7 +429,6 @@
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
   .plusknop:active{opacity:.6}
   .search{position:relative;margin:0 0 16px}
-  .search .wis[hidden]{display:none}
   .search .wis{position:absolute;right:10px;top:50%;transform:translateY(-50%);
     width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;
     display:grid;place-items:center;color:var(--text-dim);background:var(--glass-2)}
