@@ -3,7 +3,7 @@
 // Sluit af met code 1 als er iets mis is, zodat je het ook in een git pre-commit hook kunt zetten.
 const fs=require('fs'), vm=require('vm');
 const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN','SOS'];
-// const-declaraties komen niet op het context-object terecht; daarom halen we ze expliciet terug
+// const-declaraties komen niet op het context-object terecht. Daarom halen we ze expliciet terug
 const data=vm.runInNewContext(fs.readFileSync(__dirname+'/reis.js','utf8')+`;({${NAMEN.join(',')}})`,{});
 const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN,SOS}=data;
 
@@ -11,7 +11,7 @@ const fouten=[], waarschuwingen=[];
 const fout=m=>fouten.push(m), waarschuw=m=>waarschuwingen.push(m);
 
 // Programma van de voorreis: hetzelfde dagobject als DAYS, op datum. Het bestand hoort er altijd te zijn
-// (de service worker haalt het op bij het installeren); zonder programma is de lijst leeg.
+// (de service worker haalt het op bij het installeren). Zonder programma is de lijst leeg.
 let VOORDAGEN=[];
 if(!fs.existsSync(__dirname+'/voorreis.js')) fout('voorreis.js ontbreekt (mag leeg zijn: const VOORDAGEN=[];)');
 else{
@@ -86,7 +86,7 @@ VOORDAGEN.forEach((d,i)=>{
 
 // Losse lijsten
 Object.keys(HOTELGEO).forEach(h=>{ if(!alleDagen.some(d=>d.h===h)) waarschuw(`HOTELGEO: '${h}' wordt op geen enkele dag gebruikt`); });
-// Coördinaten binnen Australië; vangt vooral verwisselde breedte- en lengtegraad
+// Coördinaten binnen Australië. Vangt vooral verwisselde breedte- en lengtegraad
 Object.entries(HOTELGEO).forEach(([h,g])=>{ if(!Array.isArray(g)||g.length!==2||g[0]<-44||g[0]>-10||g[1]<112||g[1]>154) fout(`HOTELGEO '${h}': [${g}] ligt niet in Australië (verwacht [-44…-10, 112…154])`); });
 if(!Array.isArray(SOS)||SOS.length!==2||!SOS.every(x=>typeof x==='string')) fout('SOS: verwacht [nummer, tekst]');
 Object.keys(RDATA).forEach(n=>{ if(!alleDagen.some(d=>(d.rest||[]).some(r=>r[0]===n))) waarschuw(`RDATA: '${n}' wordt op geen enkele dag gebruikt`); });
@@ -102,7 +102,7 @@ if(typeof BAGAGE!=='string') fout('BAGAGE ontbreekt');
 ['voorreis','nareis'].forEach(k=>{ const b=BUITEN&&BUITEN[k]; if(!b||!/\.(jpg|png|svg)$/.test(b.foto||'')||!/^#[0-9A-Fa-f]{6}$/.test(b.tone||'')) fout(`BUITEN.${k}: verwacht {foto:"….jpg", tone:"#rrggbb"}`); });
 [['VOORREIS',VOORREIS],['NAREIS',NAREIS]].forEach(([n,v])=>{ if(!Number.isInteger(v)||v<0||v>60) fout(`${n} moet een geheel getal van 0 t/m 60 zijn (nu ${v})`); });
 
-// Geen boekingscodes in openbare bestanden. Een PNR is 6 hoofdletters/cijfers; we zoeken naar bekende sleutels.
+// Geen boekingscodes in openbare bestanden. Een PNR is 6 hoofdletters/cijfers. We zoeken naar bekende sleutels.
 const lees=n=>fs.existsSync(__dirname+'/'+n)?fs.readFileSync(__dirname+'/'+n,'utf8'):'';
 const bron=lees('reis.js')+lees('voorreis.js')+lees('app.js');
 const sleutels=[...Object.keys(CHECKIN),...BOEKINGEN.map(b=>b[2])].join('|');   // dezelfde sleutels als in de Ticket-notitie

@@ -10,7 +10,7 @@ const fmtCount=c=>c>=1000?'±'+(Math.round(c/100)*100).toLocaleString('nl-NL'):c
 
 // Dagen buiten de groepsreis, alleen voor notities. Voorreis: dag -1 is 30 september, -6 is
 // 25 september (0 blijft 'Algemeen', daarom slaat de telling 0 over). Nareis: dag 30 is 30 oktober.
-// De aantallen staan in reis.js; wie er gaat, leest de app af uit de notities zelf.
+// De aantallen staan in reis.js. Wie er gaat, leest de app af uit de notities zelf.
 const VOOR=typeof VOORREIS==='number'?VOORREIS:0, NA=typeof NAREIS==='number'?NAREIS:0;
 const dagDatum=d=>dateFor(d<0?d+1:d);
 const isBuiten=d=>d<0||d>29;
@@ -26,12 +26,12 @@ const buitenVolgnr=n=>n<0?n+VOOR+1:n-29;
 // Programma voor voorreis- en nareisdagen (VOORDAGEN in voorreis.js, later eventueel NADAGEN in
 // nareis.js): dezelfde dagobjecten als DAYS, maar gekoppeld aan een datum in plaats van een nummer,
 // zodat een langere voorreis de bestaande dagen niet verschuift. Een datum zonder programma blijft
-// een dag met alleen notities; ontbreekt het bestand of is de lijst leeg, dan is dat elke dag.
+// een dag met alleen notities. Ontbreekt het bestand of is de lijst leeg, dan is dat elke dag.
 const VOORDG=typeof VOORDAGEN!=='undefined'&&Array.isArray(VOORDAGEN)?VOORDAGEN:[];
 const NADG=typeof NADAGEN!=='undefined'&&Array.isArray(NADAGEN)?NADAGEN:[];
 const isoDatum=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const buitenData=n=>{ if(!isBuiten(n)) return null; const iso=isoDatum(dagDatum(n)); return (n<0?VOORDG:NADG).find(d=>d.datum===iso)||null; };
-// Programma van een dag: uit DAYS, of een voorreis-/nareisdag met programma; null als er geen is.
+// Programma van een dag: uit DAYS, of een voorreis-/nareisdag met programma. Null als er geen is.
 const dagData=n=>isBuiten(n)?buitenData(n):(DAYS[n-1]||null);
 // Dagnummer van een verwijzing in EXC of PACK: een nummer (1–29) of de datum van een voorreis- of
 // nareisdag ('2026-09-20'), omgerekend naar het interne nummer (voorreis negatief, nareis 30 en hoger).
@@ -39,7 +39,7 @@ const dagNr=x=>{ if(typeof x!=='string') return x; const d=new Date(x+'T12:00:00
   const v=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-START)/864e5); return v<0?v:v+1; };
 
 // De datum van vandaag. Testen op een andere dag: open de app met ?datum=2026-09-27 achter het adres.
-// Geldt alleen voor die sessie; de geïnstalleerde app start altijd zonder parameter, dus op de echte datum.
+// Geldt alleen voor die sessie. De geïnstalleerde app start altijd zonder parameter, dus op de echte datum.
 function vandaagDatum(){
   const par=new URLSearchParams(location.search).get('datum');
   return /^\d{4}-\d{2}-\d{2}$/.test(par||'')?new Date(par+'T12:00:00'):new Date();
@@ -51,14 +51,14 @@ function todayInfo(){
   const before=raw<1, after=raw>29;
   // n: welke pagina 'Vandaag' toont. Vóór de reis de startpagina (0), na afloop de afsluitpagina
   // (30) als er een nareis is, anders dag 29. dag: bij welk notitienummer vandaag hoort, ook een
-  // voorreis- of nareisdag; null als vandaag buiten alles valt.
+  // voorreis- of nareisdag. Null als vandaag buiten alles valt.
   const nPag=before?0:(after?(NA>0?EINDE:29):raw);
   const dag=(!before&&!after)?raw:(before&&raw-1>=-VOOR)?raw-1:(after&&raw<=29+NA)?raw:null;
   return {n:nPag,before,after,raw,dag};
 }
 let T=todayInfo();
 let cur=T.n,view='day',clockTimer=null;
-// Een geïnstalleerde app blijft dagen open staan; na middernacht moet 'Vandaag' meebewegen.
+// Een geïnstalleerde app blijft dagen open staan. Na middernacht moet 'Vandaag' meebewegen.
 function herbereken(){
   const oud=T, oudPag=vandaagPagina(); T=todayInfo();
   // raw telt mee: vóór de reis veranderen n, before en dag niet van dag op dag, het aftellen wel
@@ -105,7 +105,7 @@ function nlTime(){
 function render(){
   if(cur===0||cur===EINDE){ renderBuiten(); return; }
   // Voorreis- en nareisdagen bestaan alleen voor wie is ingelogd. Zonder programma is het een dag met
-  // alleen notities; mét programma tekent deze functie hem als een gewone reisdag.
+  // alleen notities. Mét programma tekent deze functie hem als een gewone reisdag.
   if(isBuiten(cur)){
     if(!NH.user){ cur=T.before?0:1; render(); return; }
     if(!buitenData(cur)){ renderBuitenDag(); return; }
@@ -211,8 +211,8 @@ function render(){
     h+=`<h2>Wat je hier moet proeven</h2><ul class="list">`+
       d.food.map(([a,b])=>`<li><strong>${esc(a)}</strong><span class="sub">${esc(b)}</span></li>`).join('')+`</ul>`;
   }
-  // Notities die je vandaag nodig hebt (tickets, reserveringen) staan boven bij het programma;
-  // de rest staat verderop, vlak voor het eten. Beide blokken worden in één slag gevuld.
+  // Notities die je vandaag nodig hebt (tickets, reserveringen) staan boven bij het programma.
+  // De rest staat verderop, vlak voor het eten. Beide blokken worden in één slag gevuld.
   if(NH.user) h+=`<div id="notes-rest" class="notes"></div>`;
   const morgen=volgende(cur);
   if(morgen!=null&&morgen!==EINDE) h+=`<h2>Morgen</h2>`+dagKnop(morgen,true);
@@ -256,10 +256,10 @@ function render(){
              `<div class="where">${PIN}${esc(wh)}</div><p>${esc(no)}</p>`+
              (bk?`<div class="book"><b>Reserveren</b><span>${esc(bk)}</span></div>`:'')+
              `<div class="btns">${btns}</div>`+
-             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse.${wk>0?(meta.wv?' Looptijd volgens Google Maps, vanaf het hotel.':' Looptijd geschat vanaf het hotel, met een kwart opslag voor de omweg om bouwblokken en water; tik op Route voor de werkelijke wandelroute.'):''}</div>`+
+             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse.${wk>0?(meta.wv?' Looptijd volgens Google Maps, vanaf het hotel.':' Looptijd geschat vanaf het hotel, met een kwart opslag voor de omweg om bouwblokken en water. Tik op Route voor de werkelijke wandelroute.'):''}</div>`+
              `</div></details>`;
     }).join('')+
-    // De app geeft hints; ter plekke kijk je vaak toch even rond op de kaart.
+    // De app geeft hints. Ter plekke kijk je vaak toch even rond op de kaart.
     (()=>{const bij=encodeURIComponent('restaurants '+(d.h?d.h+', ':'')+d.p+', Australia');
       return `<a class="rmore" href="https://www.google.com/maps/search/?api=1&query=${bij}" target="_blank" rel="noopener">`+
         `<span>${PIN} Meer restaurants in de buurt${d.h?' van het hotel':''}</span><span class="rchev">${ICO_CHEV}</span></a>`;})();
@@ -272,7 +272,7 @@ function render(){
     const dicht=t.classList.toggle('inkort'); mt.textContent=dicht?'Meer':'Minder'; };
   if(NH.user){
     renderNotes(cur);
-    // Buiten de groepsreis kan een nieuwe notitie je voorreiziger of nareiziger maken; dan moet
+    // Buiten de groepsreis kan een nieuwe notitie je voorreiziger of nareiziger maken. Dan moet
     // ook het bladeren mee, dus alles verversen in plaats van alleen de notities.
     document.getElementById('nadd').onclick=()=>openSheet({
       dag:cur,wie:NH.user.displayName||NH.user.email,onDone:buiten?versRender:()=>renderNotes(cur)});
@@ -286,7 +286,7 @@ const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span>
 // ---- Buiten de groepsreis: startpagina, voorreis- en nareisdagen, afsluitpagina ----
 // Posities in het bladeren: 0 is de startpagina, -1 t/m -VOOR de voorreis, 1 t/m 29 de groepsreis,
 // 30 en hoger de nareis, EINDE de afsluitpagina. Wie een voorreis- of nareisnotitie heeft geschreven,
-// is voorreiziger of nareiziger; dat volgt uit de notities, niet uit de code.
+// is voorreiziger of nareiziger. Dat volgt uit de notities, niet uit de code.
 const alleNotities=()=>LS.get('aus_cache_all')||[];
 const voorreiziger=()=>!!NH.user&&alleNotities().some(it=>it.dag<0&&it.user_id===NH.user.id);
 const nareiziger=()=>!!NH.user&&alleNotities().some(it=>it.dag>29&&it.user_id===NH.user.id);
@@ -330,7 +330,7 @@ function zetPijlen(){
 
 // Knop naar een dag. Werkt voor reisdagen en voor voorreis- en nareisdagen, met of zonder programma.
 // Als blok 'Morgen' (morgen=true) staat eronder wat je vanavond moet klaarleggen en of er een
-// emoe-alert of wasdag aankomt; anders de plaats.
+// emoe-alert of wasdag aankomt. Anders de plaats.
 function dagKnop(n,morgen){
   const d=dagData(n), buiten=isBuiten(n);
   const lbl=buiten?`${n<0?'Voorreis':'Nareis'} · ${fmtLong(dagDatum(n))}`:`Dag ${n} · ${fmtLong(dateFor(n))}`;
@@ -373,7 +373,7 @@ function renderBuiten(){
   let h='';
   if(start){
     const kGroep=1-T.raw, kVoor=(-VOOR+1)-T.raw;   // dagen tot vertrek van de groep / van de voorreis
-    // De kop noemt de reis; het aftellen staat eronder, boven het raster.
+    // De kop noemt de reis. Het aftellen staat eronder, boven het raster.
     const bb=vr?beeldBuiten(true):{tone:TONE.reis,foto:'reg-reis.jpg'};
     heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:'Rondreis Australië',titel:'',track:'0%'});
     const k=vr?kVoor:kGroep, vertrek=vr?dagDatum(-VOOR):dateFor(1);
@@ -446,7 +446,7 @@ const PLUS='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="
 const WIS='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg>';
 const MAG='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 
-// doorzoekbare tekst per dag, met vermelding waar het vandaan komt; n is het dagnummer voor EXC en PACK
+// doorzoekbare tekst per dag, met vermelding waar het vandaan komt. N is het dagnummer voor EXC en PACK
 function hooiberg(d,n){
   const bits=[[d.t,'Titel'],[d.p,'Plaats']];
   if(REGION[d.r]) bits.push([REGION[d.r],'Regio']);
@@ -468,9 +468,9 @@ function hooiberg(d,n){
   return bits;
 }
 const HAY=DAYS.map(d=>hooiberg(d,d.n));
-// Voorreis- en nareisdagen met programma, op interne dagnummer; alleen doorzocht voor wie is ingelogd.
+// Voorreis- en nareisdagen met programma, op interne dagnummer. Alleen doorzocht voor wie is ingelogd.
 const HAY_BUITEN=[...VOORDG,...NADG].map(d=>[dagNr(d.datum),hooiberg(d,dagNr(d.datum))]);
-// Praktische informatie is niet aan een dag gebonden; zoekresultaten hiervan openen het tabblad Praktisch
+// Praktische informatie is niet aan een dag gebonden. Zoekresultaten hiervan openen het tabblad Praktisch
 const HAY_PRAKT=[
   [SOS[0]+' — '+SOS[1],'Noodgevallen'],
   ...NOOD.map(([a,b])=>[a+' — '+b,'Noodgevallen']),
@@ -514,7 +514,7 @@ function drawResults(term){
   const box=document.getElementById('results');
   term=(term||'').trim().toLowerCase();
   if(term.length<2){
-    // Voorreis en nareis krijgen één samenvattende regel; per dag zou het een rij lege regels worden,
+    // Voorreis en nareis krijgen één samenvattende regel. Per dag zou het een rij lege regels worden,
     // want zonder programma is er alleen een datum. De notities zelf vind je via het zoekveld hierboven.
     const aantal=b=>alleNotities().filter(it=>b==='voor'?it.dag<0:it.dag>29).length;
     const buitenRegel=(b,eerste,laatste)=>{
@@ -524,7 +524,7 @@ function drawResults(term){
         `<span class="t">${b==='voor'?'Voorreis':'Nareis'} · ${n?`${n} ${n===1?'notitie':'notities'}`:'nog geen notities'}</span>`+
         `<span class="d">${fmtShort(dagDatum(eerste))} – ${fmtShort(dagDatum(laatste))}</span></button></li></ul>`;
     };
-    // Zodra er programma is, staat elke dag apart, net als bij de groepsreis; een dag zonder
+    // Zodra er programma is, staat elke dag apart, net als bij de groepsreis. Een dag zonder
     // programma toont dan het aantal notities.
     const buitenLijst=(eerste,laatste)=>{
       let s=`<ul class="idx">`;
@@ -606,7 +606,7 @@ function drawResults(term){
   box.querySelectorAll('button[data-n]').forEach(b=>
     b.addEventListener('click',()=>{const n=b.dataset.n;
       // 'prakt' is het tabblad Praktisch, 'verz' het blok Verzekeringen daarin, 0 is een algemene
-      // notitie; al het andere is een dag, ook een negatieve (voorreis) of een boven de 29 (nareis).
+      // notitie. Al het andere is een dag, ook een negatieve (voorreis) of een boven de 29 (nareis).
       if(n==='prakt') switchTo('prakt');
       else if(n==='verz') naarPraktisch('verz');
       else if(+n===0) switchTo('alles');
@@ -796,8 +796,8 @@ document.addEventListener('touchend',e=>{
   if(dx<0) ga(volgende(cur)); else if(dx>0) ga(vorige(cur));
 },{passive:true});
 // ============================================================
-//  NOTITIES EN TICKETS — opslag bij Nhost (Frankfurt)
-//  Zichtbaar voor wie inlogt; de server geeft alleen de rijen
+//  NOTITIES EN TICKETS, opslag bij Nhost (Frankfurt)
+//  Zichtbaar voor wie inlogt. De server geeft alleen de rijen
 //  van de groepsleden terug. Zonder inloggen bestaat dit blok niet.
 // ============================================================
 const NHOST_SUB='gjqqtpteurwdbealgmqh', NHOST_REG='eu-central-1';
@@ -818,8 +818,8 @@ function setSession(sess){
   NH.exp=Date.now()+((sess.accessTokenExpiresIn||900)-60)*1000;
   LS.set('aus_sess',{refreshToken:NH.refresh,tijd:Date.now(),user:{id:NH.user.id,displayName:NH.user.displayName,email:NH.user.email}});
 }
-// Alleen een 401 van de server betekent dat de sessie echt is verlopen. Elke andere storing —
-// vliegtuigmodus, wegvallend bereik, een radio die net weer opstart — mag je niet uitloggen.
+// Alleen een 401 van de server betekent dat de sessie echt is verlopen. Bij elke andere storing,
+// zoals vliegtuigmodus, wegvallend bereik of een radio die net weer opstart, mag je niet uitloggen.
 function herstelUitKopie(saved,rt){
   const MAX=30*24*3600*1000;   // een maand: langer dan de reis duurt
   if(saved&&saved.user&&saved.tijd&&Date.now()-saved.tijd<MAX){
@@ -828,7 +828,7 @@ function herstelUitKopie(saved,rt){
   return false;
 }
 // Er loopt altijd maar één vernieuwing tegelijk. Nhost geeft bij elke vernieuwing een nieuwe
-// refresh token uit; twee gelijktijdige aanvragen met dezelfde oude token zouden de tweede een
+// refresh token uit. Twee gelijktijdige aanvragen met dezelfde oude token zouden de tweede een
 // 401 opleveren, en die zou hier ten onrechte als 'sessie verlopen' gelden.
 let _refresh=null;
 function nhRefresh(){
@@ -855,7 +855,7 @@ async function vernieuwSessie(pogingen){
     return false;
   }
 }
-// Geeft alleen een token terug die nog geldig is; na een mislukte vernieuwing dus niets,
+// Geeft alleen een token terug die nog geldig is. Na een mislukte vernieuwing dus niets,
 // zodat we geen verlopen token naar Hasura sturen.
 async function nhToken(){
   if(!NH.access||Date.now()>NH.exp) await nhRefresh();
@@ -898,15 +898,15 @@ const typeLabel=t=>(TYPES.find(x=>x[0]===t)||TYPES[TYPE_STD])[1];
 const typeRank=t=>{const i=TYPES.findIndex(x=>x[0]===t);return i<0?TYPE_STD:i};
 const isVerz=it=>(it.type||'notitie')==='verzekering';
 const M_DEL=`mutation($id:uuid!){delete_dagitems_by_pk(id:$id){id}}`;
-// Dag apart bijwerken, alleen als hij echt verandert; zo blijft gewoon bewerken werken
+// Dag apart bijwerken, alleen als hij echt verandert. Zo blijft gewoon bewerken werken
 // ook als de rechten op de kolom dag ontbreken.
 const M_UPD_DAG=`mutation($id:uuid!,$d:Int!){update_dagitems_by_pk(pk_columns:{id:$id},_set:{dag:$d}){id}}`;
 async function verwijderItem(id,fileId){
   await gql(M_DEL,{id});
-  if(fileId&&fileId!=='undefined'){ const weg=await deleteFile(fileId); if(!weg) toast('De notitie is weg; het bestand wordt bij de volgende synchronisatie opgeruimd.'); }
+  if(fileId&&fileId!=='undefined'){ const weg=await deleteFile(fileId); if(!weg) toast('De notitie is weg. Het bestand wordt bij de volgende synchronisatie opgeruimd.'); }
 }
 
-// ---- Bijlagen offline bewaren (IndexedDB; localStorage is te klein voor bestanden) ----
+// ---- Bijlagen offline bewaren (IndexedDB. LocalStorage is te klein voor bestanden) ----
 const IDB_MAX=10*1024*1024;               // tot 10 MB automatisch meenemen
 let _db=null;
 function idb(){
@@ -922,7 +922,7 @@ async function idbPut(k,v){ try{const db=await idb();await new Promise((res,rej)
 async function idbDel(k){ try{const db=await idb();await new Promise(res=>{const t=db.transaction('files','readwrite').objectStore('files').delete(k);t.onsuccess=()=>res();t.onerror=()=>res()});}catch(e){} }
 async function idbKeys(){ try{const db=await idb();return await new Promise(res=>{const t=db.transaction('files').objectStore('files').getAllKeys();t.onsuccess=()=>res(t.result||[]);t.onerror=()=>res([])});}catch(e){return []} }
 
-// bijlage ophalen en bewaren; geeft een adres terug dat ook offline werkt
+// bijlage ophalen en bewaren. Geeft een adres terug dat ook offline werkt
 async function localFileUrl(id){
   const blob=await idbGet(id);
   if(blob) return URL.createObjectURL(blob);
@@ -999,7 +999,7 @@ function pending(){return LS.get('aus_pending')||[]}
 // erbij zodat je ze kunt bewerken of weggooien voordat ze zijn verstuurd.
 const pendingAlsItems=()=>pending().map((p,i)=>({...p,id:'wacht'+i,pix:i,user_id:NH.user.id,soort:'notitie',
   type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}));
-// Notities die nog op verbinding wachten staan alleen op deze telefoon; ze krijgen een eigen
+// Notities die nog op verbinding wachten staan alleen op deze telefoon. Ze krijgen een eigen
 // index als sleutel, zodat je ze kunt aanpassen of weggooien voordat ze zijn verstuurd.
 function pendingUpdate(ix,velden){ const q=pending(); if(!q[ix])return; q[ix]={...q[ix],...velden}; LS.set('aus_pending',q); }
 function pendingDelete(ix){ const q=pending(); q.splice(ix,1); LS.set('aus_pending',q); }
@@ -1041,7 +1041,7 @@ const ICO_FILE='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stro
 // in de kop, dus niet nog eens in de regel met de datum.
 function noteCard(it,kop,{zonderNaam=false}={}){
   const mine=NH.user&&it.user_id===NH.user.id;
-  // Alleen bij een eigen notitie valt de naam terug op het account; een notitie van een ander
+  // Alleen bij een eigen notitie valt de naam terug op het account. Een notitie van een ander
   // zonder afzender is 'Onbekend', niet jij.
   const wie=mine?(NH.user.displayName||it.wie||NH.user.email):(it.wie||'Onbekend');
   const lang=(it.tekst||'').split('\n').length>4||(it.tekst||'').length>280;
@@ -1055,7 +1055,7 @@ function noteCard(it,kop,{zonderNaam=false}={}){
   if(it.soort==='bestand'){
     const isImg=/^image\//.test(it.mime||'');
     const soort=isImg?'Afbeelding':(/pdf/.test(it.mime||'')?'PDF':'Bestand');
-    // De bestandsregel is de tapzone; het bijschrift staat eronder over de volle breedte,
+    // De bestandsregel is de tapzone. Het bijschrift staat eronder over de volle breedte,
     // zodat een lang bijschrift niet in een smalle kolom naast het icoon wordt geperst.
     return `<li class="nitem" data-id="${esc(it.id||'')}">${head}`+
       `<a class="nfilelink" href="#" data-open="${esc(it.file_id)}">`+
@@ -1088,7 +1088,7 @@ function koppelKaarten(box){
     if(u){
       const w=window.open(u,'_blank'); if(!w) location.href=u;
       setTimeout(()=>URL.revokeObjectURL(u),60000);   // het geopende venster heeft het bestand dan al
-    } else toast('Deze bijlage staat nog niet op je telefoon; open de app een keer met verbinding.');}));
+    } else toast('Deze bijlage staat nog niet op je telefoon. Open de app een keer met verbinding.');}));
   box.querySelectorAll('.nmore').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const t=b.previousElementSibling;const open=t.classList.toggle('clamp');b.textContent=open?'Meer':'Minder';});
 }
 
@@ -1102,7 +1102,7 @@ async function renderNotes(dag){
   teken(LS.get(cacheKey)||[],'');
   let items=LS.get(cacheKey)||[], status='';
   try{ const d=await gql(Q_ITEMS,{dag}); items=d.dagitems; LS.set(cacheKey,items); status=`Bijgewerkt ${fmtWhen(new Date().toISOString())}`; }
-  catch(e){ status=navigator.onLine?`Kon niet laden: ${e.message}`:'Geen verbinding — laatst opgeslagen versie'; }
+  catch(e){ status=navigator.onLine?`Kon niet laden: ${e.message}`:'Geen verbinding, laatst opgeslagen versie'; }
   teken(items,status);
 
   function teken(items,status){
@@ -1113,7 +1113,7 @@ async function renderNotes(dag){
     pix:pending().findIndex(q=>q===p||(q.dag===p.dag&&q.tekst===p.tekst&&q.wie===p.wie))}))]
     .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||'')));
   const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
-  // Tickets en reserveringen heb je op een moment nodig; de rest is naslag.
+  // Tickets en reserveringen heb je op een moment nodig. De rest is naslag.
   const nodig=top?all.filter(it=>it.type==='ticket'||it.type==='reservering'):[];
   const overig=all.filter(it=>!nodig.includes(it));
   const lijst=(kop,rij)=>rij.length?`<h2>${kop}</h2><ul class="list nlist">`+rij.map(it=>noteCard(it,tag(it))).join('')+`</ul>`:'';
@@ -1146,11 +1146,11 @@ function dagOpties(dag){
   const voor=buitenDagen().filter(d=>d<0), na=buitenDagen().filter(d=>d>29);
   const bl=d=>{ const x=buitenData(d); return fmtKort(dagDatum(d))+(x?` · ${esc(x.t)}`:''); };
   return (voor.length?`<optgroup label="Voorreis">${voor.map(d=>opt(d,bl(d))).join('')}</optgroup>`:'')+
-    opt(0,'Algemeen — niet aan een dag')+
+    opt(0,'Algemeen, niet aan een dag')+
     `<optgroup label="Groepsreis">${DAYS.map(x=>opt(x.n,`Dag ${x.n} · ${fmtShort(dateFor(x.n))} · ${esc(x.t)}`)).join('')}</optgroup>`+
     (na.length?`<optgroup label="Nareis">${na.map(d=>opt(d,bl(d))).join('')}</optgroup>`:'');
 }
-// type: vooraf gekozen type voor een nieuwe notitie; vast: de typekeuze verbergen, zodat een
+// type: vooraf gekozen type voor een nieuwe notitie. Vast: de typekeuze verbergen, zodat een
 // verzekeringsnotitie niet per ongeluk van type verandert en uit het tabblad Praktisch verdwijnt.
 function openSheet({dag,wie,item,onDone,kiesDag,type:typeStart,vast}){
   document.getElementById('sheet')?.remove();
@@ -1203,14 +1203,14 @@ function openSheet({dag,wie,item,onDone,kiesDag,type:typeStart,vast}){
     }
     if(!t){ st.textContent='Typ eerst een notitie, of kies een foto of pdf.'; return; }
     const rec={dag:dagVan(),tekst:t,wie,type};
-    if(!navigator.onLine){ LS.set('aus_pending',[...pending(),rec]); close(); toast('Bewaard op de telefoon; wordt verstuurd zodra er verbinding is.'); onDone(); return; }
+    if(!navigator.onLine){ LS.set('aus_pending',[...pending(),rec]); close(); toast('Bewaard op de telefoon. Hij wordt verstuurd zodra er verbinding is.'); onDone(); return; }
     if(kiesDag) LS.set('aus_laatste_dag',dagVan());
     st.textContent='Opslaan…';
     try{ await gql(M_INS,{o:{...rec,soort:'notitie'}}); close(); onDone(); }
     catch(e){
       // Geen verbinding of server even weg: bewaren en later versturen. Een fout van Hasura zelf
-      // (rechten, ongeldige invoer) gaat niet in de wachtrij; die zou daar eindeloos blijven mislukken.
-      if(e.tijdelijk){ LS.set('aus_pending',[...pending(),rec]); close(); toast('Bewaard op de telefoon; wordt verstuurd zodra er verbinding is.'); onDone(); }
+      // (rechten, ongeldige invoer) gaat niet in de wachtrij. Die zou daar eindeloos blijven mislukken.
+      if(e.tijdelijk){ LS.set('aus_pending',[...pending(),rec]); close(); toast('Bewaard op de telefoon. Hij wordt verstuurd zodra er verbinding is.'); onDone(); }
       else st.textContent='Opslaan mislukt: '+e.message;
     }
   };
@@ -1245,7 +1245,7 @@ async function renderAlles(){
   if(!box.querySelector('#nzoek')) box.innerHTML=`<div class="nstatus">Laden…</div>`;
   const verse=await syncAlles(true);
   if(verse){ items=verse; const t=LS.get('aus_sync'); status=`Bijgewerkt ${fmtWhen(t.tijd)}`; }
-  else status=navigator.onLine?'Kon niet bijwerken — laatst opgeslagen versie':'Geen verbinding — laatst opgeslagen versie';
+  else status=navigator.onLine?'Kon niet bijwerken, laatst opgeslagen versie':'Geen verbinding, laatst opgeslagen versie';
   const fout=mislukt(), wacht=pending().length-fout;
   if(wacht) status+=` · ${wacht} ${wacht===1?'notitie wacht':'notities wachten'} op verbinding`;
   if(fout) status+=` · ${fout} ${fout===1?'notitie kon':'notities konden'} niet worden verstuurd`;
@@ -1336,7 +1336,7 @@ function tekenLijst(){
   if(items.some(it=>it.dag<0)||buiten==='voor') dagChips.push(['voor','Voorreis',telBuiten('voor'),buiten==='voor']);
   if(items.some(it=>it.dag>29)||buiten==='na') dagChips.push(['na','Nareis',telBuiten('na'),buiten==='na']);
 
-  // Links de dag, rechts het soort; het streepje ertussen laat zien dat het twee vragen zijn.
+  // Links de dag, rechts het soort. Het streepje ertussen laat zien dat het twee vragen zijn.
   // Een actieve chip krijgt een kruisje, zodat zichtbaar is dat je hem ook weer uit kunt zetten.
   const uit=`<span class="chipx" aria-hidden="true">×</span>`;
   rij.innerHTML=items.length?`<div class="chips filters" id="typefilter">`+
@@ -1357,7 +1357,7 @@ function tekenLijst(){
   else if(filter||buiten) h+=`<ul class="list nlist">`+zichtbaar.map(kaart).join('')+`</ul>`;
   else {
     // Voorreis en nareis staan als eigen blok, op datum. De voorreis staat bovenaan zolang de
-    // groepsreis nog niet begonnen is; daarna zakt hij onder de gewone notities.
+    // groepsreis nog niet begonnen is. Daarna zakt hij onder de gewone notities.
     const opDag=(a,b)=>a.dag-b.dag||String(a.created_at||'').localeCompare(String(b.created_at||''));
     const blok=(kop,rij)=>rij.length?`<h2>${kop}</h2><ul class="list nlist">`+rij.sort(opDag).map(kaart).join('')+`</ul>`:'';
     const voor=blok('Voorreis',zichtbaar.filter(it=>it.dag<0&&!isVerz(it))), na=blok('Nareis',zichtbaar.filter(it=>it.dag>29&&!isVerz(it)));
@@ -1379,7 +1379,7 @@ function tekenLijst(){
     tekenLijst(); };
   rij.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
     // Elke chip is een schakelaar: nog een tik zet hem weer uit. Een aparte knop 'Alles'
-    // is daarmee overbodig; het totaal staat al in de banner.
+    // is daarmee overbodig. Het totaal staat al in de banner.
     // De dagchips sluiten elkaar uit: een notitie hoort bij één dag.
     if(c.dataset.d==='1'){ window._notVandaag=!window._notVandaag; window._notBuiten=''; }
     else if(c.dataset.d){ window._notBuiten=(window._notBuiten===c.dataset.d)?'':c.dataset.d; window._notVandaag=false; }
@@ -1425,7 +1425,7 @@ function renderKoers(box){
     const nlDatum=iso=>{const [j,m,dg]=String(iso).split('-').map(Number);
       return `${dg} ${MN[m-1]} ${j}`};
     const bron=rec?`Koers van ${rec.datum?nlDatum(rec.datum):fmtWhen(new Date(rec.tijd).toISOString())}`
-                  :'Richtkoers; nog niet opgehaald';
+                  :'Richtkoers, nog niet opgehaald';
     box.innerHTML=`<div class="koers">
       <div class="krij"><label for="kaud">AUD</label><input id="kaud" type="text" inputmode="decimal" value="100"></div>
       <div class="kpijl">≈</div>
@@ -1476,7 +1476,7 @@ function renderVerzekeringen(box){
     catch(e){ toast('Verwijderen mislukt: '+e.message); }
   });
 }
-// Na een sprong naar Praktisch het blok in beeld brengen; eerst tekenen, dan scrollen.
+// Na een sprong naar Praktisch het blok in beeld brengen. Eerst tekenen, dan scrollen.
 function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView({block:'start'})); }
 
 function renderAccount(box){
@@ -1510,7 +1510,7 @@ function toast(msg){
 }
 
 // Bij het openen: eerst de sessie en de notities uit de kopie op de telefoon, zodat alles er meteen
-// staat, ook zonder verbinding. Daarna op de achtergrond vernieuwen bij Nhost; alleen een 401 van
+// staat, ook zonder verbinding. Daarna op de achtergrond vernieuwen bij Nhost. Alleen een 401 van
 // de server logt uit. Een voorreiziger landt zo direct op zijn eigen dag in plaats van de startpagina.
 {
   const saved=LS.get('aus_sess');
@@ -1528,7 +1528,7 @@ function toast(msg){
     if(!NH.user) return;
     flushPending();
     // alles op de achtergrond binnenhalen: notities én bijlagen. Wie voor het eerst op deze telefoon
-    // inlogt, blijkt pas hierna voorreiziger te zijn; dan schuift 'Vandaag' door naar zijn dag.
+    // inlogt, blijkt pas hierna voorreiziger te zijn. Dan schuift 'Vandaag' door naar zijn dag.
     syncAlles().then(items=>{ if(items&&view==='day'){ if(cur===0||cur===EINDE) cur=vandaagPagina(); render(); } });
   });
 }
@@ -1537,7 +1537,7 @@ window.addEventListener('online',()=>{
   // even wachten tot de verbinding echt staat, dan pas vernieuwen en synchroniseren
   setTimeout(()=>{ nhRefresh().then(()=>flushPending()).then(aantal=>{
     const fout=mislukt();
-    if(fout) toast(fout===1?'Eén notitie kon niet worden verstuurd; kijk in Notities.':`${fout} notities konden niet worden verstuurd; kijk in Notities.`);
+    if(fout) toast(fout===1?'Eén notitie kon niet worden verstuurd. Kijk in Notities.':`${fout} notities konden niet worden verstuurd; kijk in Notities.`);
     else if(aantal) toast(aantal===1?'Je notitie is verstuurd':`${aantal} notities zijn verstuurd`);
     syncAlles(true).then(items=>{
       if(view==='alles') renderAlles(); else if(view==='day') render(); });
@@ -1545,10 +1545,10 @@ window.addEventListener('online',()=>{
 });
 
 // ---- Versie en vernieuwen ----
-// Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
+// Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
-// bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-117';
+// bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
+const APP_VERSIE='2026-09-09-118';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

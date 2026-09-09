@@ -1,7 +1,7 @@
-// AustralieApp — service worker
+// AustralieApp, service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v117';
+const VERSION='v118';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze bestanden werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
 const CODE=['./','./index.html','./app.css','./reis.js','./voorreis.js','./app.js','./manifest.webmanifest'];
@@ -11,7 +11,7 @@ const BEELD=['./icon-512.png','./icon-maskable-512.png',
   './reg-nsw.jpg','./reg-tas.jpg','./reg-sa.jpg','./reg-vic.jpg','./reg-red.jpg','./reg-qld.jpg','./reg-wa.jpg','./reg-reis.jpg','./reg-voorreis.jpg','./reg-nareis.jpg'];
 // Alleen van deze bestanden vergelijken we oud en nieuw om een nieuwe versie te melden.
 const TEKST=/(\/|\.html|\.js|\.css|\.webmanifest)$/;
-// De pagina haalt app.js op vóórdat app.js zijn luisteraar heeft; een melding op dat moment
+// De pagina haalt app.js op vóórdat app.js zijn luisteraar heeft. Een melding op dat moment
 // zou verloren gaan. Daarom onthouden we het ook, zodat de pagina er alsnog naar kan vragen.
 let nieuwGezien=false;
 async function meldNieuw(){
@@ -23,7 +23,7 @@ self.addEventListener('message',e=>{
   if(e.data&&e.data.type==='status'&&nieuwGezien&&e.source) e.source.postMessage({type:'nieuwe-versie'});
 });
 
-// cache:'reload' dwingt een verse kopie af; anders kan de tussencache van GitHub Pages
+// cache:'reload' dwingt een verse kopie af. Anders kan de tussencache van GitHub Pages
 // (tien minuten) een oude index.html in een nieuwe versie van onze cache zetten.
 const vers=u=>new Request(u,{cache:'reload'});
 
@@ -73,7 +73,7 @@ self.addEventListener('fetch',e=>{
     const fresh=fetch(new Request(e.request.url,{cache:'no-cache'})).then(async r=>{
       if(!r||!r.ok) return r;
       const isTekst=TEKST.test(url.pathname);
-      // alleen voor codebestanden lezen we de inhoud; foto's vergelijken kost alleen maar stroom
+      // alleen voor codebestanden lezen we de inhoud. Foto's vergelijken kost alleen maar stroom
       const oud=(isTekst&&cached)?await cached.clone().text():null;
       const nieuw=isTekst?await r.clone().text():null;
       await c.put(sleutel,r.clone());

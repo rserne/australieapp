@@ -14,7 +14,7 @@ catch(e){
 
 const lees=n=>fs.readFileSync(path.join(__dirname,n),'utf8');
 const html=lees('index.html').replace(/<script[^>]*src="[^"]+"[^>]*><\/script>/g,'');   // scripts laden we zelf
-// De scenario's draaien met het echte voorreis.js; de scenario's 'met programma' vervangen het door
+// De scenario's draaien met het echte voorreis.js. De scenario's 'met programma' vervangen het door
 // een testprogramma, zodat de dagopbouw ook wordt beproefd als het echte bestand leeg is.
 const codeMet=voorreis=>lees('reis.js')+'\n;\n'+(voorreis??lees('voorreis.js'))+'\n;\n'+lees('app.js');
 const VOORTEST=`const VOORDAGEN=[
@@ -42,7 +42,7 @@ const NOTITIES=[
 ];
 
 // Start de app op een datum. login: 'voor' (voorreiziger), 'groep' (ingelogd, geen voorreis) of null.
-// online: navigator.onLine; het netwerk zelf faalt altijd, zodat ook de herhaalpogingen doorlopen.
+// online: navigator.onLine. Het netwerk zelf faalt altijd, zodat ook de herhaalpogingen doorlopen.
 // voorreis: JavaScript dat voorreis.js vervangt (VOORTEST), anders het echte bestand.
 function start(datum,{login=null,online=false,voorreis=null}={}){
   const code=codeMet(voorreis);
