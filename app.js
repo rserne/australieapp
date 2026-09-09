@@ -1622,6 +1622,46 @@ async function verwijderWaarneming(w){
   LS.set('aus_cache_waarn',alleWaarnemingen().filter(x=>x.id!==w.id));
   renderDieren();
 }
+// Namen voor 'iets anders gezien': wat de groep eerder onder die knop invulde (nieuwste eerst), daarna
+// de dieren uit de dagteksten die geen eigen knop hebben, te beginnen met de dag waar we zitten.
+function anderDierSuggesties(){
+  const bekend=naam=>DIER_LIJST.some(d=>schoon(d.n)===naam||(d.syn||[]).includes(naam));
+  const uit=[], zien=new Set();
+  const voeg=n=>{ n=n.trim(); if(!n) return; const k=n.toLowerCase(); if(!zien.has(k)){ zien.add(k); uit.push(n.charAt(0).toUpperCase()+n.slice(1)); } };
+  waarnemingen().filter(w=>w.dier==='overig'&&w.opmerking)
+    .sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op))).forEach(w=>voeg(w.opmerking));
+  const dagen=[dagData(waarnDag()),...DAYS,...VOORDG].filter(Boolean);
+  // 'Bultrug en zuidkaper' zijn twee dieren, dus splitsen, en alleen wat geen eigen knop heeft
+  dagen.forEach(d=>(d.wild||[]).forEach(([a])=>{ if(!bekend(a)) a.split(' en ').forEach(x=>{ if(!bekend(x.charAt(0).toUpperCase()+x.slice(1))) voeg(x); }); }));
+  return uit;
+}
+function openDierSheet(){
+  document.getElementById('sheet')?.remove();
+  const el=document.createElement('div'); el.id='sheet'; el.className='sheetwrap';
+  el.innerHTML=`<div class="sheetbg"></div><div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheethead"><strong>Iets anders gezien?</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
+    <input id="shdier" class="shinput" type="text" maxlength="60" placeholder="Wat heb je gezien?" autocomplete="off" autocapitalize="sentences" enterkeyhint="done">
+    <p class="shhint">Tik op een naam, of typ zelf.</p>
+    <div class="chips" id="shsug"></div>
+    <div class="nrow"><button class="btn primary" id="shsave">Gespot</button></div></div>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('on'));
+  const close=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),220)};
+  el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
+  const inp=el.querySelector('#shdier'), sug=el.querySelector('#shsug'), alle=anderDierSuggesties();
+  const kies=naam=>{ close(); registreerWaarneming('overig',naam); };
+  const teken=()=>{
+    const q=inp.value.trim().toLowerCase();
+    const lijst=(q?alle.filter(n=>n.toLowerCase().includes(q)):alle).slice(0,14);
+    sug.innerHTML=lijst.map(n=>`<button type="button" class="chip">${esc(n)}</button>`).join('');
+    sug.querySelectorAll('.chip').forEach(c=>c.onclick=()=>kies(c.textContent));
+  };
+  inp.oninput=teken; teken();
+  const bewaar=()=>{ const v=inp.value.trim(); if(!v){ inp.focus(); return; } kies(v); };
+  el.querySelector('#shsave').onclick=bewaar;
+  inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); bewaar(); } };
+  setTimeout(()=>inp.focus(),250);
+}
 function dierKnop(d,tel,mijn){
   const ic=DIER_ICOON[d.k]||d.ic||`<span class="dletter">${esc(schoon(d.n).charAt(0))}</span>`;
   return `<button class="dier${mijn?' mijn':''}" data-dier="${d.k}" aria-label="${esc(schoon(d.n))}${tel?`, ${tel} keer gezien`:''}">`+
@@ -1642,9 +1682,7 @@ function renderDieren(){
     const ds=DIER_LIJST.filter(d=>d.g===g); if(!ds.length) return;
     h+=`<h2>${esc(label)}</h2><div class="dgrid">`+ds.map(d=>dierKnop(d,tel[d.k]||0,mijn[d.k]||0)).join('')+`</div>`;
   });
-  h+=`<h2>Staat je dier er niet bij?</h2><div class="dgrid"><button class="dier overig${mijn.overig?' mijn':''}" data-dier="overig">`+
-    (tel.overig?`<span class="dtel">${tel.overig}</span>`:'')+`<span class="dletter">?</span><span class="dn">Ander dier</span></button></div>`+
-    `<div id="doverig" class="doverig" hidden><input id="doverignaam" type="text" maxlength="60" placeholder="Wat heb je gezien?" autocomplete="off"><button id="doverigok" type="button">Noteer</button></div>`;
+  h+=`<h2>Staat je dier er niet bij?</h2><button type="button" class="dander" id="dander">${PAW}<span><b>Iets anders gezien?</b>Typ de naam, of kies uit de dieren van de dag en wat de groep al eerder invulde.</span><span class="arw">→</span></button>`;
   // De waarnemingen van vandaag (of van de dag die openstaat), nieuwste bovenaan
   const dag=waarnDag();
   const lijst=alle.filter(w=>w.dag===dag).sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
@@ -1661,13 +1699,8 @@ function renderDieren(){
   const jij=alle.filter(w=>w.user_id===NH.user.id).length;
   if(alle.length) h+=`<h2>Tot nu toe</h2><p class="dstatus">Jullie hebben samen ${alle.length} ${alle.length===1?'dier':'dieren'} gespot, ${soorten} ${soorten===1?'soort':'verschillende soorten'} en ${jij?jij:'nog geen'} door jou.</p>`;
   box.innerHTML=h;
-  box.querySelectorAll('button.dier').forEach(b=>b.onclick=()=>{
-    if(b.dataset.dier==='overig'){ const o=box.querySelector('#doverig'); o.hidden=!o.hidden; if(!o.hidden) o.querySelector('input').focus(); return; }
-    registreerWaarneming(b.dataset.dier);
-  });
-  const ok=()=>{ const v=box.querySelector('#doverignaam').value.trim(); if(!v) return; registreerWaarneming('overig',v); };
-  box.querySelector('#doverigok').onclick=ok;
-  box.querySelector('#doverignaam').onkeydown=e=>{ if(e.key==='Enter') ok(); };
+  box.querySelectorAll('button.dier').forEach(b=>b.onclick=()=>registreerWaarneming(b.dataset.dier));
+  box.querySelector('#dander').onclick=openDierSheet;
   box.querySelectorAll('.dweg').forEach(b=>b.onclick=()=>{ const w=alle.find(x=>String(x.id)===b.dataset.weg); if(w) verwijderWaarneming(w); });
 }
 
@@ -1711,7 +1744,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-127';
+const APP_VERSIE='2026-09-09-129';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
