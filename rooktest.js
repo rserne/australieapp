@@ -235,24 +235,19 @@ function zoek(w,fouten,term){
     if(t&&t.querySelector('button')) t.querySelector('button').click();
     await sleep(50);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'Ongedaan maken haalt de waarneming uit de wachtrij');
-    // een ander dier via het blad: eerst een suggestie uit de dagtekst, dan zelf typen
+    // een ander dier via het blad met één tekstveld
     klik(w,'dander',fouten);
     let sheet=$(w,'sheet');
-    eis(fouten,sheet&&/Iets anders gezien/.test(sheet.textContent)&&$(w,'shdier'),'blad voor een ander dier opent');
-    const chips=[...sheet.querySelectorAll('#shsug .chip')].map(c=>c.textContent);
-    eis(fouten,chips.includes('Pauw'),`suggesties bevatten de pauw uit de dagtekst van dag 6 (nu: ${chips.slice(0,6).join(', ')})`);
-    $(w,'shdier').value='pau'; $(w,'shdier').dispatchEvent(new w.Event('input'));
-    const gefilterd=[...sheet.querySelectorAll('#shsug .chip')].map(c=>c.textContent);
-    eis(fouten,gefilterd.length&&gefilterd.every(c=>/pau/i.test(c)),`typen filtert de suggesties (nu: ${gefilterd.join(', ')})`);
-    sheet.querySelector('#shsug .chip').click(); await sleep(300);
+    eis(fouten,sheet&&/Iets anders gezien/.test(sheet.textContent)&&$(w,'shdier')&&!sheet.querySelector('.chip'),'blad voor een ander dier opent, alleen een tekstveld');
+    $(w,'shsave').click(); await sleep(50);
+    eis(fouten,!!$(w,'sheet')&&JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'leeg veld noteert niets en het blad blijft open');
+    $(w,'shdier').value='pauw'; $(w,'shdier').dispatchEvent(new w.KeyboardEvent('keydown',{key:'Enter'})); await sleep(300);
     let q2=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
-    eis(fouten,q2.length===1&&q2[0].dier==='overig'&&q2[0].opmerking==='Pauw','tik op een suggestie noteert het dier');
-    eis(fouten,!$(w,'sheet'),'blad sluit na de keuze');
-    klik(w,'dander',fouten); sheet=$(w,'sheet');
-    eis(fouten,[...sheet.querySelectorAll('#shsug .chip')][0].textContent==='Pauw','wat de groep eerder invulde staat bovenaan');
-    $(w,'shdier').value='Wombat met jong'; $(w,'shsave').click(); await sleep(300);
+    eis(fouten,q2.length===1&&q2[0].dier==='overig'&&q2[0].opmerking==='Pauw','getypte naam wordt genoteerd, met een hoofdletter');
+    eis(fouten,!$(w,'sheet'),'blad sluit na het noteren');
+    klik(w,'dander',fouten); $(w,'shdier').value='Wombat met jong'; $(w,'shsave').click(); await sleep(300);
     q2=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
-    eis(fouten,q2.length===2&&q2[1].opmerking==='Wombat met jong','zelf getypte naam wordt genoteerd');
+    eis(fouten,q2.length===2&&q2[1].opmerking==='Wombat met jong','tweede naam via de knop Gespot');
     eis(fouten,/Wombat met jong/.test($(w,'dieren').textContent)&&/Pauw/.test($(w,'dieren').textContent),'andere dieren staan met hun naam in de lijst');
     // twee weghalen, dan is de wachtrij leeg
     const weg2=w.document.querySelector('#dieren .dweg'); if(weg2) weg2.click(); await sleep(50);

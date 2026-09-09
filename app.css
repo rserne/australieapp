@@ -408,7 +408,7 @@
   .sheet .shinput{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--glass-2);border:1px solid var(--rim);
     border-radius:14px;padding:12px 14px;-webkit-appearance:none;appearance:none;box-sizing:border-box}
   .sheet .shinput::placeholder{color:var(--text-faint)}
-  .shhint{margin:10px 0 8px;font-size:13.5px;color:var(--text-faint)}
+  .sheet .shinput+.nrow{margin-top:12px}
   .dlijst li{display:flex;gap:12px;align-items:center}
   .dlijst .dtijd{flex:none;width:3.4em;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
   .dlijst .wbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
