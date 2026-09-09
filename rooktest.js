@@ -254,19 +254,25 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
     // Nhost nagebootst: de wachtrij bevat een notitie en een waarneming, beide moeten naar hun eigen tabel
     const mutaties=[];
-    w.gql=async(q,v)=>{ mutaties.push(q.match(/insert_\w+_one|delete_\w+_by_pk/)[0]);
+    let opgehaald=0;
+    w.gql=async(q,v)=>{ const m=q.match(/insert_\w+_one|delete_\w+_by_pk/); if(m) mutaties.push(m[0]);
+      if(/^query/.test(q)&&/waarnemingen/.test(q)){ opgehaald++; return {waarnemingen:[]}; }
       if(/insert_waarnemingen_one/.test(q)) return {insert_waarnemingen_one:{id:'w1'}};
       if(/insert_dagitems_one/.test(q)) return {insert_dagitems_one:{id:'n1',created_at:'2026-10-06T00:00:00Z'}};
       if(/delete_waarnemingen_by_pk/.test(q)) return {delete_waarnemingen_by_pk:{id:v.id}};
       throw new Error('onverwachte query'); };
+    w.localStorage.setItem('aus_waarn_fout',JSON.stringify("field 'dag' not found in type: 'waarnemingen_insert_input'"));
     w.localStorage.setItem('aus_pending',JSON.stringify([
       {dag:6,tekst:'Oude notitie zonder tabel',wie:'Test',type:'notitie'},
-      {tabel:'waarnemingen',dier:'emoe',dag:6,gezien_op:'2026-10-06T08:00:00+10:30',wie:'Test'}]));
-    const n=await w.flushPending();
-    eis(fouten,n===2&&mutaties.join(',')==='insert_dagitems_one,insert_waarnemingen_one',`wachtrij stuurt elk item naar zijn eigen tabel (nu ${n}, ${mutaties.join(',')})`);
-    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'wachtrij leeg na versturen');
-    // met verbinding gaat een waarneming direct naar Nhost en komt in de kopie
+      {tabel:'waarnemingen',dier:'emoe',dag:6,gezien_op:'2026-10-06T08:00:00+10:30',wie:'Test',fout:"field 'dag' not found in type: 'waarnemingen_insert_input'"}]));
     klik(w,'btnDieren',fouten);
+    eis(fouten,/kunnen nog niet worden verstuurd/i.test($(w,'dieren').textContent)&&/recht of kolom/.test($(w,'dieren').textContent)&&$(w,'dopnieuw'),'melding met hint en knop Opnieuw proberen bij een rechtenfout');
+    const n=await w.flushPending();
+    eis(fouten,n===2&&mutaties.join(',')==='insert_dagitems_one,insert_waarnemingen_one',`wachtrij stuurt elk item naar zijn eigen tabel, ook na een eerdere fout (nu ${n}, ${mutaties.join(',')})`);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'wachtrij leeg na versturen');
+    eis(fouten,!w.localStorage.getItem('aus_waarn_fout')&&opgehaald===1,'na het versturen is de foutmelding weg en is de kopie ververst');
+    eis(fouten,!/kunnen nog niet worden verstuurd/i.test($(w,'dieren').textContent),'melding verdwijnt van het scherm');
+    // met verbinding gaat een waarneming direct naar Nhost en komt in de kopie
     w.document.querySelector('#dieren button.dier[data-dier="quokka"]').click(); await sleep(50);
     const kopie=JSON.parse(w.localStorage.getItem('aus_cache_waarn')||'[]');
     eis(fouten,kopie.length===1&&kopie[0].id==='w1'&&kopie[0].dier==='quokka','waarneming met verbinding staat meteen in de kopie op de telefoon');

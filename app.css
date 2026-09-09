@@ -375,6 +375,34 @@
     background:var(--pill);color:var(--pill-text);padding:11px 16px;border-radius:14px;font-size:14.5px;
     opacity:0;transition:.25s;z-index:70;max-width:90vw;text-align:center;pointer-events:none}
   .toast.on{opacity:1;transform:translate(-50%,0)}
+  .toast button{margin-left:12px;font:inherit;font-weight:700;color:var(--accent-ink);background:none;border:none;padding:0;cursor:pointer;pointer-events:auto}
+  .toast:has(button){pointer-events:auto}
+  /* Dieren: raster met knoppen per dier */
+  .dintro{margin:0 0 4px;font-size:15px;line-height:1.5;color:var(--text-dim)}
+  .dstatus{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:var(--text-dim)}
+  .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;margin-bottom:4px}
+  .dier{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;padding:14px 4px 10px;min-height:96px;
+    font:inherit;color:var(--text);cursor:pointer;-webkit-tap-highlight-color:transparent;
+    border-radius:14px;background:var(--glass);border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi)}
+  .dier:active{transform:scale(.95);background:var(--glass-2)}
+  .dier svg{width:42px;height:42px;display:block;flex:none}
+  .dier .dletter{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+    background:var(--glass-2);border:1px solid var(--rim);font-weight:700;font-size:17px;color:var(--text-dim)}
+  .dier .dn{font-size:12px;line-height:1.15;text-align:center;font-weight:600;overflow-wrap:anywhere}
+  .dier .dtel{position:absolute;top:6px;right:6px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    background:color-mix(in srgb, var(--accent) 22%, transparent);color:var(--accent-ink)}
+  .dier.mijn .dtel{background:var(--accent);color:#fff}
+  .doverig{display:flex;gap:8px;margin-top:8px}
+  .doverig input{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px 12px;border-radius:12px;
+    border:1px solid var(--rim);background:var(--glass);color:var(--text)}
+  .doverig button{font:inherit;font-weight:600;padding:0 16px;border-radius:12px;border:none;background:var(--pill);color:var(--pill-text);cursor:pointer}
+  .dlijst li{display:flex;gap:12px;align-items:center}
+  .dlijst .dtijd{flex:none;width:3.4em;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
+  .dlijst .wbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .dlijst .dweg{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--rim);background:none;
+    color:var(--text-dim);font:inherit;font-size:18px;line-height:1;cursor:pointer}
+  .wild .gezien{color:var(--accent-ink)}
 
   /* ---------- Types, inklappen, overlay ---------- */
   .ntype{display:inline-block;align-self:center;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
@@ -547,7 +575,10 @@
     border-radius:999px;background:var(--glass-2);border:1px solid var(--rim);
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow);
     -webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%)}
-  .tabbar .inner.vier button{font-size:13.5px;padding:0 4px}
+  .tabbar .inner.vier button{font-size:13px;padding:0 3px;white-space:nowrap}
+  /* het tabblad Dieren is een icoon, zodat vijf knoppen naast elkaar passen */
+  .tabbar button.icoon{flex:0 0 46px;padding:0}
+  .tabbar button.icoon svg{display:block;margin:0 auto}
   .ndag{font:inherit;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
     color:var(--accent-ink);background:color-mix(in srgb, var(--accent) 20%, transparent);
     border:none;border-radius:7px;padding:3px 9px;cursor:pointer;text-align:left}

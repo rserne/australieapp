@@ -1043,14 +1043,17 @@ function pendingUpdate(ix,velden){ const q=pending(); if(!q[ix])return; q[ix]={.
 function pendingDelete(ix){ const q=pending(); q.splice(ix,1); LS.set('aus_pending',q); }
 async function flushPending(){
   const q=pending(); if(!q.length||!navigator.onLine) return 0;
-  const rest=[]; let verstuurd=0;
+  const rest=[]; let verstuurd=0, waarn=0;
   for(const it of q){
-    try{ await verstuurPending(it); verstuurd++; }
+    try{ await verstuurPending(it); verstuurd++; if(tabelVan(it)==='waarnemingen') waarn++; }
     // Tijdelijk: gewoon laten staan. Blijvend (rechten, ongeldige invoer): ook laten staan, want de
     // tekst mag niet verloren gaan, maar met de reden erbij zodat je hem kunt aanpassen of weggooien.
     catch(e){ rest.push(e.tijdelijk?it:{...it,fout:e.message}); }
   }
   LS.set('aus_pending',rest);
+  // Zijn er waarnemingen doorgekomen, dan is de eerdere reden voorbij. Kopie verversen zodat
+  // de tellers kloppen, en het scherm Dieren bijwerken als dat openstaat.
+  if(waarn){ LS.del('aus_waarn_fout'); await syncWaarnemingen(); if(view==='dieren') renderDieren(); }
   return verstuurd;
 }
 const mislukt=(tabel='dagitems')=>pendingVan(tabel).filter(p=>p.fout).length;
@@ -1623,8 +1626,14 @@ function renderDieren(){
   const alle=waarnemingen(), tel=dierTelling();
   const mijn={}; alle.filter(w=>w.user_id===NH.user.id).forEach(w=>{ mijn[w.dier]=(mijn[w.dier]||0)+1; });
   let h=`<p class="dintro">Tik op een dier zodra je het ziet. De app noteert het dier, jou en de tijd, en de hele groep ziet het. Het getal is hoe vaak de groep het dier al zag.</p>`;
-  const fout=LS.get('aus_waarn_fout');
-  if(fout) h+=cal(IC_LET,'Waarnemingen kunnen nog niet worden verstuurd',`De server antwoordde "${fout}". Ze blijven op deze telefoon staan tot het lukt.`);
+  const blijvend=pendingWaarnemingen().find(p=>p.fout);
+  const fout=LS.get('aus_waarn_fout')||(blijvend&&blijvend.fout);
+  if(fout){
+    const hint=/not found in type|permission|field '/.test(fout)?' Waarschijnlijk ontbreekt een recht of kolom op de tabel waarnemingen in Nhost.':'';
+    h+=`<div class="callout"><span class="ico">${IC_LET}</span><span><b>Waarnemingen kunnen nog niet worden verstuurd</b>`+
+      `De server antwoordde "${esc(fout)}".${hint} Ze blijven op deze telefoon staan tot het lukt.`+
+      (navigator.onLine?` <a href="#" id="dopnieuw">Opnieuw proberen</a>`:'')+`</span></div>`;
+  }
   const wacht=pendingWaarnemingen().length;
   if(wacht&&!fout) h+=`<p class="dstatus">${wacht} ${wacht===1?'waarneming wacht':'waarnemingen wachten'} op verbinding.</p>`;
   DIER_GROEP.forEach(([g,label])=>{
@@ -1650,6 +1659,8 @@ function renderDieren(){
   const mensen=new Set(alle.map(w=>w.user_id)).size;
   if(alle.length) h+=`<h2>Stand van de groep</h2><p class="dstatus">${alle.length} ${alle.length===1?'waarneming':'waarnemingen'}, ${soorten} ${soorten===1?'soort':'soorten'}, door ${mensen} ${mensen===1?'persoon':'mensen'}.</p>`;
   box.innerHTML=h;
+  const opnieuw=box.querySelector('#dopnieuw');
+  if(opnieuw) opnieuw.onclick=async e=>{ e.preventDefault(); opnieuw.textContent='Bezig…'; await flushPending(); if(mislukt('waarnemingen')) toast('Het lukt nog niet'); renderDieren(); };
   box.querySelectorAll('button.dier').forEach(b=>b.onclick=()=>{
     if(b.dataset.dier==='overig'){ const o=box.querySelector('#doverig'); o.hidden=!o.hidden; if(!o.hidden) o.querySelector('input').focus(); return; }
     registreerWaarneming(b.dataset.dier);
@@ -1699,7 +1710,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-123';
+const APP_VERSIE='2026-09-09-124';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
