@@ -973,8 +973,9 @@ const ICO_CHEV='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stro
 const ICO_FILE='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg>';
 
 // Eén kaart voor een notitie of bijlage, gebruikt bij de dag én in het tabblad Notities.
-// kop: wat links in de kopregel staat (typelabel of dagknop).
-function noteCard(it,kop){
+// kop: wat links in de kopregel staat (typelabel, dagknop of naam). zonderNaam: de naam staat al
+// in de kop, dus niet nog eens in de regel met de datum.
+function noteCard(it,kop,{zonderNaam=false}={}){
   const mine=NH.user&&it.user_id===NH.user.id;
   // Alleen bij een eigen notitie valt de naam terug op het account; een notitie van een ander
   // zonder afzender is 'Onbekend', niet jij.
@@ -999,10 +1000,10 @@ function noteCard(it,kop){
       `<span class="nsize">${soort}${it.grootte?' · '+fmtSize(it.grootte):''}</span></span>`+
       `<span class="nopen">${ICO_CHEV}</span></a>`+
       (txt?`<span class="nbody">${txt}</span>`:'')+
-      `<span class="sub nmeta">${esc(wie)} · ${wanneer}${bewerkt}</span></li>`;
+      `<span class="sub nmeta">${zonderNaam?'':esc(wie)+' · '}${wanneer}${bewerkt}</span></li>`;
   }
   return `<li class="nitem" data-id="${esc(it.id||'')}">${head}<span class="nbody">${txt}</span>`+
-    `<span class="sub nmeta">${esc(wie)} · ${wanneer}${bewerkt}</span></li>`;
+    `<span class="sub nmeta">${zonderNaam?'':esc(wie)+' · '}${wanneer}${bewerkt}</span></li>`;
 }
 // Object-URL's voor miniaturen: één per bestand voor de hele sessie, in plaats van een nieuwe bij
 // elke hertekening (die bleven tot nu toe allemaal in het geheugen staan). Bij uitloggen gaan ze weg.
@@ -1390,11 +1391,13 @@ function renderVerzekeringen(box){
   const wie=NH.user.displayName||NH.user.email;
   const items=[...alleNotities(),...pendingAlsItems()].filter(isVerz)
     .sort((a,b)=>String(a.created_at||'').localeCompare(String(b.created_at||'')));
-  const kop=it=>`<span class="ntype verzekering">${esc(it.wie||'Onbekend')}</span>`;   // wie: daar zoek je op
-  box.innerHTML=(items.length
-    ?`<ul class="list nlist">${items.map(it=>noteCard(it,kop(it))).join('')}</ul>`
+  // De kop van de kaart is de naam: daar zoek je op. De metaregel toont dan alleen de datum.
+  const kop=it=>`<span class="ntype verzekering">${esc(it.wie||'Onbekend')}</span>`;
+  // Dezelfde .notes-wrapper als bij de dag en in Notities: daar hangt de kaartopmaak aan.
+  box.innerHTML=`<div class="notes">`+(items.length
+    ?`<ul class="list nlist">${items.map(it=>noteCard(it,kop(it),{zonderNaam:true})).join('')}</ul>`
     :`<div class="empty">Nog geen verzekeringsgegevens. Zet per persoon of huishouden één notitie neer: verzekeraar, polisnummer en het nummer van de alarmcentrale.</div>`)+
-    `<div class="dagadd" style="margin-top:14px"><button class="btn" id="vadd">＋ Verzekering toevoegen</button></div>`;
+    `<div class="dagadd" style="margin:14px 0 0"><button class="btn" id="vadd">＋ Verzekering toevoegen</button></div></div>`;
   const refresh=()=>syncAlles(true).then(()=>renderVerzekeringen(document.getElementById('verz')));
   box.querySelector('#vadd').onclick=()=>openSheet({dag:0,wie,type:'verzekering',vast:true,onDone:refresh});
   koppelKaarten(box);
@@ -1480,7 +1483,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave; sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat; de app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-09-110';
+const APP_VERSIE='2026-09-09-111';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
