@@ -7,7 +7,7 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 
 | Bestand | Wat erin staat | Wanneer aanpassen |
 |---|---|---|
-| `reis.js` | Alle inhoud, dus dagen, hotels, restaurants, excursies, kofferlijst, noodnummers | Bij elke inhoudelijke wijziging |
+| `reis.js` | Alle inhoud, dus dagen, hotels, restaurants, excursies, kofferlijst, noodnummers, en de kleuren per regio (`TONE` en `TONE_INK`) | Bij elke inhoudelijke wijziging |
 | `voorreis.js` | Programma van de voorreis, in dezelfde vorm als de dagen in `reis.js`. Leeg als de voorreis alleen uit notities bestaat | Bij een wijziging in het voorreisprogramma |
 | `dieren.js` | De dieren voor de waarnemingen, met naam, groep en synoniemen | Bij een nieuw dier of een andere naam |
 | `dieren-iconen.js` | De iconen bij die dieren, per sleutel één svg als tekst | Bij een nieuw of ander icoon |
@@ -127,7 +127,7 @@ De app haalt de lijst bij elke synchronisatie op en bewaart een kopie op de tele
 
 ## Alle dagen
 
-Het tabblad Alle dagen groepeert de groepsreis per regio, in dezelfde indeling als het raster op de startpagina: een kop met de naam van de regio en het datumbereik, en daaronder de dagen. Een vliegdag telt mee bij de regio waar je heen gaat, dus dag 1 staat bij New South Wales. Het dagnummer draagt de kleur van de regio; het streepje aan de rand is vervallen, want sinds de dagpagina een foto in de kop heeft, verwees die kleur nergens meer naar. De dag van vandaag krijgt een getinte rij, een gevuld nummer en 'vandaag' in plaats van de datum. Voorreis en nareis staan als eigen blok met de vaste kleur uit `BUITEN`, met een kop Groepsreis ertussen zodat duidelijk is waar de reis zelf begint.
+Het tabblad Alle dagen groepeert de groepsreis per regio, in dezelfde indeling als het raster op de startpagina: een kop met de naam van de regio en het datumbereik, en daaronder de dagen. Een vliegdag telt mee bij de regio waar je heen gaat, dus dag 1 staat bij New South Wales. Het dagnummer draagt de kleur van de regio, uit `TONE_INK` in `reis.js`: per regio een kleur voor het lichte en een voor het donkere thema, net als bij de dierengroepen. De diepe kleuren uit `TONE` liggen onder een foto en worden flets zodra je ze klein en opgelicht gebruikt, dus daar staat een eigen palet naast. `check.js` controleert of elke regio zijn paar heeft. Het streepje aan de rand is vervallen; sinds de dagpagina een foto in de kop heeft, verwees die kleur nergens meer naar. De dag van vandaag krijgt een getinte rij, een gevuld nummer en 'vandaag' in plaats van de datum. Voorreis en nareis staan als eigen blok, met hun eigen paar in `TONE_INK` en een kop Groepsreis ertussen zodat duidelijk is waar de reis zelf begint.
 
 ## Dieren en waarnemingen
 

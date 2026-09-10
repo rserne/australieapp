@@ -388,6 +388,11 @@ function heroBuiten({tone,foto,eyebrow,num,titel,meta,track}){
   document.getElementById('track').style.width=track;
 }
 
+// De twee inktkleuren van een regio (of van de voorreis of nareis) als stijl, net als bij de dieren:
+// --i voor het lichte thema, --id voor het donkere. De opmaak kiest zelf welke van de twee hij pakt.
+function inktVan(k){ const x=(typeof TONE_INK==='object'&&TONE_INK&&TONE_INK[k])||[]; 
+  return `--i:${x[0]||TONE[k]||'#4B545F'};--id:${x[1]||x[0]||'#98A2AE'}`; }
+
 // De dagen gegroepeerd per regio, op volgorde: {nsw:[1,2,…], tas:[…]}. Een vliegdag ('reis') telt mee
 // bij de regio waar je heen gaat, of bij de vorige als er geen volgende is. Zo hoort dag 1 bij New
 // South Wales en dag 28–29 bij West-Australië. De startpagina en Alle dagen gebruiken dezelfde indeling.
@@ -552,19 +557,19 @@ function drawResults(term){
     // Kop boven een blok, in de kleur van de regio (of van de voorreis), met het datumbereik ernaast.
     // De kleur zat vroeger in de kop van de dagpagina zelf; die draagt nu een foto, dus hier komt hij terug.
     const bereikTxt=(a,b)=>`${fmtShort(a)} – ${fmtShort(b)}`;
-    const idxKop=(label,tone,bereik)=>`<div class="idxkop" style="--tone:${tone}"><h3>${esc(label)}</h3><span>${bereik}</span></div>`;
+    const idxKop=(label,sleutel,bereik)=>`<div class="idxkop" style="${inktVan(sleutel)}"><h3>${esc(label)}</h3><span>${bereik}</span></div>`;
     const buitenRegel=(b,eerste,laatste)=>{
-      const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29), tone=beeldBuiten(b==='voor').tone;
-      return idxKop(b==='voor'?'Voorreis':'Nareis',tone,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+
-        `<ul class="idx" style="--tone:${tone}"><li${vandaag?' class="now"':''}><button data-n="${vandaag?T.dag:eerste}">`+
+      const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29), k=b==='voor'?'voorreis':'nareis';
+      return idxKop(b==='voor'?'Voorreis':'Nareis',k,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+
+        `<ul class="idx" style="${inktVan(k)}"><li${vandaag?' class="now"':''}><button data-n="${vandaag?T.dag:eerste}">`+
         `<span class="t">${n?`${n} ${n===1?'notitie':'notities'}`:'Nog geen notities'}</span>`+
         `<span class="d">${vandaag?'vandaag':''}</span></button></li></ul>`;
     };
     // Zodra er programma is, staat elke dag apart, net als bij de groepsreis. Een dag zonder
     // programma toont dan het aantal notities.
     const buitenLijst=(eerste,laatste)=>{
-      const tone=beeldBuiten(eerste<0).tone;
-      let s=idxKop(eerste<0?'Voorreis':'Nareis',tone,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+`<ul class="idx" style="--tone:${tone}">`;
+      const k=eerste<0?'voorreis':'nareis';
+      let s=idxKop(eerste<0?'Voorreis':'Nareis',k,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+`<ul class="idx" style="${inktVan(k)}">`;
       for(let n=eerste;n<=laatste;n++){
         const d=buitenData(n), aantal=alleNotities().filter(it=>it.dag===n).length, nu=T.dag===n;
         s+=`<li${nu?' class="now"':''}><button data-n="${n}">`+
@@ -586,7 +591,7 @@ function drawResults(term){
     if(heeftV||heeftN) h+=`<h2 class="idxdeel">Groepsreis</h2>`;
     Object.entries(dagenPerRegio()).forEach(([r,dg])=>{
       const a=Math.min(...dg), b=Math.max(...dg);
-      h+=idxKop(REGION[r],TONE[r],bereikTxt(dateFor(a),dateFor(b)))+`<ul class="idx" style="--tone:${TONE[r]}">`;
+      h+=idxKop(REGION[r],r,bereikTxt(dateFor(a),dateFor(b)))+`<ul class="idx" style="${inktVan(r)}">`;
       dg.forEach(n=>{
         const d=DAYS[n-1], nu=!T.before&&!T.after&&n===T.n;
         h+=`<li${nu?' class="now"':''}><button data-n="${n}">`+
@@ -2038,7 +2043,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-166';
+const APP_VERSIE='2026-09-10-167';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

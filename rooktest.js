@@ -178,7 +178,8 @@ function zoek(w,fouten,term){
       'een kop Groepsreis scheidt de voorreis van de eerste regio');
     const nsw=lijsten[1], nrs=[...nsw.querySelectorAll('button')].map(b=>b.dataset.n);
     eis(fouten,nrs.join(',')==='1,2,3,4,5',`New South Wales bevat dag 1 tot en met 5, inclusief de vliegdag (nu ${nrs.join(',')})`);
-    eis(fouten,/^#/.test(nsw.style.getPropertyValue('--tone')||''),`de lijst draagt de regiokleur (nu '${nsw.style.getPropertyValue('--tone')}')`);
+    eis(fouten,/^#/.test(nsw.style.getPropertyValue('--i')||'')&&/^#/.test(nsw.style.getPropertyValue('--id')||''),
+      `de lijst draagt beide inktkleuren van de regio (nu '${nsw.style.getPropertyValue('--i')}' / '${nsw.style.getPropertyValue('--id')}')`);
     const nu=w.document.querySelector('#results .idx li.now');
     eis(fouten,nu&&nu.querySelector('.n').textContent==='5'&&nu.querySelector('.d').textContent==='vandaag',
       `de dag van vandaag is gemarkeerd en zegt 'vandaag' (nu: '${nu&&nu.querySelector('.d').textContent}')`);

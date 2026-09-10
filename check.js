@@ -2,10 +2,10 @@
 // Controleert reis.js en voorreis.js vóór je een nieuwe versie online zet:  node check.js
 // Sluit af met code 1 als er iets mis is, zodat je het ook in een git pre-commit hook kunt zetten.
 const fs=require('fs'), vm=require('vm');
-const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN','SOS'];
+const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','TONE_INK','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN','SOS'];
 // const-declaraties komen niet op het context-object terecht. Daarom halen we ze expliciet terug
 const data=vm.runInNewContext(fs.readFileSync(__dirname+'/reis.js','utf8')+`;({${NAMEN.join(',')}})`,{});
-const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN,SOS}=data;
+const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,TONE_INK,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN,SOS}=data;
 
 const fouten=[], waarschuwingen=[];
 const fout=m=>fouten.push(m), waarschuw=m=>waarschuwingen.push(m);
@@ -140,6 +140,11 @@ Object.entries(CHECKIN).forEach(([k,c])=>{ if(c.length!==3||!/^https:\/\//.test(
 BOEKINGEN.forEach(b=>{ if(b.length!==3) fout(`BOEKINGEN '${b[0]}': verwacht [naam, tekst, sleutel]`); });
 NOOD.forEach(n=>{ if(n.length!==2) fout(`NOOD '${n[0]}': verwacht [naam, tekst]`); });
 if(typeof BAGAGE!=='string') fout('BAGAGE ontbreekt');
+// Elke regio heeft twee inktkleuren voor tekst en kleine vlakken: licht thema en donker thema.
+// Ontbreekt er een, dan valt de app terug op de diepe TONE en oogt die regio flets.
+[...Object.keys(TONE),'voorreis','nareis'].forEach(k=>{ const p=TONE_INK&&TONE_INK[k];
+  if(!Array.isArray(p)||p.length!==2||!p.every(c=>/^#[0-9A-Fa-f]{6}$/.test(c||''))) fout(`TONE_INK '${k}': verwacht [licht thema, donker thema] als #rrggbb`); });
+Object.keys(TONE_INK||{}).forEach(k=>{ if(!TONE[k]&&k!=='voorreis'&&k!=='nareis') waarschuw(`TONE_INK: '${k}' is geen regio uit TONE`); });
 ['voorreis','nareis'].forEach(k=>{ const b=BUITEN&&BUITEN[k]; if(!b||!/\.(jpg|png|svg)$/.test(b.foto||'')||!/^#[0-9A-Fa-f]{6}$/.test(b.tone||'')) fout(`BUITEN.${k}: verwacht {foto:"….jpg", tone:"#rrggbb"}`); });
 [['VOORREIS',VOORREIS],['NAREIS',NAREIS]].forEach(([n,v])=>{ if(!Number.isInteger(v)||v<0||v>60) fout(`${n} moet een geheel getal van 0 t/m 60 zijn (nu ${v})`); });
 

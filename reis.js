@@ -10,6 +10,14 @@ const VOORREIS=13, NAREIS=0;
 const BUITEN={voorreis:{foto:"reg-voorreis.jpg",tone:"#014959"}, nareis:{foto:"reg-nareis.jpg",tone:"#640D49"}};
 const TONE={reis:"#2C313A",nsw:"#124C6B",tas:"#1B4C39",sa:"#5A2440",
   vic:"#343A73",red:"#8E3B18",qld:"#0E5B5A",wa:"#8A5411"};
+// Dezelfde regio's, maar dan als kleur om tekst en kleine vlakken mee te maken: eerst voor het lichte
+// thema, dan voor het donkere. TONE is diep en gedempt omdat die kleur onder een foto ligt; klein en
+// opgelicht gebruikt wordt hij flets. Net als bij de dieren heeft elke regio daarom een eigen paar.
+// De voorreis en nareis staan er ook in, onder dezelfde sleutel als in BUITEN.
+const TONE_INK={reis:["#3F4653","#A8B0BE"],nsw:["#0E5A85","#38BDF8"],tas:["#186B47","#4ADE80"],
+  sa:["#8A2F5B","#F472B6"],vic:["#3F47A6","#A5B4FC"],red:["#B4501F","#FB923C"],
+  qld:["#0B6E6C","#2DD4BF"],wa:["#A9660F","#FBBF24"],
+  voorreis:["#046275","#22D3EE"],nareis:["#8A1266","#F0ABFC"]};
 const HOTELGEO={
  // Voorreis. De kampen van de Kakadu-tour, coördinaten van de organisatie.
  "Privékamp bij Jabiru, Kakadu":[-12.660915,132.835829],
