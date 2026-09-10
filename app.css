@@ -413,11 +413,15 @@
   .drij[hidden]{display:none}
   .dgroep[hidden]{display:none}
   .drij.gespot{background:color-mix(in srgb,var(--gl) 13%,transparent)}
-  .dico{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    background:color-mix(in srgb,var(--gl) 17%,transparent);color:var(--gl)}
-  .dico svg{width:26px;height:26px;display:block}
+  /* Geen vlak achter de tekening: het lijnwerk is één haarlijn dik en verliest het van een getinte
+     ondergrond. De tekening staat nu groot en in de groepskleur op de rustige achtergrond van de lijst.
+     De tint blijft over voor de rij van een dier dat al gespot is. */
+  .dico{flex:none;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--gl)}
+  .dico svg{width:36px;height:36px;display:block}
+  .dletter{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+    background:color-mix(in srgb,var(--gl) 17%,transparent)}
   .dico.emoe{color:var(--accent)}
-  .dletter{font-weight:700;font-size:16px}
+  .dico .dletter{font-weight:700;font-size:15px}
   .dtxt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
   .dtxt strong{font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px;min-width:0}
   .dtxt strong .chance{color:var(--accent-ink)}
@@ -429,7 +433,7 @@
   html[data-theme="light"] .dchip.dfilter{background:var(--glass-2);color:var(--text-dim)}
   html[data-theme="light"] .dchip.dfilter.on{background:var(--pill);color:var(--pill-text)}
   html[data-theme="light"] .drij.gespot{background:color-mix(in srgb,var(--gl) 9%,transparent)}
-  html[data-theme="light"] .dico{background:color-mix(in srgb,var(--gl) 14%,transparent)}
+  html[data-theme="light"] .dletter{background:color-mix(in srgb,var(--gl) 14%,transparent)}
   /* tussenkop per dag in de lijst Gespot */
   .dlijst .ddag{padding:9px 16px 7px;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
     color:var(--text-faint);background:var(--glass-2)}
