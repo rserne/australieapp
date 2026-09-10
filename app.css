@@ -394,15 +394,19 @@
   .rlijst .dweg:active{opacity:.6}
   .rstatus{font-size:13px;color:var(--text-faint);margin:16px 4px 0}
   .rstatus.fout{color:var(--alert)}
-  .beheer-uitleg{font-size:13.5px;color:var(--text-dim);line-height:1.55;margin:10px 4px 0}
   #beheer{padding-bottom:8px}
-  .sheet #rform{display:flex;flex-direction:column;gap:10px}
+  /* toevoegformulier: ruimer dan de andere bladen, want er staan drie velden en chips onder elkaar */
+  .sheet #rform{display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+  .sheet #rform .chips{margin-top:2px}
+  .sheet #rform .nrow{margin-top:6px}
+  /* Het wachtwoord als leesregel: Safari houdt een zelf ingevuld sterk wachtwoord in het veld gemaskeerd. */
+  .pwlees{margin:-6px 2px 0;font-size:15px;line-height:1.4;color:var(--text);word-break:break-all;
+    -webkit-user-select:all;user-select:all}
   /* wachtwoordveld met het oogje ernaast, zodat de beheerder kan lezen wat hij doorgeeft */
   .pwrij{display:flex;gap:8px;align-items:center}
   .pwrij .shinput{flex:1;min-width:0}
   .pwrij .nbtn{flex:none;color:var(--text-dim)}
   .pwrij .nbtn.aan{color:var(--accent-ink)}
-  .sheet #rform .nrow{margin-top:2px}
   #beheer .dagadd{margin:18px 0 0}
   .callout a{color:var(--accent-ink);font-weight:600}
   .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 86px);transform:translate(-50%,20px);

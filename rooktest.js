@@ -193,10 +193,13 @@ function zoek(w,fouten,term){
     let sheet=$(w,'sheet');
     eis(fouten,sheet&&/Reiziger toevoegen/.test(sheet.textContent)&&$(w,'rnaam'),'plusknop opent het schuifpaneel');
     eis(fouten,$(w,'rpw').type==='password'&&$(w,'rpw').getAttribute('autocomplete')==='new-password','wachtwoordveld staat verborgen met new-password, zodat iOS een sterk wachtwoord aanbiedt');
+    $(w,'rpw').value='wombat-2026';
     $(w,'rpwtoon').click();
-    eis(fouten,$(w,'rpw').type==='text'&&$(w,'rpwtoon').classList.contains('aan'),'het oogje maakt het wachtwoord leesbaar');
+    eis(fouten,!$(w,'rpwlees').hidden&&$(w,'rpwlees').textContent==='wombat-2026'&&$(w,'rpwtoon').classList.contains('aan'),`het oogje zet het wachtwoord als leesregel eronder (nu: '${$(w,'rpwlees').textContent}')`);
+    $(w,'rpw').value='quokka-2026'; $(w,'rpw').dispatchEvent(new w.Event('input'));
+    eis(fouten,$(w,'rpwlees').textContent==='quokka-2026','de leesregel volgt wat er in het veld staat');
     $(w,'rpwtoon').click();
-    eis(fouten,$(w,'rpw').type==='password','en verbergt het weer');
+    eis(fouten,$(w,'rpwlees').hidden,'en verbergt het weer');
     $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl'; $(w,'rpw').value='wombat-2026';
     sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);

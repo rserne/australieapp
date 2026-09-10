@@ -1608,8 +1608,7 @@ function renderBeheer(){
       `<div class="chips">${DELEN.map(d=>chip(r,d)).join('')}</div></li>`).join('')||
       `<li><span class="sub">Nog niemand in de lijst.</span></li>`}</ul>`+
     `<div class="dagadd"><button class="btn" id="radd">＋ Reiziger toevoegen</button></div>`+
-    `<p class="rstatus${st&&st.fout?' fout':''}">${esc(status)}</p>`+
-    `<p class="beheer-uitleg">Een tik op een deel zet het aan of uit. Het kruisje haalt iemand uit de lijst; die ziet dan niets meer van de groep, het account blijft bestaan. Jezelf kun je niet verwijderen of je beheer afnemen.</p>`;
+    `<p class="rstatus${st&&st.fout?' fout':''}">${esc(status)}</p>`;
   box.querySelector('#rterug').onclick=()=>switchTo('prakt');
   const ververs=()=>syncReizigers().then(()=>{ if(view==='beheer') renderBeheer(); });
   box.querySelectorAll('.rlijst .chip').forEach(c=>c.onclick=async()=>{
@@ -1634,23 +1633,26 @@ function openReizigerSheet(onDone){
   el.innerHTML=`<div class="sheetbg"></div><div class="sheet" role="dialog" aria-modal="true">
     <div class="sheethead"><strong>Reiziger toevoegen</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
     <form id="rform" action="#" method="post" autocomplete="off">
-    <input id="rnaam" class="shinput" type="text" placeholder="Naam" autocomplete="off" autocapitalize="words" required>
-    <input id="remail" class="shinput" type="email" placeholder="E-mailadres" autocomplete="username" inputmode="email" autocapitalize="none" required>
+    <input id="rnaam" class="shinput" type="text" placeholder="Naam van de reiziger" autocomplete="off" autocapitalize="words" required>
+    <input id="remail" class="shinput" type="email" placeholder="E-mailadres van de reiziger" autocomplete="username" inputmode="email" autocapitalize="none" required>
     <div class="pwrij"><input id="rpw" class="shinput" type="password" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="new-password" autocapitalize="none" required>
     <button type="button" class="nbtn" id="rpwtoon" aria-label="Wachtwoord tonen">${IC_OOG}</button></div>
+    <p class="pwlees" id="rpwlees" hidden></p>
     <div class="chips" id="rdelen">${DELEN.slice(0,3).map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
-    <div class="nrow"><button class="btn primary" id="rbtn" type="submit">Toevoegen</button></div><div class="nstatus" id="rstat"></div></form>
-    <p class="beheer-uitleg">Vul het e-mailadres van de reiziger in, niet dat van jezelf: je iPhone biedt hier het jouwe aan omdat het veld om een inlognaam vraagt. Op een iPhone stelt Apple ook zelf een sterk wachtwoord voor en bewaart dat in je sleutelhanger. Neem dat gerust over: met het oogje lees je het en geef je het door. De reiziger kan het later zelf wijzigen via "wachtwoord vergeten".</p></div>`;
+    <div class="nrow"><button class="btn primary" id="rbtn" type="submit">Toevoegen</button></div><div class="nstatus" id="rstat"></div></form></div>`;
   document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('on'));
   const close=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),220)};
   el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
   el.querySelectorAll('#rdelen .chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
-  // Het wachtwoord staat verborgen, zodat iOS een sterk wachtwoord aanbiedt. Met het oogje lees je het,
-  // want de beheerder moet het aan de reiziger kunnen doorgeven.
-  const pwv=el.querySelector('#rpw'), oog=el.querySelector('#rpwtoon');
-  oog.onclick=()=>{ const uit=pwv.type==='password'; pwv.type=uit?'text':'password';
+  // Het veld blijft verborgen, zodat iOS een sterk wachtwoord aanbiedt. Het oogje zet het wachtwoord
+  // eronder als leesregel: Safari houdt een door hemzelf ingevuld wachtwoord gemaskeerd, ook als je het
+  // veld op tekst zet, dus het omzetten van het veld zelf werkt daar niet.
+  const pwv=el.querySelector('#rpw'), oog=el.querySelector('#rpwtoon'), lees=el.querySelector('#rpwlees');
+  const toonPw=()=>{ lees.textContent=pwv.value||'Nog geen wachtwoord ingevuld.'; };
+  oog.onclick=()=>{ const uit=lees.hidden; lees.hidden=!uit; if(uit) toonPw();
     oog.classList.toggle('aan',uit); oog.setAttribute('aria-label',uit?'Wachtwoord verbergen':'Wachtwoord tonen'); };
+  pwv.addEventListener('input',()=>{ if(!lees.hidden) toonPw(); });
   const st=el.querySelector('#rstat');
   el.querySelector('#rform').addEventListener('submit',async e=>{
     e.preventDefault();
@@ -1976,7 +1978,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-157';
+const APP_VERSIE='2026-09-10-158';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
