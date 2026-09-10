@@ -10,7 +10,10 @@ const DIER_GROEPEN=[
  ["reptiel","Reptielen","#A21C64","#F472B6"],
  ["klein","Spinnen en insecten","#B45309","#FBBF24"],
  ["zee","In zee","#0369A1","#38BDF8"],
- ["zoetwater","Zoetwater","#0F766E","#2DD4BF"]
+ ["zoetwater","Zoetwater","#0F766E","#2DD4BF"],
+ // Overig heeft geen vaste dieren. Hieronder valt wat via 'Iets anders gezien' is ingevoerd, met het
+ // pootje als icoon. De app vult die groep zelf en toont hem alleen als er iets in staat.
+ ["overig","Overig","#4B5563","#9CA3AF"]
 ];
 // Per dier een sleutel (k, komt zo in de tabel waarnemingen), de naam op de knop (n) en de groep (g).
 // Het icoon staat onder dezelfde sleutel in dieren-iconen.js. Met syn koppelt check.js de namen uit de
@@ -30,6 +33,7 @@ const DIEREN=[
  {k:"dingo",n:"Dingo",g:"zoogdier"},
  {k:"quokka",n:"Quokka",g:"zoogdier"},
  {k:"tasmaanse-duivel",n:"Tasmaanse duivel",g:"zoogdier"},
+ {k:"quoll",n:"Quoll",g:"zoogdier",syn:["Buidelmarter","Oostelijke buidelmarter","Gevlekte buidelmarter"]},
  {k:"bandicoet",n:"Bandicoet",g:"zoogdier"},
  {k:"possum",n:"Possum",g:"zoogdier",syn:["Ringstaartpossum","Voskoesoe"]},
  {k:"suikereekhoorn",n:"Suiker\u00ADeekhoorn",g:"zoogdier",syn:["Vliegende buidelmuis","Sugar glider"]},

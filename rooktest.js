@@ -233,7 +233,7 @@ function zoek(w,fouten,term){
     eis(fouten,pauw&&pauw.dataset.dier==='overig','een dier zonder knop staat in Kans vandaag als ander dier');
     // zoeken en chips
     const chips=w.document.querySelectorAll('#dieren .dchip');
-    eis(fouten,chips.length===7&&/Eerder gespot0/.test(chips[0].textContent)&&/Zoogdieren0\/14/.test(chips[1].textContent),`filterchip en zes groepschips met telling (nu ${chips.length}, '${chips[1]&&chips[1].textContent}')`);
+    eis(fouten,chips.length===7&&/Eerder gespot0/.test(chips[0].textContent)&&/Zoogdieren0\/15/.test(chips[1].textContent),`filterchip en zes groepschips met telling (nu ${chips.length}, '${chips[1]&&chips[1].textContent}')`);
     const zoek=$(w,'dzoek'); zoek.value='krok'; zoek.dispatchEvent(new w.Event('input'));
     const zichtbaar=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
     eis(fouten,zichtbaar.join(',')==='zoutwaterkrokodil,zoetwaterkrokodil',`zoeken op 'krok' laat twee krokodillen over (nu ${zichtbaar.join(',')})`);
@@ -247,7 +247,7 @@ function zoek(w,fouten,term){
     eis(fouten,gesp&&/Vandaag/.test(gesp.querySelector('.ddag').textContent)&&/Koala/.test(gesp.textContent)&&/1 waarneming wacht op verbinding/.test($(w,'dieren').textContent),'waarneming staat onder Gespot, onder de tussenkop van de dag, met de statusregel');
     const koala2=w.document.querySelector('#dalle .drij[data-dier="koala"]');
     eis(fouten,koala2&&koala2.classList.contains('mijn')&&koala2.classList.contains('gespot')&&koala2.querySelector('.dtel').textContent==='1','teller en tint op de regel na de waarneming');
-    eis(fouten,/Zoogdieren1\/14/.test(w.document.querySelectorAll('#dieren .dchip')[1].textContent),'chip telt mee');
+    eis(fouten,/Zoogdieren1\/15/.test(w.document.querySelectorAll('#dieren .dchip')[1].textContent),'chip telt mee');
     // filter Eerder gespot
     $(w,'dfilter').click();
     let zicht=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
@@ -275,8 +275,19 @@ function zoek(w,fouten,term){
     q2=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
     eis(fouten,q2.length===2&&q2[1].opmerking==='Wombat met jong','tweede naam via de knop Gespot');
     eis(fouten,/Wombat met jong/.test($(w,'dieren').textContent)&&/Pauw/.test($(w,'dieren').textContent),'andere dieren staan met hun naam in de lijst');
-    // twee weghalen, dan is de wachtrij leeg
-    const weg2=w.document.querySelector('#dieren .dweg'); if(weg2) weg2.click(); await sleep(50);
+    // de groep Overig verschijnt zodra er zoiets is, met het pootje als icoon
+    const ov=w.document.querySelector('#dg-overig');
+    eis(fouten,ov&&/Overig/.test(ov.textContent)&&ov.querySelectorAll('.drij').length===2&&/2 van 2/.test(ov.textContent),`groep Overig met beide namen (nu ${ov?ov.querySelectorAll('.drij').length:0} regels)`);
+    eis(fouten,ov&&[...ov.querySelectorAll('.drij')].every(r=>r.dataset.dier==='overig'&&r.querySelector('svg')&&!r.querySelector('.dletter')),'regels in Overig dragen het pootje');
+    // nog een keer hetzelfde dier: telt op in plaats van een tweede regel
+    ov.querySelector('.drij').click(); await sleep(50);
+    const ov2=w.document.querySelector('#dg-overig');
+    eis(fouten,ov2.querySelectorAll('.drij').length===2&&[...ov2.querySelectorAll('.dtel')].some(t=>t.textContent==='2'),'nog een keer hetzelfde andere dier telt op');
+    $(w,'dfilter').click();
+    eis(fouten,!w.document.querySelector('#dg-overig').hidden,'Overig blijft staan bij het filter Eerder gespot');
+    $(w,'dfilter').click();
+    // alles weghalen, dan is de wachtrij leeg
+    while(w.document.querySelector('#dieren .dweg')){ w.document.querySelector('#dieren .dweg').click(); await sleep(20); }
     // weghalen van een wachtende waarneming
     const weg=w.document.querySelector('#dieren .dweg'); if(weg) weg.click(); await sleep(50);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'eigen wachtende waarneming weghalen');
