@@ -1642,7 +1642,8 @@ function openDierSheet(){
 }
 // Dier bij een naam uit een wild-blok van een dag, via de naam of een synoniem
 const dierBijNaam=naam=>DIER_LIJST.find(d=>schoon(d.n)===naam||(d.syn||[]).includes(naam))||null;
-const kleurVan=g=>TONE[(DIER_GROEP.find(x=>x[0]===g)||[])[2]]||TONE.reis;
+// Twee kleuren per groep, licht en donker. De opmaak kiest met --g en --gd zelf de juiste.
+const kleurVan=g=>{ const x=DIER_GROEP.find(y=>y[0]===g)||[]; return `--g:${x[2]||'#4B545F'};--gd:${x[3]||x[2]||'#98A2AE'}`; };
 const kansDots=k=>`<span class="chance" title="${['','Geluk nodig','Goede kans','Bijna zeker'][k]||''}">${'●'.repeat(k)}${'○'.repeat(3-k)}</span>`;
 const dLetter=naam=>`<span class="dletter">${esc(schoon(naam).charAt(0))}</span>`;
 // Eén regel in de lijst: icoon in een rondje, naam, eventueel kans en tekst, en rechts de teller.
@@ -1650,7 +1651,8 @@ const dLetter=naam=>`<span class="dletter">${esc(schoon(naam).charAt(0))}</span>
 function dierRij(dier,{naam,tekst,kans,tel,mijn,groep}){
   const k=dier?dier.k:'overig', ic=dier?(DIER_ICOON[dier.k]||dLetter(naam)):dLetter(naam);
   return `<button type="button" class="drij${tel?' gespot':''}${mijn?' mijn':''}" data-dier="${k}" data-naam="${esc(naam)}"`+
-    ` data-zoek="${esc((schoon(naam)+' '+(dier&&dier.syn||[]).join(' ')).toLowerCase())}" style="--g:${kleurVan(groep)}">`+
+    ` data-zoek="${esc((schoon(naam)+' '+(dier&&dier.syn||[]).join(' ')).toLowerCase())}"`+
+    ` data-gespot="${tel?1:0}" style="${kleurVan(groep)}">`+
     `<span class="dico${k==='emoe'?' emoe':''}">${ic}</span>`+
     `<span class="dtxt"><strong>${esc(schoon(naam))}${kans?kansDots(kans):''}</strong>${tekst?`<span class="sub">${esc(tekst)}</span>`:''}</span>`+
     (tel?`<span class="dtel">${tel}</span>`:'')+`</button>`;
@@ -1687,12 +1689,15 @@ function renderDieren(){
   const perGroep=g=>DIER_LIJST.filter(d=>d.g===g);
   h+=`<div class="dkop"><h2>Alle dieren</h2></div>`+
     `<input id="dzoek" class="dzoek" type="search" placeholder="Zoek een dier" autocomplete="off" value="${esc(window._dzoek||'')}">`+
-    `<div class="dchips">`+DIER_GROEP.map(([g,label])=>{ const ds=perGroep(g), gs=ds.filter(d=>tel[d.k]).length;
-      return `<button type="button" class="dchip" data-groep="${g}" style="--g:${kleurVan(g)}">${esc(label)}<span>${gs}/${ds.length}</span></button>`; }).join('')+`</div>`+
+    `<div class="dchips">`+
+      `<button type="button" class="dchip dfilter${window._dgespot?' on':''}" id="dfilter">Eerder gespot<span>${DIER_LIJST.filter(d=>tel[d.k]).length}</span></button>`+
+      DIER_GROEP.map(([g,label])=>{ const ds=perGroep(g), gs=ds.filter(d=>tel[d.k]).length;
+      return `<button type="button" class="dchip" data-groep="${g}" style="${kleurVan(g)}">${esc(label)}<span>${gs}/${ds.length}</span></button>`; }).join('')+`</div>`+
     `<div id="dalle">`+DIER_GROEP.map(([g,label])=>{ const ds=perGroep(g); if(!ds.length) return ''; const gs=ds.filter(d=>tel[d.k]).length;
-      return `<section class="dgroep" id="dg-${g}" style="--g:${kleurVan(g)}"><div class="dkop"><h2>${esc(label)}</h2><span class="dsub">${gs} van ${ds.length}</span></div><div class="dlist">`+
+      return `<section class="dgroep" id="dg-${g}" style="${kleurVan(g)}"><div class="dkop"><h2>${esc(label)}</h2><span class="dsub">${gs} van ${ds.length}</span></div><div class="dlist">`+
         ds.map(d=>dierRij(d,{naam:d.n,tel:tel[d.k]||0,mijn:mijn[d.k]||0,groep:g})).join('')+`</div></section>`; }).join('')+`</div>`;
-  h+=`<button type="button" class="dander" id="dander">${PAW}<span><b>Iets anders gezien?</b>Typ de naam van het dier.</span><span class="arw">→</span></button>`;
+  h+=`<p class="dstatus" id="dleeg" hidden>Geen dier gevonden.</p>`+
+    `<button type="button" class="dander" id="dander">${PAW}<span><b>Iets anders gezien?</b>Typ de naam van het dier.</span><span class="arw">→</span></button>`;
 
   // Gespot: alle waarnemingen, nieuwste bovenaan, met een tussenkop per dag
   const lijst=[...alle].sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
@@ -1720,12 +1725,21 @@ function renderDieren(){
 
   box.querySelectorAll('.drij').forEach(b=>b.onclick=()=>b.dataset.dier==='overig'?registreerWaarneming('overig',b.dataset.naam):registreerWaarneming(b.dataset.dier));
   box.querySelectorAll('.dchip').forEach(c=>c.onclick=()=>{ const sec=box.querySelector('#dg-'+c.dataset.groep); if(sec) sec.scrollIntoView({behavior:'smooth',block:'start'}); });
-  // Zoeken filtert de lijst Alle dieren, op naam en synoniemen. De zoekterm blijft staan na een tik.
+  // Zoeken en het filter 'Eerder gespot' werken samen op de lijst Alle dieren. Beide blijven staan na een
+  // tik op een dier, want dan wordt het scherm opnieuw getekend.
   const zoek=box.querySelector('#dzoek');
   const filter=()=>{ const q=zoek.value.trim().toLowerCase(); window._dzoek=q;
-    box.querySelectorAll('#dalle .drij').forEach(r=>{ r.hidden=!!q&&!r.dataset.zoek.includes(q); });
-    box.querySelectorAll('#dalle .dgroep').forEach(g=>{ g.hidden=!!q&&![...g.querySelectorAll('.drij')].some(r=>!r.hidden); }); };
-  zoek.oninput=filter; if(window._dzoek) filter();
+    const alleenGespot=!!window._dgespot;
+    box.querySelectorAll('#dalle .drij').forEach(r=>{
+      r.hidden=(!!q&&!r.dataset.zoek.includes(q))||(alleenGespot&&r.dataset.gespot!=='1'); });
+    box.querySelectorAll('#dalle .dgroep').forEach(g=>{
+      g.hidden=(!!q||alleenGespot)&&![...g.querySelectorAll('.drij')].some(r=>!r.hidden); });
+    const leeg=box.querySelector('#dleeg');
+    if(leeg) leeg.hidden=![...box.querySelectorAll('#dalle .dgroep')].every(g=>g.hidden); };
+  zoek.oninput=filter;
+  const fk=box.querySelector('#dfilter');
+  fk.onclick=()=>{ window._dgespot=!window._dgespot; fk.classList.toggle('on',window._dgespot); filter(); };
+  if(window._dzoek||window._dgespot) filter();
   box.querySelector('#dander').onclick=openDierSheet;
   box.querySelectorAll('.dweg').forEach(b=>b.onclick=()=>{ const w=alle.find(x=>String(x.id)===b.dataset.weg); if(w) verwijderWaarneming(w); });
 }
@@ -1770,7 +1784,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-138';
+const APP_VERSIE='2026-09-10-139';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

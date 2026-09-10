@@ -1,10 +1,16 @@
 // AustralieApp, dieren voor de waarnemingen. Alleen inhoud, de code staat in app.js.
 // Controleer na een wijziging met  node check.js
 //
-// Groepen in de volgorde waarin ze op het scherm staan, elk met een kleur uit het regiopalet (TONE in reis.js).
+// Groepen in de volgorde waarin ze op het scherm staan, elk met twee kleuren: een voor het lichte thema
+// en een voor het donkere. Dit is een eigen palet, niet dat van de regio's: die kleuren zijn diep en
+// gedempt omdat ze onder een foto liggen, en worden flets zodra je ze klein en opgelicht gebruikt.
 const DIER_GROEPEN=[
- ["zoogdier","Zoogdieren","red"],["vogel","Vogels","tas"],["reptiel","Reptielen","sa"],
- ["klein","Spinnen en insecten","wa"],["zee","In zee","nsw"],["zoetwater","Zoetwater","qld"]
+ ["zoogdier","Zoogdieren","#C2410C","#FB923C"],
+ ["vogel","Vogels","#15803D","#4ADE80"],
+ ["reptiel","Reptielen","#A21C64","#F472B6"],
+ ["klein","Spinnen en insecten","#B45309","#FBBF24"],
+ ["zee","In zee","#0369A1","#38BDF8"],
+ ["zoetwater","Zoetwater","#0F766E","#2DD4BF"]
 ];
 // Per dier een sleutel (k, komt zo in de tabel waarnemingen), de naam op de knop (n) en de groep (g).
 // Het icoon staat onder dezelfde sleutel in dieren-iconen.js. Met syn koppelt check.js de namen uit de

@@ -233,7 +233,7 @@ function zoek(w,fouten,term){
     eis(fouten,pauw&&pauw.dataset.dier==='overig','een dier zonder knop staat in Kans vandaag als ander dier');
     // zoeken en chips
     const chips=w.document.querySelectorAll('#dieren .dchip');
-    eis(fouten,chips.length===6&&/Zoogdieren0\/14/.test(chips[0].textContent),`zes groepschips met telling (nu ${chips.length}, '${chips[0]&&chips[0].textContent}')`);
+    eis(fouten,chips.length===7&&/Eerder gespot0/.test(chips[0].textContent)&&/Zoogdieren0\/14/.test(chips[1].textContent),`filterchip en zes groepschips met telling (nu ${chips.length}, '${chips[1]&&chips[1].textContent}')`);
     const zoek=$(w,'dzoek'); zoek.value='krok'; zoek.dispatchEvent(new w.Event('input'));
     const zichtbaar=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
     eis(fouten,zichtbaar.join(',')==='zoutwaterkrokodil,zoetwaterkrokodil',`zoeken op 'krok' laat twee krokodillen over (nu ${zichtbaar.join(',')})`);
@@ -247,7 +247,16 @@ function zoek(w,fouten,term){
     eis(fouten,gesp&&/Vandaag/.test(gesp.querySelector('.ddag').textContent)&&/Koala/.test(gesp.textContent)&&/1 waarneming wacht op verbinding/.test($(w,'dieren').textContent),'waarneming staat onder Gespot, onder de tussenkop van de dag, met de statusregel');
     const koala2=w.document.querySelector('#dalle .drij[data-dier="koala"]');
     eis(fouten,koala2&&koala2.classList.contains('mijn')&&koala2.classList.contains('gespot')&&koala2.querySelector('.dtel').textContent==='1','teller en tint op de regel na de waarneming');
-    eis(fouten,/Zoogdieren1\/14/.test(w.document.querySelector('#dieren .dchip').textContent),'chip telt mee');
+    eis(fouten,/Zoogdieren1\/14/.test(w.document.querySelectorAll('#dieren .dchip')[1].textContent),'chip telt mee');
+    // filter Eerder gespot
+    $(w,'dfilter').click();
+    let zicht=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
+    eis(fouten,zicht.join(',')==='koala',`filter toont alleen wat al gespot is (nu ${zicht.join(',')||'niets'})`);
+    eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder gespot dier verdwijnen');
+    eis(fouten,$(w,'dfilter').classList.contains('on'),'filterchip staat aan');
+    $(w,'dfilter').click();
+    zicht=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).length;
+    eis(fouten,zicht>=55&&!$(w,'dfilter').classList.contains('on'),'filter uit toont weer alles');
     const t=$(w,'toast'); eis(fouten,t&&/Koala gespot om \d\d\.\d\d uur/.test(t.textContent)&&t.querySelector('button'),'melding met Ongedaan maken');
     if(t&&t.querySelector('button')) t.querySelector('button').click();
     await sleep(50);
