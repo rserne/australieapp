@@ -127,7 +127,7 @@ De app haalt de lijst bij elke synchronisatie op en bewaart een kopie op de tele
 
 ## Alle dagen
 
-Het tabblad Alle dagen groepeert de groepsreis per regio, in dezelfde indeling als het raster op de startpagina: een kop met de naam van de regio en het datumbereik, en daaronder de dagen. Een vliegdag telt mee bij de regio waar je heen gaat, dus dag 1 staat bij New South Wales. Het dagnummer draagt de kleur van de regio; het streepje aan de rand is vervallen, want sinds de dagpagina een foto in de kop heeft, verwees die kleur nergens meer naar. De dag van vandaag krijgt een getinte rij, een gevuld nummer en 'vandaag' in plaats van de datum. Voorreis en nareis staan als eigen blok met de vaste kleur uit `BUITEN`.
+Het tabblad Alle dagen groepeert de groepsreis per regio, in dezelfde indeling als het raster op de startpagina: een kop met de naam van de regio en het datumbereik, en daaronder de dagen. Een vliegdag telt mee bij de regio waar je heen gaat, dus dag 1 staat bij New South Wales. Het dagnummer draagt de kleur van de regio; het streepje aan de rand is vervallen, want sinds de dagpagina een foto in de kop heeft, verwees die kleur nergens meer naar. De dag van vandaag krijgt een getinte rij, een gevuld nummer en 'vandaag' in plaats van de datum. Voorreis en nareis staan als eigen blok met de vaste kleur uit `BUITEN`, met een kop Groepsreis ertussen zodat duidelijk is waar de reis zelf begint.
 
 ## Dieren en waarnemingen
 

@@ -650,6 +650,9 @@
      liggen; in het donkere thema mengen we er wit doorheen zodat ze leesbaar blijven. */
   .idxkop{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:24px 4px 8px}
   #results>.idxkop:first-child{margin-top:4px}
+  /* Scheiding tussen de voorreis, de groepsreis en de nareis. De kop eronder is een regio. */
+  .idxdeel{margin-top:30px}
+  .idxdeel+.idxkop{margin-top:10px}
   .idxkop h3{margin:0;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
     color:color-mix(in srgb,var(--tone) 45%,#EDEFF3)}
   .idxkop span{font-size:12.5px;color:var(--text-faint);white-space:nowrap}

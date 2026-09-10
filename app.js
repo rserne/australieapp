@@ -581,7 +581,9 @@ function drawResults(term){
     let h='';
     if(heeftV) h+=VOORDG.length?buitenLijst(-VOOR,-1):buitenRegel('voor',-VOOR,-1);
     // De groepsreis per regio, in de volgorde van de reis: vijf dagen New South Wales, dan Tasmanië,
-    // enzovoort. Dezelfde indeling als het raster op de startpagina.
+    // enzovoort. Dezelfde indeling als het raster op de startpagina. Wie een voorreis of nareis heeft,
+    // krijgt er een kop boven, anders loopt de eerste regio zonder scheiding op de voorreis door.
+    if(heeftV||heeftN) h+=`<h2 class="idxdeel">Groepsreis</h2>`;
     Object.entries(dagenPerRegio()).forEach(([r,dg])=>{
       const a=Math.min(...dg), b=Math.max(...dg);
       h+=idxKop(REGION[r],TONE[r],bereikTxt(dateFor(a),dateFor(b)))+`<ul class="idx" style="--tone:${TONE[r]}">`;
@@ -2036,7 +2038,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-164';
+const APP_VERSIE='2026-09-10-165';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

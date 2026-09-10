@@ -143,6 +143,7 @@ function zoek(w,fouten,term){
     eis(fouten,!w.document.querySelector('.regio[data-go^="-"]'),'zonder voorreizigers staat er geen kaart Voorreis');
     klik(w,'btnIndex',fouten);
     eis(fouten,![...w.document.querySelectorAll('#results .idxkop h3')].some(h=>h.textContent==='Voorreis'),'zonder voorreizigers geen kop Voorreis in Alle dagen');
+    eis(fouten,!w.document.querySelector('#results .idxdeel'),'en dan ook geen kop Groepsreis: er valt niets te scheiden');
     klik(w,'btnToday',fouten); klik(w,'next',fouten);
     eis(fouten,kop(w)==='Dag 1van 29','zonder voorreizigers gaat de pijl van de startpagina naar dag 1');
     klik(w,'prev',fouten);
@@ -172,6 +173,9 @@ function zoek(w,fouten,term){
     const lijsten=[...w.document.querySelectorAll('#results .idx')];
     eis(fouten,lijsten.length===koppen.length,`bij elke kop één lijst (nu ${lijsten.length} lijsten, ${koppen.length} koppen)`);
     eis(fouten,!w.document.querySelector('#results .bar'),'het streepje aan de rand is weg');
+    const deel=w.document.querySelector('#results .idxdeel');
+    eis(fouten,deel&&deel.textContent==='Groepsreis'&&deel.nextElementSibling.querySelector('h3').textContent==='New South Wales',
+      'een kop Groepsreis scheidt de voorreis van de eerste regio');
     const nsw=lijsten[1], nrs=[...nsw.querySelectorAll('button')].map(b=>b.dataset.n);
     eis(fouten,nrs.join(',')==='1,2,3,4,5',`New South Wales bevat dag 1 tot en met 5, inclusief de vliegdag (nu ${nrs.join(',')})`);
     eis(fouten,/^#/.test(nsw.style.getPropertyValue('--tone')||''),`de lijst draagt de regiokleur (nu '${nsw.style.getPropertyValue('--tone')}')`);
