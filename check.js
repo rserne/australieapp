@@ -93,9 +93,14 @@ else{
   let ICONEN={};
   if(!fs.existsSync(__dirname+'/dieren-iconen.js')) fout('dieren-iconen.js ontbreekt');
   else ICONEN=vm.runInNewContext(fs.readFileSync(__dirname+'/dieren-iconen.js','utf8')+';DIER_ICONEN',{});
+  // Tien iconen zijn met een dunnere pen getekend en dragen daarom een stroke-width, waarmee ze even
+  // zwaar ogen als de rest. Node kan svg's niet tekenen, dus de dikte zelf meten we hier niet. Wel of
+  // die verdikking er nog is: bij een nieuwe export van zo'n icoon raak je hem anders ongemerkt kwijt.
+  const VERDIKT=['quoll','emoe','boomkangoeroe','bultrug','manta','vogelbekdier','anemoonvis','barramundi','doejong','koraalbaars'];
   Object.entries(ICONEN).forEach(([k,svg])=>{
     if(!/^<svg[\s>]/.test(svg)||!/viewBox=/.test(svg)) fout(`dieren-iconen.js: icoon '${k}' is geen svg met viewBox`);
     if(!DIEREN.some(d=>d.k===k)) waarschuw(`dieren-iconen.js: icoon '${k}' hoort bij geen enkel dier in dieren.js`);
+    if(VERDIKT.includes(k)&&!/stroke-width="/.test(svg)) waarschuw(`dieren-iconen.js: '${k}' is dun getekend en mist nu zijn stroke-width`);
   });
   const groepen=new Set(DIER_GROEPEN.map(g=>g[0])), sleutels=new Set();
   DIER_GROEPEN.forEach(g=>{ [2,3].forEach(i=>{ if(!/^#[0-9A-Fa-f]{6}$/.test(g[i]||'')) fout(`dieren.js: groep '${g[0]}' mist een kleur voor het ${i===2?'lichte':'donkere'} thema (verwacht #rrggbb)`); }); });
