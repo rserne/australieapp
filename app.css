@@ -396,16 +396,20 @@
   .rstatus.fout{color:var(--alert)}
   #beheer{padding-bottom:8px}
   /* toevoegformulier: ruimer dan de andere bladen, want er staan drie velden en chips onder elkaar */
-  .sheet #rform{display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+  .sheet #rform{display:flex;flex-direction:column;gap:14px;margin-top:8px;padding-bottom:4px}
+  .sheet:has(#rform) .sheethead{margin-bottom:4px}
   .sheet #rform .chips{margin-top:2px}
   .sheet #rform .nrow{margin-top:6px}
   /* Het wachtwoord als leesregel: Safari houdt een zelf ingevuld sterk wachtwoord in het veld gemaskeerd. */
   .pwlees{margin:-6px 2px 0;font-size:15px;line-height:1.4;color:var(--text);word-break:break-all;
     -webkit-user-select:all;user-select:all}
-  /* wachtwoordveld met de kopieerknop ernaast, zodat de beheerder het meteen kan doorsturen */
-  .pwrij{display:flex;gap:8px;align-items:center}
+  /* Wachtwoordveld met de kopieerknop ernaast, zodat de beheerder het meteen kan doorsturen. De knop
+     is even hoog als het veld en heeft dezelfde afronding, zodat de twee als één geheel ogen. */
+  .pwrij{display:flex;gap:8px;align-items:stretch}
   .pwrij .shinput{flex:1;min-width:0}
-  .pwrij .nbtn{flex:none;color:var(--text-dim)}
+  .pwrij .nbtn{flex:none;width:46px;height:auto;border-radius:12px;color:var(--text-dim);
+    display:flex;align-items:center;justify-content:center}
+  .pwrij .nbtn svg{width:17px;height:17px}
   .pwrij .nbtn:active{opacity:.6}
   #beheer .dagadd{margin:18px 0 0}
   .callout a{color:var(--accent-ink);font-weight:600}
