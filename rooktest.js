@@ -237,10 +237,11 @@ function zoek(w,fouten,term){
     // een groepschip filtert en springt niet
     const zeeChip=w.document.querySelector('#dieren .dchip[data-groep="zee"]'); zeeChip.click();
     let secties=[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).map(g=>g.id);
-    eis(fouten,secties.join(',')==='dg-zee'&&zeeChip.classList.contains('on'),`chip In zee filtert op die groep (nu ${secties.join(',')||'niets'})`);
-    zeeChip.click();
+    eis(fouten,secties.join(',')==='dg-zee'&&w.document.querySelector('#dieren .dchip[data-groep="zee"]').classList.contains('on'),`chip In zee filtert op die groep (nu ${secties.join(',')||'niets'})`);
+    eis(fouten,!!w.document.querySelector('#dieren .dchip[data-groep="zee"] .chipx'),'aangezette chip toont een kruisje');
+    w.document.querySelector('#dieren .dchip[data-groep="zee"]').click();
     const aantalSecties=[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length;
-    eis(fouten,aantalSecties===6&&!zeeChip.classList.contains('on'),`nog een tik zet het filter uit (nu ${aantalSecties} groepen)`);
+    eis(fouten,aantalSecties===6&&!w.document.querySelector('#dieren .dchip[data-groep="zee"]').classList.contains('on'),`nog een tik zet het filter uit (nu ${aantalSecties} groepen)`);
     const kopjes=[...$(w,'dieren').querySelectorAll('h2')].map(x=>x.textContent);
     eis(fouten,kopjes.includes('Ander dier'),`kopje boven de knop voor een ander dier (nu: ${kopjes.join(' | ')})`);
     const zoek=$(w,'dzoek'); zoek.value='krok'; zoek.dispatchEvent(new w.Event('input'));
@@ -266,6 +267,7 @@ function zoek(w,fouten,term){
     eis(fouten,/Zoogdieren1\/15/.test(w.document.querySelectorAll('#dieren .dchip')[1].textContent),'chip telt mee');
     // filter Eerder gespot
     $(w,'dfilter').click();
+    eis(fouten,!!w.document.querySelector('#dfilter .chipx'),'Eerder gespot toont een kruisje als hij aanstaat');
     let zicht=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
     eis(fouten,zicht.join(',')==='koala',`filter toont alleen wat al gespot is (nu ${zicht.join(',')||'niets'})`);
     eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder gespot dier verdwijnen');

@@ -1704,9 +1704,13 @@ function renderDieren(){
   h+=`<div class="dkop"><h2>Alle dieren</h2></div>`+
     `<input id="dzoek" class="dzoek" type="search" placeholder="Zoek een dier" autocomplete="off" value="${esc(window._dzoek||'')}">`+
     `<div class="dchips">`+
-      `<button type="button" class="dchip dfilter${window._dgespot?' on':''}" id="dfilter">Eerder gespot<span>${DIER_LIJST.filter(d=>tel[d.k]).length+anderen.length}</span></button>`+
-      groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g);
-      return `<button type="button" class="dchip${window._dgroep===g?' on':''}" data-groep="${g}" style="${kleurVan(g)}">${esc(label)}<span>${gs}/${tot}</span></button>`; }).join('')+`</div>`+
+      (()=>{ // Een aangezette chip krijgt een kruisje, net als de filters in Notities, zodat zichtbaar
+             // is dat je hem ook weer uit kunt zetten.
+        const uit=`<span class="chipx" aria-hidden="true">×</span>`, aan=window._dgespot;
+        return `<button type="button" class="dchip dfilter${aan?' on':''}" id="dfilter"${aan?' aria-pressed="true"':''}>Eerder gespot<span>${DIER_LIJST.filter(d=>tel[d.k]).length+anderen.length}</span>${aan?uit:''}</button>`+
+          groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g), on=window._dgroep===g;
+            return `<button type="button" class="dchip${on?' on':''}" data-groep="${g}"${on?' aria-pressed="true"':''} style="${kleurVan(g)}">${esc(label)}<span>${gs}/${tot}</span>${on?uit:''}</button>`; }).join('');
+      })()+`</div>`+
     `<div id="dalle">`+groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g); if(!tot) return '';
       const rijen=g==='overig'
         ? anderen.map(a=>dierRij(null,{naam:a.naam,tel:a.tel,mijn:a.mijn,groep:'overig'})).join('')
@@ -1714,7 +1718,7 @@ function renderDieren(){
       return `<section class="dgroep" id="dg-${g}" style="${kleurVan(g)}"><div class="dkop"><h2>${esc(label)}</h2><span class="dsub">${gs} van ${tot}</span></div><div class="dlist">`+
         rijen+`</div></section>`; }).join('')+`</div>`;
   h+=`<p class="dstatus" id="dleeg" hidden>Geen dier gevonden.</p>`+
-    `<div class="dkop"><h2>Ander dier</h2></div>`+
+    `<div class="dkop solo"><h2>Ander dier</h2></div>`+
     `<button type="button" class="dander" id="dander">${PAW}<span><b>Iets anders gezien?</b>Typ de naam van het dier.</span><span class="arw">→</span></button>`;
 
   // Gespot: alle waarnemingen, nieuwste bovenaan, met een tussenkop per dag
@@ -1756,12 +1760,9 @@ function renderDieren(){
     const leeg=box.querySelector('#dleeg');
     if(leeg) leeg.hidden=![...box.querySelectorAll('#dalle .dgroep')].every(g=>g.hidden); };
   zoek.oninput=filter;
-  const fk=box.querySelector('#dfilter');
-  fk.onclick=()=>{ window._dgespot=!window._dgespot; fk.classList.toggle('on',window._dgespot); filter(); };
+  box.querySelector('#dfilter').onclick=()=>{ window._dgespot=!window._dgespot; renderDieren(); };
   box.querySelectorAll('.dchip[data-groep]').forEach(c=>c.onclick=()=>{
-    window._dgroep=window._dgroep===c.dataset.groep?'':c.dataset.groep;
-    box.querySelectorAll('.dchip[data-groep]').forEach(x=>x.classList.toggle('on',x.dataset.groep===window._dgroep));
-    filter(); });
+    window._dgroep=window._dgroep===c.dataset.groep?'':c.dataset.groep; renderDieren(); });
   if(window._dzoek||window._dgespot||window._dgroep) filter();
   box.querySelector('#dander').onclick=openDierSheet;
   box.querySelectorAll('.dweg').forEach(b=>b.onclick=()=>{ const w=alle.find(x=>String(x.id)===b.dataset.weg); if(w) verwijderWaarneming(w); });
@@ -1807,7 +1808,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-145';
+const APP_VERSIE='2026-09-10-146';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

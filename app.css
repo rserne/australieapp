@@ -383,8 +383,12 @@
   .dstatus{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:var(--text-dim)}
   .dhint{margin:8px 0 0 4px;font-size:13.5px;line-height:1.45;color:var(--text-faint)}
   .dkop{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  /* Een kopje zonder telling ernaast (Ander dier) staat los boven zijn blok en krijgt daarom de
+     gewone kopmarges terug, in plaats van de uitlijning op een regel met een getal erachter. */
+  .dkop.solo h2{margin-bottom:12px}
   .dkop h2{flex:1;min-width:0}
   .dkop .dsub{flex:none;font-size:13px;color:var(--text-faint);margin:38px 4px 12px 0}
+  .dkop.solo{display:block}
   /* Elke groep draagt twee kleuren mee uit dieren.js, --g voor licht en --gd voor donker. --gl is
      degene die bij dit thema hoort. Alle vlakken en teksten hieronder rekenen met --gl. */
   .dgroep,.dchip,.drij{--gl:var(--gd)}
@@ -402,6 +406,7 @@
   .dchip.dfilter{background:var(--glass-2);color:var(--text-dim)}
   .dchip.dfilter.on{background:var(--accent);color:#0A0C10}
   .dchip.dfilter.on span{opacity:.7}
+  .dchip .chipx{font-size:16px;line-height:1;opacity:.8;margin-left:-1px}
   .dchip span{font-size:13px;opacity:.8}
   /* een aangezette groepschip is vol gekleurd, zodat je in één oogopslag ziet waarop je filtert */
   .dchip[data-groep].on{background:var(--gl);color:var(--bg)}
