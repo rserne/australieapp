@@ -41,10 +41,19 @@ const NOTITIES=[
   {id:'e',user_id:'u2',dag:0,soort:'notitie',type:'verzekering',tekst:'Allianz, polis 12345678. Alarmcentrale +31 20 123 4567.',wie:'Anna',created_at:'2026-09-04T10:00:00Z',updated_at:'2026-09-04T10:00:00Z'}
 ];
 
+// De reizigerslijst zoals die uit de tabel reizigers komt. u1 is de ingelogde testgebruiker; of hij de
+// voorreis doet, hangt af van het scenario. Anna doet de voorreis altijd, Piet alleen de groepsreis.
+const REIZIGERS=voor=>[
+  {user_id:'u1',naam:'Test',voorreis:voor,reis:true,nareis:false},
+  {user_id:'u2',naam:'Anna',voorreis:true,reis:true,nareis:false},
+  {user_id:'u3',naam:'Piet',voorreis:false,reis:true,nareis:false}
+];
+
 // Start de app op een datum. login: 'voor' (voorreiziger), 'groep' (ingelogd, geen voorreis) of null.
 // online: navigator.onLine. Het netwerk zelf faalt altijd, zodat ook de herhaalpogingen doorlopen.
 // voorreis: JavaScript dat voorreis.js vervangt (VOORTEST), anders het echte bestand.
-function start(datum,{login=null,online=false,voorreis=null}={}){
+// lijst: de kopie van de reizigerslijst. 'std' volgt login, null is geen kopie (terugval op de notities).
+function start(datum,{login=null,online=false,voorreis=null,lijst='std'}={}){
   const code=codeMet(voorreis);
   const fouten=[];
   const vc=new VirtualConsole();
@@ -63,6 +72,7 @@ function start(datum,{login=null,online=false,voorreis=null}={}){
     w.localStorage.setItem('aus_sess',JSON.stringify({refreshToken:'x',tijd:Date.now(),user:{id:'u1',displayName:'Test',email:'test@example.org'}}));
     w.localStorage.setItem('aus_cache_all',JSON.stringify(notities));
     notities.forEach(n=>{ const k='aus_cache_'+n.dag, l=JSON.parse(w.localStorage.getItem(k)||'[]'); l.push(n); w.localStorage.setItem(k,JSON.stringify(l)); });
+    if(lijst) w.localStorage.setItem('aus_cache_reizigers',JSON.stringify(lijst==='std'?REIZIGERS(login==='voor'):lijst));
   }
   w.addEventListener('error',e=>fouten.push((e.error&&e.error.stack)||e.message));
   try{ w.eval(code); }catch(e){ fouten.push('bij laden: '+e.stack); }
@@ -107,6 +117,47 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-09-25',{login:'voor'});
     eis(fouten,/^Voorreis/.test(kop(w)),`voorreiziger ziet op 25 sep zijn voorreisdag (nu: '${kop(w)}')`);
     meld('25 sep: voorreiziger landt op zijn dag',fouten); }
+  // De reizigerslijst is bepalend, niet de notities
+  { const {w,fouten}=start('2026-09-25',{login:'groep',lijst:REIZIGERS(false)});
+    w.localStorage.setItem('aus_cache_all',JSON.stringify(NOTITIES));   // mét de voorreisnotitie van u1
+    klik(w,'btnIndex',fouten); klik(w,'btnToday',fouten);
+    eis(fouten,kop(w)==='Rondreis Australië',`voorreisnotitie maakt je geen voorreiziger als de lijst nee zegt (nu: '${kop(w)}')`);
+    const kaart=w.document.querySelector('.regio .rwie');
+    eis(fouten,kaart&&kaart.textContent==='Anna',`kaart Voorreis noemt wie de voorreis doet (nu: '${kaart&&kaart.textContent}')`);
+    eis(fouten,/Vertrek donderdag 1 oktober/.test($(w,'day').textContent),'groepslid telt af naar 1 oktober');
+    meld('25 sep: lijst zegt geen voorreis, ondanks een voorreisnotitie',fouten); }
+  { const {w,fouten}=start('2026-09-25',{login:'voor'});
+    w.localStorage.setItem('aus_cache_all',JSON.stringify(NOTITIES.filter(n=>n.dag>=0)));   // zonder voorreisnotitie
+    klik(w,'btnIndex',fouten); klik(w,'btnToday',fouten);
+    eis(fouten,/^Voorreis/.test(kop(w)),`lijst maakt je voorreiziger, ook zonder voorreisnotitie (nu: '${kop(w)}')`);
+    klik(w,'prev',fouten); while(!$(w,'prev').disabled) klik(w,'prev',fouten);
+    eis(fouten,kop(w)==='Rondreis Australië','terugbladeren komt op de startpagina');
+    const kaart=w.document.querySelector('.regio .rwie');
+    eis(fouten,kaart&&kaart.textContent==='Anna en Test',`kaart Voorreis noemt beide voorreizigers (nu: '${kaart&&kaart.textContent}')`);
+    eis(fouten,/Vertrek vrijdag 18 september/.test($(w,'day').textContent),'voorreiziger telt af naar zijn eigen vertrek');
+    meld('25 sep: lijst zegt voorreis, zonder voorreisnotitie',fouten); }
+  { const {w,fouten}=start('2026-09-25',{login:'voor',lijst:null});
+    eis(fouten,/^Voorreis/.test(kop(w)),`zonder reizigerslijst telt de voorreisnotitie nog (nu: '${kop(w)}')`);
+    meld('25 sep: terugval op de notities zonder reizigerslijst',fouten); }
+  { const {w,fouten}=start('2026-09-25',{login:'groep',lijst:REIZIGERS(false).map(r=>({...r,voorreis:false}))});
+    eis(fouten,!w.document.querySelector('.regio[data-go^="-"]'),'zonder voorreizigers staat er geen kaart Voorreis');
+    klik(w,'btnIndex',fouten);
+    eis(fouten,![...w.document.querySelectorAll('#results h2')].some(h=>h.textContent==='Voorreis'),'zonder voorreizigers geen kop Voorreis in Alle dagen');
+    klik(w,'btnToday',fouten); klik(w,'next',fouten);
+    eis(fouten,kop(w)==='Dag 1van 29','zonder voorreizigers gaat de pijl van de startpagina naar dag 1');
+    klik(w,'prev',fouten);
+    eis(fouten,kop(w)==='Rondreis Australië','en terug vanaf dag 1 naar de startpagina, niet naar de voorreis');
+    meld('25 sep: niemand doet de voorreis',fouten); }
+  { const {w,fouten}=start('2026-10-05',{login:'groep',lijst:REIZIGERS(false).filter(r=>r.user_id!=='u1')});
+    klik(w,'btnPrakt',fouten);
+    const c=$(w,'acct').querySelector('.callout');
+    eis(fouten,c&&c.classList.contains('let')&&/nog niet in de reizigerslijst/.test(c.textContent),'wie niet in de lijst staat, krijgt daar een waarschuwing over');
+    meld('5 okt: ingelogd maar niet in de reizigerslijst',fouten); }
+  { const {w,fouten}=start('2026-10-05',{login:'voor'});
+    klik(w,'btnPrakt',fouten);
+    const c=$(w,'acct').querySelector('.callout');
+    eis(fouten,c&&!c.classList.contains('let')&&/Je reist mee met de voorreis en de groepsreis/.test(c.textContent),`inlogblok noemt je deelname (nu: '${c&&c.textContent.slice(0,90)}')`);
+    meld('5 okt: deelname in het inlogblok',fouten); }
   { const {w,fouten}=start('2026-10-09',{login:'groep'});
     eis(fouten,!!$(w,'notes-top'),'ticket van dag 9 staat er meteen, zonder op de server te wachten');
     const h2=$(w,'notes-top')&&$(w,'notes-top').querySelector('h2');

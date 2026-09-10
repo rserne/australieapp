@@ -45,7 +45,7 @@ De sleutels (`SQ`, `JQ`, `QF`, `TL`) zijn de IATA-codes uit `CHECKIN` in `reis.j
 
 ## Voorreis en nareis
 
-Wie eerder gaat of langer blijft, kan notities maken voor dagen buiten de groepsreis. In `reis.js` staat hoeveel dagen dat zijn, namelijk `VOORREIS=13` (18 t/m 30 september) en `NAREIS=0`. Die dagen verschijnen in de dagkiezer van Notities boven 'Algemeen'. Intern hebben ze de nummers -1 t/m -13, en de nareis 30 en hoger. Wie er gaat, staat nergens in de code. Wie een voorreis-notitie schrijft, is voor de app een voorreiziger.
+Wie eerder gaat of langer blijft, kan notities maken voor dagen buiten de groepsreis. In `reis.js` staat hoeveel dagen dat zijn, namelijk `VOORREIS=13` (18 t/m 30 september) en `NAREIS=0`. Die dagen verschijnen in de dagkiezer van Notities boven 'Algemeen'. Intern hebben ze de nummers -1 t/m -13, en de nareis 30 en hoger. Wie er gaat, staat nergens in de code, maar in de tabel `reizigers` bij Nhost (zie hieronder). De kaarten Voorreis en Nareis op de startpagina noemen de namen uit die tabel, en verschijnen alleen als iemand het deel doet.
 
 Vóór 1 oktober toont het tabblad Vandaag een startpagina met het aftellen tot het vertrek en de reis in beeld, een raster met per regio de foto en de dagen. Wie is ingelogd, ziet in dat raster ook een kaart Voorreis (en Nareis, als die er is). Tijdens de voorreis brengt die kaart je bij de notities van vandaag van wie onderweg is. Een voorreiziger telt op de startpagina af naar zijn eigen vertrek, en tijdens zijn voorreis toont Vandaag zijn dag zelf. Wie thuis nog wacht, blijft de startpagina zien. Inchecklinks, boekingscodes en bagage staan in het tabblad Praktisch.
 
@@ -63,7 +63,45 @@ Alle dertien dagen hebben een programma, van de vlucht vanaf Schiphol via Sydney
 
 - **Slaapplekken.** Voor de kampeertour staan de twee privékampen met coördinaten in `HOTELGEO`. De hotels in Sydney, Cairns, Nhulunbuy en Darwin zijn onbekend. Daarom hebben de restaurants geen looptijd, maar `null` in plaats van het aantal minuten. Zodra de adressen er zijn, kun je `h` toevoegen, de coördinaten in `HOTELGEO` zetten en de looptijden invullen.
 - **1 en 2 oktober vallen buiten de voorreis**, want dat zijn groepsdag 1 en 2. De vlucht van Darwin naar Sydney (QF 841, 13.05 tot 17.55) hoort dus in een Ticket-notitie op dag 1 en niet in `voorreis.js`.
-- Wie een voorreis heeft, wordt pas voorreiziger zodra hij één voorreisnotitie heeft geschreven. Eén Ticket-notitie op de eerste dag is genoeg. Daarna telt Vandaag af naar het eigen vertrek.
+- Wie een voorreis heeft, staat met `voorreis = true` in de tabel `reizigers`. Daarna telt Vandaag af naar het eigen vertrek.
+
+## Reizigers
+
+De tabel `reizigers` bij Nhost bepaalt twee dingen: wie de notities en waarnemingen van de groep mag zien, en wie aan welk deel van de reis meedoet. Eén rij per account, met het `user_id` uit `auth.users`, de naam en drie ja/nee-kolommen. De reisdatums zelf staan niet in de tabel; die komen uit `reis.js`.
+
+```sql
+create table public.reizigers (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  naam text not null,
+  voorreis boolean not null default false,
+  reis boolean not null default true,
+  nareis boolean not null default false,
+  created_at timestamptz not null default now()
+);
+```
+
+Vullen vanuit de bestaande accounts (de naam komt uit `display_name`; het statement is herhaalbaar voor nieuwe accounts):
+
+```sql
+insert into public.reizigers (user_id, naam)
+select id, coalesce(display_name, email)
+from auth.users
+where id not in (select user_id from public.reizigers);
+
+update public.reizigers set voorreis = true
+where user_id in (select id from auth.users where email in ('rob@voorbeeld.nl'));
+```
+
+Rechten in Hasura, voor de rol `user`: alleen select, alle kolommen, met als row-check dat de gebruiker zelf in de tabel staat:
+
+```json
+{ "_exists": { "_table": { "schema": "public", "name": "reizigers" },
+               "_where": { "user_id": { "_eq": "X-Hasura-User-Id" } } } }
+```
+
+Dezelfde check staat als row-permission op select én insert van `dagitems` en `waarnemingen`. Update en delete blijven `user_id` gelijk aan `X-Hasura-User-Id`. Zo hoeft er in geen enkele permissie een gebruikers-id te staan: een nieuwe reiziger is één rij in de tabel. Beheer van de tabel gaat via de Nhost-console; de app leest hem alleen.
+
+De app haalt de lijst bij elke synchronisatie op en bewaart een kopie op de telefoon (`aus_cache_reizigers`), zodat hij ook offline weet wie je bent. Het inlogblok in Praktisch noemt je deelname. Sta je wel in `auth.users` maar niet in `reizigers`, dan meldt het blok dat, want dan houdt Hasura ook de notities voor je dicht. Zolang de tabel bij Nhost nog niet bestaat, valt de app terug op de oude regel: wie een voorreisnotitie schreef, is voorreiziger.
 
 ## Dieren en waarnemingen
 

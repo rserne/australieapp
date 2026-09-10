@@ -277,8 +277,8 @@ function render(){
     const dicht=t.classList.toggle('inkort'); mt.textContent=dicht?'Meer':'Minder'; };
   if(NH.user){
     renderNotes(cur);
-    // Buiten de groepsreis kan een nieuwe notitie je voorreiziger of nareiziger maken. Dan moet
-    // ook het bladeren mee, dus alles verversen in plaats van alleen de notities.
+    // Buiten de groepsreis ververst een nieuwe notitie alles: het aantal notities staat ook in de
+    // lijsten, en zonder reizigerslijst kan een voorreisnotitie je nog voorreiziger maken.
     document.getElementById('nadd').onclick=()=>openSheet({
       dag:cur,wie:NH.user.displayName||NH.user.email,onDone:buiten?versRender:()=>renderNotes(cur)});
   }
@@ -290,14 +290,31 @@ const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span>
 
 // ---- Buiten de groepsreis: startpagina, voorreis- en nareisdagen, afsluitpagina ----
 // Posities in het bladeren: 0 is de startpagina, -1 t/m -VOOR de voorreis, 1 t/m 29 de groepsreis,
-// 30 en hoger de nareis, EINDE de afsluitpagina. Wie een voorreis- of nareisnotitie heeft geschreven,
-// is voorreiziger of nareiziger. Dat volgt uit de notities, niet uit de code.
+// 30 en hoger de nareis, EINDE de afsluitpagina. Wie aan welk deel meedoet, staat in de tabel
+// reizigers bij Nhost (user_id, naam, voorreis, reis, nareis), met een kopie op de telefoon.
 const alleNotities=()=>LS.get('aus_cache_all')||[];
-const voorreiziger=()=>!!NH.user&&alleNotities().some(it=>it.dag<0&&it.user_id===NH.user.id);
-const nareiziger=()=>!!NH.user&&alleNotities().some(it=>it.dag>29&&it.user_id===NH.user.id);
-// Voorreis en nareis bestaan voor iedereen die is ingelogd, ook zonder notities, zodat je kunt meekijken.
-const heeftVoor=()=>!!NH.user&&VOOR>0;
-const heeftNa=()=>!!NH.user&&NA>0;
+// De reizigerslijst. Null zolang hij nog nooit is opgehaald (eerste keer op deze telefoon, of de tabel
+// bestaat bij Nhost nog niet). Dan valt de app terug op de notities: wie een voorreisnotitie schreef,
+// is voorreiziger. Zodra de lijst er is, is die bepalend.
+const reizigers=()=>LS.get('aus_cache_reizigers');
+const mijnReiziger=()=>{ const r=reizigers(); return (NH.user&&r&&r.find(x=>x.user_id===NH.user.id))||null; };
+// Doet de ingelogde gebruiker mee aan een deel ('voorreis', 'reis' of 'nareis')?
+function doetMee(deel){
+  if(!NH.user) return false;
+  if(reizigers()) return !!(mijnReiziger()||{})[deel];
+  if(deel==='reis') return true;
+  return alleNotities().some(it=>(deel==='voorreis'?it.dag<0:it.dag>29)&&it.user_id===NH.user.id);
+}
+const voorreiziger=()=>doetMee('voorreis');
+const nareiziger=()=>doetMee('nareis');
+// De voorreis en nareis staan in de app zodra iemand uit de lijst eraan meedoet, en dan voor iedereen
+// die is ingelogd, zodat je kunt meekijken. Zonder lijst: zodra reis.js er dagen voor heeft.
+const iemandDoet=deel=>{ const r=reizigers(); return !r||r.some(x=>x[deel]); };
+const heeftVoor=()=>!!NH.user&&VOOR>0&&iemandDoet('voorreis');
+const heeftNa=()=>!!NH.user&&NA>0&&iemandDoet('nareis');
+// Namen van wie een deel doet, als 'Rob, Els en Jan'. Voor de kaarten op de startpagina.
+const namenVan=deel=>(reizigers()||[]).filter(x=>x[deel]).map(x=>x.naam).filter(Boolean).sort((a,b)=>a.localeCompare(b,'nl'));
+const opsom=n=>n.length<=1?n.join(''):`${n.slice(0,-1).join(', ')} en ${n[n.length-1]}`;
 // Welke pagina 'Vandaag' toont. Vóór de reis de startpagina, behalve voor een voorreiziger tijdens
 // zijn voorreis: die ziet zijn eigen dag. Na de reis de afsluitpagina, behalve voor een nareiziger
 // tijdens zijn nareis (zonder nareis: dag 29). Wie thuis nog wacht, komt bij de voorreisnotities
@@ -384,12 +401,13 @@ function renderBuiten(){
     heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:'Rondreis Australië',titel:'',track:'0%'});
     const k=vr?kVoor:kGroep, vertrek=vr?dagDatum(-VOOR):dateFor(1);
     h+=`<div class="aftel"><div class="anum">Nog ${k}<small>${k===1?'dag':'dagen'}</small></div><div class="asub">Vertrek ${fmtLong(vertrek)}</div></div>`;
-    // De reis in beeld: een raster met per regio de foto die de app al heeft en, als er notities voor
-    // zijn, de voorreis en nareis. Vliegdagen ('reis') tellen mee bij de regio waar je heen gaat, of bij
+    // De reis in beeld: een raster met per regio de foto die de app al heeft en, als iemand die doet,
+    // de voorreis en nareis met de namen erbij. Vliegdagen ('reis') tellen mee bij de regio waar je heen gaat, of bij
     // de laatste regio als er geen volgende is: dag 1 valt zo onder New South Wales, dag 28–29 onder
     // West-Australië. Tik op een kaart en je staat op de eerste dag ervan.
-    const kaart=(go,naam,dagen,tone,foto)=>`<button type="button" class="regio ganaar" data-go="${go}" style="--tone:${tone};background-image:url(${foto})">`+
-      `<span class="rnaam">${esc(naam)}</span><span class="rdagen">${dagen}</span></button>`;
+    // wie: de namen uit de reizigerslijst, alleen op de kaarten Voorreis en Nareis
+    const kaart=(go,naam,dagen,tone,foto,wie)=>`<button type="button" class="regio ganaar" data-go="${go}" style="--tone:${tone};background-image:url(${foto})">`+
+      `<span class="rnaam">${esc(naam)}</span><span class="rdagen">${dagen}</span>${wie&&wie.length?`<span class="rwie">${esc(opsom(wie))}</span>`:''}</button>`;
     const bereik=(a,b)=>a.getMonth()===b.getMonth()?`${a.getDate()}–${fmtShort(b)}`:`${fmtShort(a)} – ${fmtShort(b)}`;
     const dagen=(a,b)=>a===b?`Dag ${a}`:`Dag ${a}–${b}`;
     const regioVan=i=>{ if(DAYS[i].r!=='reis') return DAYS[i].r;
@@ -397,10 +415,10 @@ function renderBuiten(){
       return (na||voor).r; };
     const per={}; DAYS.forEach((d,i)=>{ (per[regioVan(i)]=per[regioVan(i)]||[]).push(d.n); });
     h+=`<div class="regios">`+
-      (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto):'')+
+      (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto,namenVan('voorreis')):'')+
       regios.map(r=>{ const dg=per[r], a=Math.min(...dg), b=Math.max(...dg);
         return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`);}).join('')+
-      (heeftNa()?kaart(T.dag!=null&&T.dag>29?T.dag:30,'Nareis',bereik(dagDatum(30),dagDatum(29+NA)),beeldBuiten(false).tone,beeldBuiten(false).foto):'')+`</div>`;
+      (heeftNa()?kaart(T.dag!=null&&T.dag>29?T.dag:30,'Nareis',bereik(dagDatum(30),dagDatum(29+NA)),beeldBuiten(false).tone,beeldBuiten(false).foto,namenVan('nareis')):'')+`</div>`;
   } else {
     heroBuiten({tone:beeldBuiten(false).tone,foto:beeldBuiten(false).foto,eyebrow:vandaagTxt,num:`Reis voorbij<small>29 dagen Australië</small>`,
       titel:`De groepsreis eindigde ${fmtLong(dateFor(29))}`,track:'100%'});
@@ -917,6 +935,9 @@ const Q_WAARN=`query{waarnemingen(order_by:{gezien_op:asc}){id user_id dier dag 
 const M_INS_WAARN=`mutation($o:waarnemingen_insert_input!){insert_waarnemingen_one(object:$o){id}}`;
 const M_DEL_WAARN=`mutation($id:uuid!){delete_waarnemingen_by_pk(id:$id){id}}`;
 const alleWaarnemingen=()=>LS.get('aus_cache_waarn')||[];
+// Reizigers: wie doet mee aan de voorreis, de groepsreis en de nareis. Alleen lezen; de tabel wordt
+// in de Nhost-console bijgehouden. Dezelfde tabel bepaalt bij Hasura wie de notities mag zien.
+const Q_REIZIGERS=`query{reizigers(order_by:{naam:asc}){user_id naam voorreis reis nareis}}`;
 // Dag apart bijwerken, alleen als hij echt verandert. Zo blijft gewoon bewerken werken
 // ook als de rechten op de kolom dag ontbreken.
 const M_UPD_DAG=`mutation($id:uuid!,$d:Int!){update_dagitems_by_pk(pk_columns:{id:$id},_set:{dag:$d}){id}}`;
@@ -973,11 +994,19 @@ async function syncAlles(force){
       (await idbKeys()).forEach(k=>{ if(!geldig.has(k)) idbDel(k); });
       for(const it of items.filter(x=>x.soort==='bestand')) await cacheFile(it);
       LS.set('aus_sync',{tijd:new Date().toISOString()});
+      await syncReizigers();
       await syncWaarnemingen();
       return items;
     }catch(e){ return null; } finally { _sync=null; }
   })();
   return _sync;
+}
+
+// Reizigerslijst apart ophalen. Mislukt dit (tabel nog niet aangemaakt of niet getrackt), dan blijft de
+// oude kopie staan, of valt de app zonder kopie terug op de notities om voorreizigers te herkennen.
+async function syncReizigers(){
+  if(!NH.user||!navigator.onLine) return;
+  try{ const d=await gql(Q_REIZIGERS); if(Array.isArray(d.reizigers)) LS.set('aus_cache_reizigers',d.reizigers); }catch(e){}
 }
 
 // Waarnemingen apart ophalen. Mislukt dit (bijvoorbeeld omdat de tabel nog niet bestaat), dan blijven
@@ -1532,8 +1561,14 @@ function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>documen
 function renderAccount(box){
   if(!box) return;
   if(NH.user){
-    box.innerHTML=`<div class="callout" style="margin:0"><span class="ico">${IC_SLOT}</span><span><b>Ingelogd als ${esc(NH.user.displayName||NH.user.email)}</b>`+
-      `Notities staan bij de dag zelf en bij elkaar in het tabblad Notities. <a href="#" id="logout">Uitloggen</a></span></div>`;
+    // Wat de reizigerslijst over jou zegt. Staat de lijst er wel maar jij niet in, dan houdt Hasura ook
+    // de notities voor je dicht: dat is de meest waarschijnlijke reden voor een lege app na het inloggen.
+    const r=reizigers(), mij=mijnReiziger();
+    const delen=mij?[mij.voorreis&&'de voorreis',mij.reis&&'de groepsreis',mij.nareis&&'de nareis'].filter(Boolean):[];
+    const deelTxt=!r?'':mij?(delen.length?`Je reist mee met ${opsom(delen)}. `:'Je staat in de reizigerslijst, maar bij geen enkel deel van de reis. ')
+      :'Je staat nog niet in de reizigerslijst. Daarom zie je geen notities van de groep; vraag de beheerder je toe te voegen. ';
+    box.innerHTML=`<div class="callout${r&&!mij?' let':''}" style="margin:0"><span class="ico">${IC_SLOT}</span><span><b>Ingelogd als ${esc(mij?mij.naam:(NH.user.displayName||NH.user.email))}</b>`+
+      `${deelTxt}Notities staan bij de dag zelf en bij elkaar in het tabblad Notities. <a href="#" id="logout">Uitloggen</a></span></div>`;
     box.querySelector('#logout').onclick=async e=>{e.preventDefault();
       if(navigator.onLine) await flushPending();
       const w=pending().length;
@@ -1549,7 +1584,9 @@ function renderAccount(box){
   box.querySelector('#lform').addEventListener('submit',async e=>{
     e.preventDefault();
     const st=box.querySelector('#lstat'); st.textContent='Inloggen…';
-    try{ await nhLogin(box.querySelector('#lemail').value.trim(),box.querySelector('#lpw').value); await flushPending(); toonTabs(); renderPrakt(); }
+    try{ await nhLogin(box.querySelector('#lemail').value.trim(),box.querySelector('#lpw').value); await flushPending(); toonTabs(); renderPrakt();
+      // Notities en reizigerslijst binnenhalen. Daarna het inlogblok opnieuw, met wat de lijst over je zegt.
+      syncAlles(true).then(()=>{ if(view==='prakt') renderAccount(document.getElementById('acct')); }); }
     catch(err){ st.textContent=err.message==='Inloggen mislukt'?'Onjuist e-mailadres of wachtwoord.':err.message; }
   });
 }
@@ -1823,7 +1860,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-152';
+const APP_VERSIE='2026-09-10-153';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
