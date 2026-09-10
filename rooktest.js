@@ -142,7 +142,7 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-09-25',{login:'groep',lijst:REIZIGERS(false).map(r=>({...r,voorreis:false}))});
     eis(fouten,!w.document.querySelector('.regio[data-go^="-"]'),'zonder voorreizigers staat er geen kaart Voorreis');
     klik(w,'btnIndex',fouten);
-    eis(fouten,![...w.document.querySelectorAll('#results h2')].some(h=>h.textContent==='Voorreis'),'zonder voorreizigers geen kop Voorreis in Alle dagen');
+    eis(fouten,![...w.document.querySelectorAll('#results .idxkop h3')].some(h=>h.textContent==='Voorreis'),'zonder voorreizigers geen kop Voorreis in Alle dagen');
     klik(w,'btnToday',fouten); klik(w,'next',fouten);
     eis(fouten,kop(w)==='Dag 1van 29','zonder voorreizigers gaat de pijl van de startpagina naar dag 1');
     klik(w,'prev',fouten);
@@ -163,6 +163,24 @@ function zoek(w,fouten,term){
     klik(w,'btnPrakt',fouten);
     eis(fouten,!$(w,'rbeheer'),'zonder beheer=true staat de knop Reizigers beheren er niet');
     meld('5 okt: geen beheerknop voor een gewone reiziger',fouten); }
+  // Alle dagen: de groepsreis staat per regio, met een kop in de kleur van die regio
+  { const {w,fouten}=start('2026-10-05',{login:'groep'});
+    klik(w,'btnIndex',fouten);
+    const koppen=[...w.document.querySelectorAll('#results .idxkop h3')].map(h=>h.textContent);
+    eis(fouten,koppen.join(',')==='Voorreis,New South Wales,Tasmanië,Zuid-Australië,Victoria,Northern Territory,Queensland,West-Australië',
+      `koppen per regio, op volgorde van de reis (nu: ${koppen.join(' | ')})`);
+    const lijsten=[...w.document.querySelectorAll('#results .idx')];
+    eis(fouten,lijsten.length===koppen.length,`bij elke kop één lijst (nu ${lijsten.length} lijsten, ${koppen.length} koppen)`);
+    eis(fouten,!w.document.querySelector('#results .bar'),'het streepje aan de rand is weg');
+    const nsw=lijsten[1], nrs=[...nsw.querySelectorAll('button')].map(b=>b.dataset.n);
+    eis(fouten,nrs.join(',')==='1,2,3,4,5',`New South Wales bevat dag 1 tot en met 5, inclusief de vliegdag (nu ${nrs.join(',')})`);
+    eis(fouten,/^#/.test(nsw.style.getPropertyValue('--tone')||''),`de lijst draagt de regiokleur (nu '${nsw.style.getPropertyValue('--tone')}')`);
+    const nu=w.document.querySelector('#results .idx li.now');
+    eis(fouten,nu&&nu.querySelector('.n').textContent==='5'&&nu.querySelector('.d').textContent==='vandaag',
+      `de dag van vandaag is gemarkeerd en zegt 'vandaag' (nu: '${nu&&nu.querySelector('.d').textContent}')`);
+    const rij=[...w.document.querySelectorAll('#results .idx button')].find(b=>b.dataset.n==='12'); if(rij) rij.click();
+    eis(fouten,kop(w)==='Dag 12van 29','een tik op een rij opent die dag');
+    meld('5 okt: Alle dagen per regio',fouten); }
   { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
     const mutaties=[], aanmeldingen=[];
     let lijst=REIZIGERS(false,true);

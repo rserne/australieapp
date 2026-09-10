@@ -388,6 +388,17 @@ function heroBuiten({tone,foto,eyebrow,num,titel,meta,track}){
   document.getElementById('track').style.width=track;
 }
 
+// De dagen gegroepeerd per regio, op volgorde: {nsw:[1,2,…], tas:[…]}. Een vliegdag ('reis') telt mee
+// bij de regio waar je heen gaat, of bij de vorige als er geen volgende is. Zo hoort dag 1 bij New
+// South Wales en dag 28–29 bij West-Australië. De startpagina en Alle dagen gebruiken dezelfde indeling.
+function dagenPerRegio(){
+  const regioVan=i=>{ if(DAYS[i].r!=='reis') return DAYS[i].r;
+    const na=DAYS.slice(i+1).find(d=>d.r!=='reis'), voor=[...DAYS.slice(0,i)].reverse().find(d=>d.r!=='reis');
+    return (na||voor).r; };
+  const per={}; DAYS.forEach((d,i)=>{ const r=regioVan(i); (per[r]=per[r]||[]).push(d.n); });
+  return per;
+}
+
 // Startpagina (vóór 1 oktober) en afsluitpagina (na de reis, als er een nareis is).
 function renderBuiten(){
   const start=cur===0, vr=voorreiziger();
@@ -410,10 +421,7 @@ function renderBuiten(){
       `<span class="rnaam">${esc(naam)}</span><span class="rdagen">${dagen}</span>${wie&&wie.length?`<span class="rwie">${esc(opsom(wie))}</span>`:''}</button>`;
     const bereik=(a,b)=>a.getMonth()===b.getMonth()?`${a.getDate()}–${fmtShort(b)}`:`${fmtShort(a)} – ${fmtShort(b)}`;
     const dagen=(a,b)=>a===b?`Dag ${a}`:`Dag ${a}–${b}`;
-    const regioVan=i=>{ if(DAYS[i].r!=='reis') return DAYS[i].r;
-      const na=DAYS.slice(i+1).find(d=>d.r!=='reis'), voor=[...DAYS.slice(0,i)].reverse().find(d=>d.r!=='reis');
-      return (na||voor).r; };
-    const per={}; DAYS.forEach((d,i)=>{ (per[regioVan(i)]=per[regioVan(i)]||[]).push(d.n); });
+    const per=dagenPerRegio();
     h+=`<div class="regios">`+
       (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto,namenVan('voorreis')):'')+
       regios.map(r=>{ const dg=per[r], a=Math.min(...dg), b=Math.max(...dg);
@@ -541,45 +549,54 @@ function drawResults(term){
     // Voorreis en nareis krijgen één samenvattende regel. Per dag zou het een rij lege regels worden,
     // want zonder programma is er alleen een datum. De notities zelf vind je via het zoekveld hierboven.
     const aantal=b=>alleNotities().filter(it=>b==='voor'?it.dag<0:it.dag>29).length;
+    // Kop boven een blok, in de kleur van de regio (of van de voorreis), met het datumbereik ernaast.
+    // De kleur zat vroeger in de kop van de dagpagina zelf; die draagt nu een foto, dus hier komt hij terug.
+    const bereikTxt=(a,b)=>`${fmtShort(a)} – ${fmtShort(b)}`;
+    const idxKop=(label,tone,bereik)=>`<div class="idxkop" style="--tone:${tone}"><h3>${esc(label)}</h3><span>${bereik}</span></div>`;
     const buitenRegel=(b,eerste,laatste)=>{
-      const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29);
-      return `<ul class="idx"><li${vandaag?' class="now"':''}><button data-n="${vandaag?T.dag:eerste}">`+
-        `<span class="bar" style="background:${beeldBuiten(b==='voor').tone}"></span>`+
-        `<span class="t">${b==='voor'?'Voorreis':'Nareis'} · ${n?`${n} ${n===1?'notitie':'notities'}`:'nog geen notities'}</span>`+
-        `<span class="d">${fmtShort(dagDatum(eerste))} – ${fmtShort(dagDatum(laatste))}</span></button></li></ul>`;
+      const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29), tone=beeldBuiten(b==='voor').tone;
+      return idxKop(b==='voor'?'Voorreis':'Nareis',tone,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+
+        `<ul class="idx" style="--tone:${tone}"><li${vandaag?' class="now"':''}><button data-n="${vandaag?T.dag:eerste}">`+
+        `<span class="t">${n?`${n} ${n===1?'notitie':'notities'}`:'Nog geen notities'}</span>`+
+        `<span class="d">${vandaag?'vandaag':''}</span></button></li></ul>`;
     };
     // Zodra er programma is, staat elke dag apart, net als bij de groepsreis. Een dag zonder
     // programma toont dan het aantal notities.
     const buitenLijst=(eerste,laatste)=>{
-      let s=`<ul class="idx">`;
+      const tone=beeldBuiten(eerste<0).tone;
+      let s=idxKop(eerste<0?'Voorreis':'Nareis',tone,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+`<ul class="idx" style="--tone:${tone}">`;
       for(let n=eerste;n<=laatste;n++){
-        const d=buitenData(n), aantal=alleNotities().filter(it=>it.dag===n).length;
-        s+=`<li${T.dag===n?' class="now"':''}><button data-n="${n}"><span class="bar" style="background:${beeldBuiten(n<0).tone}"></span>`+
+        const d=buitenData(n), aantal=alleNotities().filter(it=>it.dag===n).length, nu=T.dag===n;
+        s+=`<li${nu?' class="now"':''}><button data-n="${n}">`+
           `<span class="n">${buitenVolgnr(n)}</span>`+
           `<span class="t">${d?esc(d.t):(aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Nog geen notities')}</span>`+
           (d&&KIND[d.k]?`<span class="k" title="${KIND[d.k][0]}">${KIND[d.k][1]}</span>`:'')+
           (d&&d.emoe?`<span class="e" title="Emoe-alert">${EMU}</span>`:'')+
           (d&&d.wash?`<span class="w">${WASH}</span>`:'')+
-          `<span class="d">${fmtShort(dagDatum(n))}</span></button></li>`;
+          `<span class="d">${nu?'vandaag':fmtShort(dagDatum(n))}</span></button></li>`;
       }
       return s+`</ul>`;
     };
     const heeftV=heeftVoor(), heeftN=heeftNa();
     let h='';
-    if(heeftV) h+=`<h2>Voorreis</h2>`+(VOORDG.length?buitenLijst(-VOOR,-1):buitenRegel('voor',-VOOR,-1));
-    if(heeftV||heeftN) h+=`<h2>Groepsreis</h2>`;
-    h+=`<ul class="idx">`;
-    DAYS.forEach(d=>{
-      const now=(!T.before&&!T.after&&d.n===T.n)?' class="now"':'';
-      h+=`<li${now}><button data-n="${d.n}"><span class="bar" style="background:${TONE[d.r]}"></span>`+
-         `<span class="n">${d.n}</span><span class="t">${esc(d.t)}</span>`+
-         (KIND[d.k]?`<span class="k" title="${KIND[d.k][0]}">${KIND[d.k][1]}</span>`:'')+
-         (d.emoe?`<span class="e" title="Emoe-alert">${EMU}</span>`:'')+
-         (d.wash?`<span class="w">${WASH}</span>`:'')+
-         `<span class="d">${fmtShort(dateFor(d.n))}</span></button></li>`;
+    if(heeftV) h+=VOORDG.length?buitenLijst(-VOOR,-1):buitenRegel('voor',-VOOR,-1);
+    // De groepsreis per regio, in de volgorde van de reis: vijf dagen New South Wales, dan Tasmanië,
+    // enzovoort. Dezelfde indeling als het raster op de startpagina.
+    Object.entries(dagenPerRegio()).forEach(([r,dg])=>{
+      const a=Math.min(...dg), b=Math.max(...dg);
+      h+=idxKop(REGION[r],TONE[r],bereikTxt(dateFor(a),dateFor(b)))+`<ul class="idx" style="--tone:${TONE[r]}">`;
+      dg.forEach(n=>{
+        const d=DAYS[n-1], nu=!T.before&&!T.after&&n===T.n;
+        h+=`<li${nu?' class="now"':''}><button data-n="${n}">`+
+           `<span class="n">${n}</span><span class="t">${esc(d.t)}</span>`+
+           (KIND[d.k]?`<span class="k" title="${KIND[d.k][0]}">${KIND[d.k][1]}</span>`:'')+
+           (d.emoe?`<span class="e" title="Emoe-alert">${EMU}</span>`:'')+
+           (d.wash?`<span class="w">${WASH}</span>`:'')+
+           `<span class="d">${nu?'vandaag':fmtShort(dateFor(n))}</span></button></li>`;
+      });
+      h+=`</ul>`;
     });
-    h+=`</ul>`;
-    if(heeftN) h+=`<h2>Nareis</h2>`+(NADG.length?buitenLijst(30,29+NA):buitenRegel('na',30,29+NA));
+    if(heeftN) h+=NADG.length?buitenLijst(30,29+NA):buitenRegel('na',30,29+NA);
     box.innerHTML=h;
   }else{
     let h='',hits=0;
@@ -2019,7 +2036,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-163';
+const APP_VERSIE='2026-09-10-164';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

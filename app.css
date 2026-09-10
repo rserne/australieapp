@@ -646,17 +646,30 @@
   .idx li+li{border-top:1px solid var(--rim)}
   .idx button{width:100%;background:none;border:none;font:inherit;color:var(--text);
     display:flex;align-items:center;gap:11px;padding:13px 16px;cursor:pointer;text-align:left}
-  .idx .bar{width:3px;height:34px;border-radius:2px;flex:none}
-  .idx .n{min-width:1.8em;font-size:14px;color:var(--text-faint);font-variant-numeric:tabular-nums}
+  /* Kop per regio, in de kleur van die regio. De regiokleuren zijn diep, gemaakt om onder een foto te
+     liggen; in het donkere thema mengen we er wit doorheen zodat ze leesbaar blijven. */
+  .idxkop{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:24px 4px 8px}
+  #results>.idxkop:first-child{margin-top:4px}
+  .idxkop h3{margin:0;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:color-mix(in srgb,var(--tone) 45%,#EDEFF3)}
+  .idxkop span{font-size:12.5px;color:var(--text-faint);white-space:nowrap}
+  html[data-theme="light"] .idxkop h3{color:var(--tone)}
+  /* Het dagnummer draagt de kleur, in plaats van een streepje aan de rand dat nergens meer naar verwees. */
+  .idx .n{flex:none;width:26px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;
+    background:color-mix(in srgb,var(--tone) 40%,transparent);color:#F2F4F8}
+  html[data-theme="light"] .idx .n{background:color-mix(in srgb,var(--tone) 13%,transparent);color:var(--tone)}
   .idx .t{flex:1;font-size:16px;line-height:1.3}
   .idx .k{color:var(--text-faint);flex:none;display:flex}
   .idx .w{color:var(--wash);flex:none;display:flex}
   .idx .e{color:var(--accent-ink);flex:none;display:flex}
   .idx .d{font-size:13.5px;color:var(--text-faint);white-space:nowrap}
-  .idx li.now{background:var(--glass-2)}
-  .idx .n:only-of-type,.idx li .n{text-align:center}
+  .idx li.now{background:color-mix(in srgb,var(--tone) 16%,transparent)}
   .idx li.now .t{font-weight:640}
-  .idx li.now .n{color:var(--accent-ink)}
+  .idx li.now .n{background:var(--tone);color:#fff}
+  .idx li.now .d{color:color-mix(in srgb,var(--tone) 45%,#EDEFF3);font-weight:600}
+  html[data-theme="light"] .idx li.now{background:color-mix(in srgb,var(--tone) 9%,transparent)}
+  html[data-theme="light"] .idx li.now .d{color:var(--tone)}
 
   /* ---------- Praktisch ---------- */
   .clock{display:flex;gap:12px;align-items:stretch}
