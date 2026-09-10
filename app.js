@@ -908,6 +908,7 @@ async function nhLogin(email,pw){
 // Bij uitloggen blijft er niets van de groep op de telefoon achter
 async function wisPriveGegevens(){
   window._notZoek=''; window._notType=''; window._notVandaag=false; window._notBuiten='';
+  window._dzoek=''; window._dfilter=''; window._dgroep='';
   await wisThumbUrls();
   try{ Object.keys(localStorage).filter(k=>k.startsWith('aus_')&&k!=='aus_thema'&&k!=='aus_koers').forEach(k=>localStorage.removeItem(k)); }catch(e){}
   try{ const db=await idb(); await new Promise(res=>{const t=db.transaction('files','readwrite').objectStore('files').clear();t.onsuccess=()=>res();t.onerror=()=>res()}); }catch(e){}
@@ -1836,7 +1837,7 @@ function dierRij(dier,{naam,tekst,kans,tel,mijn,groep,eet,gegeten}){
   // Een dier zonder eigen tekening krijgt het pootje, in de kleur van de groep waarin het staat.
   const ic=dier?(DIER_ICOON[dier.k]||PAW):PAW;
   return `<div class="drijwrap${tel?' gespot':''}${mijn?' mijn':''}" data-zoek="${esc(zoekTekst(dier,naam))}"`+
-    ` data-gespot="${tel?1:0}" style="${kleurVan(groep)}">`+
+    ` data-gespot="${tel?1:0}" data-gegeten="${gegeten?1:0}" style="${kleurVan(groep)}">`+
     `<button type="button" class="drij" data-dier="${k}" data-naam="${esc(naam)}">`+
     `<span class="dico">${ic}</span>`+
     `<span class="dtxt"><strong>${esc(schoon(naam))}${kans?kansDots(kans):''}</strong>${tekst?`<span class="sub">${esc(tekst)}</span>`:''}</span>`+
@@ -1889,9 +1890,13 @@ function renderDieren(){
     `<input id="dzoek" class="dzoek" type="search" placeholder="Zoek een dier" autocomplete="off" value="${esc(window._dzoek||'')}">`+
     `<div class="dchips">`+
       (()=>{ // Een aangezette chip krijgt een kruisje, net als de filters in Notities, zodat zichtbaar
-             // is dat je hem ook weer uit kunt zetten.
-        const uit=`<span class="chipx" aria-hidden="true">×</span>`, aan=window._dgespot;
-        return `<button type="button" class="dchip dfilter${aan?' on':''}" id="dfilter"${aan?' aria-pressed="true"':''}>Eerder gespot<span>${DIER_LIJST.filter(d=>tel[d.k]).length+anderen.length}</span>${aan?uit:''}</button>`+
+             // is dat je hem ook weer uit kunt zetten. Gespot en Gegeten zijn twee aparte tellingen:
+             // ze door elkaar halen zou de getallen betekenisloos maken. De chip Gegeten verschijnt
+             // pas zodra er iets gegeten is.
+        const uit=`<span class="chipx" aria-hidden="true">×</span>`, aan=window._dfilter;
+        const nGespot=DIER_LIJST.filter(d=>tel[d.k]).length+anderen.length, nGegeten=DIER_LIJST.filter(d=>eetTel[d.k]).length;
+        return `<button type="button" class="dchip dfilter${aan==='gespot'?' on':''}" data-filter="gespot"${aan==='gespot'?' aria-pressed="true"':''}>Gespot<span>${nGespot}</span>${aan==='gespot'?uit:''}</button>`+
+          (nGegeten?`<button type="button" class="dchip dfilter${aan==='gegeten'?' on':''}" data-filter="gegeten"${aan==='gegeten'?' aria-pressed="true"':''}>Gegeten<span>${nGegeten}</span>${aan==='gegeten'?uit:''}</button>`:'')+
           groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g), on=window._dgroep===g;
             return `<button type="button" class="dchip${on?' on':''}" data-groep="${g}"${on?' aria-pressed="true"':''} style="${kleurVan(g)}">${esc(label)}<span>${gs}/${tot}</span>${on?uit:''}</button>`; }).join('');
       })()+`</div>`+
@@ -1954,18 +1959,19 @@ function renderDieren(){
   // groep tegelijk aanstaan. Alles blijft staan na een tik op een dier, want dan wordt opnieuw getekend.
   const zoek=box.querySelector('#dzoek');
   const filter=()=>{ const q=zoek.value.trim().toLowerCase(); window._dzoek=q;
-    const alleenGespot=!!window._dgespot, groep=window._dgroep||'';
+    const stand=window._dfilter||'', groep=window._dgroep||'';
     box.querySelectorAll('#dalle .drijwrap').forEach(r=>{
-      r.hidden=(!!q&&!r.dataset.zoek.includes(q))||(alleenGespot&&r.dataset.gespot!=='1'); });
+      r.hidden=(!!q&&!r.dataset.zoek.includes(q))||(!!stand&&r.dataset[stand]!=='1'); });
     box.querySelectorAll('#dalle .dgroep').forEach(g=>{
-      g.hidden=(!!groep&&g.id!=='dg-'+groep)||((!!q||alleenGespot)&&![...g.querySelectorAll('.drijwrap')].some(r=>!r.hidden)); });
+      g.hidden=(!!groep&&g.id!=='dg-'+groep)||((!!q||!!stand)&&![...g.querySelectorAll('.drijwrap')].some(r=>!r.hidden)); });
     const leeg=box.querySelector('#dleeg');
     if(leeg) leeg.hidden=![...box.querySelectorAll('#dalle .dgroep')].every(g=>g.hidden); };
   zoek.oninput=filter;
-  box.querySelector('#dfilter').onclick=()=>{ window._dgespot=!window._dgespot; renderDieren(); };
+  box.querySelectorAll('.dchip[data-filter]').forEach(c=>c.onclick=()=>{
+    window._dfilter=window._dfilter===c.dataset.filter?'':c.dataset.filter; renderDieren(); });
   box.querySelectorAll('.dchip[data-groep]').forEach(c=>c.onclick=()=>{
     window._dgroep=window._dgroep===c.dataset.groep?'':c.dataset.groep; renderDieren(); });
-  if(window._dzoek||window._dgespot||window._dgroep) filter();
+  if(window._dzoek||window._dfilter||window._dgroep) filter();
   box.querySelector('#dander').onclick=openDierSheet;
   box.querySelectorAll('.dweg').forEach(b=>b.onclick=()=>{ const w=alle.find(x=>String(x.id)===b.dataset.weg); if(w) verwijderWaarneming(w); });
 }
@@ -2010,7 +2016,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-161';
+const APP_VERSIE='2026-09-10-162';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

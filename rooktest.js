@@ -374,7 +374,7 @@ function zoek(w,fouten,term){
     eis(fouten,pauw&&pauw.dataset.dier==='overig'&&pauw.querySelector('svg'),'een dier zonder knop staat in Kans vandaag als ander dier, met het pootje');
     // zoeken en chips
     const chips=w.document.querySelectorAll('#dieren .dchip');
-    eis(fouten,chips.length===7&&/Eerder gespot0/.test(chips[0].textContent)&&/Zoogdieren0\/15/.test(chips[1].textContent),`filterchip en zes groepschips met telling (nu ${chips.length}, '${chips[1]&&chips[1].textContent}')`);
+    eis(fouten,chips.length===7&&/Gespot0/.test(chips[0].textContent)&&/Zoogdieren0\/15/.test(chips[1].textContent),`filterchip en zes groepschips met telling (nu ${chips.length}, '${chips[0]&&chips[0].textContent}' / '${chips[1]&&chips[1].textContent}')`);
     // een groepschip filtert en springt niet
     const zeeChip=w.document.querySelector('#dieren .dchip[data-groep="zee"]'); zeeChip.click();
     let secties=[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).map(g=>g.id);
@@ -407,16 +407,18 @@ function zoek(w,fouten,term){
     const koala2=w.document.querySelector('#dalle .drij[data-dier="koala"]')?.closest('.drijwrap');
     eis(fouten,koala2&&koala2.classList.contains('mijn')&&koala2.classList.contains('gespot')&&koala2.querySelector('.dtel').textContent==='1','teller en tint op de regel na de waarneming');
     eis(fouten,/Zoogdieren1\/15/.test(w.document.querySelectorAll('#dieren .dchip')[1].textContent),'chip telt mee');
-    // filter Eerder gespot
-    $(w,'dfilter').click();
-    eis(fouten,!!w.document.querySelector('#dfilter .chipx'),'Eerder gespot toont een kruisje als hij aanstaat');
+    // filter Gespot
+    const chipGespot=()=>w.document.querySelector('.dchip[data-filter="gespot"]');
+    chipGespot().click();
+    eis(fouten,!!chipGespot().querySelector('.chipx'),'Gespot toont een kruisje als hij aanstaat');
     let zicht=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
     eis(fouten,zicht.join(',')==='koala',`filter toont alleen wat al gespot is (nu ${zicht.join(',')||'niets'})`);
     eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder gespot dier verdwijnen');
-    eis(fouten,$(w,'dfilter').classList.contains('on'),'filterchip staat aan');
-    $(w,'dfilter').click();
-    zicht=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).length;
-    eis(fouten,zicht>=55&&!$(w,'dfilter').classList.contains('on'),'filter uit toont weer alles');
+    eis(fouten,chipGespot().classList.contains('on'),'filterchip staat aan');
+    eis(fouten,!w.document.querySelector('.dchip[data-filter="gegeten"]'),'zonder gegeten dier staat die chip er niet');
+    chipGespot().click();
+    zicht=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).length;
+    eis(fouten,zicht>=55&&!chipGespot().classList.contains('on'),'filter uit toont weer alles');
     const t=$(w,'toast'); eis(fouten,t&&/Koala gespot om \d\d\.\d\d uur/.test(t.textContent)&&t.querySelector('button'),'melding met Ongedaan maken');
     if(t&&t.querySelector('button')) t.querySelector('button').click();
     await sleep(50);
@@ -443,9 +445,9 @@ function zoek(w,fouten,term){
     ov.querySelector('.drij').click(); await sleep(50);
     const ov2=w.document.querySelector('#dg-overig');
     eis(fouten,ov2.querySelectorAll('.drij').length===2&&[...ov2.querySelectorAll('.dtel')].some(t=>t.textContent==='2'),'nog een keer hetzelfde andere dier telt op');
-    $(w,'dfilter').click();
-    eis(fouten,!w.document.querySelector('#dg-overig').hidden,'Overig blijft staan bij het filter Eerder gespot');
-    $(w,'dfilter').click();
+    w.document.querySelector('.dchip[data-filter="gespot"]').click();
+    eis(fouten,!w.document.querySelector('#dg-overig').hidden,'Overig blijft staan bij het filter Gespot');
+    w.document.querySelector('.dchip[data-filter="gespot"]').click();
     // alles weghalen, dan is de wachtrij leeg
     while(w.document.querySelector('#dieren .dweg')){ w.document.querySelector('#dieren .dweg').click(); await sleep(20); }
     // weghalen van een wachtende waarneming
@@ -523,6 +525,16 @@ function zoek(w,fouten,term){
       `'Tot nu toe' telt gegeten en allebei apart (nu: '${($(w,'dieren').textContent.match(/Jullie hebben[^]*?\./g)||[]).join(' ')}')`);
     eis(fouten,w.document.querySelector('#dieren .dlijst .wvork'),'in de lijst Gespot draagt een gegeten dier het bestekje');
     // zoeken en filteren blijven werken nu de rij een omhullende div heeft
+    // de chip Gegeten verschijnt zodra er iets gegeten is en filtert op zijn eigen telling
+    const chipGeg=()=>w.document.querySelector('.dchip[data-filter="gegeten"]');
+    eis(fouten,chipGeg()&&/Gegeten1/.test(chipGeg().textContent),`chip Gegeten met eigen teller (nu: '${chipGeg()&&chipGeg().textContent}')`);
+    chipGeg().click();
+    let zicht2=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
+    eis(fouten,zicht2.join(',')==='kangoeroe',`filter Gegeten toont alleen wat gegeten is (nu ${zicht2.join(',')||'niets'})`);
+    w.document.querySelector('.dchip[data-filter="gespot"]').click();
+    zicht2=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
+    eis(fouten,zicht2.join(',')==='kangoeroe'&&!chipGeg().classList.contains('on'),'er staat er maar één tegelijk aan');
+    w.document.querySelector('.dchip[data-filter="gespot"]').click();
     const dz=$(w,'dzoek'); dz.value='kangoeroe'; dz.dispatchEvent(new w.Event('input'));
     const zichtbaar=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden);
     eis(fouten,zichtbaar.length&&zichtbaar.every(r=>/kangoeroe/i.test(r.dataset.zoek)),`zoeken filtert de rijen (nu ${zichtbaar.length} zichtbaar)`);
