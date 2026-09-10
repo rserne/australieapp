@@ -385,7 +385,12 @@
   .dkop{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
   .dkop h2{flex:1;min-width:0}
   .dkop .dsub{flex:none;font-size:13px;color:var(--text-faint);margin:38px 4px 12px 0}
-  .dgroep .dkop h2{color:color-mix(in srgb,var(--g) 40%,white)}
+  /* --gl is de groepskleur zoals hij op deze achtergrond leesbaar is. In donker een flink opgelichte
+     variant van de regiokleur, want de regiokleuren zelf zijn diep en vallen weg tegen zwart. In licht
+     de kleur zelf. Alle vlakken en teksten hieronder rekenen met --gl, niet met --g. */
+  .dgroep,.dchip,.drij{--gl:color-mix(in srgb,var(--g) 42%,white)}
+  html[data-theme="light"] .dgroep,html[data-theme="light"] .dchip,html[data-theme="light"] .drij{--gl:var(--g)}
+  .dgroep .dkop h2{color:var(--gl)}
   .dzoek{width:100%;box-sizing:border-box;font:inherit;font-size:16px;color:var(--text);margin:0 0 10px;
     padding:11px 14px;border-radius:14px;border:1px solid var(--rim);background:var(--glass);-webkit-appearance:none;appearance:none}
   .dzoek::placeholder{color:var(--text-faint)}
@@ -393,7 +398,7 @@
   .dchips::-webkit-scrollbar{display:none}
   .dchip{flex:none;height:40px;display:inline-flex;align-items:center;gap:7px;padding:0 14px;border-radius:20px;border:none;cursor:pointer;
     font:inherit;font-weight:600;font-size:14px;white-space:nowrap;
-    background:color-mix(in srgb,var(--g) 34%,transparent);color:color-mix(in srgb,var(--g) 40%,white)}
+    background:color-mix(in srgb,var(--gl) 24%,transparent);color:var(--gl)}
   .dchip span{font-size:13px;opacity:.8}
   .dchip:active{opacity:.7}
   .dlist{border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);overflow:hidden;
@@ -404,9 +409,9 @@
   .drij:active{background:var(--glass-2)}
   .drij[hidden]{display:none}
   .dgroep[hidden]{display:none}
-  .drij.gespot{background:color-mix(in srgb,var(--g) 26%,transparent)}
+  .drij.gespot{background:color-mix(in srgb,var(--gl) 15%,transparent)}
   .dico{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    background:color-mix(in srgb,var(--g) 32%,transparent);color:color-mix(in srgb,var(--g) 40%,white)}
+    background:color-mix(in srgb,var(--gl) 20%,transparent);color:var(--gl)}
   .dico svg{width:26px;height:26px;display:block}
   .dico.emoe{color:var(--accent)}
   .dletter{font-weight:700;font-size:16px}
@@ -417,12 +422,14 @@
   .drij .dtel{flex:none;min-width:24px;height:24px;padding:0 7px;border-radius:12px;display:flex;align-items:center;justify-content:center;
     font-size:12.5px;font-weight:700;background:var(--glass-3);color:var(--text)}
   .drij.mijn .dtel{background:var(--accent);color:#0A0C10}
-  html[data-theme="light"] .dgroep .dkop h2{color:var(--g)}
-  html[data-theme="light"] .dchip{background:color-mix(in srgb,var(--g) 11%,transparent);color:var(--g)}
-  html[data-theme="light"] .drij.gespot{background:color-mix(in srgb,var(--g) 9%,transparent)}
-  html[data-theme="light"] .dico{background:color-mix(in srgb,var(--g) 12%,transparent);color:var(--g)}
+  html[data-theme="light"] .dchip{background:color-mix(in srgb,var(--gl) 11%,transparent)}
+  html[data-theme="light"] .drij.gespot{background:color-mix(in srgb,var(--gl) 8%,transparent)}
+  html[data-theme="light"] .dico{background:color-mix(in srgb,var(--gl) 12%,transparent)}
+  /* tussenkop per dag in de lijst Gespot */
+  .dlijst .ddag{padding:9px 16px 7px;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--text-faint);background:var(--glass-2)}
   /* brede knop 'Iets anders gezien?', in de vorm van het blok Morgen */
-  .dander{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer;
+  .dander{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;text-align:left;font:inherit;color:var(--text);cursor:pointer;
     padding:14px 16px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi)}
   .dander:active{background:var(--glass-2)}
   .dander>svg{flex:none;width:20px;height:20px;margin:0;opacity:.8;color:var(--accent-ink)}

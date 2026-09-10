@@ -1694,16 +1694,23 @@ function renderDieren(){
         ds.map(d=>dierRij(d,{naam:d.n,tel:tel[d.k]||0,mijn:mijn[d.k]||0,groep:g})).join('')+`</div></section>`; }).join('')+`</div>`;
   h+=`<button type="button" class="dander" id="dander">${PAW}<span><b>Iets anders gezien?</b>Typ de naam van het dier.</span><span class="arw">→</span></button>`;
 
-  // Gespot op deze dag, nieuwste bovenaan
-  const lijst=alle.filter(w=>w.dag===dag).sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
-  h+=`<h2>${vandaag?'Vandaag gespot':'Gespot op deze dag'}</h2>`;
-  if(!lijst.length) h+=`<p class="dstatus">${vandaag?'Nog niets gespot vandaag.':'Niemand heeft iets gespot.'}</p>`;
-  else h+=`<ul class="list dlijst">`+lijst.map(w=>{
-    const eigen=w.user_id===NH.user.id;
-    return `<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}</strong>`+
-      `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · wacht op verbinding'):''}</span></span>`+
-      (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
-  }).join('')+`</ul>`;
+  // Gespot: alle waarnemingen, nieuwste bovenaan, met een tussenkop per dag
+  const lijst=[...alle].sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
+  h+=`<h2>Gespot</h2>`;
+  if(!lijst.length) h+=`<p class="dstatus">Nog niets gespot. De eerste is voor jou.</p>`;
+  else{
+    let vorige=null;
+    h+=`<ul class="list dlijst">`+lijst.map(w=>{
+      const eigen=w.user_id===NH.user.id;
+      let kop='';
+      if(w.dag!==vorige){ vorige=w.dag;
+        const label=w.dag===T.dag?'Vandaag':w.dag===0?'Niet aan een dag':isBuiten(w.dag)?`${w.dag<0?'Voorreis':'Nareis'} · ${fmtShort(dagDatum(w.dag))}`:`Dag ${w.dag} · ${fmtShort(dateFor(w.dag))}`;
+        kop=`<li class="ddag">${label}</li>`; }
+      return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}</strong>`+
+        `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · wacht op verbinding'):''}</span></span>`+
+        (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
+    }).join('')+`</ul>`;
+  }
 
   // Tot nu toe
   const soorten=new Set(alle.map(w=>w.dier==='overig'?'overig:'+(w.opmerking||'').toLowerCase():w.dier)).size;
@@ -1763,7 +1770,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-137';
+const APP_VERSIE='2026-09-10-138';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
