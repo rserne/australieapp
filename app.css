@@ -385,12 +385,14 @@
   .dintro{margin:0 0 4px;font-size:15px;line-height:1.5;color:var(--text-dim)}
   .dstatus{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:var(--text-dim)}
   .dhint{margin:8px 0 0 4px;font-size:13.5px;line-height:1.45;color:var(--text-faint)}
-  .dkop{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  /* Een kopje zonder telling ernaast (Kans vandaag, Ander dier) staat los boven zijn blok en houdt
-     daarmee de gewone kopmarges: 38 pixels boven, 12 onder. Zo hoort het kopje zichtbaar bij wat
-     eronder staat en niet bij de lijst erboven. */
-  .dkop h2{flex:1;min-width:0}
-  .dkop .dsub{flex:none;font-size:13px;color:var(--text-faint);margin:38px 4px 12px 0}
+  /* Kopregel met eventueel een telling rechts. De afstanden staan op de regel zelf en niet op de h2
+     erbinnen: een marge van een kind valt bij een blok samen met die van de ouder en bij een flexregel
+     niet, en dan krijgt hetzelfde kopje in de ene vorm meer lucht dan in de andere. Zo is elk kopje in
+     dit scherm even ver van de lijst erboven en van zijn eigen blok eronder. */
+  .dkop{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:38px 0 12px}
+  .dkop h2,.dkop .dsub{margin:0}
+  .dkop h2{flex:1;min-width:0;padding-left:4px}
+  .dkop .dsub{flex:none;font-size:13px;color:var(--text-faint);padding-right:4px}
   .dkop.solo{display:block}
   /* Elke groep draagt twee kleuren mee uit dieren.js, --g voor licht en --gd voor donker. --gl is
      degene die bij dit thema hoort. Alle vlakken en teksten hieronder rekenen met --gl. */
