@@ -193,13 +193,18 @@ function zoek(w,fouten,term){
     let sheet=$(w,'sheet');
     eis(fouten,sheet&&/Reiziger toevoegen/.test(sheet.textContent)&&$(w,'rnaam'),'plusknop opent het schuifpaneel');
     eis(fouten,$(w,'rpw').type==='password'&&$(w,'rpw').getAttribute('autocomplete')==='new-password','wachtwoordveld staat verborgen met new-password, zodat iOS een sterk wachtwoord aanbiedt');
+    // kopiëren naar het klembord, met de leesregel als terugval
+    let klembord=null;
+    w.navigator.clipboard={writeText:async t=>{klembord=t}};
     $(w,'rpw').value='wombat-2026';
-    $(w,'rpwtoon').click();
-    eis(fouten,!$(w,'rpwlees').hidden&&$(w,'rpwlees').textContent==='wombat-2026'&&$(w,'rpwtoon').classList.contains('aan'),`het oogje zet het wachtwoord als leesregel eronder (nu: '${$(w,'rpwlees').textContent}')`);
+    $(w,'rpwkopie').click(); await sleep(50);
+    eis(fouten,klembord==='wombat-2026'&&$(w,'rpwlees').hidden,'de knop zet het wachtwoord op het klembord, zonder het te tonen');
+    eis(fouten,/gekopieerd/.test(($(w,'toast')||{textContent:''}).textContent),'en meldt dat');
+    w.navigator.clipboard={writeText:async()=>{throw new Error('geweigerd')}};
+    $(w,'rpwkopie').click(); await sleep(50);
+    eis(fouten,!$(w,'rpwlees').hidden&&$(w,'rpwlees').textContent==='wombat-2026',`als kopiëren niet lukt, komt het wachtwoord eronder te staan (nu: '${$(w,'rpwlees').textContent}')`);
     $(w,'rpw').value='quokka-2026'; $(w,'rpw').dispatchEvent(new w.Event('input'));
     eis(fouten,$(w,'rpwlees').textContent==='quokka-2026','de leesregel volgt wat er in het veld staat');
-    $(w,'rpwtoon').click();
-    eis(fouten,$(w,'rpwlees').hidden,'en verbergt het weer');
     $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl'; $(w,'rpw').value='wombat-2026';
     sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);

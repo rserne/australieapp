@@ -402,11 +402,11 @@
   /* Het wachtwoord als leesregel: Safari houdt een zelf ingevuld sterk wachtwoord in het veld gemaskeerd. */
   .pwlees{margin:-6px 2px 0;font-size:15px;line-height:1.4;color:var(--text);word-break:break-all;
     -webkit-user-select:all;user-select:all}
-  /* wachtwoordveld met het oogje ernaast, zodat de beheerder kan lezen wat hij doorgeeft */
+  /* wachtwoordveld met de kopieerknop ernaast, zodat de beheerder het meteen kan doorsturen */
   .pwrij{display:flex;gap:8px;align-items:center}
   .pwrij .shinput{flex:1;min-width:0}
   .pwrij .nbtn{flex:none;color:var(--text-dim)}
-  .pwrij .nbtn.aan{color:var(--accent-ink)}
+  .pwrij .nbtn:active{opacity:.6}
   #beheer .dagadd{margin:18px 0 0}
   .callout a{color:var(--accent-ink);font-weight:600}
   .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 86px);transform:translate(-50%,20px);

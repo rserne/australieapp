@@ -738,7 +738,7 @@ const BANNERS={
   prakt:['banner-praktisch.jpg','Praktisch',''],
   dieren:['banner-dieren.jpg','Dieren','Gespot onderweg'],
   // Sydney: de foto van New South Wales, waar de groepsreis begint
-  beheer:['reg-nsw.jpg','Reizigers','Wie de notities van de groep ziet']
+  beheer:['reg-nsw.jpg','Reizigers','']
 };
 function renderKop(v){
   const hero=document.getElementById('hero');
@@ -1591,7 +1591,7 @@ function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>documen
 // reizigers. Die rij is het slot: zonder rij ziet een account niets van de groep.
 const DELEN=[['voorreis','Voorreis'],['reis','Groepsreis'],['nareis','Nareis'],['beheer','Beheer']];
 const IC_PIJL='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
-const IC_OOG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const IC_KOPIE='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3H6.5A2.5 2.5 0 0 0 4 5.5v6A2.5 2.5 0 0 0 6.5 14"/></svg>';
 const IC_GROEP='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.2a4.3 4.3 0 0 1 5 4.3"/></svg>';
 function renderBeheer(){
   const box=document.getElementById('beheer');
@@ -1636,7 +1636,7 @@ function openReizigerSheet(onDone){
     <input id="rnaam" class="shinput" type="text" placeholder="Naam van de reiziger" autocomplete="off" autocapitalize="words" required>
     <input id="remail" class="shinput" type="email" placeholder="E-mailadres van de reiziger" autocomplete="username" inputmode="email" autocapitalize="none" required>
     <div class="pwrij"><input id="rpw" class="shinput" type="password" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="new-password" autocapitalize="none" required>
-    <button type="button" class="nbtn" id="rpwtoon" aria-label="Wachtwoord tonen">${IC_OOG}</button></div>
+    <button type="button" class="nbtn" id="rpwkopie" aria-label="Wachtwoord kopiëren">${IC_KOPIE}</button></div>
     <p class="pwlees" id="rpwlees" hidden></p>
     <div class="chips" id="rdelen">${DELEN.slice(0,3).map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
     <div class="nrow"><button class="btn primary" id="rbtn" type="submit">Toevoegen</button></div><div class="nstatus" id="rstat"></div></form></div>`;
@@ -1645,13 +1645,18 @@ function openReizigerSheet(onDone){
   const close=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),220)};
   el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
   el.querySelectorAll('#rdelen .chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
-  // Het veld blijft verborgen, zodat iOS een sterk wachtwoord aanbiedt. Het oogje zet het wachtwoord
-  // eronder als leesregel: Safari houdt een door hemzelf ingevuld wachtwoord gemaskeerd, ook als je het
-  // veld op tekst zet, dus het omzetten van het veld zelf werkt daar niet.
-  const pwv=el.querySelector('#rpw'), oog=el.querySelector('#rpwtoon'), lees=el.querySelector('#rpwlees');
-  const toonPw=()=>{ lees.textContent=pwv.value||'Nog geen wachtwoord ingevuld.'; };
-  oog.onclick=()=>{ const uit=lees.hidden; lees.hidden=!uit; if(uit) toonPw();
-    oog.classList.toggle('aan',uit); oog.setAttribute('aria-label',uit?'Wachtwoord verbergen':'Wachtwoord tonen'); };
+  // Het veld blijft verborgen, zodat iOS een sterk wachtwoord aanbiedt. De knop ernaast zet het
+  // wachtwoord op het klembord, zodat je het meteen kunt doorsturen. Lukt kopiëren niet (geen
+  // toestemming, of een browser zonder clipboard-API), dan komt het als leesregel eronder te staan,
+  // want in het veld zelf houdt Safari een door hemzelf ingevuld wachtwoord gemaskeerd.
+  const pwv=el.querySelector('#rpw'), kop=el.querySelector('#rpwkopie'), lees=el.querySelector('#rpwlees');
+  const toonPw=()=>{ lees.hidden=false; lees.textContent=pwv.value; };
+  kop.onclick=async()=>{
+    const pw=pwv.value;
+    if(!pw){ pwv.focus(); return; }
+    try{ await navigator.clipboard.writeText(pw); toast('Wachtwoord gekopieerd.'); }
+    catch(e){ toonPw(); toast('Kopiëren lukte niet. Het wachtwoord staat nu onder het veld.'); }
+  };
   pwv.addEventListener('input',()=>{ if(!lees.hidden) toonPw(); });
   const st=el.querySelector('#rstat');
   el.querySelector('#rform').addEventListener('submit',async e=>{
@@ -1978,7 +1983,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-158';
+const APP_VERSIE='2026-09-10-159';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
