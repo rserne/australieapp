@@ -234,10 +234,26 @@ function zoek(w,fouten,term){
     // zoeken en chips
     const chips=w.document.querySelectorAll('#dieren .dchip');
     eis(fouten,chips.length===7&&/Eerder gespot0/.test(chips[0].textContent)&&/Zoogdieren0\/15/.test(chips[1].textContent),`filterchip en zes groepschips met telling (nu ${chips.length}, '${chips[1]&&chips[1].textContent}')`);
+    // een groepschip filtert en springt niet
+    const zeeChip=w.document.querySelector('#dieren .dchip[data-groep="zee"]'); zeeChip.click();
+    let secties=[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).map(g=>g.id);
+    eis(fouten,secties.join(',')==='dg-zee'&&zeeChip.classList.contains('on'),`chip In zee filtert op die groep (nu ${secties.join(',')||'niets'})`);
+    zeeChip.click();
+    const aantalSecties=[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length;
+    eis(fouten,aantalSecties===6&&!zeeChip.classList.contains('on'),`nog een tik zet het filter uit (nu ${aantalSecties} groepen)`);
+    const kopjes=[...$(w,'dieren').querySelectorAll('h2')].map(x=>x.textContent);
+    eis(fouten,kopjes.includes('Ander dier'),`kopje boven de knop voor een ander dier (nu: ${kopjes.join(' | ')})`);
     const zoek=$(w,'dzoek'); zoek.value='krok'; zoek.dispatchEvent(new w.Event('input'));
     const zichtbaar=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
     eis(fouten,zichtbaar.join(',')==='zoutwaterkrokodil,zoetwaterkrokodil',`zoeken op 'krok' laat twee krokodillen over (nu ${zichtbaar.join(',')})`);
     eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder treffer verdwijnen bij zoeken');
+    // een samengesteld synoniem als 'Rode reuzenkangoeroe en emoe' mag de kangoeroe niet onder 'emoe' vinden
+    zoek.value='emoe'; zoek.dispatchEvent(new w.Event('input'));
+    const opEmoe=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
+    eis(fouten,opEmoe.join(',')==='emoe',`zoeken op 'emoe' geeft alleen de emoe (nu ${opEmoe.join(',')||'niets'})`);
+    zoek.value='buidelmarter'; zoek.dispatchEvent(new w.Event('input'));
+    const opSyn=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
+    eis(fouten,opSyn.join(',')==='quoll',`zoeken op een los synoniem werkt nog wel (nu ${opSyn.join(',')||'niets'})`);
     zoek.value=''; zoek.dispatchEvent(new w.Event('input'));
     if(koala) koala.click();
     await sleep(50);
