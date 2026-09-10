@@ -178,7 +178,7 @@ function zoek(w,fouten,term){
     klik(w,'rbeheer',fouten);
     eis(fouten,$(w,'beheer').style.display==='block'&&$(w,'prakt').style.display==='none','de knop opent het scherm Reizigers');
     eis(fouten,$(w,'btnPrakt').classList.contains('on'),'op het scherm Reizigers blijft de knop Praktisch oplichten');
-    eis(fouten,/Reizigers/.test($(w,'hero').textContent),`kop van het scherm (nu: '${$(w,'hero').textContent.trim().slice(0,40)}')`);
+    eis(fouten,/Reizigers/.test($(w,'hero').textContent)&&/reg-nsw\.jpg/.test($(w,'hero').style.backgroundImage),`kop van het scherm (nu: '${$(w,'hero').textContent.trim().slice(0,40)}')`);
     const box=$(w,'beheer');
     eis(fouten,box.querySelectorAll('.rlijst li').length===3,`beheerder ziet de drie reizigers (nu ${box.querySelectorAll('.rlijst li').length})`);
     eis(fouten,!box.querySelector('.dweg[data-weg="u1"]')&&box.querySelector('.chip[data-id="u1"][data-deel="beheer"]').disabled,'jezelf kun je niet verwijderen of je beheer afnemen');
@@ -192,6 +192,11 @@ function zoek(w,fouten,term){
     klik(w,'radd',fouten);
     let sheet=$(w,'sheet');
     eis(fouten,sheet&&/Reiziger toevoegen/.test(sheet.textContent)&&$(w,'rnaam'),'plusknop opent het schuifpaneel');
+    eis(fouten,$(w,'rpw').type==='password'&&$(w,'rpw').getAttribute('autocomplete')==='new-password','wachtwoordveld staat verborgen met new-password, zodat iOS een sterk wachtwoord aanbiedt');
+    $(w,'rpwtoon').click();
+    eis(fouten,$(w,'rpw').type==='text'&&$(w,'rpwtoon').classList.contains('aan'),'het oogje maakt het wachtwoord leesbaar');
+    $(w,'rpwtoon').click();
+    eis(fouten,$(w,'rpw').type==='password','en verbergt het weer');
     $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl'; $(w,'rpw').value='wombat-2026';
     sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);

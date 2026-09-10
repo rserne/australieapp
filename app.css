@@ -373,20 +373,37 @@
   .nrow .btn.primary{background:var(--pill);color:var(--pill-text);border-color:transparent}
   .nrow .btn:active{opacity:.7}
   .nstatus{font-size:13px;color:var(--text-faint);min-height:1em;margin-top:10px}
-  /* scherm Reizigers: kleine chips per persoon, kruisje om te verwijderen, terugknop bovenaan */
-  .terug{margin:0 0 14px;font-size:15px}
-  .terug a{color:var(--accent-ink);font-weight:600;text-decoration:none}
-  .rlijst .chips{margin-top:7px;gap:6px}
-  .rlijst .chip{font-size:12.5px;padding:5px 10px}
-  .rlijst .chip:disabled{opacity:.55;cursor:default}
-  .rlijst .dweg{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--rim);background:none;
-    color:var(--text-dim);font:inherit;font-size:18px;line-height:1;cursor:pointer}
-  .rstatus{font-size:13px;color:var(--text-faint);margin:12px 4px 0}
+  /* ---------- Scherm Reizigers ---------- */
+  /* Terug naar Praktisch: een pil met een pijltje, in de stijl van de andere knoppen */
+  .terugknop{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:14.5px;font-weight:600;
+    margin:0 0 18px;padding:9px 15px 9px 12px;border-radius:999px;cursor:pointer;
+    color:var(--text);background:var(--glass-2);border:1px solid var(--rim)}
+  .terugknop:active{opacity:.7}
+  /* Ruime kaart per reiziger: naam boven, daaronder de delen van de reis */
+  .rlijst li{padding:16px 16px 17px}
+  .rkop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .rkop strong{margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rjij{flex:none;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--text-faint);padding:4px 9px;border-radius:999px;border:1px solid var(--rim)}
+  .rlijst .chips{gap:8px 8px}
+  .rlijst .chip{font-size:13.5px;padding:8px 14px}
+  .rlijst .chip:disabled{opacity:.5;cursor:default}
+  .rlijst .dweg{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--rim);background:none;
+    color:var(--text-dim);font:inherit;font-size:19px;line-height:1;cursor:pointer}
+  .rlijst .dweg:active{opacity:.6}
+  .rstatus{font-size:13px;color:var(--text-faint);margin:16px 4px 0}
   .rstatus.fout{color:var(--alert)}
-  .beheer-uitleg{font-size:13.5px;color:var(--text-dim);line-height:1.5;margin:12px 4px 0}
+  .beheer-uitleg{font-size:13.5px;color:var(--text-dim);line-height:1.55;margin:10px 4px 0}
+  #beheer{padding-bottom:8px}
   .sheet #rform{display:flex;flex-direction:column;gap:10px}
+  /* wachtwoordveld met het oogje ernaast, zodat de beheerder kan lezen wat hij doorgeeft */
+  .pwrij{display:flex;gap:8px;align-items:center}
+  .pwrij .shinput{flex:1;min-width:0}
+  .pwrij .nbtn{flex:none;color:var(--text-dim)}
+  .pwrij .nbtn.aan{color:var(--accent-ink)}
   .sheet #rform .nrow{margin-top:2px}
-  #beheer .dagadd{margin:14px 0 0}
+  #beheer .dagadd{margin:18px 0 0}
   .callout a{color:var(--accent-ink);font-weight:600}
   .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 86px);transform:translate(-50%,20px);
     background:var(--pill);color:var(--pill-text);padding:11px 16px;border-radius:14px;font-size:14.5px;

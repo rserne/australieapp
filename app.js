@@ -737,7 +737,8 @@ const BANNERS={
   alles:['banner-notities.jpg','Notities',''],
   prakt:['banner-praktisch.jpg','Praktisch',''],
   dieren:['banner-dieren.jpg','Dieren','Gespot onderweg'],
-  beheer:['banner-praktisch.jpg','Reizigers','Wie de notities van de groep ziet']
+  // Sydney: de foto van New South Wales, waar de groepsreis begint
+  beheer:['reg-nsw.jpg','Reizigers','Wie de notities van de groep ziet']
 };
 function renderKop(v){
   const hero=document.getElementById('hero');
@@ -1589,6 +1590,8 @@ function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>documen
 // gaat via de knop onderaan en een schuifpaneel: eerst een account bij Nhost Auth, dan de rij in
 // reizigers. Die rij is het slot: zonder rij ziet een account niets van de groep.
 const DELEN=[['voorreis','Voorreis'],['reis','Groepsreis'],['nareis','Nareis'],['beheer','Beheer']];
+const IC_PIJL='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+const IC_OOG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
 const IC_GROEP='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.2a4.3 4.3 0 0 1 5 4.3"/></svg>';
 function renderBeheer(){
   const box=document.getElementById('beheer');
@@ -1599,15 +1602,15 @@ function renderBeheer(){
   // fout hier kostte eerder een middag zoeken (kolom niet in de select-permissie).
   const status=!st?'De lijst is op deze telefoon nog niet opgehaald.'
     :st.fout?`Ophalen mislukt ${fmtTijd(st.tijd)}: ${st.fout}`:`Lijst opgehaald ${fmtTijd(st.tijd)}.`;
-  box.innerHTML=`<p class="terug"><a href="#" id="rterug">← Praktisch</a></p>`+
-    `<ul class="list rlijst">${lijst.map(r=>`<li><div class="row" style="align-items:center"><span style="min-width:0;flex:1"><strong>${esc(r.naam)}</strong>`+
-      `<span class="chips">${DELEN.map(d=>chip(r,d)).join('')}</span></span>`+
-      (r.user_id===mij?'':`<button type="button" class="dweg" data-weg="${r.user_id}" aria-label="Verwijderen" title="Verwijderen">×</button>`)+`</div></li>`).join('')||
+  box.innerHTML=`<button type="button" class="terugknop" id="rterug">${IC_PIJL} Praktisch</button>`+
+    `<ul class="list rlijst">${lijst.map(r=>`<li><div class="rkop"><strong>${esc(r.naam)}</strong>`+
+      (r.user_id===mij?`<span class="rjij">jij</span>`:`<button type="button" class="dweg" data-weg="${r.user_id}" aria-label="${esc(r.naam)} verwijderen" title="Verwijderen">×</button>`)+`</div>`+
+      `<div class="chips">${DELEN.map(d=>chip(r,d)).join('')}</div></li>`).join('')||
       `<li><span class="sub">Nog niemand in de lijst.</span></li>`}</ul>`+
     `<div class="dagadd"><button class="btn" id="radd">＋ Reiziger toevoegen</button></div>`+
     `<p class="rstatus${st&&st.fout?' fout':''}">${esc(status)}</p>`+
     `<p class="beheer-uitleg">Een tik op een deel zet het aan of uit. Het kruisje haalt iemand uit de lijst; die ziet dan niets meer van de groep, het account blijft bestaan. Jezelf kun je niet verwijderen of je beheer afnemen.</p>`;
-  box.querySelector('#rterug').onclick=e=>{ e.preventDefault(); switchTo('prakt'); };
+  box.querySelector('#rterug').onclick=()=>switchTo('prakt');
   const ververs=()=>syncReizigers().then(()=>{ if(view==='beheer') renderBeheer(); });
   box.querySelectorAll('.rlijst .chip').forEach(c=>c.onclick=async()=>{
     const r=lijst.find(x=>x.user_id===c.dataset.id); if(!r) return;
@@ -1632,16 +1635,22 @@ function openReizigerSheet(onDone){
     <div class="sheethead"><strong>Reiziger toevoegen</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
     <form id="rform" action="#" method="post" autocomplete="off">
     <input id="rnaam" class="shinput" type="text" placeholder="Naam" autocomplete="off" autocapitalize="words" required>
-    <input id="remail" class="shinput" type="email" placeholder="E-mailadres" autocomplete="off" inputmode="email" autocapitalize="none" required>
-    <input id="rpw" class="shinput" type="text" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="off" autocapitalize="none" required>
+    <input id="remail" class="shinput" type="email" placeholder="E-mailadres" autocomplete="username" inputmode="email" autocapitalize="none" required>
+    <div class="pwrij"><input id="rpw" class="shinput" type="password" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="new-password" autocapitalize="none" required>
+    <button type="button" class="nbtn" id="rpwtoon" aria-label="Wachtwoord tonen">${IC_OOG}</button></div>
     <div class="chips" id="rdelen">${DELEN.slice(0,3).map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
     <div class="nrow"><button class="btn primary" id="rbtn" type="submit">Toevoegen</button></div><div class="nstatus" id="rstat"></div></form>
-    <p class="beheer-uitleg">De reiziger logt in met dit e-mailadres en wachtwoord, en kan het wachtwoord later zelf wijzigen via "wachtwoord vergeten".</p></div>`;
+    <p class="beheer-uitleg">Vul het e-mailadres van de reiziger in, niet dat van jezelf: je iPhone biedt hier het jouwe aan omdat het veld om een inlognaam vraagt. Op een iPhone stelt Apple ook zelf een sterk wachtwoord voor en bewaart dat in je sleutelhanger. Neem dat gerust over: met het oogje lees je het en geef je het door. De reiziger kan het later zelf wijzigen via "wachtwoord vergeten".</p></div>`;
   document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('on'));
   const close=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),220)};
   el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
   el.querySelectorAll('#rdelen .chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+  // Het wachtwoord staat verborgen, zodat iOS een sterk wachtwoord aanbiedt. Met het oogje lees je het,
+  // want de beheerder moet het aan de reiziger kunnen doorgeven.
+  const pwv=el.querySelector('#rpw'), oog=el.querySelector('#rpwtoon');
+  oog.onclick=()=>{ const uit=pwv.type==='password'; pwv.type=uit?'text':'password';
+    oog.classList.toggle('aan',uit); oog.setAttribute('aria-label',uit?'Wachtwoord verbergen':'Wachtwoord tonen'); };
   const st=el.querySelector('#rstat');
   el.querySelector('#rform').addEventListener('submit',async e=>{
     e.preventDefault();
@@ -1967,7 +1976,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-155';
+const APP_VERSIE='2026-09-10-157';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
