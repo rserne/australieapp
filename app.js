@@ -1826,7 +1826,7 @@ const kansDots=k=>`<span class="chance" title="${['','Geluk nodig','Goede kans',
 // wie 'emoe' typt, kreeg anders ook de kangoeroe te zien.
 const zoekTekst=(dier,naam)=>[schoon(naam),...((dier&&dier.syn)||[]).filter(x=>!/ en /i.test(x))].join(' ').toLowerCase();
 // Vork en mes: naast de teller van een dier dat je in Australië ook op je bord kunt krijgen.
-const IC_VORK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v5a3 3 0 0 0 6 0V3"/><path d="M7 3v18"/><path d="M17 21V3c2.4 1.6 2.4 7.4 0 9"/></svg>';
+const IC_VORK='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v5a3 3 0 0 0 6 0V3"/><path d="M7 3v18"/><path d="M17 21V3c2.4 1.6 2.4 7.4 0 9"/></svg>';
 // Eén regel in de lijst: icoon, naam, eventueel kans en tekst, en rechts het bestek en de teller.
 // De regel zelf noteert 'gezien', het bestekje 'gegeten'. Daarom staat de knop naast de regel en niet
 // erin: een knop in een knop mag niet. De omhullende div vangt beide tikken op.
@@ -2010,7 +2010,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-160';
+const APP_VERSIE='2026-09-10-161';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

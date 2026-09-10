@@ -455,7 +455,7 @@
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
   /* De regel noteert 'gezien', het bestekje ernaast 'gegeten'. Twee knoppen naast elkaar in één rij,
      want een knop in een knop mag niet. De omhullende div draagt de tint en de scheidingslijn. */
-  .drijwrap{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rim);padding-right:12px}
+  .drijwrap{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--rim);padding-right:12px}
   .drijwrap:last-child{border-bottom:none}
   .drijwrap[hidden]{display:none}
   .drij{display:flex;align-items:center;gap:12px;flex:1;min-width:0;min-height:58px;text-align:left;font:inherit;color:var(--text);
@@ -463,11 +463,14 @@
   .drij:active{opacity:.65}
   .dgroep[hidden]{display:none}
   .drijwrap.gespot{background:color-mix(in srgb,var(--gl) 13%,transparent)}
-  /* Bestekknop: leeg zolang niemand het at, daarna een pil met het aantal erin. */
-  .deet{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:34px;min-width:34px;padding:0 10px;
-    border-radius:17px;border:1px solid var(--rim);background:none;color:var(--text-faint);font:inherit;cursor:pointer;
-    -webkit-tap-highlight-color:transparent}
-  .deet svg{display:block}
+  /* Bestekknop: even hoog als de teller ernaast, want gespot is de hoofdzaak en gegeten de bijvangst.
+     Leeg zolang niemand het at, daarna een pil met het aantal erin. De tekening is klein, maar het
+     aanraakvlak is 44 bij 44 dankzij het onzichtbare vlak eromheen. */
+  .deet{position:relative;flex:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    height:24px;min-width:24px;padding:0 7px;border-radius:12px;border:1px solid var(--rim);background:none;
+    color:var(--text-faint);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .deet::before{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
+  .deet svg{display:block;width:13px;height:13px}
   .deet span{font-size:12.5px;font-weight:700}
   .deet:active{opacity:.6}
   .deet.aan{background:var(--gl);border-color:transparent;color:#0A0C10}
