@@ -711,7 +711,9 @@ function renderPrakt(){
   h+=`<h2>Weergave</h2><div class="chips" id="themekeuze">`+
      THEMES.map(([k,l,ico])=>`<button type="button" class="chip" data-th="${k}">${ico}${l}</button>`).join('')+`</div>`;
   h+=`<h2>Notities</h2><div id="acct"></div>`;
+  if(isBeheerder()) h+=`<h2>Beheer</h2><div id="beheer"></div>`;
   document.getElementById('prakt').innerHTML=h;
+  renderBeheer(document.getElementById('beheer'));
   renderKoers(document.getElementById('koers'));
   renderVerzekeringen(document.getElementById('verz'));
   const tk=document.getElementById('themekeuze');
@@ -937,7 +939,26 @@ const M_DEL_WAARN=`mutation($id:uuid!){delete_waarnemingen_by_pk(id:$id){id}}`;
 const alleWaarnemingen=()=>LS.get('aus_cache_waarn')||[];
 // Reizigers: wie doet mee aan de voorreis, de groepsreis en de nareis. Alleen lezen; de tabel wordt
 // in de Nhost-console bijgehouden. Dezelfde tabel bepaalt bij Hasura wie de notities mag zien.
-const Q_REIZIGERS=`query{reizigers(order_by:{naam:asc}){user_id naam voorreis reis nareis}}`;
+const Q_REIZIGERS=`query{reizigers(order_by:{naam:asc}){user_id naam voorreis reis nareis beheer}}`;
+// Beheer: wie beheer=true heeft, mag reizigers toevoegen, wijzigen en verwijderen. Hasura controleert dat
+// via dezelfde kolom; de app toont het blok alleen als het mag.
+const M_INS_REIZIGER=`mutation($o:reizigers_insert_input!){insert_reizigers_one(object:$o){user_id}}`;
+const M_UPD_REIZIGER=`mutation($id:uuid!,$s:reizigers_set_input!){update_reizigers_by_pk(pk_columns:{user_id:$id},_set:$s){user_id}}`;
+const M_DEL_REIZIGER=`mutation($id:uuid!){delete_reizigers_by_pk(user_id:$id){user_id}}`;
+const isBeheerder=()=>!!(mijnReiziger()||{}).beheer;
+// Een account aanmaken voor iemand anders, via het gewone aanmeldpunt van Nhost Auth. De sessie die
+// terugkomt is van de nieuwe gebruiker; die slaan we niet op, zodat de beheerder ingelogd blijft.
+async function nhSignup(email,pw,naam){
+  let r; try{ r=await fetch(NH_AUTH+'/signup/email-password',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email,password:pw,options:{displayName:naam}})}); }
+  catch(e){ throw tijdelijk('Geen verbinding'); }
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.message||'Account aanmaken mislukt');
+  // Zonder sessie wacht Nhost op een e-mailbevestiging en kennen we het id niet. Het account bestaat dan
+  // wel al: dit los je op in de Nhost-console (bevestiging uit, rij in reizigers met de hand).
+  if(!j.session||!j.session.user) throw new Error('Het account is aangemaakt, maar Nhost wacht op e-mailbevestiging en gaf geen id terug. Zet in de Nhost-console de e-mailbevestiging uit en voeg de rij in reizigers daar toe.');
+  return j.session.user;
+}
 // Dag apart bijwerken, alleen als hij echt verandert. Zo blijft gewoon bewerken werken
 // ook als de rechten op de kolom dag ontbreken.
 const M_UPD_DAG=`mutation($id:uuid!,$d:Int!){update_dagitems_by_pk(pk_columns:{id:$id},_set:{dag:$d}){id}}`;
@@ -1558,6 +1579,57 @@ function renderVerzekeringen(box){
 // Na een sprong naar Praktisch het blok in beeld brengen. Eerst tekenen, dan scrollen.
 function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView({block:'start'})); }
 
+// Beheer van de reizigerslijst, voor wie beheer=true heeft. Bovenaan de lijst met per persoon de delen
+// van de reis als chips (tik wisselt om), daaronder het formulier voor een nieuwe reiziger. Een nieuwe
+// reiziger krijgt eerst een account bij Nhost Auth en dan zijn rij in reizigers; die rij is het slot.
+const DELEN=[['voorreis','Voorreis'],['reis','Groepsreis'],['nareis','Nareis'],['beheer','Beheer']];
+function renderBeheer(box){
+  if(!box||!NH.user||!isBeheerder()) return;
+  const lijst=reizigers()||[], mij=NH.user.id;
+  const chip=(r,[k,l])=>`<button type="button" class="chip${r[k]?' on':''}" data-id="${r.user_id}" data-deel="${k}"${k==='beheer'&&r.user_id===mij?' disabled':''}>${l}</button>`;
+  box.innerHTML=`<div class="beheer">`+
+    `<ul class="list">${lijst.map(r=>`<li><div class="row" style="align-items:center"><span style="min-width:0;flex:1"><strong>${esc(r.naam)}</strong>`+
+      `<span class="chips">${DELEN.map(d=>chip(r,d)).join('')}</span></span>`+
+      (r.user_id===mij?'':`<button type="button" class="dweg" data-weg="${r.user_id}" aria-label="Verwijderen" title="Verwijderen">×</button>`)+`</div></li>`).join('')}</ul>`+
+    `<form class="ncompose" id="rform" action="#" method="post" autocomplete="off">`+
+    `<input id="rnaam" type="text" placeholder="Naam" autocomplete="off" required>`+
+    `<input id="remail" type="email" placeholder="E-mailadres" autocomplete="off" inputmode="email" autocapitalize="none" required>`+
+    `<input id="rpw" type="text" placeholder="Wachtwoord (geef dit door)" autocomplete="off" autocapitalize="none" required>`+
+    `<div class="chips" id="rdelen">${DELEN.slice(0,3).map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>`+
+    `<div class="nrow"><button class="btn primary" id="rbtn" type="submit">Reiziger toevoegen</button></div><div class="nstatus" id="rstat"></div></form>`+
+    `<p class="beheer-uitleg">De reiziger logt in met dit e-mailadres en wachtwoord en kan het wachtwoord later zelf wijzigen. Verwijderen haalt iemand uit de lijst; die ziet dan niets meer van de groep.</p></div>`;
+  const ververs=()=>syncReizigers().then(()=>{ renderBeheer(box); renderAccount(document.getElementById('acct')); });
+  const st=box.querySelector('#rstat');
+  // Chips in de lijst: één tik zet een deel aan of uit
+  box.querySelectorAll('.list .chip').forEach(c=>c.onclick=async()=>{
+    const r=lijst.find(x=>x.user_id===c.dataset.id); if(!r) return;
+    c.disabled=true;
+    try{ await gql(M_UPD_REIZIGER,{id:r.user_id,s:{[c.dataset.deel]:!r[c.dataset.deel]}}); await ververs(); }
+    catch(e){ c.disabled=false; toast('Wijzigen mislukt: '+e.message); }
+  });
+  box.querySelectorAll('.dweg').forEach(b=>b.onclick=async()=>{
+    const r=lijst.find(x=>x.user_id===b.dataset.weg); if(!r) return;
+    if(!confirm(`${r.naam} uit de reizigerslijst halen? Het account blijft bestaan, maar ${r.naam} ziet dan niets meer van de groep.`)) return;
+    try{ await gql(M_DEL_REIZIGER,{id:r.user_id}); toast(`${r.naam} is uit de lijst gehaald.`); await ververs(); }
+    catch(e){ toast('Verwijderen mislukt: '+e.message); }
+  });
+  // Chips in het formulier: alleen een keuze, nog niets versturen
+  box.querySelectorAll('#rdelen .chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+  box.querySelector('#rform').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const naam=box.querySelector('#rnaam').value.trim(), email=box.querySelector('#remail').value.trim(), pw=box.querySelector('#rpw').value;
+    if(!naam||!email||!pw) return;
+    const delen={}; DELEN.slice(0,3).forEach(([k])=>{ delen[k]=box.querySelector(`#rdelen .chip[data-deel="${k}"]`).classList.contains('on'); });
+    const knop=box.querySelector('#rbtn'); knop.disabled=true; st.textContent='Account aanmaken…';
+    try{
+      const u=await nhSignup(email,pw,naam);
+      st.textContent='Toevoegen aan de reizigerslijst…';
+      await gql(M_INS_REIZIGER,{o:{user_id:u.id,naam,...delen}});
+      toast(`${naam} is toegevoegd.`); await ververs();
+    }catch(err){ knop.disabled=false; st.textContent=err.message; }
+  });
+}
+
 function renderAccount(box){
   if(!box) return;
   if(NH.user){
@@ -1860,7 +1932,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-153';
+const APP_VERSIE='2026-09-10-154';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

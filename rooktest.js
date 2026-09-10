@@ -43,10 +43,10 @@ const NOTITIES=[
 
 // De reizigerslijst zoals die uit de tabel reizigers komt. u1 is de ingelogde testgebruiker; of hij de
 // voorreis doet, hangt af van het scenario. Anna doet de voorreis altijd, Piet alleen de groepsreis.
-const REIZIGERS=voor=>[
-  {user_id:'u1',naam:'Test',voorreis:voor,reis:true,nareis:false},
-  {user_id:'u2',naam:'Anna',voorreis:true,reis:true,nareis:false},
-  {user_id:'u3',naam:'Piet',voorreis:false,reis:true,nareis:false}
+const REIZIGERS=(voor,beheer=false)=>[
+  {user_id:'u1',naam:'Test',voorreis:voor,reis:true,nareis:false,beheer},
+  {user_id:'u2',naam:'Anna',voorreis:true,reis:true,nareis:false,beheer:false},
+  {user_id:'u3',naam:'Piet',voorreis:false,reis:true,nareis:false,beheer:false}
 ];
 
 // Start de app op een datum. login: 'voor' (voorreiziger), 'groep' (ingelogd, geen voorreis) of null.
@@ -158,6 +158,50 @@ function zoek(w,fouten,term){
     const c=$(w,'acct').querySelector('.callout');
     eis(fouten,c&&!c.classList.contains('let')&&/Je reist mee met de voorreis en de groepsreis/.test(c.textContent),`inlogblok noemt je deelname (nu: '${c&&c.textContent.slice(0,90)}')`);
     meld('5 okt: deelname in het inlogblok',fouten); }
+  // Beheer van de reizigerslijst
+  { const {w,fouten}=start('2026-10-05',{login:'groep'});
+    klik(w,'btnPrakt',fouten);
+    eis(fouten,!$(w,'beheer')&&!/Beheer/.test($(w,'prakt').textContent),'zonder beheer=true staat het blok Beheer er niet');
+    meld('5 okt: geen beheerblok voor een gewone reiziger',fouten); }
+  { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
+    const mutaties=[], aanmeldingen=[];
+    let lijst=REIZIGERS(false,true);
+    w.gql=async(q,v)=>{
+      if(/^query/.test(q)&&/reizigers/.test(q)) return {reizigers:lijst};
+      if(/update_reizigers_by_pk/.test(q)){ mutaties.push('update'); lijst=lijst.map(r=>r.user_id===v.id?{...r,...v.s}:r); return {update_reizigers_by_pk:{user_id:v.id}}; }
+      if(/delete_reizigers_by_pk/.test(q)){ mutaties.push('delete'); lijst=lijst.filter(r=>r.user_id!==v.id); return {delete_reizigers_by_pk:{user_id:v.id}}; }
+      if(/insert_reizigers_one/.test(q)){ mutaties.push('insert'); lijst=[...lijst,{...v.o,beheer:false}]; return {insert_reizigers_one:{user_id:v.o.user_id}}; }
+      throw new Error('onverwachte query '+q.slice(0,40)); };
+    w.fetch=async(url,o)=>{ if(/signup\/email-password/.test(url)){ aanmeldingen.push(JSON.parse(o.body)); return {ok:true,status:200,json:async()=>({session:{user:{id:'u9'}}})}; } throw new TypeError('Failed to fetch'); };
+    klik(w,'btnPrakt',fouten);
+    const box=$(w,'beheer');
+    eis(fouten,box&&box.querySelectorAll('.list li').length===3,`beheerder ziet de drie reizigers (nu ${box?box.querySelectorAll('.list li').length:0})`);
+    eis(fouten,box&&!box.querySelector('.dweg[data-weg="u1"]')&&box.querySelector('.chip[data-id="u1"][data-deel="beheer"]').disabled,'jezelf kun je niet verwijderen of je beheer afnemen');
+    // een deel omzetten bij Piet
+    box.querySelector('.chip[data-id="u3"][data-deel="voorreis"]').click(); await sleep(100);
+    eis(fouten,mutaties.join(',')==='update'&&$(w,'beheer').querySelector('.chip[data-id="u3"][data-deel="voorreis"]').classList.contains('on'),'tik op een chip zet het deel aan en tekent de lijst opnieuw');
+    eis(fouten,$(w,'beheer').querySelector('.chip[data-id="u3"][data-deel="voorreis"]')!==null&&lijst.find(r=>r.user_id==='u3').voorreis===true,'wijziging is naar Nhost gestuurd');
+    // een nieuwe reiziger
+    const b2=$(w,'beheer');
+    b2.querySelector('#rnaam').value='Kees'; b2.querySelector('#remail').value='kees@voorbeeld.nl'; b2.querySelector('#rpw').value='wombat-2026';
+    b2.querySelector('#rdelen .chip[data-deel="nareis"]').click();
+    b2.querySelector('#rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(150);
+    eis(fouten,aanmeldingen.length===1&&aanmeldingen[0].email==='kees@voorbeeld.nl'&&aanmeldingen[0].options.displayName==='Kees','account aangemaakt via het aanmeldpunt met naam als displayName');
+    eis(fouten,mutaties[mutaties.length-1]==='insert'&&lijst.some(r=>r.user_id==='u9'&&r.naam==='Kees'&&r.reis&&r.nareis&&!r.voorreis),`rij in reizigers met de gekozen delen (nu ${JSON.stringify(lijst.find(r=>r.user_id==='u9'))})`);
+    eis(fouten,$(w,'beheer').querySelectorAll('.list li').length===4,'nieuwe reiziger staat in de lijst');
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_sess')).user.id==='u1','beheerder blijft zelf ingelogd na het aanmaken van een account');
+    // verwijderen
+    $(w,'beheer').querySelector('.dweg[data-weg="u2"]').click(); await sleep(100);
+    eis(fouten,mutaties[mutaties.length-1]==='delete'&&$(w,'beheer').querySelectorAll('.list li').length===3,'verwijderen haalt de rij weg en tekent de lijst opnieuw');
+    meld('5 okt: beheerder wijzigt, voegt toe en verwijdert',fouten); }
+  { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
+    w.gql=async q=>{ if(/^query/.test(q)) return {reizigers:REIZIGERS(false,true)}; throw new Error('onverwacht'); };
+    w.fetch=async url=>{ if(/signup/.test(url)) return {ok:true,status:200,json:async()=>({session:null})}; throw new TypeError('Failed to fetch'); };
+    klik(w,'btnPrakt',fouten);
+    const b=$(w,'beheer'); b.querySelector('#rnaam').value='Kees'; b.querySelector('#remail').value='k@v.nl'; b.querySelector('#rpw').value='wombat-2026';
+    b.querySelector('#rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(150);
+    eis(fouten,/e-mailbevestiging/.test($(w,'rstat').textContent)&&!$(w,'rbtn').disabled,'zonder sessie uit het aanmeldpunt legt de status uit wat er aan de hand is');
+    meld('5 okt: aanmelden met e-mailbevestiging aan',fouten); }
   { const {w,fouten}=start('2026-10-09',{login:'groep'});
     eis(fouten,!!$(w,'notes-top'),'ticket van dag 9 staat er meteen, zonder op de server te wachten');
     const h2=$(w,'notes-top')&&$(w,'notes-top').querySelector('h2');

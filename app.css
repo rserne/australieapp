@@ -373,6 +373,14 @@
   .nrow .btn.primary{background:var(--pill);color:var(--pill-text);border-color:transparent}
   .nrow .btn:active{opacity:.7}
   .nstatus{font-size:13px;color:var(--text-faint);min-height:1em;margin-top:10px}
+  /* beheer van de reizigerslijst in Praktisch: kleine chips per persoon, kruisje om te verwijderen */
+  .beheer .list .chips{margin-top:7px;gap:6px}
+  .beheer .chip{font-size:12.5px;padding:5px 10px}
+  .beheer .chip:disabled{opacity:.55;cursor:default}
+  .beheer .dweg{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--rim);background:none;
+    color:var(--text-dim);font:inherit;font-size:18px;line-height:1;cursor:pointer}
+  .beheer .ncompose .chips{margin:2px 0}
+  .beheer-uitleg{font-size:13.5px;color:var(--text-dim);line-height:1.5;margin:12px 4px 0}
   .callout a{color:var(--accent-ink);font-weight:600}
   .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 86px);transform:translate(-50%,20px);
     background:var(--pill);color:var(--pill-text);padding:11px 16px;border-radius:14px;font-size:14.5px;

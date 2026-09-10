@@ -76,8 +76,10 @@ create table public.reizigers (
   voorreis boolean not null default false,
   reis boolean not null default true,
   nareis boolean not null default false,
+  beheer boolean not null default false,
   created_at timestamptz not null default now()
 );
+-- op een bestaande tabel: alter table public.reizigers add column beheer boolean not null default false;
 ```
 
 Vullen vanuit de bestaande accounts (de naam komt uit `display_name`; het statement is herhaalbaar voor nieuwe accounts):
@@ -99,7 +101,25 @@ Rechten in Hasura, voor de rol `user`: alleen select, alle kolommen, met als row
                "_where": { "user_id": { "_eq": "X-Hasura-User-Id" } } } }
 ```
 
-Dezelfde check staat als row-permission op select én insert van `dagitems` en `waarnemingen`. Update en delete blijven `user_id` gelijk aan `X-Hasura-User-Id`. Zo hoeft er in geen enkele permissie een gebruikers-id te staan: een nieuwe reiziger is één rij in de tabel. Beheer van de tabel gaat via de Nhost-console; de app leest hem alleen.
+Dezelfde check staat als row-permission op select én insert van `dagitems` en `waarnemingen`. Update en delete blijven `user_id` gelijk aan `X-Hasura-User-Id`. Zo hoeft er in geen enkele permissie een gebruikers-id te staan: een nieuwe reiziger is één rij in de tabel.
+
+### Beheer vanuit de app
+
+Wie `beheer = true` heeft, ziet in Praktisch onderaan het blok **Beheer**: de reizigerslijst met per persoon de delen van de reis als chips (een tik zet een deel aan of uit), een kruisje om iemand uit de lijst te halen, en een formulier voor een nieuwe reiziger met naam, e-mailadres, wachtwoord en de delen. De app maakt dan eerst het account aan via het gewone aanmeldpunt van Nhost Auth (`/signup/email-password`, met de naam als display name) en schrijft daarna de rij in `reizigers`. De beheerder blijft zelf ingelogd. Zo kan de lijst onderweg vanaf de telefoon worden bijgehouden; de Nhost-console is daar niet meer voor nodig. Jezelf verwijderen of je eigen beheer uitzetten kan niet in de app.
+
+Daarvoor is nodig:
+
+- Op `reizigers` voor de rol `user` ook **insert**, **update** en **delete**, alle kolommen behalve `created_at`, met als check dat de gebruiker zelf beheerder is:
+
+```json
+{ "_exists": { "_table": { "schema": "public", "name": "reizigers" },
+               "_where": { "user_id": { "_eq": "X-Hasura-User-Id" }, "beheer": { "_eq": true } } } }
+```
+
+- In de Nhost-console onder Auth: aanmelden (sign-up) aan, en **e-mailbevestiging uit**. Met bevestiging aan geeft het aanmeldpunt geen `user_id` terug voordat de reiziger op een mail heeft geklikt, en kan de app de rij niet schrijven. Het account bestaat dan al wel; de app meldt dat en dan moet de rij alsnog via de console.
+- Geen trigger die elk nieuw account automatisch in `reizigers` zet. Met aanmelden aan kan iedereen die het adres kent een account maken; zonder rij in `reizigers` ziet zo iemand niets. De rij die de beheerder schrijft, is het slot.
+
+Een reiziger die zijn wachtwoord vergeet, gebruikt de gewone herstelmail van Nhost; dat zit niet in de app. Uit de lijst halen ontneemt iemand de toegang, het account bij Nhost blijft bestaan.
 
 De app haalt de lijst bij elke synchronisatie op en bewaart een kopie op de telefoon (`aus_cache_reizigers`), zodat hij ook offline weet wie je bent. Het inlogblok in Praktisch noemt je deelname. Sta je wel in `auth.users` maar niet in `reizigers`, dan meldt het blok dat, want dan houdt Hasura ook de notities voor je dicht. Zolang de tabel bij Nhost nog niet bestaat, valt de app terug op de oude regel: wie een voorreisnotitie schreef, is voorreiziger.
 
