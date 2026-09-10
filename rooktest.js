@@ -221,16 +221,32 @@ function zoek(w,fouten,term){
     eis(fouten,$(w,'btnDieren').hidden===false,'tabblad Dieren zichtbaar na inloggen');
     klik(w,'btnDieren',fouten);
     eis(fouten,$(w,'dieren').style.display==='block','tabblad Dieren opent');
-    const knoppen=w.document.querySelectorAll('#dieren button.dier');
-    eis(fouten,knoppen.length>=70,`raster met dieren (nu ${knoppen.length} knoppen)`);
-    const koala=w.document.querySelector('#dieren button.dier[data-dier="koala"]');
-    eis(fouten,!!koala,'knop Koala staat in het raster');
+    const knoppen=w.document.querySelectorAll('#dalle .drij');
+    eis(fouten,knoppen.length>=55,`lijst met dieren (nu ${knoppen.length} regels)`);
+    const koala=w.document.querySelector('#dalle .drij[data-dier="koala"]');
+    eis(fouten,!!koala,'regel Koala staat in de lijst');
+    // Kans vandaag: de dieren uit het programma van dag 6, met de kans erbij en de pauw als 'ander dier'
+    const kans=$(w,'dieren').querySelector('.dlist');
+    eis(fouten,kans&&/Vogelbekdier/.test(kans.textContent)&&/Pauw/.test(kans.textContent)&&kans.querySelector('.chance'),'Kans vandaag toont de dieren van dag 6 met kans');
+    eis(fouten,/Kans vandaag/.test($(w,'dieren').textContent)&&/Dag 6 · Launceston/.test($(w,'dieren').textContent),`kop Kans vandaag met dag en plaats`);
+    const pauw=kans&&[...kans.querySelectorAll('.drij')].find(r=>r.dataset.naam==='Pauw');
+    eis(fouten,pauw&&pauw.dataset.dier==='overig','een dier zonder knop staat in Kans vandaag als ander dier');
+    // zoeken en chips
+    const chips=w.document.querySelectorAll('#dieren .dchip');
+    eis(fouten,chips.length===6&&/Zoogdieren0\/14/.test(chips[0].textContent),`zes groepschips met telling (nu ${chips.length}, '${chips[0]&&chips[0].textContent}')`);
+    const zoek=$(w,'dzoek'); zoek.value='krok'; zoek.dispatchEvent(new w.Event('input'));
+    const zichtbaar=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
+    eis(fouten,zichtbaar.join(',')==='zoutwaterkrokodil,zoetwaterkrokodil',`zoeken op 'krok' laat twee krokodillen over (nu ${zichtbaar.join(',')})`);
+    eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder treffer verdwijnen bij zoeken');
+    zoek.value=''; zoek.dispatchEvent(new w.Event('input'));
     if(koala) koala.click();
     await sleep(50);
     const q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
     eis(fouten,q.length===1&&q[0].tabel==='waarnemingen'&&q[0].dier==='koala'&&q[0].dag===6&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d:\d\d$/.test(q[0].gezien_op),`waarneming zonder verbinding in de wachtrij met tabel, dag en tijd (nu ${JSON.stringify(q[0])})`);
     eis(fouten,/Vandaag gespot/.test($(w,'dieren').textContent)&&/Koala/.test($(w,'dieren').textContent)&&/1 waarneming wacht op verbinding/.test($(w,'dieren').textContent),'waarneming staat onder Vandaag gespot met de statusregel');
-    eis(fouten,koala&&koala.classList.contains('mijn')||w.document.querySelector('#dieren button.dier[data-dier="koala"] .dtel'),'teller op de knop na de waarneming');
+    const koala2=w.document.querySelector('#dalle .drij[data-dier="koala"]');
+    eis(fouten,koala2&&koala2.classList.contains('mijn')&&koala2.classList.contains('gespot')&&koala2.querySelector('.dtel').textContent==='1','teller en tint op de regel na de waarneming');
+    eis(fouten,/Zoogdieren1\/14/.test(w.document.querySelector('#dieren .dchip').textContent),'chip telt mee');
     const t=$(w,'toast'); eis(fouten,t&&/Koala gespot om \d\d\.\d\d uur/.test(t.textContent)&&t.querySelector('button'),'melding met Ongedaan maken');
     if(t&&t.querySelector('button')) t.querySelector('button').click();
     await sleep(50);
@@ -262,7 +278,13 @@ function zoek(w,fouten,term){
     klik(w,'btnDieren',fouten);
     const lijst=w.document.querySelector('#dieren .dlijst');
     eis(fouten,lijst&&/Vogelbekdier/.test(lijst.textContent)&&!/\u00AD/.test(lijst.textContent),'naam in de lijst zonder zacht afbreekstreepje');
-    eis(fouten,/\u00AD/.test(w.document.querySelector('#dieren button.dier[data-dier="vogelbekdier"] .dn').textContent),'naam op de knop mét zacht afbreekstreepje');
+    eis(fouten,!/\u00AD/.test(w.document.querySelector('#dalle .drij[data-dier="vogelbekdier"]').textContent),'naam op de regel zonder zacht afbreekstreepje');
+    // tik op een dier in Kans vandaag noteert het
+    const vb=[...$(w,'dieren').querySelector('.dlist').querySelectorAll('.drij')].find(r=>r.dataset.dier==='vogelbekdier'); if(vb) vb.click(); await sleep(50);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').some(p=>p.dier==='vogelbekdier'),'tik in Kans vandaag noteert het dier');
+    const pw=[...$(w,'dieren').querySelector('.dlist').querySelectorAll('.drij')].find(r=>r.dataset.naam==='Pauw'); if(pw) pw.click(); await sleep(50);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').some(p=>p.dier==='overig'&&p.opmerking==='Pauw'),'tik op een ander dier in Kans vandaag noteert het op naam');
+    w.localStorage.setItem('aus_pending','[]');
     meld('6 okt: waarnemingen zonder verbinding',fouten); }
   { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
     // Nhost nagebootst: de wachtrij bevat een notitie en een waarneming, beide moeten naar hun eigen tabel
@@ -286,7 +308,7 @@ function zoek(w,fouten,term){
     eis(fouten,!/kon niet worden verstuurd/.test($(w,'dieren').textContent),'statusregel verdwijnt van het scherm');
     eis(fouten,w.verstuurdTekst()==='Je notitie en je waarneming zijn verstuurd',`melding na versturen (nu '${w.verstuurdTekst()}')`);
     // met verbinding gaat een waarneming direct naar Nhost en komt in de kopie
-    w.document.querySelector('#dieren button.dier[data-dier="quokka"]').click(); await sleep(50);
+    w.document.querySelector('#dalle .drij[data-dier="quokka"]').click(); await sleep(50);
     const kopie=JSON.parse(w.localStorage.getItem('aus_cache_waarn')||'[]');
     eis(fouten,kopie.length===1&&kopie[0].id==='w1'&&kopie[0].dier==='quokka','waarneming met verbinding staat meteen in de kopie op de telefoon');
     $(w,'toast').querySelector('button').click(); await sleep(50);

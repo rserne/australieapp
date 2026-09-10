@@ -1,10 +1,10 @@
 // AustralieApp, dieren voor de waarnemingen. Alleen inhoud, de code staat in app.js.
 // Controleer na een wijziging met  node check.js
 //
-// Groepen in de volgorde waarin ze op het scherm staan.
+// Groepen in de volgorde waarin ze op het scherm staan, elk met een kleur uit het regiopalet (TONE in reis.js).
 const DIER_GROEPEN=[
- ["zoogdier","Zoogdieren"],["vogel","Vogels"],["reptiel","Reptielen"],["klein","Spinnen en insecten"],
- ["zee","In zee"],["rif","Op het rif"],["zoetwater","Zoetwater"]
+ ["zoogdier","Zoogdieren","red"],["vogel","Vogels","tas"],["reptiel","Reptielen","sa"],
+ ["klein","Spinnen en insecten","wa"],["zee","In zee","nsw"],["zoetwater","Zoetwater","qld"]
 ];
 // Per dier een sleutel (k, komt zo in de tabel waarnemingen), de naam op de knop (n) en de groep (g).
 // Het icoon staat onder dezelfde sleutel in dieren-iconen.js. Met syn koppelt check.js de namen uit de
@@ -14,7 +14,8 @@ const DIER_GROEPEN=[
 // knop past. Dan breekt hij daar af met een streepje. Overal elders haalt de app het weg.
 const DIEREN=[
 // Zoogdieren
- {k:"kangoeroe",n:"Kangoeroe",g:"zoogdier",syn:["Rode reuzenkangoeroe","Kangoeroe en wallaby","Rode reuzenkangoeroe en emoe","Westelijke grijze reuzenkangoeroe en emoe","Zwartvoetrotskangoeroe","Lumholtz-boomkangoeroe"]},
+ {k:"kangoeroe",n:"Kangoeroe",g:"zoogdier",syn:["Rode reuzenkangoeroe","Kangoeroe en wallaby","Rode reuzenkangoeroe en emoe","Westelijke grijze reuzenkangoeroe en emoe","Zwartvoetrotskangoeroe"]},
+ {k:"boomkangoeroe",n:"Boom\u00ADkangoeroe",g:"zoogdier",syn:["Boomkangoeroe","Lumholtz-boomkangoeroe"]},
  {k:"wallaby",n:"Wallaby",g:"zoogdier",syn:["Bennettwallaby","Zandwallaby","Rotswallaby","Moeraswallaby","Pademelon en Bennettwallaby","Pademelon"]},
  {k:"koala",n:"Koala",g:"zoogdier"},
  {k:"wombat",n:"Wombat",g:"zoogdier"},
@@ -59,7 +60,7 @@ const DIEREN=[
  {k:"termiet",n:"Termiet",g:"klein",syn:["Magnetische termiet"]},
  {k:"vlinder",n:"Vlinder",g:"klein",syn:["Ulysses-vlinder"]},
  {k:"cicade",n:"Cicade",g:"klein"},
-// In zee. Wat je vanaf de kust, de boot of het strand ziet.
+// In zee. Vanaf de kust of de boot, en onder water op het rif.
  {k:"bultrug",n:"Bultrug",g:"zee",syn:["Bultrug en zuidkaper","Walvis"]},
  {k:"dolfijn",n:"Dolfijn",g:"zee",syn:["Tuimelaar"]},
  {k:"doejong",n:"Dugong",g:"zee",syn:["Doejong"]},
@@ -69,13 +70,12 @@ const DIEREN=[
  {k:"manta",n:"Manta",g:"zee",syn:["Reuzenmanta"]},
  {k:"kwal",n:"Kwal",g:"zee",syn:["Dooskwal","Irukandji"]},
  {k:"krab",n:"Krab",g:"zee",syn:["Mud crab","Modderkrab"]},
-// Op het rif. Wat je ziet als je snorkelt.
- {k:"anemoonvis",n:"Clownvis",g:"rif",syn:["Anemoonvis","Anemoonvis en doopvontschelp","Anemoonvis en reuzendoopvont"]},
- {k:"papegaaivis",n:"Papegaai\u00ADvis",g:"rif"},
- {k:"koraalbaars",n:"Koraal\u00ADbaars",g:"rif",syn:["Coral trout"]},
- {k:"trevally",n:"Trevally",g:"rif"},
- {k:"octopus",n:"Octopus",g:"rif",syn:["Blauwringoctopus"]},
- {k:"zeester",n:"Zeester",g:"rif"},
+ {k:"anemoonvis",n:"Clownvis",g:"zee",syn:["Anemoonvis","Anemoonvis en doopvontschelp","Anemoonvis en reuzendoopvont"]},
+ {k:"papegaaivis",n:"Papegaai\u00ADvis",g:"zee"},
+ {k:"koraalbaars",n:"Koraal\u00ADbaars",g:"zee",syn:["Coral trout"]},
+ {k:"trevally",n:"Trevally",g:"zee"},
+ {k:"octopus",n:"Octopus",g:"zee",syn:["Blauwringoctopus"]},
+ {k:"zeester",n:"Zeester",g:"zee"},
 // Zoetwater. Rivieren, billabongs en zwemgaten. De barramundi hoort hier, niet in zee.
  {k:"barramundi",n:"Barramundi",g:"zoetwater"},
  {k:"zoetwaterschildpad",n:"Zoetwater\u00ADschildpad",g:"zoetwater"},
