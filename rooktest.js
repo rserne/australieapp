@@ -228,9 +228,10 @@ function zoek(w,fouten,term){
     // Kans vandaag: de dieren uit het programma van dag 6, met de kans erbij en de pauw als 'ander dier'
     const kans=$(w,'dieren').querySelector('.dlist');
     eis(fouten,kans&&/Vogelbekdier/.test(kans.textContent)&&/Pauw/.test(kans.textContent)&&kans.querySelector('.chance'),'Kans vandaag toont de dieren van dag 6 met kans');
-    eis(fouten,/Kans vandaag/.test($(w,'dieren').textContent)&&/Dag 6 · Launceston/.test($(w,'dieren').textContent),`kop Kans vandaag met dag en plaats`);
+    eis(fouten,/Kans vandaag/.test($(w,'dieren').textContent)&&!/Dag 6/.test($(w,'dieren').textContent),'kop Kans vandaag zonder de dag erachter');
+    eis(fouten,/Dag 6 · Launceston/.test($(w,'hero').textContent),`de dag staat in de kop van het tabblad (nu: '${$(w,'hero').textContent.replace(/\s+/g,' ').trim()}')`);
     const pauw=kans&&[...kans.querySelectorAll('.drij')].find(r=>r.dataset.naam==='Pauw');
-    eis(fouten,pauw&&pauw.dataset.dier==='overig','een dier zonder knop staat in Kans vandaag als ander dier');
+    eis(fouten,pauw&&pauw.dataset.dier==='overig'&&pauw.querySelector('svg'),'een dier zonder knop staat in Kans vandaag als ander dier, met het pootje');
     // zoeken en chips
     const chips=w.document.querySelectorAll('#dieren .dchip');
     eis(fouten,chips.length===7&&/Eerder gespot0/.test(chips[0].textContent)&&/Zoogdieren0\/15/.test(chips[1].textContent),`filterchip en zes groepschips met telling (nu ${chips.length}, '${chips[1]&&chips[1].textContent}')`);
@@ -296,7 +297,7 @@ function zoek(w,fouten,term){
     // de groep Overig verschijnt zodra er zoiets is, met het pootje als icoon
     const ov=w.document.querySelector('#dg-overig');
     eis(fouten,ov&&/Overig/.test(ov.textContent)&&ov.querySelectorAll('.drij').length===2&&/2 van 2/.test(ov.textContent),`groep Overig met beide namen (nu ${ov?ov.querySelectorAll('.drij').length:0} regels)`);
-    eis(fouten,ov&&[...ov.querySelectorAll('.drij')].every(r=>r.dataset.dier==='overig'&&r.querySelector('svg')&&!r.querySelector('.dletter')),'regels in Overig dragen het pootje');
+    eis(fouten,ov&&[...ov.querySelectorAll('.drij')].every(r=>r.dataset.dier==='overig'&&r.querySelector('svg')),'regels in Overig dragen het pootje');
     // nog een keer hetzelfde dier: telt op in plaats van een tweede regel
     ov.querySelector('.drij').click(); await sleep(50);
     const ov2=w.document.querySelector('#dg-overig');

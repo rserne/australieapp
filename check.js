@@ -96,7 +96,8 @@ else{
   // Tien iconen zijn met een dunnere pen getekend en dragen daarom een stroke-width, waarmee ze even
   // zwaar ogen als de rest. Node kan svg's niet tekenen, dus de dikte zelf meten we hier niet. Wel of
   // die verdikking er nog is: bij een nieuwe export van zo'n icoon raak je hem anders ongemerkt kwijt.
-  const VERDIKT=['quoll','emoe','boomkangoeroe','bultrug','manta','vogelbekdier','anemoonvis','barramundi','doejong','koraalbaars'];
+  const VERDIKT=['quoll','emoe','boomkangoeroe','bultrug','manta','vogelbekdier','anemoonvis','barramundi','doejong','koraalbaars',
+    'arend','rosella','zebravink','zeehond','cicade-swift'];
   Object.entries(ICONEN).forEach(([k,svg])=>{
     if(!/^<svg[\s>]/.test(svg)||!/viewBox=/.test(svg)) fout(`dieren-iconen.js: icoon '${k}' is geen svg met viewBox`);
     if(!DIEREN.some(d=>d.k===k)) waarschuw(`dieren-iconen.js: icoon '${k}' hoort bij geen enkel dier in dieren.js`);
@@ -120,7 +121,7 @@ else{
   alleDagen.forEach(d=>(d.wild||[]).forEach(w=>{ if(!bekend(w[0])) zonder.add(w[0]); }));
   const metIcoon=DIEREN.filter(d=>d.ic||ICONEN[d.k]).length;
   DIEREN.filter(d=>!d.ic&&!ICONEN[d.k]).forEach(d=>waarschuw(`dieren.js: '${d.k}' heeft geen icoon en krijgt de eerste letter`));
-  console.log(`  info:    ${DIEREN.length} dieren in dieren.js, ${metIcoon} met icoon. ${zonder.size} ${zonder.size===1?'dier uit de dagen heeft':'dieren uit de dagen hebben'} geen eigen knop (die vallen onder Ander dier).`);
+  console.log(`  info:    ${DIEREN.length} dieren in dieren.js, ${metIcoon} met icoon. ${zonder.size} ${zonder.size===1?'naam uit de dagen heeft':'namen uit de dagen hebben'} geen eigen knop en krijgen het pootje.`);
 }
 
 // Losse lijsten

@@ -115,6 +115,9 @@
   .btitel{margin:0;font-size:clamp(28px,7.5vw,36px);font-weight:730;letter-spacing:-.03em;line-height:1.05;
     color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6), 0 1px 3px rgba(0,0,0,.45)}
   .bsub{margin:5px 0 0;font-size:14.5px;line-height:1.3;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.7), 0 1px 2px rgba(0,0,0,.5)}
+  /* de dag als label boven de titel, bij Dieren */
+  .blabel{align-self:flex-start;margin:0 0 8px;padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600;
+    color:#fff;background:rgba(0,0,0,.34);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
   .hero.banner .track{position:relative;z-index:1;background:rgba(255,255,255,.15)}
   .track{height:3px;background:rgba(255,255,255,.22)}
   .track i{display:block;height:100%;background:var(--accent);transition:width .35s ease;
@@ -383,9 +386,9 @@
   .dstatus{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:var(--text-dim)}
   .dhint{margin:8px 0 0 4px;font-size:13.5px;line-height:1.45;color:var(--text-faint)}
   .dkop{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  /* Een kopje zonder telling ernaast (Ander dier) staat los boven zijn blok en krijgt daarom de
-     gewone kopmarges terug, in plaats van de uitlijning op een regel met een getal erachter. */
-  .dkop.solo h2{margin-bottom:12px}
+  /* Een kopje zonder telling ernaast (Kans vandaag, Ander dier) staat los boven zijn blok en houdt
+     daarmee de gewone kopmarges: 38 pixels boven, 12 onder. Zo hoort het kopje zichtbaar bij wat
+     eronder staat en niet bij de lijst erboven. */
   .dkop h2{flex:1;min-width:0}
   .dkop .dsub{flex:none;font-size:13px;color:var(--text-faint);margin:38px 4px 12px 0}
   .dkop.solo{display:block}
@@ -425,9 +428,7 @@
      De tint blijft over voor de rij van een dier dat al gespot is. */
   .dico{flex:none;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--gl)}
   .dico svg{width:36px;height:36px;display:block}
-  .dletter{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;
-    background:color-mix(in srgb,var(--gl) 17%,transparent)}
-  .dico .dletter{font-weight:700;font-size:15px}
+
   .dtxt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
   .dtxt strong{font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px;min-width:0}
   .dtxt strong .chance{color:var(--accent-ink)}
@@ -439,12 +440,11 @@
   html[data-theme="light"] .dchip.dfilter{background:var(--glass-2);color:var(--text-dim)}
   html[data-theme="light"] .dchip.dfilter.on{background:var(--pill);color:var(--pill-text)}
   html[data-theme="light"] .drij.gespot{background:color-mix(in srgb,var(--gl) 9%,transparent)}
-  html[data-theme="light"] .dletter{background:color-mix(in srgb,var(--gl) 14%,transparent)}
   /* tussenkop per dag in de lijst Gespot */
   .dlijst .ddag{padding:9px 16px 7px;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
     color:var(--text-faint);background:var(--glass-2)}
   /* brede knop 'Iets anders gezien?', in de vorm van het blok Morgen */
-  .dander{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;text-align:left;font:inherit;color:var(--text);cursor:pointer;
+  .dander{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer;
     padding:14px 16px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi)}
   .dander:active{background:var(--glass-2)}
   .dander>svg{flex:none;width:20px;height:20px;margin:0;opacity:.8;color:var(--accent-ink)}

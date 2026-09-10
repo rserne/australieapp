@@ -725,9 +725,13 @@ function renderKop(v){
   if(v==='day'){ hero.classList.remove('banner'); hero.innerHTML=HERO_HTML; render(); return; }
   const [img,titel,sub0]=BANNERS[v];
   const sub=v==='index'?reisPeriode():sub0;
+  // Bij Dieren staat de dag als label in de kop. De lijst Kans hoeft hem dan niet te herhalen.
+  // Vóór vertrek is er geen dag, dan blijft het label weg
+  const label=v==='dieren'&&NH.user&&waarnDag()?dagLabel(waarnDag()):'';
   hero.classList.add('banner'); hero.classList.remove('foto');
   hero.style.backgroundImage=`url(${img})`;
-  hero.innerHTML=`<div class="wrap"><p class="btitel">${titel}</p>${sub?`<p class="bsub">${sub}</p>`:''}</div>`+
+  hero.innerHTML=`<div class="wrap">${label?`<span class="blabel">${esc(label)}</span>`:''}`+
+    `<p class="btitel">${titel}</p>${sub?`<p class="bsub">${sub}</p>`:''}</div>`+
     `<div class="track"><i style="width:0"></i></div>`;
   document.querySelector('meta[name=theme-color]').setAttribute('content','#0E1013');
 }
@@ -1572,6 +1576,13 @@ const schoon=n=>String(n||'').replace(/\u00AD/g,'');
 const dierNaam=w=>w.dier==='overig'?(w.opmerking||'Onbekend dier'):schoon((dierVan(w.dier)||{n:w.dier}).n);
 // De dag waar een waarneming bij hoort: de dag waarin we zitten, anders de dag die openstaat
 const waarnDag=()=>T.dag!=null?T.dag:(isBuiten(cur)||(cur>=1&&cur<=29)?cur:0);
+// Hoe een dag heet, voor de kop van het tabblad Dieren en de tussenkoppen in de lijst Gespot
+function dagLabel(n){
+  if(n===0) return 'Niet aan een dag';
+  if(isBuiten(n)) return `${n<0?'Voorreis':'Nareis'} · ${fmtShort(dagDatum(n))}`;
+  const d=DAYS[n-1];
+  return `Dag ${n}${d?' · '+d.p:''}`;
+}
 // Tijdstip als tekst mét het tijdverschil van de telefoon, zodat 15.32 uur in Kakadu 15.32 blijft,
 // ook als de rij pas uren later bij de server aankomt en ook als iemand hem thuis bekijkt.
 function nuISO(){
@@ -1645,7 +1656,6 @@ const dierBijNaam=naam=>DIER_LIJST.find(d=>schoon(d.n)===naam||(d.syn||[]).inclu
 // Twee kleuren per groep, licht en donker. De opmaak kiest met --g en --gd zelf de juiste.
 const kleurVan=g=>{ const x=DIER_GROEP.find(y=>y[0]===g)||[]; return `--g:${x[2]||'#4B545F'};--gd:${x[3]||x[2]||'#98A2AE'}`; };
 const kansDots=k=>`<span class="chance" title="${['','Geluk nodig','Goede kans','Bijna zeker'][k]||''}">${'●'.repeat(k)}${'○'.repeat(3-k)}</span>`;
-const dLetter=naam=>`<span class="dletter">${esc(schoon(naam).charAt(0))}</span>`;
 // Waarop het zoekveld dit dier vindt: de naam en de synoniemen die één dier zijn. Synoniemen met 'en'
 // erin ('Rode reuzenkangoeroe en emoe') zijn dagteksten die twee dieren noemen. Die staan er alleen om
 // zo'n dagregel aan een dier te koppelen, en zouden bij het zoeken het verkeerde dier opleveren:
@@ -1655,7 +1665,8 @@ const zoekTekst=(dier,naam)=>[schoon(naam),...((dier&&dier.syn)||[]).filter(x=>!
 // dier is een dier uit de lijst of null (dan een 'ander dier' met alleen een naam).
 function dierRij(dier,{naam,tekst,kans,tel,mijn,groep}){
   const k=dier?dier.k:'overig';
-  const ic=dier?(DIER_ICOON[dier.k]||dLetter(naam)):(groep==='overig'?PAW:dLetter(naam));
+  // Een dier zonder eigen tekening krijgt het pootje, in de kleur van de groep waarin het staat.
+  const ic=dier?(DIER_ICOON[dier.k]||PAW):PAW;
   return `<button type="button" class="drij${tel?' gespot':''}${mijn?' mijn':''}" data-dier="${k}" data-naam="${esc(naam)}"`+
     ` data-zoek="${esc(zoekTekst(dier,naam))}"`+
     ` data-gespot="${tel?1:0}" style="${kleurVan(groep)}">`+
@@ -1683,11 +1694,12 @@ function renderDieren(){
   const kansen=[];
   if(dd&&dd.emoe) kansen.push({dier:dierVan('emoe'),naam:'Emoe',tekst:dd.emoe[1],kans:dd.emoe[0]});
   ((dd&&dd.wild)||[]).forEach(([a,b,k])=>kansen.push({dier:dierBijNaam(a),naam:a,tekst:b,kans:k}));
+  // Een dier uit de dagtekst zonder eigen knop hoort bij geen enkele groep, dus krijgt het de
+  // neutrale kleur van Overig, waar de waarneming straks ook terechtkomt.
   if(kansen.length){
-    const label=isBuiten(dag)?`${dag<0?'Voorreis':'Nareis'} · ${fmtShort(dagDatum(dag))}`:`Dag ${dag} · ${esc(dd.p)}`;
-    h+=`<div class="dkop"><h2>${vandaag?'Kans vandaag':'Kans op deze dag'}</h2><span class="dsub">${label}</span></div><div class="dlist">`+
+    h+=`<div class="dkop solo"><h2>${vandaag?'Kans vandaag':'Kans op deze dag'}</h2></div><div class="dlist">`+
       kansen.map(x=>{ const d=x.dier, n=d?(tel[d.k]||0):telAnder(x.naam).length, m=d?(mijn[d.k]||0):telAnder(x.naam).some(w=>w.user_id===NH.user.id);
-        return dierRij(d,{naam:x.naam,tekst:x.tekst,kans:x.kans,tel:n,mijn:m,groep:d?d.g:'reis'}); }).join('')+
+        return dierRij(d,{naam:x.naam,tekst:x.tekst,kans:x.kans,tel:n,mijn:m,groep:d?d.g:'overig'}); }).join('')+
       `</div><p class="dhint">Uit het programma van ${vandaag?'vandaag':'deze dag'}. De rest van de lijst staat eronder.</p>`;
   }
 
@@ -1731,8 +1743,7 @@ function renderDieren(){
       const eigen=w.user_id===NH.user.id;
       let kop='';
       if(w.dag!==vorige){ vorige=w.dag;
-        const label=w.dag===T.dag?'Vandaag':w.dag===0?'Niet aan een dag':isBuiten(w.dag)?`${w.dag<0?'Voorreis':'Nareis'} · ${fmtShort(dagDatum(w.dag))}`:`Dag ${w.dag} · ${fmtShort(dateFor(w.dag))}`;
-        kop=`<li class="ddag">${label}</li>`; }
+        kop=`<li class="ddag">${w.dag===T.dag?'Vandaag':esc(dagLabel(w.dag))}</li>`; }
       return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}</strong>`+
         `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · wacht op verbinding'):''}</span></span>`+
         (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
@@ -1808,7 +1819,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-146';
+const APP_VERSIE='2026-09-10-149';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
