@@ -374,7 +374,8 @@ function zoek(w,fouten,term){
     eis(fouten,pauw&&pauw.dataset.dier==='overig'&&pauw.querySelector('svg'),'een dier zonder knop staat in Kans vandaag als ander dier, met het pootje');
     // zoeken en chips
     const chips=w.document.querySelectorAll('#dieren .dchip');
-    eis(fouten,chips.length===7&&/Gespot0/.test(chips[0].textContent)&&/Zoogdieren0\/15/.test(chips[1].textContent),`filterchip en zes groepschips met telling (nu ${chips.length}, '${chips[0]&&chips[0].textContent}' / '${chips[1]&&chips[1].textContent}')`);
+    eis(fouten,chips.length===6&&/Zoogdieren0\/15/.test(chips[0].textContent),`zonder waarnemingen alleen de zes groepschips (nu ${chips.length}, '${chips[0]&&chips[0].textContent}')`);
+    eis(fouten,!w.document.querySelector('.dchip[data-filter]'),'geen filterchips zolang er niets is gespot of gegeten');
     // een groepschip filtert en springt niet
     const zeeChip=w.document.querySelector('#dieren .dchip[data-groep="zee"]'); zeeChip.click();
     let secties=[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).map(g=>g.id);
@@ -416,6 +417,7 @@ function zoek(w,fouten,term){
     eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder gespot dier verdwijnen');
     eis(fouten,chipGespot().classList.contains('on'),'filterchip staat aan');
     eis(fouten,!w.document.querySelector('.dchip[data-filter="gegeten"]'),'zonder gegeten dier staat die chip er niet');
+    eis(fouten,!!chipGespot(),'met een gespot dier staat de chip Gespot er wel');
     chipGespot().click();
     zicht=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).length;
     eis(fouten,zicht>=55&&!chipGespot().classList.contains('on'),'filter uit toont weer alles');

@@ -1891,11 +1891,11 @@ function renderDieren(){
     `<div class="dchips">`+
       (()=>{ // Een aangezette chip krijgt een kruisje, net als de filters in Notities, zodat zichtbaar
              // is dat je hem ook weer uit kunt zetten. Gespot en Gegeten zijn twee aparte tellingen:
-             // ze door elkaar halen zou de getallen betekenisloos maken. De chip Gegeten verschijnt
-             // pas zodra er iets gegeten is.
+             // ze door elkaar halen zou de getallen betekenisloos maken. Beide chips
+             // verschijnen pas zodra er iets te filteren valt: een filter dat niets overlaat, heeft geen nut.
         const uit=`<span class="chipx" aria-hidden="true">×</span>`, aan=window._dfilter;
         const nGespot=DIER_LIJST.filter(d=>tel[d.k]).length+anderen.length, nGegeten=DIER_LIJST.filter(d=>eetTel[d.k]).length;
-        return `<button type="button" class="dchip dfilter${aan==='gespot'?' on':''}" data-filter="gespot"${aan==='gespot'?' aria-pressed="true"':''}>Gespot<span>${nGespot}</span>${aan==='gespot'?uit:''}</button>`+
+        return (nGespot?`<button type="button" class="dchip dfilter${aan==='gespot'?' on':''}" data-filter="gespot"${aan==='gespot'?' aria-pressed="true"':''}>Gespot<span>${nGespot}</span>${aan==='gespot'?uit:''}</button>`:'')+
           (nGegeten?`<button type="button" class="dchip dfilter${aan==='gegeten'?' on':''}" data-filter="gegeten"${aan==='gegeten'?' aria-pressed="true"':''}>Gegeten<span>${nGegeten}</span>${aan==='gegeten'?uit:''}</button>`:'')+
           groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g), on=window._dgroep===g;
             return `<button type="button" class="dchip${on?' on':''}" data-groep="${g}"${on?' aria-pressed="true"':''} style="${kleurVan(g)}">${esc(label)}<span>${gs}/${tot}</span>${on?uit:''}</button>`; }).join('');
@@ -1958,6 +1958,9 @@ function renderDieren(){
   // sprong naar beneden: zo houd je na het filteren de knop 'Ander dier' meteen in beeld. Er kan één
   // groep tegelijk aanstaan. Alles blijft staan na een tik op een dier, want dan wordt opnieuw getekend.
   const zoek=box.querySelector('#dzoek');
+  // Staat het filter aan terwijl zijn chip is verdwenen (de laatste waarneming weggehaald), dan zou de
+  // lijst leeg blijven zonder dat je hem uit kunt zetten. Daarom hier laten vallen.
+  if(window._dfilter&&!box.querySelector(`.dchip[data-filter="${window._dfilter}"]`)) window._dfilter='';
   const filter=()=>{ const q=zoek.value.trim().toLowerCase(); window._dzoek=q;
     const stand=window._dfilter||'', groep=window._dgroep||'';
     box.querySelectorAll('#dalle .drijwrap').forEach(r=>{
@@ -2016,7 +2019,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-162';
+const APP_VERSIE='2026-09-10-163';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
