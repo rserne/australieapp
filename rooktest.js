@@ -262,7 +262,8 @@ function zoek(w,fouten,term){
     const q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
     eis(fouten,q.length===1&&q[0].tabel==='waarnemingen'&&q[0].dier==='koala'&&q[0].dag===6&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d:\d\d$/.test(q[0].gezien_op),`waarneming zonder verbinding in de wachtrij met tabel, dag en tijd (nu ${JSON.stringify(q[0])})`);
     const gesp=$(w,'dieren').querySelector('.dlijst');
-    eis(fouten,gesp&&/Vandaag/.test(gesp.querySelector('.ddag').textContent)&&/Koala/.test(gesp.textContent)&&/1 waarneming wacht op verbinding/.test($(w,'dieren').textContent),'waarneming staat onder Gespot, onder de tussenkop van de dag, met de statusregel');
+    // de datum in de tussenkop komt van de klok, die in deze test niet meeloopt met ?datum
+    eis(fouten,gesp&&/^Dag 6 · [A-Z][a-z]+dag \d+ \w+$/.test(gesp.querySelector('.ddag').textContent)&&/Koala/.test(gesp.textContent)&&/1 waarneming wacht op verbinding/.test($(w,'dieren').textContent),`waarneming staat onder Gespot, onder een tussenkop met dagnummer en datum (nu '${gesp&&gesp.querySelector('.ddag').textContent}')`);
     const koala2=w.document.querySelector('#dalle .drij[data-dier="koala"]');
     eis(fouten,koala2&&koala2.classList.contains('mijn')&&koala2.classList.contains('gespot')&&koala2.querySelector('.dtel').textContent==='1','teller en tint op de regel na de waarneming');
     eis(fouten,/Zoogdieren1\/15/.test(w.document.querySelectorAll('#dieren .dchip')[1].textContent),'chip telt mee');
@@ -321,7 +322,8 @@ function zoek(w,fouten,term){
     const lijst=w.document.querySelector('#dieren .dlijst');
     eis(fouten,lijst&&/Vogelbekdier/.test(lijst.textContent)&&!/\u00AD/.test(lijst.textContent),'naam in de lijst zonder zacht afbreekstreepje');
     const koppen=[...lijst.querySelectorAll('.ddag')].map(x=>x.textContent);
-    eis(fouten,koppen.length===2&&/^Dag 20/.test(koppen[0])&&koppen[1]==='Vandaag',`Gespot toont alle dagen, nieuwste bovenaan, met een tussenkop per dag (nu: ${koppen.join(' | ')})`);
+    eis(fouten,koppen.length===2&&koppen[0]==='Dag 20 · Dinsdag 20 oktober'&&/^Dag 6 · /.test(koppen[1]),
+      `Gespot toont elke dag met dagnummer en datum, nieuwste bovenaan (nu: ${koppen.join(' | ')})`);
     eis(fouten,!/\u00AD/.test(w.document.querySelector('#dalle .drij[data-dier="vogelbekdier"]').textContent),'naam op de regel zonder zacht afbreekstreepje');
     // tik op een dier in Kans vandaag noteert het
     const vb=[...$(w,'dieren').querySelector('.dlist').querySelectorAll('.drij')].find(r=>r.dataset.dier==='vogelbekdier'); if(vb) vb.click(); await sleep(50);

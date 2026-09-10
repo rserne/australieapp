@@ -1733,17 +1733,21 @@ function renderDieren(){
     `<div class="dkop solo"><h2>Ander dier</h2></div>`+
     `<button type="button" class="dander" id="dander">${PAW}<span><b>Iets anders gezien?</b>Typ de naam van het dier.</span><span class="arw">→</span></button>`;
 
-  // Gespot: alle waarnemingen, nieuwste bovenaan, met een tussenkop per dag
+  // Gespot: alle waarnemingen, nieuwste bovenaan, met een tussenkop per kalenderdag. We groeperen op
+  // de datum van de waarneming zelf en niet op het dagnummer: dan staat er ook een datum boven wat
+  // iemand op een dag zonder nummer heeft gezien.
   const lijst=[...alle].sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
   h+=`<h2>Gespot</h2>`;
   if(!lijst.length) h+=`<p class="dstatus">Nog niets gespot. De eerste is voor jou.</p>`;
   else{
     let vorige=null;
     h+=`<ul class="list dlijst">`+lijst.map(w=>{
-      const eigen=w.user_id===NH.user.id;
+      const eigen=w.user_id===NH.user.id, dat=String(w.gezien_op||'').slice(0,10);
       let kop='';
-      if(w.dag!==vorige){ vorige=w.dag;
-        kop=`<li class="ddag">${w.dag===T.dag?'Vandaag':esc(dagLabel(w.dag))}</li>`; }
+      if(dat!==vorige){ vorige=dat;
+        const dd2=new Date(dat+'T12:00:00'), lang=fmtLong(dd2).replace(/^./,c=>c.toUpperCase());
+        const voor=w.dag>=1&&w.dag<=29?`Dag ${w.dag} · `:isBuiten(w.dag)?`${w.dag<0?'Voorreis':'Nareis'} · `:'';
+        kop=`<li class="ddag">${esc(voor+lang)}</li>`; }
       return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}</strong>`+
         `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · wacht op verbinding'):''}</span></span>`+
         (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
@@ -1819,7 +1823,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-150';
+const APP_VERSIE='2026-09-10-151';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
