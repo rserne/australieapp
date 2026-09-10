@@ -105,7 +105,9 @@ Dezelfde check staat als row-permission op select én insert van `dagitems` en `
 
 ### Beheer vanuit de app
 
-Wie `beheer = true` heeft, ziet in Praktisch onderaan het blok **Beheer**: de reizigerslijst met per persoon de delen van de reis als chips (een tik zet een deel aan of uit), een kruisje om iemand uit de lijst te halen, en een formulier voor een nieuwe reiziger met naam, e-mailadres, wachtwoord en de delen. De app maakt dan eerst het account aan via het gewone aanmeldpunt van Nhost Auth (`/signup/email-password`, met de naam als display name) en schrijft daarna de rij in `reizigers`. De beheerder blijft zelf ingelogd. Zo kan de lijst onderweg vanaf de telefoon worden bijgehouden; de Nhost-console is daar niet meer voor nodig. Jezelf verwijderen of je eigen beheer uitzetten kan niet in de app.
+Wie `beheer = true` heeft, ziet in Praktisch onder het inlogblok de knop **Reizigers beheren**. Die opent een eigen scherm met de reizigerslijst: per persoon de delen van de reis als chips (een tik zet een deel aan of uit) en een kruisje om iemand uit de lijst te halen. De knop Reiziger toevoegen opent een schuifpaneel met naam, e-mailadres, wachtwoord en de delen. De app maakt dan eerst het account aan via het gewone aanmeldpunt van Nhost Auth (`/signup/email-password`, met de naam als display name) en schrijft daarna de rij in `reizigers`. De beheerder blijft zelf ingelogd. Zo kan de lijst onderweg vanaf de telefoon worden bijgehouden; de Nhost-console is daar niet meer voor nodig. Jezelf verwijderen of je eigen beheer uitzetten kan niet in de app.
+
+Onderaan het scherm staat wanneer de lijst voor het laatst is opgehaald, of waarom dat mislukte. Die melding staat dan ook in het inlogblok. Mislukt het ophalen, dan is de kolomlijst van de select-permissie de eerste verdachte: Hasura neemt een later toegevoegde kolom (zoals `beheer`) niet vanzelf op, ook niet als "alle kolommen" aanstond, en de app kan de kolom dan niet opvragen.
 
 Daarvoor is nodig:
 

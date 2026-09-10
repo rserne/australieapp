@@ -711,9 +711,7 @@ function renderPrakt(){
   h+=`<h2>Weergave</h2><div class="chips" id="themekeuze">`+
      THEMES.map(([k,l,ico])=>`<button type="button" class="chip" data-th="${k}">${ico}${l}</button>`).join('')+`</div>`;
   h+=`<h2>Notities</h2><div id="acct"></div>`;
-  if(isBeheerder()) h+=`<h2>Beheer</h2><div id="beheer"></div>`;
   document.getElementById('prakt').innerHTML=h;
-  renderBeheer(document.getElementById('beheer'));
   renderKoers(document.getElementById('koers'));
   renderVerzekeringen(document.getElementById('verz'));
   const tk=document.getElementById('themekeuze');
@@ -738,7 +736,8 @@ const BANNERS={
   index:['banner-dagen.jpg','Alle dagen',null],
   alles:['banner-notities.jpg','Notities',''],
   prakt:['banner-praktisch.jpg','Praktisch',''],
-  dieren:['banner-dieren.jpg','Dieren','Gespot onderweg']
+  dieren:['banner-dieren.jpg','Dieren','Gespot onderweg'],
+  beheer:['banner-praktisch.jpg','Reizigers','Wie de notities van de groep ziet']
 };
 function renderKop(v){
   const hero=document.getElementById('hero');
@@ -762,23 +761,27 @@ function switchTo(v){
   document.getElementById('prakt').style.display=v==='prakt'?'block':'none';
   document.getElementById('alles').style.display=v==='alles'?'block':'none';
   document.getElementById('dieren').style.display=v==='dieren'?'block':'none';
+  document.getElementById('beheer').style.display=v==='beheer'?'block':'none';
   document.getElementById('foot').style.display=v==='prakt'?'block':'none';
   document.getElementById('navbar').style.display=v==='day'?'block':'none';
+  // Het scherm Reizigers hangt onder Praktisch: die knop blijft dan oplichten.
   [['btnToday','day'],['btnIndex','index'],['btnPrakt','prakt'],['btnAlles','alles'],['btnDieren','dieren']].forEach(([id,k])=>{
-    const b=document.getElementById(id); b.classList.toggle('on',v===k); b.setAttribute('aria-pressed',v===k);
+    const aan=v===k||(v==='beheer'&&k==='prakt');
+    const b=document.getElementById(id); b.classList.toggle('on',aan); b.setAttribute('aria-pressed',aan);
   });
   renderKop(v);
   if(v==='index'){renderIndex();window.scrollTo(0,0)}
   else if(v==='prakt'){renderPrakt();window.scrollTo(0,0)}
   else if(v==='alles'){renderAlles();window.scrollTo(0,0)}
   else if(v==='dieren'){renderDieren();window.scrollTo(0,0)}
+  else if(v==='beheer'){renderBeheer();window.scrollTo(0,0)}
 }
 // Notities en Dieren bestaan alleen voor wie is ingelogd, want beide schrijven op naam.
 function toonTabs(){
   document.getElementById('btnAlles').hidden=!NH.user;
   document.getElementById('btnDieren').hidden=!NH.user;
   document.querySelector('.tabbar .inner').classList.toggle('vier',!!NH.user);
-  if(!NH.user&&(view==='alles'||view==='dieren')) switchTo('day');
+  if(!NH.user&&(view==='alles'||view==='dieren'||view==='beheer')) switchTo('day');
 }
 document.getElementById('prev').onclick=()=>ga(vorige(cur));
 document.getElementById('next').onclick=()=>ga(volgende(cur));
@@ -1027,7 +1030,9 @@ async function syncAlles(force){
 // oude kopie staan, of valt de app zonder kopie terug op de notities om voorreizigers te herkennen.
 async function syncReizigers(){
   if(!NH.user||!navigator.onLine) return;
-  try{ const d=await gql(Q_REIZIGERS); if(Array.isArray(d.reizigers)) LS.set('aus_cache_reizigers',d.reizigers); }catch(e){}
+  try{ const d=await gql(Q_REIZIGERS); if(Array.isArray(d.reizigers)) LS.set('aus_cache_reizigers',d.reizigers);
+    LS.set('aus_reizigers_status',{tijd:new Date().toISOString()}); }
+  catch(e){ LS.set('aus_reizigers_status',{tijd:new Date().toISOString(),fout:e.message}); }
 }
 
 // Waarnemingen apart ophalen. Mislukt dit (bijvoorbeeld omdat de tabel nog niet bestaat), dan blijven
@@ -1579,29 +1584,32 @@ function renderVerzekeringen(box){
 // Na een sprong naar Praktisch het blok in beeld brengen. Eerst tekenen, dan scrollen.
 function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView({block:'start'})); }
 
-// Beheer van de reizigerslijst, voor wie beheer=true heeft. Bovenaan de lijst met per persoon de delen
-// van de reis als chips (tik wisselt om), daaronder het formulier voor een nieuwe reiziger. Een nieuwe
-// reiziger krijgt eerst een account bij Nhost Auth en dan zijn rij in reizigers; die rij is het slot.
+// Scherm Reizigers, voor wie beheer=true heeft. Bovenaan de lijst met per persoon de delen van de
+// reis als chips (tik wisselt om) en een kruisje om iemand uit de lijst te halen. Een nieuwe reiziger
+// gaat via de knop onderaan en een schuifpaneel: eerst een account bij Nhost Auth, dan de rij in
+// reizigers. Die rij is het slot: zonder rij ziet een account niets van de groep.
 const DELEN=[['voorreis','Voorreis'],['reis','Groepsreis'],['nareis','Nareis'],['beheer','Beheer']];
-function renderBeheer(box){
-  if(!box||!NH.user||!isBeheerder()) return;
-  const lijst=reizigers()||[], mij=NH.user.id;
+const IC_GROEP='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.2a4.3 4.3 0 0 1 5 4.3"/></svg>';
+function renderBeheer(){
+  const box=document.getElementById('beheer');
+  if(!NH.user||!isBeheerder()){ box.innerHTML=''; if(view==='beheer') switchTo('prakt'); return; }
+  const lijst=reizigers()||[], mij=NH.user.id, st=LS.get('aus_reizigers_status');
   const chip=(r,[k,l])=>`<button type="button" class="chip${r[k]?' on':''}" data-id="${r.user_id}" data-deel="${k}"${k==='beheer'&&r.user_id===mij?' disabled':''}>${l}</button>`;
-  box.innerHTML=`<div class="beheer">`+
-    `<ul class="list">${lijst.map(r=>`<li><div class="row" style="align-items:center"><span style="min-width:0;flex:1"><strong>${esc(r.naam)}</strong>`+
+  // Wanneer de lijst voor het laatst is opgehaald, en wat er misging als dat niet lukte. Een stille
+  // fout hier kostte eerder een middag zoeken (kolom niet in de select-permissie).
+  const status=!st?'De lijst is op deze telefoon nog niet opgehaald.'
+    :st.fout?`Ophalen mislukt ${fmtTijd(st.tijd)}: ${st.fout}`:`Lijst opgehaald ${fmtTijd(st.tijd)}.`;
+  box.innerHTML=`<p class="terug"><a href="#" id="rterug">← Praktisch</a></p>`+
+    `<ul class="list rlijst">${lijst.map(r=>`<li><div class="row" style="align-items:center"><span style="min-width:0;flex:1"><strong>${esc(r.naam)}</strong>`+
       `<span class="chips">${DELEN.map(d=>chip(r,d)).join('')}</span></span>`+
-      (r.user_id===mij?'':`<button type="button" class="dweg" data-weg="${r.user_id}" aria-label="Verwijderen" title="Verwijderen">×</button>`)+`</div></li>`).join('')}</ul>`+
-    `<form class="ncompose" id="rform" action="#" method="post" autocomplete="off">`+
-    `<input id="rnaam" type="text" placeholder="Naam" autocomplete="off" required>`+
-    `<input id="remail" type="email" placeholder="E-mailadres" autocomplete="off" inputmode="email" autocapitalize="none" required>`+
-    `<input id="rpw" type="text" placeholder="Wachtwoord (geef dit door)" autocomplete="off" autocapitalize="none" required>`+
-    `<div class="chips" id="rdelen">${DELEN.slice(0,3).map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>`+
-    `<div class="nrow"><button class="btn primary" id="rbtn" type="submit">Reiziger toevoegen</button></div><div class="nstatus" id="rstat"></div></form>`+
-    `<p class="beheer-uitleg">De reiziger logt in met dit e-mailadres en wachtwoord en kan het wachtwoord later zelf wijzigen. Verwijderen haalt iemand uit de lijst; die ziet dan niets meer van de groep.</p></div>`;
-  const ververs=()=>syncReizigers().then(()=>{ renderBeheer(box); renderAccount(document.getElementById('acct')); });
-  const st=box.querySelector('#rstat');
-  // Chips in de lijst: één tik zet een deel aan of uit
-  box.querySelectorAll('.list .chip').forEach(c=>c.onclick=async()=>{
+      (r.user_id===mij?'':`<button type="button" class="dweg" data-weg="${r.user_id}" aria-label="Verwijderen" title="Verwijderen">×</button>`)+`</div></li>`).join('')||
+      `<li><span class="sub">Nog niemand in de lijst.</span></li>`}</ul>`+
+    `<div class="dagadd"><button class="btn" id="radd">＋ Reiziger toevoegen</button></div>`+
+    `<p class="rstatus${st&&st.fout?' fout':''}">${esc(status)}</p>`+
+    `<p class="beheer-uitleg">Een tik op een deel zet het aan of uit. Het kruisje haalt iemand uit de lijst; die ziet dan niets meer van de groep, het account blijft bestaan. Jezelf kun je niet verwijderen of je beheer afnemen.</p>`;
+  box.querySelector('#rterug').onclick=e=>{ e.preventDefault(); switchTo('prakt'); };
+  const ververs=()=>syncReizigers().then(()=>{ if(view==='beheer') renderBeheer(); });
+  box.querySelectorAll('.rlijst .chip').forEach(c=>c.onclick=async()=>{
     const r=lijst.find(x=>x.user_id===c.dataset.id); if(!r) return;
     c.disabled=true;
     try{ await gql(M_UPD_REIZIGER,{id:r.user_id,s:{[c.dataset.deel]:!r[c.dataset.deel]}}); await ververs(); }
@@ -1613,21 +1621,42 @@ function renderBeheer(box){
     try{ await gql(M_DEL_REIZIGER,{id:r.user_id}); toast(`${r.naam} is uit de lijst gehaald.`); await ververs(); }
     catch(e){ toast('Verwijderen mislukt: '+e.message); }
   });
-  // Chips in het formulier: alleen een keuze, nog niets versturen
-  box.querySelectorAll('#rdelen .chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
-  box.querySelector('#rform').addEventListener('submit',async e=>{
+  box.querySelector('#radd').onclick=()=>openReizigerSheet(ververs);
+}
+const fmtTijd=iso=>{ const d=new Date(iso); return `${d.getDate()} ${MN[d.getMonth()].slice(0,3)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+// Schuifpaneel voor een nieuwe reiziger: naam, e-mail, wachtwoord en de delen van de reis.
+function openReizigerSheet(onDone){
+  document.getElementById('sheet')?.remove();
+  const el=document.createElement('div'); el.id='sheet'; el.className='sheetwrap';
+  el.innerHTML=`<div class="sheetbg"></div><div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheethead"><strong>Reiziger toevoegen</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
+    <form id="rform" action="#" method="post" autocomplete="off">
+    <input id="rnaam" class="shinput" type="text" placeholder="Naam" autocomplete="off" autocapitalize="words" required>
+    <input id="remail" class="shinput" type="email" placeholder="E-mailadres" autocomplete="off" inputmode="email" autocapitalize="none" required>
+    <input id="rpw" class="shinput" type="text" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="off" autocapitalize="none" required>
+    <div class="chips" id="rdelen">${DELEN.slice(0,3).map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
+    <div class="nrow"><button class="btn primary" id="rbtn" type="submit">Toevoegen</button></div><div class="nstatus" id="rstat"></div></form>
+    <p class="beheer-uitleg">De reiziger logt in met dit e-mailadres en wachtwoord, en kan het wachtwoord later zelf wijzigen via "wachtwoord vergeten".</p></div>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('on'));
+  const close=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),220)};
+  el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
+  el.querySelectorAll('#rdelen .chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+  const st=el.querySelector('#rstat');
+  el.querySelector('#rform').addEventListener('submit',async e=>{
     e.preventDefault();
-    const naam=box.querySelector('#rnaam').value.trim(), email=box.querySelector('#remail').value.trim(), pw=box.querySelector('#rpw').value;
+    const naam=el.querySelector('#rnaam').value.trim(), email=el.querySelector('#remail').value.trim(), pw=el.querySelector('#rpw').value;
     if(!naam||!email||!pw) return;
-    const delen={}; DELEN.slice(0,3).forEach(([k])=>{ delen[k]=box.querySelector(`#rdelen .chip[data-deel="${k}"]`).classList.contains('on'); });
-    const knop=box.querySelector('#rbtn'); knop.disabled=true; st.textContent='Account aanmaken…';
+    const delen={}; DELEN.slice(0,3).forEach(([k])=>{ delen[k]=el.querySelector(`#rdelen .chip[data-deel="${k}"]`).classList.contains('on'); });
+    const knop=el.querySelector('#rbtn'); knop.disabled=true; st.textContent='Account aanmaken…';
     try{
       const u=await nhSignup(email,pw,naam);
       st.textContent='Toevoegen aan de reizigerslijst…';
       await gql(M_INS_REIZIGER,{o:{user_id:u.id,naam,...delen}});
-      toast(`${naam} is toegevoegd.`); await ververs();
+      close(); toast(`${naam} is toegevoegd.`); onDone();
     }catch(err){ knop.disabled=false; st.textContent=err.message; }
   });
+  setTimeout(()=>el.querySelector('#rnaam').focus(),250);
 }
 
 function renderAccount(box){
@@ -1639,13 +1668,19 @@ function renderAccount(box){
     const delen=mij?[mij.voorreis&&'de voorreis',mij.reis&&'de groepsreis',mij.nareis&&'de nareis'].filter(Boolean):[];
     const deelTxt=!r?'':mij?(delen.length?`Je reist mee met ${opsom(delen)}. `:'Je staat in de reizigerslijst, maar bij geen enkel deel van de reis. ')
       :'Je staat nog niet in de reizigerslijst. Daarom zie je geen notities van de groep; vraag de beheerder je toe te voegen. ';
-    box.innerHTML=`<div class="callout${r&&!mij?' let':''}" style="margin:0"><span class="ico">${IC_SLOT}</span><span><b>Ingelogd als ${esc(mij?mij.naam:(NH.user.displayName||NH.user.email))}</b>`+
-      `${deelTxt}Notities staan bij de dag zelf en bij elkaar in het tabblad Notities. <a href="#" id="logout">Uitloggen</a></span></div>`;
+    const rs=LS.get('aus_reizigers_status'), fout=rs&&rs.fout?`Het ophalen van de reizigerslijst mislukte (${rs.fout}). `:'';
+    box.innerHTML=`<div class="callout${(r&&!mij)||fout?' let':''}" style="margin:0"><span class="ico">${IC_SLOT}</span><span><b>Ingelogd als ${esc(mij?mij.naam:(NH.user.displayName||NH.user.email))}</b>`+
+      `${fout}${deelTxt}Notities staan bij de dag zelf en bij elkaar in het tabblad Notities. <a href="#" id="logout">Uitloggen</a></span></div>`;
     box.querySelector('#logout').onclick=async e=>{e.preventDefault();
       if(navigator.onLine) await flushPending();
       const w=pending().length;
       if(w&&!confirm(`${w===1?'Er wacht nog 1 notitie of waarneming':'Er wachten nog '+w+' notities of waarnemingen'} op verbinding. Bij uitloggen ${w===1?'gaat die':'gaan die'} verloren. Toch uitloggen?`)) return;
       await nhLogout(); await wisPriveGegevens(); toonTabs(); renderPrakt();};
+    // Beheer van de reizigerslijst op een eigen scherm, alleen voor wie beheer=true heeft
+    if(isBeheerder()){
+      box.insertAdjacentHTML('beforeend',`<div class="dagadd"><button class="btn" id="rbeheer">${IC_GROEP} Reizigers beheren</button></div>`);
+      box.querySelector('#rbeheer').onclick=()=>switchTo('beheer');
+    }
     return;
   }
   box.innerHTML=`<div class="callout" style="margin:0 0 14px"><span class="ico">${IC_SLOT}</span><span><b>Alleen voor de groep</b>Log in om notities en tickets te zien en toe te voegen. Zonder inloggen blijft dat deel onzichtbaar.</span></div>`+
@@ -1932,7 +1967,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-154';
+const APP_VERSIE='2026-09-10-155';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

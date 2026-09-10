@@ -158,11 +158,11 @@ function zoek(w,fouten,term){
     const c=$(w,'acct').querySelector('.callout');
     eis(fouten,c&&!c.classList.contains('let')&&/Je reist mee met de voorreis en de groepsreis/.test(c.textContent),`inlogblok noemt je deelname (nu: '${c&&c.textContent.slice(0,90)}')`);
     meld('5 okt: deelname in het inlogblok',fouten); }
-  // Beheer van de reizigerslijst
+  // Beheer van de reizigerslijst: knop in Praktisch, eigen scherm, schuifpaneel voor een nieuwe reiziger
   { const {w,fouten}=start('2026-10-05',{login:'groep'});
     klik(w,'btnPrakt',fouten);
-    eis(fouten,!$(w,'beheer')&&!/Beheer/.test($(w,'prakt').textContent),'zonder beheer=true staat het blok Beheer er niet');
-    meld('5 okt: geen beheerblok voor een gewone reiziger',fouten); }
+    eis(fouten,!$(w,'rbeheer'),'zonder beheer=true staat de knop Reizigers beheren er niet');
+    meld('5 okt: geen beheerknop voor een gewone reiziger',fouten); }
   { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
     const mutaties=[], aanmeldingen=[];
     let lijst=REIZIGERS(false,true);
@@ -174,34 +174,66 @@ function zoek(w,fouten,term){
       throw new Error('onverwachte query '+q.slice(0,40)); };
     w.fetch=async(url,o)=>{ if(/signup\/email-password/.test(url)){ aanmeldingen.push(JSON.parse(o.body)); return {ok:true,status:200,json:async()=>({session:{user:{id:'u9'}}})}; } throw new TypeError('Failed to fetch'); };
     klik(w,'btnPrakt',fouten);
+    eis(fouten,!!$(w,'rbeheer'),'beheerder ziet de knop Reizigers beheren in Praktisch');
+    klik(w,'rbeheer',fouten);
+    eis(fouten,$(w,'beheer').style.display==='block'&&$(w,'prakt').style.display==='none','de knop opent het scherm Reizigers');
+    eis(fouten,$(w,'btnPrakt').classList.contains('on'),'op het scherm Reizigers blijft de knop Praktisch oplichten');
+    eis(fouten,/Reizigers/.test($(w,'hero').textContent),`kop van het scherm (nu: '${$(w,'hero').textContent.trim().slice(0,40)}')`);
     const box=$(w,'beheer');
-    eis(fouten,box&&box.querySelectorAll('.list li').length===3,`beheerder ziet de drie reizigers (nu ${box?box.querySelectorAll('.list li').length:0})`);
-    eis(fouten,box&&!box.querySelector('.dweg[data-weg="u1"]')&&box.querySelector('.chip[data-id="u1"][data-deel="beheer"]').disabled,'jezelf kun je niet verwijderen of je beheer afnemen');
+    eis(fouten,box.querySelectorAll('.rlijst li').length===3,`beheerder ziet de drie reizigers (nu ${box.querySelectorAll('.rlijst li').length})`);
+    eis(fouten,!box.querySelector('.dweg[data-weg="u1"]')&&box.querySelector('.chip[data-id="u1"][data-deel="beheer"]').disabled,'jezelf kun je niet verwijderen of je beheer afnemen');
+    eis(fouten,/nog niet opgehaald/.test(box.querySelector('.rstatus').textContent),'zonder ophaalstatus meldt het scherm dat de lijst nog niet is opgehaald');
     // een deel omzetten bij Piet
     box.querySelector('.chip[data-id="u3"][data-deel="voorreis"]').click(); await sleep(100);
     eis(fouten,mutaties.join(',')==='update'&&$(w,'beheer').querySelector('.chip[data-id="u3"][data-deel="voorreis"]').classList.contains('on'),'tik op een chip zet het deel aan en tekent de lijst opnieuw');
-    eis(fouten,$(w,'beheer').querySelector('.chip[data-id="u3"][data-deel="voorreis"]')!==null&&lijst.find(r=>r.user_id==='u3').voorreis===true,'wijziging is naar Nhost gestuurd');
-    // een nieuwe reiziger
-    const b2=$(w,'beheer');
-    b2.querySelector('#rnaam').value='Kees'; b2.querySelector('#remail').value='kees@voorbeeld.nl'; b2.querySelector('#rpw').value='wombat-2026';
-    b2.querySelector('#rdelen .chip[data-deel="nareis"]').click();
-    b2.querySelector('#rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(150);
+    eis(fouten,lijst.find(r=>r.user_id==='u3').voorreis===true,'wijziging is naar Nhost gestuurd');
+    eis(fouten,/Lijst opgehaald/.test($(w,'beheer').querySelector('.rstatus').textContent),'na het verversen staat het tijdstip van ophalen op het scherm');
+    // een nieuwe reiziger via het schuifpaneel
+    klik(w,'radd',fouten);
+    let sheet=$(w,'sheet');
+    eis(fouten,sheet&&/Reiziger toevoegen/.test(sheet.textContent)&&$(w,'rnaam'),'plusknop opent het schuifpaneel');
+    $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl'; $(w,'rpw').value='wombat-2026';
+    sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
+    $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);
     eis(fouten,aanmeldingen.length===1&&aanmeldingen[0].email==='kees@voorbeeld.nl'&&aanmeldingen[0].options.displayName==='Kees','account aangemaakt via het aanmeldpunt met naam als displayName');
     eis(fouten,mutaties[mutaties.length-1]==='insert'&&lijst.some(r=>r.user_id==='u9'&&r.naam==='Kees'&&r.reis&&r.nareis&&!r.voorreis),`rij in reizigers met de gekozen delen (nu ${JSON.stringify(lijst.find(r=>r.user_id==='u9'))})`);
-    eis(fouten,$(w,'beheer').querySelectorAll('.list li').length===4,'nieuwe reiziger staat in de lijst');
+    eis(fouten,!$(w,'sheet'),'paneel sluit na het toevoegen');
+    eis(fouten,$(w,'beheer').querySelectorAll('.rlijst li').length===4,'nieuwe reiziger staat in de lijst');
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_sess')).user.id==='u1','beheerder blijft zelf ingelogd na het aanmaken van een account');
     // verwijderen
     $(w,'beheer').querySelector('.dweg[data-weg="u2"]').click(); await sleep(100);
-    eis(fouten,mutaties[mutaties.length-1]==='delete'&&$(w,'beheer').querySelectorAll('.list li').length===3,'verwijderen haalt de rij weg en tekent de lijst opnieuw');
+    eis(fouten,mutaties[mutaties.length-1]==='delete'&&$(w,'beheer').querySelectorAll('.rlijst li').length===3,'verwijderen haalt de rij weg en tekent de lijst opnieuw');
+    // terug
+    $(w,'rterug').click();
+    eis(fouten,$(w,'prakt').style.display==='block'&&$(w,'beheer').style.display==='none','← Praktisch brengt je terug');
     meld('5 okt: beheerder wijzigt, voegt toe en verwijdert',fouten); }
   { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
     w.gql=async q=>{ if(/^query/.test(q)) return {reizigers:REIZIGERS(false,true)}; throw new Error('onverwacht'); };
     w.fetch=async url=>{ if(/signup/.test(url)) return {ok:true,status:200,json:async()=>({session:null})}; throw new TypeError('Failed to fetch'); };
-    klik(w,'btnPrakt',fouten);
-    const b=$(w,'beheer'); b.querySelector('#rnaam').value='Kees'; b.querySelector('#remail').value='k@v.nl'; b.querySelector('#rpw').value='wombat-2026';
-    b.querySelector('#rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(150);
-    eis(fouten,/e-mailbevestiging/.test($(w,'rstat').textContent)&&!$(w,'rbtn').disabled,'zonder sessie uit het aanmeldpunt legt de status uit wat er aan de hand is');
+    klik(w,'btnPrakt',fouten); klik(w,'rbeheer',fouten); klik(w,'radd',fouten);
+    $(w,'rnaam').value='Kees'; $(w,'remail').value='k@v.nl'; $(w,'rpw').value='wombat-2026';
+    $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(150);
+    eis(fouten,!!$(w,'sheet')&&/e-mailbevestiging/.test($(w,'rstat').textContent)&&!$(w,'rbtn').disabled,'zonder sessie uit het aanmeldpunt blijft het paneel open met uitleg');
     meld('5 okt: aanmelden met e-mailbevestiging aan',fouten); }
+  { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
+    // Hasura weigert de query (kolom niet in de select-permissie): dat moet zichtbaar zijn
+    w.gql=async q=>{ if(/^query/.test(q)&&/reizigers/.test(q)) throw new Error("field 'beheer' not found in type: 'reizigers'"); throw new Error('onverwacht'); };
+    await w.syncReizigers();
+    klik(w,'btnPrakt',fouten);
+    const c=$(w,'acct').querySelector('.callout');
+    eis(fouten,c&&c.classList.contains('let')&&/ophalen van de reizigerslijst mislukte/.test(c.textContent)&&/beheer/.test(c.textContent),`mislukt ophalen van de lijst staat met de reden in het inlogblok (nu: '${c&&c.textContent.slice(0,80)}')`);
+    klik(w,'rbeheer',fouten);
+    eis(fouten,/Ophalen mislukt/.test($(w,'beheer').querySelector('.rstatus').textContent),'en op het scherm Reizigers');
+    meld('5 okt: mislukt ophalen van de reizigerslijst is zichtbaar',fouten); }
+  // Zonder login of zonder beheer blijft het scherm dicht, ook na uitloggen erop
+  { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
+    w.gql=async q=>{ if(/^query/.test(q)) return {reizigers:REIZIGERS(false,true)}; throw new Error('onverwacht'); };
+    klik(w,'btnPrakt',fouten); klik(w,'rbeheer',fouten);
+    const lo=$(w,'acct')&&$(w,'acct').querySelector('#logout');
+    klik(w,'btnPrakt',fouten); $(w,'logout').click(); await sleep(200);
+    eis(fouten,$(w,'beheer').style.display==='none','na uitloggen is het scherm Reizigers weg');
+    meld('5 okt: uitloggen vanaf het beheer',fouten); }
+
   { const {w,fouten}=start('2026-10-09',{login:'groep'});
     eis(fouten,!!$(w,'notes-top'),'ticket van dag 9 staat er meteen, zonder op de server te wachten');
     const h2=$(w,'notes-top')&&$(w,'notes-top').querySelector('h2');
