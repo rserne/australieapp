@@ -431,8 +431,8 @@
   .dkop.solo{display:block}
   /* Elke groep draagt twee kleuren mee uit dieren.js, --g voor licht en --gd voor donker. --gl is
      degene die bij dit thema hoort. Alle vlakken en teksten hieronder rekenen met --gl. */
-  .dgroep,.dchip,.drij{--gl:var(--gd)}
-  html[data-theme="light"] .dgroep,html[data-theme="light"] .dchip,html[data-theme="light"] .drij{--gl:var(--g)}
+  .dgroep,.dchip,.drij,.drijwrap{--gl:var(--gd)}
+  html[data-theme="light"] .dgroep,html[data-theme="light"] .dchip,html[data-theme="light"] .drij,html[data-theme="light"] .drijwrap{--gl:var(--g)}
   .dgroep .dkop h2{color:var(--gl)}
   .dzoek{width:100%;box-sizing:border-box;font:inherit;font-size:16px;color:var(--text);margin:0 0 10px;
     padding:11px 14px;border-radius:14px;border:1px solid var(--rim);background:var(--glass);-webkit-appearance:none;appearance:none}
@@ -453,13 +453,25 @@
   .dchip:active{opacity:.7}
   .dlist{border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);overflow:hidden;
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
-  .drij{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;text-align:left;font:inherit;color:var(--text);
-    background:none;border:none;border-bottom:1px solid var(--rim);padding:9px 14px 9px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-  .drij:last-child{border-bottom:none}
-  .drij:active{background:var(--glass-2)}
-  .drij[hidden]{display:none}
+  /* De regel noteert 'gezien', het bestekje ernaast 'gegeten'. Twee knoppen naast elkaar in één rij,
+     want een knop in een knop mag niet. De omhullende div draagt de tint en de scheidingslijn. */
+  .drijwrap{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rim);padding-right:12px}
+  .drijwrap:last-child{border-bottom:none}
+  .drijwrap[hidden]{display:none}
+  .drij{display:flex;align-items:center;gap:12px;flex:1;min-width:0;min-height:58px;text-align:left;font:inherit;color:var(--text);
+    background:none;border:none;padding:9px 2px 9px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .drij:active{opacity:.65}
   .dgroep[hidden]{display:none}
-  .drij.gespot{background:color-mix(in srgb,var(--gl) 13%,transparent)}
+  .drijwrap.gespot{background:color-mix(in srgb,var(--gl) 13%,transparent)}
+  /* Bestekknop: leeg zolang niemand het at, daarna een pil met het aantal erin. */
+  .deet{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:34px;min-width:34px;padding:0 10px;
+    border-radius:17px;border:1px solid var(--rim);background:none;color:var(--text-faint);font:inherit;cursor:pointer;
+    -webkit-tap-highlight-color:transparent}
+  .deet svg{display:block}
+  .deet span{font-size:12.5px;font-weight:700}
+  .deet:active{opacity:.6}
+  .deet.aan{background:var(--gl);border-color:transparent;color:#0A0C10}
+  html[data-theme="light"] .deet.aan{color:#fff}
   /* Geen vlak achter de tekening: het lijnwerk is één haarlijn dik en verliest het van een getinte
      ondergrond. De tekening staat nu groot en in de groepskleur op de rustige achtergrond van de lijst.
      De tint blijft over voor de rij van een dier dat al gespot is. */
@@ -470,13 +482,13 @@
   .dtxt strong{font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px;min-width:0}
   .dtxt strong .chance{color:var(--accent-ink)}
   .dtxt .sub{font-size:13.5px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .drij .dtel{flex:none;min-width:24px;height:24px;padding:0 7px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  .drijwrap .dtel{flex:none;min-width:24px;height:24px;padding:0 7px;border-radius:12px;display:flex;align-items:center;justify-content:center;
     font-size:12.5px;font-weight:700;background:var(--glass-3);color:var(--text)}
-  .drij.mijn .dtel{background:var(--accent);color:#0A0C10}
+  .drijwrap.mijn .dtel{background:var(--accent);color:#0A0C10}
   html[data-theme="light"] .dchip{background:color-mix(in srgb,var(--gl) 13%,transparent)}
   html[data-theme="light"] .dchip.dfilter{background:var(--glass-2);color:var(--text-dim)}
   html[data-theme="light"] .dchip.dfilter.on{background:var(--pill);color:var(--pill-text)}
-  html[data-theme="light"] .drij.gespot{background:color-mix(in srgb,var(--gl) 9%,transparent)}
+  html[data-theme="light"] .drijwrap.gespot{background:color-mix(in srgb,var(--gl) 9%,transparent)}
   /* tussenkop per dag in de lijst Gespot */
   .dlijst .ddag{padding:9px 16px 7px;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
     color:var(--text-faint);background:var(--glass-2)}
@@ -494,6 +506,8 @@
   .sheet .shinput::placeholder{color:var(--text-faint)}
   .sheet .shinput+.nrow{margin-top:12px}
   .dlijst li{display:flex;gap:12px;align-items:center}
+  /* bestekje achter de naam in de lijst Gespot */
+  .dlijst .wvork{display:inline-flex;vertical-align:-2px;margin-left:7px;color:var(--text-faint)}
   .dlijst .dtijd{flex:none;width:3.4em;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
   .dlijst .wbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
   .dlijst .dweg{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--rim);background:none;

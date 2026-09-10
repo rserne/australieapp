@@ -1,7 +1,7 @@
 // AustralieApp, service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v159';
+const VERSION='v160';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze bestanden werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
 const CODE=['./','./index.html','./app.css','./reis.js','./voorreis.js','./dieren.js','./dieren-iconen.js','./app.js','./manifest.webmanifest'];

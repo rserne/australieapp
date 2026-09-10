@@ -937,7 +937,7 @@ const typeRank=t=>{const i=TYPES.findIndex(x=>x[0]===t);return i<0?TYPE_STD:i};
 const isVerz=it=>(it.type||'notitie')==='verzekering';
 const M_DEL=`mutation($id:uuid!){delete_dagitems_by_pk(id:$id){id}}`;
 // Waarnemingen van dieren: eigen tabel, dezelfde wachtrij en dezelfde kopie op de telefoon als notities.
-const Q_WAARN=`query{waarnemingen(order_by:{gezien_op:asc}){id user_id dier dag gezien_op wie opmerking created_at}}`;
+const Q_WAARN=`query{waarnemingen(order_by:{gezien_op:asc}){id user_id dier dag gezien_op wie opmerking hoe created_at}}`;
 const M_INS_WAARN=`mutation($o:waarnemingen_insert_input!){insert_waarnemingen_one(object:$o){id}}`;
 const M_DEL_WAARN=`mutation($id:uuid!){delete_waarnemingen_by_pk(id:$id){id}}`;
 const alleWaarnemingen=()=>LS.get('aus_cache_waarn')||[];
@@ -1090,7 +1090,7 @@ const pendingAlsItems=()=>pendingVan('dagitems').map(p=>({...p,id:'wacht'+p.pix,
 const pendingWaarnemingen=()=>pendingVan('waarnemingen').map(p=>({...p,id:'wacht'+p.pix,user_id:NH.user.id,pending:true}));
 // Eén item in de wachtrij versturen, naar de eigen tabel
 async function verstuurPending(it){
-  if(tabelVan(it)==='waarnemingen') return gql(M_INS_WAARN,{o:{dier:it.dier,dag:it.dag,gezien_op:it.gezien_op,wie:it.wie,opmerking:it.opmerking||null}});
+  if(tabelVan(it)==='waarnemingen') return gql(M_INS_WAARN,{o:{dier:it.dier,dag:it.dag,gezien_op:it.gezien_op,wie:it.wie,opmerking:it.opmerking||null,hoe:it.hoe||'gezien'}});
   return gql(M_INS,{o:{dag:it.dag,soort:'notitie',tekst:it.tekst,wie:it.wie,type:it.type||'notitie'}});
 }
 // Notities die nog op verbinding wachten staan alleen op deze telefoon. Ze krijgen een eigen
@@ -1752,19 +1752,23 @@ function nuISO(){
 // Uur en minuut uit de tekst, zonder omrekening naar de tijdzone van de telefoon
 const tijdVan=iso=>{ const m=String(iso||'').match(/T(\d\d):(\d\d)/); return m?`${m[1]}.${m[2]}`:''; };
 const waarnemingen=()=>[...alleWaarnemingen(),...pendingWaarnemingen()];
-// Aantal keer dat de groep een dier zag, op de sleutel
-function dierTelling(){ const t={}; waarnemingen().forEach(w=>{ t[w.dier]=(t[w.dier]||0)+1; }); return t; }
+// Een waarneming is 'gezien' (in het wild) of 'gegeten' (van het bord). Rijen van vóór deze versie
+// hebben geen hoe en tellen als gezien.
+const hoeVan=w=>w.hoe==='gegeten'?'gegeten':'gezien';
+const isGegeten=w=>hoeVan(w)==='gegeten';
+// Aantal keer dat de groep een dier zag of at, op de sleutel
+function dierTelling(hoe){ const t={}; waarnemingen().filter(w=>hoeVan(w)===(hoe||'gezien')).forEach(w=>{ t[w.dier]=(t[w.dier]||0)+1; }); return t; }
 
-async function registreerWaarneming(dier,opmerking){
+async function registreerWaarneming(dier,opmerking,hoe){
   if(!NH.user) return;
   const wie=NH.user.displayName||NH.user.email;
-  const rec={tabel:'waarnemingen',dier,dag:waarnDag(),gezien_op:nuISO(),wie,opmerking:opmerking||null};
+  const rec={tabel:'waarnemingen',dier,dag:waarnDag(),gezien_op:nuISO(),wie,opmerking:opmerking||null,hoe:hoe==='gegeten'?'gegeten':'gezien'};
   const naam=dierNaam(rec);
   let id=null;
   const inWachtrij=()=>LS.set('aus_pending',[...pending(),rec]);
   if(navigator.onLine){
     try{
-      const d=await gql(M_INS_WAARN,{o:{dier:rec.dier,dag:rec.dag,gezien_op:rec.gezien_op,wie:rec.wie,opmerking:rec.opmerking}});
+      const d=await gql(M_INS_WAARN,{o:{dier:rec.dier,dag:rec.dag,gezien_op:rec.gezien_op,wie:rec.wie,opmerking:rec.opmerking,hoe:rec.hoe}});
       id=d.insert_waarnemingen_one.id;
       LS.set('aus_cache_waarn',[...alleWaarnemingen(),{...rec,id,user_id:NH.user.id,created_at:rec.gezien_op}]);
     }catch(e){
@@ -1774,12 +1778,12 @@ async function registreerWaarneming(dier,opmerking){
     }
   } else inWachtrij();
   renderDieren();
-  toast(`${naam} gespot om ${tijdVan(rec.gezien_op)} uur`,'Ongedaan maken',async()=>{
+  toast(`${naam} ${isGegeten(rec)?'gegeten':'gespot'} om ${tijdVan(rec.gezien_op)} uur`,'Ongedaan maken',async()=>{
     if(id){
       try{ await gql(M_DEL_WAARN,{id}); }catch(e){ toast('Weghalen lukte niet. Probeer het straks opnieuw.'); return; }
       LS.set('aus_cache_waarn',alleWaarnemingen().filter(w=>w.id!==id));
     }else{
-      const ix=pending().findIndex(q=>tabelVan(q)==='waarnemingen'&&q.gezien_op===rec.gezien_op&&q.dier===rec.dier);
+      const ix=pending().findIndex(q=>tabelVan(q)==='waarnemingen'&&q.gezien_op===rec.gezien_op&&q.dier===rec.dier&&hoeVan(q)===hoeVan(rec));
       if(ix>=0) pendingDelete(ix);
     }
     renderDieren();
@@ -1788,7 +1792,7 @@ async function registreerWaarneming(dier,opmerking){
 async function verwijderWaarneming(w){
   if(w.pending){ pendingDelete(w.pix); renderDieren(); return; }
   const n=dierNaam(w);
-  if(!confirm(`Je ${n.charAt(0).toLowerCase()+n.slice(1)} van ${tijdVan(w.gezien_op)} uur weghalen?`)) return;
+  if(!confirm(`Je ${isGegeten(w)?'gegeten ':''}${n.charAt(0).toLowerCase()+n.slice(1)} van ${tijdVan(w.gezien_op)} uur weghalen?`)) return;
   try{ await gql(M_DEL_WAARN,{id:w.id}); }catch(e){ toast(e.tijdelijk?'Geen verbinding. Probeer het straks opnieuw.':'Weghalen lukte niet. '+e.message); return; }
   LS.set('aus_cache_waarn',alleWaarnemingen().filter(x=>x.id!==w.id));
   renderDieren();
@@ -1821,25 +1825,32 @@ const kansDots=k=>`<span class="chance" title="${['','Geluk nodig','Goede kans',
 // zo'n dagregel aan een dier te koppelen, en zouden bij het zoeken het verkeerde dier opleveren:
 // wie 'emoe' typt, kreeg anders ook de kangoeroe te zien.
 const zoekTekst=(dier,naam)=>[schoon(naam),...((dier&&dier.syn)||[]).filter(x=>!/ en /i.test(x))].join(' ').toLowerCase();
-// Eén regel in de lijst: icoon in een rondje, naam, eventueel kans en tekst, en rechts de teller.
+// Vork en mes: naast de teller van een dier dat je in Australië ook op je bord kunt krijgen.
+const IC_VORK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v5a3 3 0 0 0 6 0V3"/><path d="M7 3v18"/><path d="M17 21V3c2.4 1.6 2.4 7.4 0 9"/></svg>';
+// Eén regel in de lijst: icoon, naam, eventueel kans en tekst, en rechts het bestek en de teller.
+// De regel zelf noteert 'gezien', het bestekje 'gegeten'. Daarom staat de knop naast de regel en niet
+// erin: een knop in een knop mag niet. De omhullende div vangt beide tikken op.
 // dier is een dier uit de lijst of null (dan een 'ander dier' met alleen een naam).
-function dierRij(dier,{naam,tekst,kans,tel,mijn,groep}){
+function dierRij(dier,{naam,tekst,kans,tel,mijn,groep,eet,gegeten}){
   const k=dier?dier.k:'overig';
   // Een dier zonder eigen tekening krijgt het pootje, in de kleur van de groep waarin het staat.
   const ic=dier?(DIER_ICOON[dier.k]||PAW):PAW;
-  return `<button type="button" class="drij${tel?' gespot':''}${mijn?' mijn':''}" data-dier="${k}" data-naam="${esc(naam)}"`+
-    ` data-zoek="${esc(zoekTekst(dier,naam))}"`+
+  return `<div class="drijwrap${tel?' gespot':''}${mijn?' mijn':''}" data-zoek="${esc(zoekTekst(dier,naam))}"`+
     ` data-gespot="${tel?1:0}" style="${kleurVan(groep)}">`+
+    `<button type="button" class="drij" data-dier="${k}" data-naam="${esc(naam)}">`+
     `<span class="dico">${ic}</span>`+
     `<span class="dtxt"><strong>${esc(schoon(naam))}${kans?kansDots(kans):''}</strong>${tekst?`<span class="sub">${esc(tekst)}</span>`:''}</span>`+
-    (tel?`<span class="dtel">${tel}</span>`:'')+`</button>`;
+    `</button>`+
+    (eet?`<button type="button" class="deet${gegeten?' aan':''}" data-eet="${k}" data-naam="${esc(naam)}"`+
+      ` aria-label="${esc(schoon(naam))} gegeten">${IC_VORK}${gegeten?`<span>${gegeten}</span>`:''}</button>`:'')+
+    (tel?`<span class="dtel">${tel}</span>`:'')+`</div>`;
 }
 function renderDieren(){
   const box=document.getElementById('dieren');
   if(!NH.user){ box.innerHTML=''; return; }
-  const alle=waarnemingen(), tel=dierTelling();
-  const mijn={}; alle.filter(w=>w.user_id===NH.user.id).forEach(w=>{ mijn[w.dier]=(mijn[w.dier]||0)+1; });
-  // 'ander dier' telt op naam, want daar is geen sleutel
+  const alle=waarnemingen(), tel=dierTelling(), eetTel=dierTelling('gegeten');
+  const mijn={}; alle.filter(w=>w.user_id===NH.user.id&&!isGegeten(w)).forEach(w=>{ mijn[w.dier]=(mijn[w.dier]||0)+1; });
+  // 'ander dier' telt op naam, want daar is geen sleutel. Een ander dier eet je niet: die knop staat er alleen bij de lijst.
   const telAnder=naam=>alle.filter(w=>w.dier==='overig'&&(w.opmerking||'').toLowerCase()===naam.toLowerCase());
   let h='';
   // Statusregel in dezelfde vorm als die in Notities
@@ -1859,7 +1870,8 @@ function renderDieren(){
   if(kansen.length){
     h+=`<div class="dkop solo"><h2>${vandaag?'Kans vandaag':'Kans op deze dag'}</h2></div><div class="dlist">`+
       kansen.map(x=>{ const d=x.dier, n=d?(tel[d.k]||0):telAnder(x.naam).length, m=d?(mijn[d.k]||0):telAnder(x.naam).some(w=>w.user_id===NH.user.id);
-        return dierRij(d,{naam:x.naam,tekst:x.tekst,kans:x.kans,tel:n,mijn:m,groep:d?d.g:'overig'}); }).join('')+
+        return dierRij(d,{naam:x.naam,tekst:x.tekst,kans:x.kans,tel:n,mijn:m,groep:d?d.g:'overig',
+          eet:!!(d&&d.eet),gegeten:d?(eetTel[d.k]||0):0}); }).join('')+
       `</div><p class="dhint">Uit het programma van ${vandaag?'vandaag':'deze dag'}. De rest van de lijst staat eronder.</p>`;
   }
 
@@ -1886,7 +1898,7 @@ function renderDieren(){
     `<div id="dalle">`+groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g); if(!tot) return '';
       const rijen=g==='overig'
         ? anderen.map(a=>dierRij(null,{naam:a.naam,tel:a.tel,mijn:a.mijn,groep:'overig'})).join('')
-        : perGroep(g).map(d=>dierRij(d,{naam:d.n,tel:tel[d.k]||0,mijn:mijn[d.k]||0,groep:g})).join('');
+        : perGroep(g).map(d=>dierRij(d,{naam:d.n,tel:tel[d.k]||0,mijn:mijn[d.k]||0,groep:g,eet:!!d.eet,gegeten:eetTel[d.k]||0})).join('');
       return `<section class="dgroep" id="dg-${g}" style="${kleurVan(g)}"><div class="dkop"><h2>${esc(label)}</h2><span class="dsub">${gs} van ${tot}</span></div><div class="dlist">`+
         rijen+`</div></section>`; }).join('')+`</div>`;
   h+=`<p class="dstatus" id="dleeg" hidden>Geen dier gevonden.</p>`+
@@ -1908,19 +1920,34 @@ function renderDieren(){
         const dd2=new Date(dat+'T12:00:00'), lang=fmtLong(dd2).replace(/^./,c=>c.toUpperCase());
         const voor=w.dag>=1&&w.dag<=29?`Dag ${w.dag} · `:isBuiten(w.dag)?`${w.dag<0?'Voorreis':'Nareis'} · `:'';
         kop=`<li class="ddag">${esc(voor+lang)}</li>`; }
-      return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}</strong>`+
+      return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}`+
+        (isGegeten(w)?`<span class="wvork" title="Gegeten">${IC_VORK}</span>`:'')+`</strong>`+
         `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · wacht op verbinding'):''}</span></span>`+
         (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
     }).join('')+`</ul>`;
   }
 
   // Tot nu toe
-  const soorten=new Set(alle.map(w=>w.dier==='overig'?'overig:'+(w.opmerking||'').toLowerCase():w.dier)).size;
-  const jij=alle.filter(w=>w.user_id===NH.user.id).length;
-  if(alle.length) h+=`<h2>Tot nu toe</h2><p class="dstatus">Jullie hebben samen ${alle.length} ${alle.length===1?'dier':'dieren'} gespot, ${soorten} ${soorten===1?'soort':'verschillende soorten'} en ${jij?jij:'nog geen'} door jou.</p>`;
+  const gezien=alle.filter(w=>!isGegeten(w)), gegeten=alle.filter(isGegeten);
+  const sleutel=w=>w.dier==='overig'?'overig:'+(w.opmerking||'').toLowerCase():w.dier;
+  const soorten=new Set(gezien.map(sleutel)).size;
+  const jij=gezien.filter(w=>w.user_id===NH.user.id).length;
+  // De aardigheid van het bestek: soorten die de groep zowel in het wild zag als op het bord kreeg.
+  const beide=[...new Set(gegeten.map(sleutel))].filter(k=>gezien.some(w=>sleutel(w)===k)).length;
+  if(alle.length){
+    h+=`<h2>Tot nu toe</h2><p class="dstatus">Jullie hebben samen ${gezien.length} ${gezien.length===1?'dier':'dieren'} gespot, ${soorten} ${soorten===1?'soort':'verschillende soorten'} en ${jij?jij:'nog geen'} door jou.`+
+      (gegeten.length?` Op het bord kwamen er ${gegeten.length}, in ${new Set(gegeten.map(sleutel)).size} ${new Set(gegeten.map(sleutel)).size===1?'soort':'soorten'}`+
+        (beide?`, waarvan ${beide} ${beide===1?'soort die jullie ook':'soorten die jullie ook'} in het wild zagen.`:'.'):'')+`</p>`;
+  }
   box.innerHTML=h;
 
-  box.querySelectorAll('.drij').forEach(b=>b.onclick=()=>b.dataset.dier==='overig'?registreerWaarneming('overig',b.dataset.naam):registreerWaarneming(b.dataset.dier));
+  box.querySelectorAll('.drijwrap').forEach(w=>w.onclick=e=>{
+    const eetknop=e.target.closest('.deet');
+    const b=eetknop||w.querySelector('.drij');
+    const k=eetknop?eetknop.dataset.eet:b.dataset.dier;
+    const hoe=eetknop?'gegeten':'gezien';
+    if(k==='overig') registreerWaarneming('overig',b.dataset.naam,hoe); else registreerWaarneming(k,null,hoe);
+  });
 
   // Het zoekveld en de chips filteren samen de lijst Alle dieren. Een chip is een schakelaar, geen
   // sprong naar beneden: zo houd je na het filteren de knop 'Ander dier' meteen in beeld. Er kan één
@@ -1928,10 +1955,10 @@ function renderDieren(){
   const zoek=box.querySelector('#dzoek');
   const filter=()=>{ const q=zoek.value.trim().toLowerCase(); window._dzoek=q;
     const alleenGespot=!!window._dgespot, groep=window._dgroep||'';
-    box.querySelectorAll('#dalle .drij').forEach(r=>{
+    box.querySelectorAll('#dalle .drijwrap').forEach(r=>{
       r.hidden=(!!q&&!r.dataset.zoek.includes(q))||(alleenGespot&&r.dataset.gespot!=='1'); });
     box.querySelectorAll('#dalle .dgroep').forEach(g=>{
-      g.hidden=(!!groep&&g.id!=='dg-'+groep)||((!!q||alleenGespot)&&![...g.querySelectorAll('.drij')].some(r=>!r.hidden)); });
+      g.hidden=(!!groep&&g.id!=='dg-'+groep)||((!!q||alleenGespot)&&![...g.querySelectorAll('.drijwrap')].some(r=>!r.hidden)); });
     const leeg=box.querySelector('#dleeg');
     if(leeg) leeg.hidden=![...box.querySelectorAll('#dalle .dgroep')].every(g=>g.hidden); };
   zoek.oninput=filter;
@@ -1983,7 +2010,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-159';
+const APP_VERSIE='2026-09-10-160';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

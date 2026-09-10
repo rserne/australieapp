@@ -18,14 +18,16 @@ const DIER_GROEPEN=[
 // Per dier een sleutel (k, komt zo in de tabel waarnemingen), de naam op de knop (n) en de groep (g).
 // Het icoon staat onder dezelfde sleutel in dieren-iconen.js. Met syn koppelt check.js de namen uit de
 // wild-blokken van de dagen aan een dier hier, om te melden welke dieren geen eigen knop hebben.
+// Dieren die je in Australië ook op je bord kunt krijgen, hebben eet:true. Die krijgen in de app een
+// bestekknopje naast de teller, zodat de groep ook kan noteren dat ze het hebben gegeten.
 // Een dier zonder icoon krijgt de eerste letter. De knop Iets anders gezien is vast en staat niet in deze lijst.
 // In lange namen staat \u00AD, een zacht afbreekstreepje. Dat is onzichtbaar, tot de naam niet op de
 // knop past. Dan breekt hij daar af met een streepje. Overal elders haalt de app het weg.
 const DIEREN=[
 // Zoogdieren
- {k:"kangoeroe",n:"Kangoeroe",g:"zoogdier",syn:["Rode reuzenkangoeroe","Kangoeroe en wallaby","Rode reuzenkangoeroe en emoe","Westelijke grijze reuzenkangoeroe en emoe","Zwartvoetrotskangoeroe"]},
+ {k:"kangoeroe",n:"Kangoeroe",g:"zoogdier",syn:["Rode reuzenkangoeroe","Kangoeroe en wallaby","Rode reuzenkangoeroe en emoe","Westelijke grijze reuzenkangoeroe en emoe","Zwartvoetrotskangoeroe"],eet:true},
  {k:"boomkangoeroe",n:"Boom\u00ADkangoeroe",g:"zoogdier",syn:["Boomkangoeroe","Lumholtz-boomkangoeroe"]},
- {k:"wallaby",n:"Wallaby",g:"zoogdier",syn:["Bennettwallaby","Zandwallaby","Rotswallaby","Moeraswallaby","Pademelon en Bennettwallaby","Pademelon","Zwarte bergkangoeroe"]},
+ {k:"wallaby",n:"Wallaby",g:"zoogdier",syn:["Bennettwallaby","Zandwallaby","Rotswallaby","Moeraswallaby","Pademelon en Bennettwallaby","Pademelon","Zwarte bergkangoeroe"],eet:true},
  {k:"koala",n:"Koala",g:"zoogdier"},
  {k:"wombat",n:"Wombat",g:"zoogdier"},
  {k:"echidna",n:"Echidna",g:"zoogdier",syn:["Mierenegel"]},
@@ -39,7 +41,7 @@ const DIEREN=[
  {k:"suikereekhoorn",n:"Suiker\u00ADeekhoorn",g:"zoogdier",syn:["Vliegende buidelmuis","Sugar glider"]},
  {k:"vliegende-vos",n:"Vliegende vos",g:"zoogdier",syn:["Grijskopvleerhond","Brilvleerhond","Vleerhond","Zuidelijke langvleugelvleermuis"]},
 // Vogels. De emoe staat voorop, als lopende grap van de reis.
- {k:"emoe",n:"Emoe",g:"vogel"},
+ {k:"emoe",n:"Emoe",g:"vogel",eet:true},
  {k:"kasuaris",n:"Kasuaris",g:"vogel",syn:["Helmkasuaris"]},
  {k:"kookaburra",n:"Kookaburra",g:"vogel",syn:["Blauwvleugelkookaburra","Lachvogel"]},
  {k:"kaketoe",n:"Kaketoe",g:"vogel",syn:["Raafkaketoe","Banks' raafkaketoe","Carnabys raafkaketoe","Geelstaartraafkaketoe","Witte kaketoe","Kaketoes en lori's","Zwarte kaketoe","Rosella's en kaketoes"]},
@@ -55,7 +57,7 @@ const DIEREN=[
  {k:"zebravink",n:"Zebravink",g:"vogel",syn:["Zebravink en spinifexduif","Zebravink en woestijnparkiet","Vink"]},
  {k:"dwergpinguin",n:"Dwerg\u00ADpinguïn",g:"vogel"},
 // Reptielen. Eerst de krokodillen, dan de hagedissen, dan de slangen.
- {k:"zoutwaterkrokodil",n:"Zoutwater\u00ADkrokodil",g:"reptiel"},
+ {k:"zoutwaterkrokodil",n:"Zoutwater\u00ADkrokodil",g:"reptiel",eet:true},
  {k:"zoetwaterkrokodil",n:"Zoetwater\u00ADkrokodil",g:"reptiel"},
  {k:"varaan",n:"Varaan (goanna)",g:"reptiel",syn:["Goanna","Perentie","Reuzenvaraan"]},
  {k:"kraaghagedis",n:"Kraag\u00ADhagedis",g:"reptiel"},
@@ -81,18 +83,18 @@ const DIEREN=[
  {k:"doejong",n:"Dugong",g:"zee",syn:["Doejong"]},
  {k:"zeeschildpad",n:"Zee\u00ADschildpad",g:"zee",syn:["Groene zeeschildpad","Karetschildpad"]},
  {k:"zeeslang",n:"Zeeslang",g:"zee"},
- {k:"haai",n:"Haai",g:"zee",syn:["Witpuntrifhaai","Rifhaai"]},
+ {k:"haai",n:"Haai",g:"zee",syn:["Witpuntrifhaai","Rifhaai"],eet:true},
  {k:"manta",n:"Manta",g:"zee",syn:["Reuzenmanta","Rog"]},
  {k:"kwal",n:"Kwal",g:"zee",syn:["Dooskwal","Irukandji"]},
- {k:"krab",n:"Krab",g:"zee",syn:["Mud crab","Modderkrab"]},
+ {k:"krab",n:"Krab",g:"zee",syn:["Mud crab","Modderkrab"],eet:true},
  {k:"anemoonvis",n:"Clownvis",g:"zee",syn:["Anemoonvis","Anemoonvis en doopvontschelp","Anemoonvis en reuzendoopvont"]},
  {k:"papegaaivis",n:"Papegaai\u00ADvis",g:"zee"},
- {k:"koraalbaars",n:"Koraal\u00ADbaars",g:"zee",syn:["Coral trout"]},
- {k:"trevally",n:"Trevally",g:"zee"},
- {k:"octopus",n:"Octopus",g:"zee",syn:["Blauwringoctopus"]},
+ {k:"koraalbaars",n:"Koraal\u00ADbaars",g:"zee",syn:["Coral trout"],eet:true},
+ {k:"trevally",n:"Trevally",g:"zee",eet:true},
+ {k:"octopus",n:"Octopus",g:"zee",syn:["Blauwringoctopus"],eet:true},
  {k:"zeester",n:"Zeester",g:"zee"},
 // Zoetwater. Rivieren, billabongs en zwemgaten. De barramundi hoort hier, niet in zee.
- {k:"barramundi",n:"Barramundi",g:"zoetwater"},
+ {k:"barramundi",n:"Barramundi",g:"zoetwater",eet:true},
  {k:"zoetwaterschildpad",n:"Zoetwater\u00ADschildpad",g:"zoetwater"},
  {k:"kikker",n:"Kikker",g:"zoetwater",syn:["Australische boomkikker","Boomkikker"]},
  {k:"reuzenpad",n:"Reuzenpad",g:"zoetwater",syn:["Agapad","Cane toad"]}

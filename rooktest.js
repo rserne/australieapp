@@ -386,15 +386,15 @@ function zoek(w,fouten,term){
     const kopjes=[...$(w,'dieren').querySelectorAll('h2')].map(x=>x.textContent);
     eis(fouten,kopjes.includes('Ander dier'),`kopje boven de knop voor een ander dier (nu: ${kopjes.join(' | ')})`);
     const zoek=$(w,'dzoek'); zoek.value='krok'; zoek.dispatchEvent(new w.Event('input'));
-    const zichtbaar=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
+    const zichtbaar=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
     eis(fouten,zichtbaar.join(',')==='zoutwaterkrokodil,zoetwaterkrokodil',`zoeken op 'krok' laat twee krokodillen over (nu ${zichtbaar.join(',')})`);
     eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder treffer verdwijnen bij zoeken');
     // een samengesteld synoniem als 'Rode reuzenkangoeroe en emoe' mag de kangoeroe niet onder 'emoe' vinden
     zoek.value='emoe'; zoek.dispatchEvent(new w.Event('input'));
-    const opEmoe=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
+    const opEmoe=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
     eis(fouten,opEmoe.join(',')==='emoe',`zoeken op 'emoe' geeft alleen de emoe (nu ${opEmoe.join(',')||'niets'})`);
     zoek.value='buidelmarter'; zoek.dispatchEvent(new w.Event('input'));
-    const opSyn=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
+    const opSyn=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
     eis(fouten,opSyn.join(',')==='quoll',`zoeken op een los synoniem werkt nog wel (nu ${opSyn.join(',')||'niets'})`);
     zoek.value=''; zoek.dispatchEvent(new w.Event('input'));
     if(koala) koala.click();
@@ -404,13 +404,13 @@ function zoek(w,fouten,term){
     const gesp=$(w,'dieren').querySelector('.dlijst');
     // de datum in de tussenkop komt van de klok, die in deze test niet meeloopt met ?datum
     eis(fouten,gesp&&/^Dag 6 · [A-Z][a-z]+dag \d+ \w+$/.test(gesp.querySelector('.ddag').textContent)&&/Koala/.test(gesp.textContent)&&/1 waarneming wacht op verbinding/.test($(w,'dieren').textContent),`waarneming staat onder Gespot, onder een tussenkop met dagnummer en datum (nu '${gesp&&gesp.querySelector('.ddag').textContent}')`);
-    const koala2=w.document.querySelector('#dalle .drij[data-dier="koala"]');
+    const koala2=w.document.querySelector('#dalle .drij[data-dier="koala"]')?.closest('.drijwrap');
     eis(fouten,koala2&&koala2.classList.contains('mijn')&&koala2.classList.contains('gespot')&&koala2.querySelector('.dtel').textContent==='1','teller en tint op de regel na de waarneming');
     eis(fouten,/Zoogdieren1\/15/.test(w.document.querySelectorAll('#dieren .dchip')[1].textContent),'chip telt mee');
     // filter Eerder gespot
     $(w,'dfilter').click();
     eis(fouten,!!w.document.querySelector('#dfilter .chipx'),'Eerder gespot toont een kruisje als hij aanstaat');
-    let zicht=[...w.document.querySelectorAll('#dalle .drij')].filter(r=>!r.hidden).map(r=>r.dataset.dier);
+    let zicht=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
     eis(fouten,zicht.join(',')==='koala',`filter toont alleen wat al gespot is (nu ${zicht.join(',')||'niets'})`);
     eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder gespot dier verdwijnen');
     eis(fouten,$(w,'dfilter').classList.contains('on'),'filterchip staat aan');
@@ -500,6 +500,34 @@ function zoek(w,fouten,term){
     $(w,'toast').querySelector('button').click(); await sleep(50);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_cache_waarn')||'[]').length===0&&mutaties[mutaties.length-1]==='delete_waarnemingen_by_pk','Ongedaan maken verwijdert bij Nhost');
     meld('6 okt: wachtrij en waarnemingen met verbinding',fouten); }
+  // Gegeten: het bestekje naast de teller
+  { const {w,fouten}=start('2026-10-06',{login:'groep'});
+    klik(w,'btnDieren',fouten);
+    const kang=w.document.querySelector('#dalle .drijwrap [data-dier="kangoeroe"]').closest('.drijwrap');
+    eis(fouten,!!kang.querySelector('.deet'),'een eetbaar dier heeft een bestekknop');
+    const koala=w.document.querySelector('#dalle .drijwrap [data-dier="koala"]').closest('.drijwrap');
+    eis(fouten,!koala.querySelector('.deet'),'een niet-eetbaar dier heeft er geen');
+    kang.querySelector('.deet').click(); await sleep(80);
+    let q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q.length===1&&q[0].dier==='kangoeroe'&&q[0].hoe==='gegeten',`tik op het bestek noteert 'gegeten' (nu: ${JSON.stringify(q[0])})`);
+    eis(fouten,/gegeten om/.test($(w,'toast').textContent),'de melding zegt gegeten, niet gespot');
+    const kang2=w.document.querySelector('#dalle .drijwrap [data-dier="kangoeroe"]').closest('.drijwrap');
+    eis(fouten,kang2.querySelector('.deet.aan')&&kang2.querySelector('.deet span').textContent==='1','de bestekknop kleurt op met het aantal erin');
+    eis(fouten,!kang2.classList.contains('gespot')&&!kang2.querySelector('.dtel'),'gegeten telt niet mee als gespot');
+    kang2.querySelector('.drij').click(); await sleep(80);
+    q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q.length===2&&q[1].hoe==='gezien',`tik op de regel zelf noteert nog steeds 'gezien' (nu: ${q[1]&&q[1].hoe})`);
+    const kang3=w.document.querySelector('#dalle .drijwrap [data-dier="kangoeroe"]').closest('.drijwrap');
+    eis(fouten,kang3.classList.contains('gespot')&&kang3.querySelector('.dtel').textContent==='1'&&kang3.querySelector('.deet.aan'),'beide tellers staan naast elkaar');
+    eis(fouten,/Op het bord kwamen er 1/.test($(w,'dieren').textContent)&&/1 soort die jullie ook in het wild zagen/.test($(w,'dieren').textContent),
+      `'Tot nu toe' telt gegeten en allebei apart (nu: '${($(w,'dieren').textContent.match(/Jullie hebben[^]*?\./g)||[]).join(' ')}')`);
+    eis(fouten,w.document.querySelector('#dieren .dlijst .wvork'),'in de lijst Gespot draagt een gegeten dier het bestekje');
+    // zoeken en filteren blijven werken nu de rij een omhullende div heeft
+    const dz=$(w,'dzoek'); dz.value='kangoeroe'; dz.dispatchEvent(new w.Event('input'));
+    const zichtbaar=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden);
+    eis(fouten,zichtbaar.length&&zichtbaar.every(r=>/kangoeroe/i.test(r.dataset.zoek)),`zoeken filtert de rijen (nu ${zichtbaar.length} zichtbaar)`);
+    w.localStorage.setItem('aus_pending','[]');
+    meld('6 okt: gegeten noteren met het bestekje',fouten); }
   { const {w,fouten}=start('2026-10-06');
     eis(fouten,$(w,'btnDieren').hidden===true,'tabblad Dieren verborgen zonder login');
     meld('6 okt anoniem: Dieren achter de login',fouten); }

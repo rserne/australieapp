@@ -114,6 +114,7 @@ else{
     if(!groepen.has(d.g)) fout(`dieren.js: dier '${d.k}' heeft onbekende groep '${d.g}'`);
     if('ic' in d&&!/^<svg[\s>]/.test(d.ic||'')) fout(`dieren.js: icoon van '${d.k}' is geen svg`);
     if(d.syn&&!Array.isArray(d.syn)) fout(`dieren.js: syn van '${d.k}' moet een lijst zijn`);
+    if('eet' in d&&d.eet!==true) fout(`dieren.js: eet van '${d.k}' is alleen bedoeld als eet:true`);
   });
   const schoon=n=>String(n||'').replace(/\u00AD/g,'');
   const bekend=naam=>DIEREN.some(d=>schoon(d.n)===naam||(d.syn||[]).includes(naam));
@@ -121,7 +122,7 @@ else{
   alleDagen.forEach(d=>(d.wild||[]).forEach(w=>{ if(!bekend(w[0])) zonder.add(w[0]); }));
   const metIcoon=DIEREN.filter(d=>d.ic||ICONEN[d.k]).length;
   DIEREN.filter(d=>!d.ic&&!ICONEN[d.k]).forEach(d=>waarschuw(`dieren.js: '${d.k}' heeft geen icoon en krijgt de eerste letter`));
-  console.log(`  info:    ${DIEREN.length} dieren in dieren.js, ${metIcoon} met icoon. ${zonder.size} ${zonder.size===1?'naam uit de dagen heeft':'namen uit de dagen hebben'} geen eigen knop en krijgen het pootje.`);
+  console.log(`  info:    ${DIEREN.length} dieren in dieren.js, ${metIcoon} met icoon, ${DIEREN.filter(d=>d.eet).length} eetbaar. ${zonder.size} ${zonder.size===1?'naam uit de dagen heeft':'namen uit de dagen hebben'} geen eigen knop en krijgen het pootje.`);
 }
 
 // Losse lijsten
