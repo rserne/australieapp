@@ -83,7 +83,7 @@ const DIEREN=[
  {k:"doejong",n:"Dugong",g:"zee",syn:["Doejong"]},
  {k:"zeeschildpad",n:"Zee\u00ADschildpad",g:"zee",syn:["Groene zeeschildpad","Karetschildpad"]},
  {k:"zeeslang",n:"Zeeslang",g:"zee"},
- {k:"haai",n:"Haai",g:"zee",syn:["Witpuntrifhaai","Rifhaai"],eet:true},
+ {k:"haai",n:"Haai",g:"zee",syn:["Witpuntrifhaai","Rifhaai"]},
  {k:"manta",n:"Manta",g:"zee",syn:["Reuzenmanta","Rog"]},
  {k:"kwal",n:"Kwal",g:"zee",syn:["Dooskwal","Irukandji"]},
  {k:"krab",n:"Krab",g:"zee",syn:["Mud crab","Modderkrab"],eet:true},
