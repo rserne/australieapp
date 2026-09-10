@@ -98,6 +98,7 @@ else{
     if(!DIEREN.some(d=>d.k===k)) waarschuw(`dieren-iconen.js: icoon '${k}' hoort bij geen enkel dier in dieren.js`);
   });
   const groepen=new Set(DIER_GROEPEN.map(g=>g[0])), sleutels=new Set();
+  DIER_GROEPEN.forEach(g=>{ if(!TONE[g[2]]) fout(`dieren.js: groep '${g[0]}' verwijst naar kleur '${g[2]}', die niet in TONE staat`); });
   DIEREN.forEach(d=>{
     if(!/^[a-z0-9-]+$/.test(d.k||'')) fout(`dieren.js: sleutel '${d.k}' mag alleen kleine letters, cijfers en streepjes bevatten`);
     if(sleutels.has(d.k)) fout(`dieren.js: sleutel '${d.k}' staat er twee keer in`);

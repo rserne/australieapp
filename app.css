@@ -377,26 +377,50 @@
   .toast.on{opacity:1;transform:translate(-50%,0)}
   .toast button{margin-left:12px;font:inherit;font-weight:700;color:var(--accent-ink);background:none;border:none;padding:0;cursor:pointer;pointer-events:auto}
   .toast:has(button){pointer-events:auto}
-  /* Dieren: raster met knoppen per dier */
+  /* Dieren: lijst per groep, elke groep in een kleur uit het regiopalet (--g). In donker een lichtere
+     variant van die kleur op een diep getinte ondergrond, in licht de kleur zelf op een zachte tint. */
   .dintro{margin:0 0 4px;font-size:15px;line-height:1.5;color:var(--text-dim)}
   .dstatus{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:var(--text-dim)}
-  .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;margin-bottom:4px}
-  .dier{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;padding:14px 4px 10px;min-height:96px;
-    font:inherit;color:var(--text);cursor:pointer;-webkit-tap-highlight-color:transparent;
-    border-radius:14px;background:var(--glass);border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi)}
-  .dier:active{transform:scale(.95);background:var(--glass-2)}
-  .dier svg{width:42px;height:42px;display:block;flex:none}
-  .dier[data-dier="emoe"] svg{color:var(--accent)}
-  .dier .dletter{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;
-    background:var(--glass-2);border:1px solid var(--rim);font-weight:700;font-size:17px;color:var(--text-dim)}
-  .dier .dn{font-size:12px;line-height:1.15;text-align:center;font-weight:600;hyphens:manual;overflow-wrap:normal}
-  /* De teller zit op de hoek van de knop, half erbuiten, zodat hij nooit over de tekening valt.
-     Het randje in de kleur van de achtergrond maakt hem los van de knop eronder. */
-  .dier .dtel{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;
-    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
-    background:var(--glass-3);color:var(--text);border:2px solid var(--bg);box-sizing:border-box}
-  .dier.mijn .dtel{background:var(--accent);color:#0A0C10}
-  .dgrid{padding-top:4px}
+  .dhint{margin:8px 0 0 4px;font-size:13.5px;line-height:1.45;color:var(--text-faint)}
+  .dkop{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .dkop h2{flex:1;min-width:0}
+  .dkop .dsub{flex:none;font-size:13px;color:var(--text-faint);margin:38px 4px 12px 0}
+  .dgroep .dkop h2{color:color-mix(in srgb,var(--g) 40%,white)}
+  .dzoek{width:100%;box-sizing:border-box;font:inherit;font-size:16px;color:var(--text);margin:0 0 10px;
+    padding:11px 14px;border-radius:14px;border:1px solid var(--rim);background:var(--glass);-webkit-appearance:none;appearance:none}
+  .dzoek::placeholder{color:var(--text-faint)}
+  .dchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px;-webkit-overflow-scrolling:touch}
+  .dchips::-webkit-scrollbar{display:none}
+  .dchip{flex:none;height:40px;display:inline-flex;align-items:center;gap:7px;padding:0 14px;border-radius:20px;border:none;cursor:pointer;
+    font:inherit;font-weight:600;font-size:14px;white-space:nowrap;
+    background:color-mix(in srgb,var(--g) 34%,transparent);color:color-mix(in srgb,var(--g) 40%,white)}
+  .dchip span{font-size:13px;opacity:.8}
+  .dchip:active{opacity:.7}
+  .dlist{border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);overflow:hidden;
+    box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
+  .drij{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;text-align:left;font:inherit;color:var(--text);
+    background:none;border:none;border-bottom:1px solid var(--rim);padding:9px 14px 9px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .drij:last-child{border-bottom:none}
+  .drij:active{background:var(--glass-2)}
+  .drij[hidden]{display:none}
+  .dgroep[hidden]{display:none}
+  .drij.gespot{background:color-mix(in srgb,var(--g) 26%,transparent)}
+  .dico{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:color-mix(in srgb,var(--g) 32%,transparent);color:color-mix(in srgb,var(--g) 40%,white)}
+  .dico svg{width:26px;height:26px;display:block}
+  .dico.emoe{color:var(--accent)}
+  .dletter{font-weight:700;font-size:16px}
+  .dtxt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .dtxt strong{font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px;min-width:0}
+  .dtxt strong .chance{color:var(--accent-ink)}
+  .dtxt .sub{font-size:13.5px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .drij .dtel{flex:none;min-width:24px;height:24px;padding:0 7px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;font-weight:700;background:var(--glass-3);color:var(--text)}
+  .drij.mijn .dtel{background:var(--accent);color:#0A0C10}
+  html[data-theme="light"] .dgroep .dkop h2{color:var(--g)}
+  html[data-theme="light"] .dchip{background:color-mix(in srgb,var(--g) 11%,transparent);color:var(--g)}
+  html[data-theme="light"] .drij.gespot{background:color-mix(in srgb,var(--g) 9%,transparent)}
+  html[data-theme="light"] .dico{background:color-mix(in srgb,var(--g) 12%,transparent);color:var(--g)}
   /* brede knop 'Iets anders gezien?', in de vorm van het blok Morgen */
   .dander{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer;
     padding:14px 16px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi)}
