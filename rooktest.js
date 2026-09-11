@@ -508,6 +508,23 @@ function zoek(w,fouten,term){
     w.document.querySelector('.dchip[data-filter="gespot"]').click();
     eis(fouten,!w.document.querySelector('#dg-overig').hidden,'Overig blijft staan bij het filter Gespot');
     w.document.querySelector('.dchip[data-filter="gespot"]').click();
+    // een ander dier op het bord: eerst via de knop Gegeten in het blad, daarna via het bestekje op de regel
+    klik(w,'dander',fouten); $(w,'shdier').value='kangoeroeburger'; $(w,'shgegeten').click(); await sleep(300);
+    q2=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q2.length===4&&q2[3].dier==='overig'&&q2[3].opmerking==='Kangoeroeburger'&&q2[3].hoe==='gegeten','ander dier via de knop Gegeten wordt als gegeten genoteerd');
+    const rijBurger=()=>[...w.document.querySelectorAll('#dg-overig .drijwrap')].find(r=>/Kangoeroeburger/.test(r.textContent));
+    let rb=rijBurger();
+    eis(fouten,rb&&rb.querySelector('.deet.aan')&&!rb.querySelector('.dtel')&&rb.dataset.gegeten==='1'&&rb.dataset.gespot==='0','regel in Overig toont het bestekje met 1 en geen gespot-teller');
+    const ov3=w.document.querySelector('#dg-overig');
+    eis(fouten,ov3.querySelectorAll('.drij').length===3&&/2 van 3/.test(ov3.textContent),`Overig telt de gegeten naam mee in het totaal, niet bij gespot (nu: ${ov3.querySelector('.dsub')?.textContent})`);
+    rb.querySelector('.deet').click(); await sleep(50);
+    q2=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q2.length===5&&q2[4].opmerking==='Kangoeroeburger'&&q2[4].hoe==='gegeten','bestekje op een regel in Overig noteert nog een keer gegeten');
+    rb=rijBurger();
+    eis(fouten,rb&&rb.querySelector('.deet span')?.textContent==='2','bestekje telt op naar 2');
+    w.document.querySelector('.dchip[data-filter="gegeten"]').click();
+    eis(fouten,!w.document.querySelector('#dg-overig').hidden&&!rijBurger().hidden&&[...w.document.querySelectorAll('#dg-overig .drijwrap')].find(r=>/Pauw/.test(r.textContent)).hidden,'filter Gegeten houdt in Overig alleen de gegeten naam over');
+    w.document.querySelector('.dchip[data-filter="gegeten"]').click();
     // alles weghalen, dan is de wachtrij leeg
     while(w.document.querySelector('#dieren .dweg')){ w.document.querySelector('#dieren .dweg').click(); await sleep(20); }
     // weghalen van een wachtende waarneming
