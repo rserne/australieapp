@@ -2106,7 +2106,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-11-177';
+const APP_VERSIE='2026-09-11-178';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
@@ -2125,6 +2125,11 @@ function vraagStatus(){
     (reg.active||navigator.serviceWorker.controller)?.postMessage({type:'status'});
   }).catch(()=>{});
 }
+// Strook onder de statusbalk van iOS zodra de kop uit beeld scrolt (zie body::after in app.css).
+const zetGescrold=()=>document.body.classList.toggle('gescrold',window.scrollY>24);
+window.addEventListener('scroll',zetGescrold,{passive:true});
+zetGescrold();
+
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden) return;
   herbereken();                                  // na middernacht: 'Vandaag' verschuift
