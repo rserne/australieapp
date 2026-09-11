@@ -5,12 +5,12 @@
 // en een voor het donkere. Dit is een eigen palet, niet dat van de regio's: die kleuren zijn diep en
 // gedempt omdat ze onder een foto liggen, en worden flets zodra je ze klein en opgelicht gebruikt.
 const DIER_GROEPEN=[
- ["zoogdier","Zoogdieren","#C2410C","#FB923C"],
- ["vogel","Vogels","#15803D","#4ADE80"],
+ ["zoogdier","Zoogdieren","#A8380A","#FB923C"],
+ ["vogel","Vogels","#116B33","#4ADE80"],
  ["reptiel","Reptielen","#A21C64","#F472B6"],
- ["klein","Spinnen en insecten","#B45309","#FBBF24"],
+ ["klein","Spinnen en insecten","#6D28D9","#B18CFF"],
  ["zee","In zee","#0369A1","#38BDF8"],
- ["zoetwater","Zoetwater","#0F766E","#2DD4BF"],
+ ["zoetwater","Zoetwater","#0C6058","#2DD4BF"],
  // Overig heeft geen vaste dieren. Hieronder valt wat via 'Iets anders gezien' is ingevoerd, met het
  // pootje als icoon. De app vult die groep zelf en toont hem alleen als er iets in staat.
  ["overig","Overig","#4B5563","#9CA3AF"]
