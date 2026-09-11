@@ -71,7 +71,7 @@
     aspect-ratio:12/5;background:var(--tone);
     padding:0;transition:background-image .35s ease;
     background-size:cover;background-position:center}
-  .hero .wrap{position:relative;z-index:1;flex:1 1 auto;min-height:0;
+  .hero .wrap{position:relative;z-index:1;flex:1 1 auto;min-height:0;width:100%;
     padding:14px 22px 16px;
     display:flex;flex-direction:column;justify-content:flex-end}
   /* De datumknop blijft bovenaan, de rest staat onderaan, net als op de andere tabbladen. */
@@ -108,7 +108,7 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
     padding:5px 12px;border-radius:999px;font-size:13.5px;font-weight:600}
   .hero.banner{background-size:cover;background-position:center;padding:0;position:relative;overflow:hidden}
-  .hero.banner .wrap{position:relative;z-index:1;flex:1 1 auto;min-height:0;
+  .hero.banner .wrap{position:relative;z-index:1;flex:1 1 auto;min-height:0;width:100%;
     padding:14px 22px 16px;
     display:flex;flex-direction:column;justify-content:flex-end}
   /* De kop loopt onder de statusbalk van iOS door (zie index.html). De ruimte voor die balk komt bóven
@@ -117,7 +117,9 @@
   .hero,.hero.banner{padding-top:env(safe-area-inset-top);box-sizing:content-box;display:flex;flex-direction:column}
   /* De kop is een kolom: de .wrap vult wat er onder de statusbalk overblijft, de .track staat eronder.
      Zo hangt de hoogte van de tekst niet af van een percentage, dat Safari hier tegen de hele kop
-     (mét de ruimte voor de statusbalk) afmeet, waardoor de titel onder de rand verdween. */
+     (mét de ruimte voor de statusbalk) afmeet, waardoor de titel onder de rand verdween. De .wrap
+     heeft width:100%, want als flex-item met margin:0 auto zou hij anders krimpen tot zijn inhoud
+     en in het midden komen te staan. */
   /* Na het scrollen staat de klok niet meer op de foto maar op de pagina. Dan schuift er een strook in
      de regiokleur onder, zodat het witte statusbalk-schrift leesbaar blijft. app.js zet .gescrold. */
   body::after{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);z-index:25;
