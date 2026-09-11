@@ -561,13 +561,34 @@ function snippet(text,term){
 
 // Boekingscodes staan in een Ticket-notitie: regels als "SQ: ABC123" of "Sawadee: 12345".
 // Ze komen uit de lokale kopie, zodat het ook offline werkt. Zonder login: niets.
+// Verschillen de codes per persoon, dan staat boven elk blokje een regel met alleen de naam, zoals hij
+// in de reizigerslijst staat (de voornaam is genoeg; 'Robbert en Gemma' geldt voor allebei). Een code
+// vóór de eerste naam is van iedereen. Een regel die geen naam en geen code is, zoals een titel, telt niet.
 function boekingscode(sleutel){
   if(!NH.user) return null;
   const alle=LS.get('aus_cache_all')||[];
-  const re=new RegExp('^\\s*'+sleutel+'\\s*[:=\\-–]\\s*([A-Z0-9]{4,12})\\s*$','im');
+  const re=new RegExp('^\\s*'+sleutel+'\\s*[:=\\-–]\\s*([A-Z0-9]{4,12})\\s*$','i');
+  const norm=t=>String(t||'').trim().toLowerCase().replace(/[:\s]+$/,'');
+  const mij=[(mijnReiziger()||{}).naam,NH.user.displayName].filter(Boolean).map(norm);
+  const iedereen=[...new Set([...mij,...(reizigers()||[]).map(r=>norm(r.naam))])].filter(Boolean);
+  // 'Robbert', 'Robbert Serne' of 'Robbert en Gemma': elk deel past op een voornaam of een hele naam
+  const past=(deel,naam)=>deel===naam||deel===naam.split(' ')[0]||deel.split(' ')[0]===naam.split(' ')[0];
+  const namenIn=regel=>norm(regel).split(/\s*(?:,|&|\/|\ben\b)\s*/).filter(Boolean);
+  const vanWie=regel=>{ const delen=namenIn(regel); if(!delen.length||delen.some(d=>/[:=]/.test(d))) return null;
+    if(delen.some(d=>mij.some(n=>past(d,n)))) return 'mij';
+    return delen.some(d=>iedereen.some(n=>past(d,n)))?'ander':null; };
+  let gedeeld=null;
   // Tickets van een voorreis of nareis zijn van één persoon en tellen niet mee voor de groepsvluchten.
-  for(const it of alle){ if(it.type!=='ticket'||!it.tekst||isBuiten(it.dag)) continue; const m=it.tekst.match(re); if(m) return m[1].toUpperCase(); }
-  return null;
+  for(const it of alle){
+    if(it.type!=='ticket'||!it.tekst||isBuiten(it.dag)) continue;
+    let blok=null;   // null: vóór de eerste naam, 'mij' of 'ander'
+    for(const regel of it.tekst.split('\n')){
+      const m=regel.match(re);
+      if(m){ if(blok==='mij') return m[1].toUpperCase(); if(blok===null&&!gedeeld) gedeeld=m[1].toUpperCase(); continue; }
+      const w=vanWie(regel); if(w) blok=w;
+    }
+  }
+  return gedeeld;
 }
 // notities uit de lokale kopie, zodat zoeken ook offline werkt
 function notitieTreffers(term){
@@ -769,7 +790,7 @@ function renderPrakt(){
    BOEKINGEN.map(([a,b,k])=>`<li><div class="row"><span><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></span>${codeCel(k)}</div></li>`).join('')+
    `</ul>`+
    (NH.user&&!Object.keys(CHECKIN).some(boekingscode)
-     ?`<div class="callout" style="margin-top:12px"><span class="ico">${IC_SLOT}</span><span><b>Boekingscodes toevoegen</b>Maak in Notities één notitie van het type Ticket, met per regel een maatschappij en de code, bijvoorbeeld <code>SQ: ABC123</code>. De codes verschijnen dan hier en bij de vluchten. Ze staan zo veilig achter de login en niet in de openbare app.</span></div>`:'')+
+     ?`<div class="callout" style="margin-top:12px"><span class="ico">${IC_SLOT}</span><span><b>Boekingscodes toevoegen</b>Maak in Notities één notitie van het type Ticket, met per regel een maatschappij en de code, bijvoorbeeld <code>SQ: ABC123</code>. Verschillen de codes per persoon, zet dan boven elk blokje een regel met alleen de naam. De codes verschijnen dan hier en bij de vluchten. Ze staan zo veilig achter de login en niet in de openbare app.</span></div>`:'')+
    `<div class="callout" style="margin-top:12px"><span class="ico">${IC_KOFFER}</span><span><b>Bagage</b>${esc(BAGAGE)}</span></div>`;
 
   h+=`<h2>Weergave</h2><div class="chips" id="themekeuze">`+
@@ -2085,7 +2106,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-11-174';
+const APP_VERSIE='2026-09-11-176';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

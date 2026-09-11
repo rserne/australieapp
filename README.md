@@ -43,6 +43,19 @@ Sawadee: 1234567
 
 De sleutels (`SQ`, `JQ`, `QF`, `TL`) zijn de IATA-codes uit `CHECKIN` in `reis.js`. `Sawadee` komt uit `BOEKINGEN`. De codes verschijnen daarna bij de vluchten en in het tabblad Praktisch, ook offline.
 
+Verschillen de codes per persoon, zet dan boven elk blokje een regel met alleen de naam, zoals die in de reizigerslijst staat (de voornaam is genoeg). Iedereen ziet dan zijn eigen codes. Een code die vóór de eerste naam staat, is van iedereen, en `Robbert en Gemma` boven een blokje geldt voor allebei. Een regel die geen naam en geen code is, zoals de titel hierboven, telt niet mee.
+
+```
+Boekingscodes
+Sawadee: 1234567
+Robbert
+SQ: ABC123
+JQ: DEF456
+Gemma
+SQ: XYZ789
+JQ: UVW012
+```
+
 ## Voorreis en nareis
 
 Wie eerder gaat of langer blijft, kan notities maken voor dagen buiten de groepsreis. In `reis.js` staat hoeveel dagen dat zijn, namelijk `VOORREIS=13` (18 t/m 30 september) en `NAREIS=0`. Die dagen verschijnen in de dagkiezer van Notities boven 'Algemeen'. Intern hebben ze de nummers -1 t/m -13, en de nareis 30 en hoger. Wie er gaat, staat nergens in de code, maar in de tabel `reizigers` bij Nhost (zie hieronder). De kaarten Voorreis en Nareis op de startpagina noemen de namen uit die tabel, en verschijnen alleen als iemand het deel doet.

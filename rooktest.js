@@ -603,6 +603,20 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-10-06');
     eis(fouten,$(w,'btnDieren').hidden===true,'tabblad Dieren verborgen zonder login');
     meld('6 okt anoniem: Dieren achter de login',fouten); }
+  // Boekingscodes per persoon: een regel met alleen een naam begint een blokje. Test (u1) is ingelogd;
+  // hij krijgt zijn eigen SQ, de gedeelde Sawadee-code van boven de namen, en niets van Anna.
+  { const {w,fouten}=start('2026-10-05',{login:'groep'});
+    const codes=[...NOTITIES.filter(n=>n.dag>=0&&n.id!=='b'),{id:'b',user_id:'u1',dag:0,soort:'notitie',type:'ticket',
+      tekst:'Boekingscodes\nSawadee: 1234567\nTest\nSQ: AAA111\nAnna en Piet\nSQ: BBB222\nJQ: CCC333',wie:'Test',created_at:'2026-09-01T10:00:00Z',updated_at:'2026-09-01T10:00:00Z'}];
+    w.localStorage.setItem('aus_cache_all',JSON.stringify(codes));
+    klik(w,'btnPrakt',fouten);
+    const rij=n=>[...w.document.querySelectorAll('#prakt .row')].find(r=>r.textContent.includes(n));
+    const code=n=>{ const r=rij(n), c=r&&r.querySelector('.r'); return c?c.textContent.trim():''; };
+    eis(fouten,code('Singapore')==='AAA111',`eigen SQ-code uit het blokje Test (nu: '${code('Singapore')}')`);
+    eis(fouten,code('Sawadee')==='1234567',`gedeelde code vóór de eerste naam geldt voor iedereen (nu: '${code('Sawadee')}')`);
+    eis(fouten,code('Jetstar')==='',`code uit andermans blokje wordt niet getoond (nu: '${code('Jetstar')}')`);
+    eis(fouten,!/Boekingscodes toevoegen/.test($(w,'prakt').textContent),'callout blijft weg zodra er een eigen code is');
+    meld('5 okt: boekingscodes per persoon in de Ticket-notitie',fouten); }
 
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);
