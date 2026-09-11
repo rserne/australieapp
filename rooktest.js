@@ -164,14 +164,40 @@ function zoek(w,fouten,term){
     klik(w,'btnPrakt',fouten);
     eis(fouten,!$(w,'rbeheer'),'zonder beheer=true staat de knop Reizigers beheren er niet');
     meld('5 okt: geen beheerknop voor een gewone reiziger',fouten); }
+  // Reisoverzicht tijdens de reis: bereikbaar via de eerste regel van Alle dagen en via terugbladeren
+  { const {w,fouten}=start('2026-10-14',{login:'groep'});
+    eis(fouten,kop(w)==='Dag 14van 29','Vandaag toont gewoon de dag zelf');
+    klik(w,'btnIndex',fouten);
+    const rij=w.document.querySelector('#results .idxstart button'); if(rij) rij.click();
+    eis(fouten,$(w,'day').style.display!=='none'&&kop(w)==='Reisoverzicht',`de regel opent het reisoverzicht (nu: '${kop(w)}')`);
+    const txt=$(w,'day').textContent;
+    eis(fouten,/Dag 14van 29/.test(txt)&&/Nog 15 dagen te gaan/.test(txt),`voortgang in plaats van aftellen (nu: '${txt.slice(0,60)}')`);
+    eis(fouten,!/Vertrek/.test(txt),'geen vertrekdatum meer tijdens de reis');
+    const kaarten=[...w.document.querySelectorAll('#day .regio')];
+    const gehad=kaarten.filter(k=>k.classList.contains('gehad')).map(k=>k.querySelector('.rnaam').textContent);
+    eis(fouten,gehad.join(',')==='Voorreis,New South Wales,Tasmanië,Zuid-Australië',`de voorreis en de regio's die achter je liggen zijn gedempt (nu: ${gehad.join(',')||'geen'})`);
+    const vic=kaarten.find(k=>k.querySelector('.rnaam').textContent==='Victoria');
+    eis(fouten,vic&&!vic.classList.contains('gehad'),'de regio van vandaag niet');
+    vic.click();
+    eis(fouten,kop(w)==='Dag 14van 29','een tik op een regio brengt je naar de eerste dag ervan');
+    // terugbladeren vanaf dag 1 komt nu ook bij het overzicht uit
+    while(!$(w,'prev').disabled&&kop(w)!=='Reisoverzicht') klik(w,'prev',fouten);
+    eis(fouten,kop(w)==='Reisoverzicht'&&$(w,'prev').disabled,'terugbladeren eindigt op het reisoverzicht');
+    klik(w,'next',fouten);
+    eis(fouten,kop(w)==='Dag 1van 29','en vooruit ga je naar dag 1');
+    meld('14 okt: reisoverzicht tijdens de reis',fouten); }
   // Alle dagen: de groepsreis staat per regio, met een kop in de kleur van die regio
   { const {w,fouten}=start('2026-10-05',{login:'groep'});
     klik(w,'btnIndex',fouten);
     const koppen=[...w.document.querySelectorAll('#results .idxkop h3')].map(h=>h.textContent);
     eis(fouten,koppen.join(',')==='Voorreis,New South Wales,Tasmanië,Zuid-Australië,Victoria,Northern Territory,Queensland,West-Australië',
       `koppen per regio, op volgorde van de reis (nu: ${koppen.join(' | ')})`);
-    const lijsten=[...w.document.querySelectorAll('#results .idx')];
+    const lijsten=[...w.document.querySelectorAll('#results .idx:not(.idxstart)')];
     eis(fouten,lijsten.length===koppen.length,`bij elke kop één lijst (nu ${lijsten.length} lijsten, ${koppen.length} koppen)`);
+    // de regel naar het reisoverzicht staat bovenaan, vóór de eerste kop
+    const eerste=w.document.querySelector('#results').firstElementChild;
+    eis(fouten,eerste&&eerste.classList.contains('idxstart')&&/Reisoverzicht/.test(eerste.textContent),
+      `bovenaan de regel Reisoverzicht (nu: '${eerste&&eerste.textContent.trim().slice(0,30)}')`);
     eis(fouten,!w.document.querySelector('#results .bar'),'het streepje aan de rand is weg');
     const deel=w.document.querySelector('#results .idxdeel');
     eis(fouten,deel&&deel.textContent==='Groepsreis'&&deel.nextElementSibling.querySelector('h3').textContent==='New South Wales',

@@ -340,8 +340,8 @@ function vorige(c){
   if(c>30) return c-1;
   if(c===30) return 29;
   if(c>1&&c<=29) return c-1;
-  if(c===1) return heeftVoor()?-1:(T.before?0:null);
-  if(c<0) return c===-VOOR?(T.before?0:null):c-1;
+  if(c===1) return heeftVoor()?-1:0;
+  if(c<0) return c===-VOOR?0:c-1;
   return null;
 }
 function ga(c){ if(c!=null){cur=c;render();} }
@@ -409,28 +409,41 @@ function renderBuiten(){
   const start=cur===0, vr=voorreiziger();
   const vandaagTxt=`<span class="dot live"></span>Vandaag · ${fmtLong(vandaagDatum())}`;
   const regios=Object.keys(REGION).filter(r=>r!=='reis'&&DAYS.some(d=>d.r===r));
+  // Vóór vertrek telt deze pagina af; is de reis begonnen, dan toont hij hoever je bent. In beide
+  // gevallen staat het raster met de regio's eronder. Tijdens de reis heet hij Reisoverzicht en is
+  // hij te bereiken via de eerste regel van Alle dagen, want Vandaag hoort de dag zelf te tonen.
+  const onderweg=start&&!T.before;
   let h='';
   if(start){
     const kGroep=1-T.raw, kVoor=(-VOOR+1)-T.raw;   // dagen tot vertrek van de groep / van de voorreis
-    // De kop noemt de reis. Het aftellen staat eronder, boven het raster.
+    // De kop noemt de reis. Het aftellen of de voortgang staat eronder, boven het raster.
     const bb=vr?beeldBuiten(true):{tone:TONE.reis,foto:'reg-reis.jpg'};
-    heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:'Rondreis Australië',titel:'',track:'0%'});
-    const k=vr?kVoor:kGroep, vertrek=vr?dagDatum(-VOOR):dateFor(1);
-    h+=`<div class="aftel"><div class="anum">Nog ${k}<small>${k===1?'dag':'dagen'}</small></div><div class="asub">Vertrek ${fmtLong(vertrek)}</div></div>`;
+    const gedaan=onderweg?(T.after?29:Math.max(0,Math.min(29,T.n))):0;
+    heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:onderweg?'Reisoverzicht':'Rondreis Australië',titel:'',
+      track:`${Math.round(gedaan/29*100)}%`});
+    if(onderweg){
+      const rest=29-gedaan;
+      h+=`<div class="aftel"><div class="anum">Dag ${gedaan}<small>van 29</small></div>`+
+        `<div class="asub">${rest?`Nog ${rest} ${rest===1?'dag':'dagen'} te gaan`:'De laatste dag'}</div></div>`;
+    }else{
+      const k=vr?kVoor:kGroep, vertrek=vr?dagDatum(-VOOR):dateFor(1);
+      h+=`<div class="aftel"><div class="anum">Nog ${k}<small>${k===1?'dag':'dagen'}</small></div><div class="asub">Vertrek ${fmtLong(vertrek)}</div></div>`;
+    }
     // De reis in beeld: een raster met per regio de foto die de app al heeft en, als iemand die doet,
     // de voorreis en nareis met de namen erbij. Vliegdagen ('reis') tellen mee bij de regio waar je heen gaat, of bij
     // de laatste regio als er geen volgende is: dag 1 valt zo onder New South Wales, dag 28–29 onder
     // West-Australië. Tik op een kaart en je staat op de eerste dag ervan.
     // wie: de namen uit de reizigerslijst, alleen op de kaarten Voorreis en Nareis
-    const kaart=(go,naam,dagen,tone,foto,wie)=>`<button type="button" class="regio ganaar" data-go="${go}" style="--tone:${tone};background-image:url(${foto})">`+
+    // gehad: onderweg dempen we de regio's die achter je liggen, zodat je in één blik ziet hoever je bent
+    const kaart=(go,naam,dagen,tone,foto,wie,gehad)=>`<button type="button" class="regio ganaar${gehad?' gehad':''}" data-go="${go}" style="--tone:${tone};background-image:url(${foto})">`+
       `<span class="rnaam">${esc(naam)}</span><span class="rdagen">${dagen}</span>${wie&&wie.length?`<span class="rwie">${esc(opsom(wie))}</span>`:''}</button>`;
     const bereik=(a,b)=>a.getMonth()===b.getMonth()?`${a.getDate()}–${fmtShort(b)}`:`${fmtShort(a)} – ${fmtShort(b)}`;
     const dagen=(a,b)=>a===b?`Dag ${a}`:`Dag ${a}–${b}`;
     const per=dagenPerRegio();
     h+=`<div class="regios">`+
-      (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto,namenVan('voorreis')):'')+
+      (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto,namenVan('voorreis'),onderweg):'')+
       regios.map(r=>{ const dg=per[r], a=Math.min(...dg), b=Math.max(...dg);
-        return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`);}).join('')+
+        return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`,null,onderweg&&b<gedaan);}).join('')+
       (heeftNa()?kaart(T.dag!=null&&T.dag>29?T.dag:30,'Nareis',bereik(dagDatum(30),dagDatum(29+NA)),beeldBuiten(false).tone,beeldBuiten(false).foto,namenVan('nareis')):'')+`</div>`;
   } else {
     heroBuiten({tone:beeldBuiten(false).tone,foto:beeldBuiten(false).foto,eyebrow:vandaagTxt,num:`Reis voorbij<small>29 dagen Australië</small>`,
@@ -583,7 +596,12 @@ function drawResults(term){
       return s+`</ul>`;
     };
     const heeftV=heeftVoor(), heeftN=heeftNa();
-    let h='';
+    // Bovenaan een regel naar het reisoverzicht: vóór dag één, zoals de dagen erna. Vandaag blijft zo
+    // de dag zelf tonen, en het overzicht heeft toch een vaste ingang.
+    const eersteDatum=heeftV?dagDatum(-VOOR):dateFor(1), laatsteDatum=heeftN?dagDatum(29+NA):dateFor(29);
+    let h=`<ul class="idx idxstart" style="${inktVan('reis')}"><li><button data-n="start">`+
+      `<span class="n">${IC_KAART}</span><span class="t">Reisoverzicht</span>`+
+      `<span class="d">${bereikTxt(eersteDatum,laatsteDatum)}</span></button></li></ul>`;
     if(heeftV) h+=VOORDG.length?buitenLijst(-VOOR,-1):buitenRegel('voor',-VOOR,-1);
     // De groepsreis per regio, in de volgorde van de reis: vijf dagen New South Wales, dan Tasmanië,
     // enzovoort. Dezelfde indeling als het raster op de startpagina. Wie een voorreis of nareis heeft,
@@ -657,6 +675,7 @@ function drawResults(term){
       // notitie. Al het andere is een dag, ook een negatieve (voorreis) of een boven de 29 (nareis).
       if(n==='prakt') switchTo('prakt');
       else if(n==='verz') naarPraktisch('verz');
+      else if(n==='start'){ cur=0; switchTo('day'); }   // switchTo tekent de kop en roept render()
       else if(+n===0) switchTo('alles');
       else {cur=+n;switchTo('day')}}));
 }
@@ -1615,6 +1634,8 @@ function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>documen
 // gaat via de knop onderaan en een schuifpaneel: eerst een account bij Nhost Auth, dan de rij in
 // reizigers. Die rij is het slot: zonder rij ziet een account niets van de groep.
 const DELEN=[['voorreis','Voorreis'],['reis','Groepsreis'],['nareis','Nareis'],['beheer','Beheer']];
+// Kaartje met een vouw: de regel naar het reisoverzicht, zodat die niet op een dagnummer lijkt.
+const IC_KAART='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7z"/><path d="M9 4v13M15 7v13"/></svg>';
 const IC_PIJL='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 const IC_KOPIE='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3H6.5A2.5 2.5 0 0 0 4 5.5v6A2.5 2.5 0 0 0 6.5 14"/></svg>';
 const IC_GROEP='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.2a4.3 4.3 0 0 1 5 4.3"/></svg>';
@@ -2043,7 +2064,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-168';
+const APP_VERSIE='2026-09-10-169';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
