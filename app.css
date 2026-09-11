@@ -527,6 +527,9 @@
     border-radius:14px;padding:12px 14px;-webkit-appearance:none;appearance:none;box-sizing:border-box}
   .sheet .shinput::placeholder{color:var(--text-faint)}
   .sheet .shinput+.nrow{margin-top:12px}
+  /* Het blad voor een ander dier: alleen een kop en een veld, dus iets meer lucht ertussen dan de 12px
+     van het blad, anders zit het veld tegen de titel aan. */
+  .sheethead+.shinput{margin-top:10px}
   .dlijst li{display:flex;gap:12px;align-items:center}
   /* bestekje achter de naam in de lijst Gespot */
   .dlijst .wvork{display:inline-flex;vertical-align:-2px;margin-left:7px;color:var(--text-faint)}
