@@ -115,6 +115,9 @@ function render(){
   // buiten de groepsreis: één vaste foto en kleur (BUITEN in reis.js), geen regio per dag
   const bb=buiten?beeldBuiten(cur<0):{tone:TONE[d.r],foto:`reg-${d.r}.jpg`}, tone=bb.tone;
   const isToday=T.dag===cur;
+  // De dagpagina krijgt het kleurenpaar van zijn regio mee, net als Alle dagen: de kopjes Morgen en
+  // Eerste keuze staan in die inkt. Buiten de groepsreis is dat het paar van de voorreis of nareis.
+  zetInkt(document.getElementById('day'),buiten?(cur<0?'voorreis':'nareis'):d.r);
 
   const hero=document.getElementById('hero');
   hero.style.setProperty('--tone',tone);
@@ -392,6 +395,9 @@ function heroBuiten({tone,foto,eyebrow,num,titel,meta,track}){
 // --i voor het lichte thema, --id voor het donkere. De opmaak kiest zelf welke van de twee hij pakt.
 function inktVan(k){ const x=(typeof TONE_INK==='object'&&TONE_INK&&TONE_INK[k])||[]; 
   return `--i:${x[0]||TONE[k]||'#4B545F'};--id:${x[1]||x[0]||'#98A2AE'}`; }
+// Hetzelfde paar op een bestaand element zetten. Via setProperty en niet via het style-attribuut,
+// want daar staat ook de display die switchTo zet; die zou anders verdwijnen.
+function zetInkt(el,k){ inktVan(k).split(';').forEach(p=>{ const [naam,waarde]=p.split(':'); el.style.setProperty(naam,waarde); }); }
 
 // De dagen gegroepeerd per regio, op volgorde: {nsw:[1,2,…], tas:[…]}. Een vliegdag ('reis') telt mee
 // bij de regio waar je heen gaat, of bij de vorige als er geen volgende is. Zo hoort dag 1 bij New
@@ -466,6 +472,7 @@ function renderBuiten(){
   }
   document.getElementById('navlabel').textContent='Vandaag';
   if(NH.user) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
+  zetInkt(document.getElementById('day'),start?'reis':'nareis');   // Terugkijken op de afsluitpagina volgt de kop
   document.getElementById('day').innerHTML=h;
   koppelGaNaar();
   if(NH.user){
@@ -2078,7 +2085,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-11-173';
+const APP_VERSIE='2026-09-11-174';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

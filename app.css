@@ -655,6 +655,11 @@
      en wordt flets zodra je hem klein en opgelicht gebruikt, dus die gebruiken we hier niet. */
   .idxkop,.idx{--ink:var(--id)}
   html[data-theme="light"] .idxkop,html[data-theme="light"] .idx{--ink:var(--i)}
+  /* De dagpagina: alleen de kopjes Morgen en Eerste keuze in de inkt van de regio (render zet --i en
+     --id op #day). Zonder paar valt de kleur terug op het accent. Niets wat je kunt aantikken. */
+  #day{--ink:var(--id,var(--accent-ink))}
+  html[data-theme="light"] #day{--ink:var(--i,var(--accent-ink))}
+  #day .tomorrow .lbl,#day .card .role{color:var(--ink)}
   .idxkop{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:24px 4px 8px}
   #results>.idxkop:first-child{margin-top:4px}
   /* De regel naar het reisoverzicht, vóór de eerste kop. Het kaartje staat in het rondje waar bij een
