@@ -404,6 +404,15 @@ function dagenPerRegio(){
   return per;
 }
 
+// De reis zoals hij voor deze gebruiker telt: een voorreiziger begint dertien dagen eerder, een
+// nareiziger houdt later op. Intern is er geen dag 0 (de voorreis loopt -13 t/m -1, de groepsreis 1
+// t/m 29), dus het omrekenen naar 'de hoeveelste dag' gaat via nr().
+function reisSpan(){
+  const v=voorreiziger()?VOOR:0, n=nareiziger()?NA:0;
+  return {eerste:v?-VOOR:1, laatste:n?29+n:29, totaal:v+29+n,
+    nr:d=>d<0?d+VOOR+1:v+d};
+}
+
 // Startpagina (vóór 1 oktober) en afsluitpagina (na de reis, als er een nareis is).
 function renderBuiten(){
   const start=cur===0, vr=voorreiziger();
@@ -412,18 +421,23 @@ function renderBuiten(){
   // Vóór vertrek telt deze pagina af; is de reis begonnen, dan toont hij hoever je bent. In beide
   // gevallen staat het raster met de regio's eronder. Tijdens de reis heet hij Reisoverzicht en is
   // hij te bereiken via de eerste regel van Alle dagen, want Vandaag hoort de dag zelf te tonen.
-  const onderweg=start&&!T.before;
+  // De voortgang gaat over je eigen reis: wie een voorreis doet, is al onderweg vóór 1 oktober en
+  // telt die dagen mee. Voor hem is dag 1 de eerste voorreisdag en loopt de teller door tot 42.
+  const span=reisSpan(), onderweg=start&&(!T.before||(T.dag!=null&&vr));
   let h='';
   if(start){
     const kGroep=1-T.raw, kVoor=(-VOOR+1)-T.raw;   // dagen tot vertrek van de groep / van de voorreis
     // De kop noemt de reis. Het aftellen of de voortgang staat eronder, boven het raster.
     const bb=vr?beeldBuiten(true):{tone:TONE.reis,foto:'reg-reis.jpg'};
-    const gedaan=onderweg?(T.after?29:Math.max(0,Math.min(29,T.n))):0;
+    // gedaan: hoeveelste dag van je eigen reis het vandaag is. gdGroep telt alleen de groepsreis en
+    // bepaalt welke regio's in het raster achter je liggen.
+    const gedaan=onderweg?span.nr(T.after?span.laatste:(T.dag!=null?T.dag:T.n)):0;
+    const gdGroep=T.before?0:(T.after?29:Math.max(0,Math.min(29,T.n)));
     heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:onderweg?'Reisoverzicht':'Rondreis Australië',titel:'',
-      track:`${Math.round(gedaan/29*100)}%`});
+      track:`${Math.round(gedaan/span.totaal*100)}%`});
     if(onderweg){
-      const rest=29-gedaan;
-      h+=`<div class="aftel"><div class="anum">Dag ${gedaan}<small>van 29</small></div>`+
+      const rest=span.totaal-gedaan;
+      h+=`<div class="aftel"><div class="anum">Dag ${gedaan}<small>van ${span.totaal}</small></div>`+
         `<div class="asub">${rest?`Nog ${rest} ${rest===1?'dag':'dagen'} te gaan`:'De laatste dag'}</div></div>`;
     }else{
       const k=vr?kVoor:kGroep, vertrek=vr?dagDatum(-VOOR):dateFor(1);
@@ -441,10 +455,10 @@ function renderBuiten(){
     const dagen=(a,b)=>a===b?`Dag ${a}`:`Dag ${a}–${b}`;
     const per=dagenPerRegio();
     h+=`<div class="regios">`+
-      (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto,namenVan('voorreis'),onderweg):'')+
+      (heeftVoor()?kaart(T.dag!=null&&T.dag<0?T.dag:-VOOR,'Voorreis',bereik(dagDatum(-VOOR),dagDatum(-1)),beeldBuiten(true).tone,beeldBuiten(true).foto,namenVan('voorreis'),onderweg&&!T.before):'')+
       regios.map(r=>{ const dg=per[r], a=Math.min(...dg), b=Math.max(...dg);
-        return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`,null,onderweg&&b<gedaan);}).join('')+
-      (heeftNa()?kaart(T.dag!=null&&T.dag>29?T.dag:30,'Nareis',bereik(dagDatum(30),dagDatum(29+NA)),beeldBuiten(false).tone,beeldBuiten(false).foto,namenVan('nareis')):'')+`</div>`;
+        return kaart(a,REGION[r],dagen(a,b),TONE[r],`reg-${r}.jpg`,null,onderweg&&b<gdGroep);}).join('')+
+      (heeftNa()?kaart(T.dag!=null&&T.dag>29?T.dag:30,'Nareis',bereik(dagDatum(30),dagDatum(29+NA)),beeldBuiten(false).tone,beeldBuiten(false).foto,namenVan('nareis'),onderweg&&T.after):'')+`</div>`;
   } else {
     heroBuiten({tone:beeldBuiten(false).tone,foto:beeldBuiten(false).foto,eyebrow:vandaagTxt,num:`Reis voorbij<small>29 dagen Australië</small>`,
       titel:`De groepsreis eindigde ${fmtLong(dateFor(29))}`,track:'100%'});
@@ -2064,7 +2078,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-10-169';
+const APP_VERSIE='2026-09-10-170';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

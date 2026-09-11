@@ -131,11 +131,20 @@ function zoek(w,fouten,term){
     klik(w,'btnIndex',fouten); klik(w,'btnToday',fouten);
     eis(fouten,/^Voorreis/.test(kop(w)),`lijst maakt je voorreiziger, ook zonder voorreisnotitie (nu: '${kop(w)}')`);
     klik(w,'prev',fouten); while(!$(w,'prev').disabled) klik(w,'prev',fouten);
-    eis(fouten,kop(w)==='Rondreis Australië','terugbladeren komt op de startpagina');
+    eis(fouten,kop(w)==='Reisoverzicht','terugbladeren komt op het reisoverzicht');
     const kaart=w.document.querySelector('.regio .rwie');
     eis(fouten,kaart&&kaart.textContent==='Anna en Test',`kaart Voorreis noemt beide voorreizigers (nu: '${kaart&&kaart.textContent}')`);
-    eis(fouten,/Vertrek vrijdag 18 september/.test($(w,'day').textContent),'voorreiziger telt af naar zijn eigen vertrek');
+    // de voorreiziger is op 25 september al acht dagen onderweg van zijn eigen 42
+    const ovz=$(w,'day').textContent;
+    eis(fouten,/Dag 8van 42/.test(ovz)&&/Nog 34 dagen te gaan/.test(ovz),`voorreisdagen tellen mee in de voortgang (nu: '${ovz.slice(0,50)}')`);
+    const vk=[...w.document.querySelectorAll('.regio')].find(k=>k.querySelector('.rnaam').textContent==='Voorreis');
+    eis(fouten,vk&&!vk.classList.contains('gehad'),'de voorreis is nog niet gedempt, want je zit er middenin');
     meld('25 sep: lijst zegt voorreis, zonder voorreisnotitie',fouten); }
+  { const {w,fouten}=start('2026-09-15',{login:'voor'});
+    eis(fouten,kop(w)==='Rondreis Australië','vóór zijn eigen vertrek ziet een voorreiziger de startpagina');
+    eis(fouten,/Nog 3\s*dagen/.test($(w,'day').textContent)&&/Vertrek vrijdag 18 september/.test($(w,'day').textContent),
+      `en telt die af naar zijn eigen vertrek (nu: '${$(w,'day').textContent.slice(0,40)}')`);
+    meld('15 sep: voorreiziger telt thuis af',fouten); }
   { const {w,fouten}=start('2026-09-25',{login:'voor',lijst:null});
     eis(fouten,/^Voorreis/.test(kop(w)),`zonder reizigerslijst telt de voorreisnotitie nog (nu: '${kop(w)}')`);
     meld('25 sep: terugval op de notities zonder reizigerslijst',fouten); }
