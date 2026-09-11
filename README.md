@@ -37,7 +37,7 @@ Boekingscodes
 SQ: ABC123
 JQ: DEF456
 QF: GHI789
-TL: GHI789
+TL: JKL012
 Sawadee: 1234567
 ```
 
@@ -183,6 +183,20 @@ De polisnummers staan bewust niet in `reis.js`: de repository is openbaar.
 Een notitie die je zonder verbinding schrijft, blijft op de telefoon staan en wordt verstuurd zodra er weer verbinding is. Dat geldt ook als de server even niet antwoordt. Weigert Nhost de notitie om een andere reden (rechten, ongeldige invoer), dan blijft hij ook staan, maar met de reden erbij, zodat je hem kunt aanpassen of weggooien. De statusregel in Notities telt beide soorten apart.
 
 Bij het openen herstelt de app de sessie eerst uit de kopie op de telefoon, zodat de notities er direct staan, en vernieuwt hij pas daarna bij Nhost. Alleen een afwijzing van de server (401) logt uit. Geen verbinding doet dat nooit.
+
+## Bijlagen
+
+Foto's en pdf's bij een notitie gaan naar Nhost Storage (bucket `default`). De notitie zelf onthoudt alleen het `file_id`, de naam, het type en de grootte. Storage controleert elke upload, download en verwijdering via de rechten op de tabel `storage.files` in Hasura, met dezelfde sessievariabelen als bij de andere tabellen. Zonder rechten kan niemand iets; zet ze voor de rol `user` zo:
+
+| Actie | Kolommen | Check |
+|---|---|---|
+| Upload (insert) | `id`, `bucket_id`, `name`, `size`, `mime_type` | de `_exists`-check op `reizigers` (zie Reizigers), met als column preset `uploaded_by_user_id = X-Hasura-User-Id` |
+| Download (select) | alle | dezelfde `_exists`-check, want de hele groep ziet elkaars bijlagen |
+| Delete | — | `uploaded_by_user_id` gelijk aan `X-Hasura-User-Id` |
+
+De `_exists`-check hoort ook hier, en niet alleen bij de notities: aanmelden staat open, dus wie het adres kent, kan een account maken. Zonder die check kan zo'n account bestanden uploaden, ook al ziet het verder niets van de groep. Stel bij de bucket in Storage ook een maximale bestandsgrootte in (20 MB past bij de app); de grens in `app.js` is alleen een controle in de browser.
+
+De app haalt bijlagen op met de token in de header en niet via een deelbare link, en verwijdert ze altijd via Storage (`DELETE /files/{id}`), zodat het bestand zelf ook weggaat en niet alleen de rij.
 
 ## Hotel dag 13 en 14
 

@@ -1,7 +1,7 @@
 // AustralieApp, service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v170';
+const VERSION='v171';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze bestanden werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
 const CODE=['./','./index.html','./app.css','./reis.js','./voorreis.js','./dieren.js','./dieren-iconen.js','./app.js','./manifest.webmanifest'];
@@ -80,6 +80,9 @@ self.addEventListener('fetch',e=>{
       if(isTekst&&oud!==null&&oud!==nieuw) await vernieuwAlles(c);
       return r;
     }).catch(()=>null);
+    // Bij een cachetreffer gaat het antwoord meteen de deur uit. Zonder deze regel mag de browser
+    // (iOS vooral) de worker dan stoppen voordat het vergelijken klaar is, en gaat de melding verloren.
+    e.waitUntil(fresh);
     return cached||(await fresh)||new Response(
       'Geen verbinding en nog geen kopie op deze telefoon. Open de app één keer met internet.',
       {status:503,headers:{'Content-Type':'text/plain;charset=utf-8'}});
