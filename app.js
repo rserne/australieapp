@@ -817,19 +817,23 @@ const reisPeriode=()=>{
   return `${start.getDate()} ${start.getMonth()===eind.getMonth()?'':MN[start.getMonth()]} `.replace('  ',' ')+
     `t/m ${eind.getDate()} ${MN[eind.getMonth()]} ${eind.getFullYear()}`;
 };
+// Per tabblad: foto, titel, ondertitel en de toon. De toon is de kleur van de strook die na het scrollen
+// onder de statusbalk van iOS staat (body::after in app.css); hij is gekozen bij de tekening, in dezelfde
+// diepte als het palet van de regio's.
 const BANNERS={
-  index:['banner-dagen.jpg','Alle dagen',null],
-  alles:['banner-notities.jpg','Notities',''],
-  prakt:['banner-praktisch.jpg','Praktisch',''],
-  dieren:['banner-dieren.jpg','Dieren','Gespot onderweg'],
+  index:['banner-dagen.jpg','Alle dagen',null,TONE.nsw],
+  alles:['banner-notities.jpg','Notities','',TONE.red],
+  prakt:['banner-praktisch.jpg','Praktisch','',TONE.qld],
+  dieren:['banner-dieren.jpg','Dieren','Gespot onderweg','#0C6058'],
   // Sydney: de foto van New South Wales, waar de groepsreis begint
-  beheer:['reg-nsw.jpg','Reizigers','']
+  beheer:['reg-nsw.jpg','Reizigers','',TONE.nsw]
 };
 function renderKop(v){
   const hero=document.getElementById('hero');
   if(v==='day'){ hero.classList.remove('banner'); hero.innerHTML=HERO_HTML; render(); return; }
-  const [img,titel,sub0]=BANNERS[v];
+  const [img,titel,sub0,tone]=BANNERS[v];
   const sub=v==='index'?reisPeriode():sub0;
+  hero.style.setProperty('--tone',tone); document.documentElement.style.setProperty('--tone',tone);
   // Bij Dieren staat de dag als label in de kop. De lijst Kans hoeft hem dan niet te herhalen.
   // Vóór vertrek is er geen dag, dan blijft het label weg
   const label=v==='dieren'&&NH.user&&waarnDag()?dagLabel(waarnDag()):'';
@@ -2106,7 +2110,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-11-180';
+const APP_VERSIE='2026-09-11-181';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
