@@ -402,6 +402,10 @@
   .sheet:has(#rform) .sheethead{margin-bottom:4px}
   .sheet #rform .chips{margin-top:2px}
   .sheet #rform .nrow{margin-top:6px}
+  /* het welkomstbericht na het toevoegen: uitleg, tekstveld en de knoppen Kopiëren en Delen */
+  .sheet .welkom{display:flex;flex-direction:column;gap:12px;margin-top:10px;padding-bottom:4px}
+  .sheet .welkom p{margin:0;font-size:14.5px;color:var(--text-dim)}
+  .sheet .welkom .nrow{margin-top:2px}
   /* Wachtwoordveld met de dobbelsteen (nieuw wachtwoord) en de kopieerknop ernaast, zodat de beheerder
      het meteen kan doorsturen. De knoppen zijn even hoog als het veld en hebben dezelfde afronding,
      zodat de rij als één geheel oogt. */

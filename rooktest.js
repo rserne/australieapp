@@ -292,11 +292,29 @@ function zoek(w,fouten,term){
     $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl';
     sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
     sheet.querySelector('#rdelen .chip[data-deel="gast"]').click();
+    let gedeeld=null; w.navigator.share=async d=>{ gedeeld=d; };
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);
     eis(fouten,aanmeldingen.length===1&&aanmeldingen[0].email==='kees@voorbeeld.nl'&&aanmeldingen[0].options.displayName==='Kees','account aangemaakt via het aanmeldpunt met naam als displayName');
     eis(fouten,mutaties[mutaties.length-1]==='insert'&&lijst.some(r=>r.user_id==='u9'&&r.naam==='Kees'&&r.reis&&r.nareis&&r.gast===true&&!r.voorreis),`rij in reizigers met de gekozen delen en gast (nu ${JSON.stringify(lijst.find(r=>r.user_id==='u9'))})`);
-    eis(fouten,!$(w,'sheet'),'paneel sluit na het toevoegen');
     eis(fouten,$(w,'beheer').querySelectorAll('.rlijst li').length===4,'nieuwe reiziger staat in de lijst');
+    // het paneel blijft open met het welkomstbericht om door te sturen
+    sheet=$(w,'sheet');
+    eis(fouten,sheet&&/Kees is toegevoegd/.test(sheet.textContent)&&$(w,'rwelkom')&&!$(w,'rform'),'na het toevoegen toont het paneel het welkomstbericht in plaats van het formulier');
+    const wt=$(w,'rwelkom').value;
+    eis(fouten,/^Hoi Kees,\n\nJe hebt nu toegang/.test(wt)&&/Adres: https:\/\/rserne\.github\.io\/australieapp\/\n\nE-mailadres: kees@voorbeeld\.nl\nWachtwoord: wombat-2026\n/.test(wt),`het bericht begint met de aanhef en heeft het adres, een lege regel, e-mail en wachtwoord (nu: '${wt.slice(0,170).replace(/\n/g,'⏎')}')`);
+    eis(fouten,!/Notities/.test(wt)&&/nareis staat na dag 29/.test(wt)&&!/voorreis/.test(wt),'een gast krijgt geen regel over Notities, wel over zijn nareis');
+    eis(fouten,/Dieren\. Tik op een dier/.test(wt)&&wt.trim().endsWith("'Toevoegen aan startscherm'.")&&/'Zet op beginscherm'/.test(wt),'de tabbladen staan erin en het startscherm staat helemaal onderaan');
+    $(w,'rdeel').click(); await sleep(50);
+    eis(fouten,gedeeld&&gedeeld.text===wt,'Delen geeft het bericht aan het deelmenu van de telefoon');
+    klembord=null; w.navigator.clipboard={writeText:async t=>{ klembord=t; }};
+    $(w,'rwelkom').value=wt+'\nGroet, Test';
+    $(w,'rkopie').click(); await sleep(50);
+    eis(fouten,klembord===wt+'\nGroet, Test'&&$(w,'rkopie').textContent==='Gekopieerd','Kopiëren zet de (aangepaste) tekst op het klembord en zegt dat in de knop');
+    klik(w,'shclose',fouten); await sleep(260);
+    eis(fouten,!$(w,'sheet'),'sluiten haalt het paneel weg');
+    // een gewone reiziger met voorreis krijgt de regel over Notities en een zin over de voorreis
+    const wt2=w.welkomTekst({naam:'Anna de Vries',email:'anna@voorbeeld.nl',pw:'koala-emoe-galah-1234',gast:false,voorreis:true,nareis:false});
+    eis(fouten,/^Hoi Anna,/.test(wt2)&&/• Notities: tickets/.test(wt2)&&/Je doet ook de voorreis/.test(wt2)&&!/nareis/.test(wt2),'reiziger met voorreis: aanhef met voornaam, Notities en de voorreis');
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_sess')).user.id==='u1','beheerder blijft zelf ingelogd na het aanmaken van een account');
     // verwijderen
     $(w,'beheer').querySelector('.dweg[data-weg="u2"]').click(); await sleep(100);

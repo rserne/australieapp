@@ -1768,6 +1768,49 @@ function nieuwWachtwoord(){
   const w=[]; while(w.length<3){ const k=woorden[r(woorden.length)]; if(!w.includes(k)) w.push(k); }
   return `${w.join('-')}-${1000+r(9000)}`;
 }
+// Welkomstbericht voor een nieuwe reiziger, om door te sturen: het adres, een lege regel, dan de
+// inloggegevens, wat er in de app zit en helemaal onderaan hoe je hem op het startscherm zet. Een gast
+// krijgt geen regel over Notities; wie de voorreis of nareis doet, een zin extra.
+function welkomTekst({naam,email,pw,gast,voorreis,nareis}){
+  const adres=location.origin+location.pathname;
+  const tabs=['Vandaag: de dag zelf, met het programma, het hotel en wat er te zien is.',
+    'Alle dagen: de hele reis per regio, met een zoekveld.',
+    ...(gast?[]:['Notities: tickets, reserveringen en notities van de groep, per dag en bij elkaar.']),
+    'Praktisch: hoe laat het thuis is, de wisselkoers, noodnummers, vluchten en bagage.',
+    'Het pootje rechtsonder: Dieren. Tik op een dier zodra je het ziet, dan staat het meteen bij de hele groep.'];
+  const extra=[voorreis&&'Je doet ook de voorreis: die dagen staan vóór dag 1, en Vandaag toont ze zodra je onderweg bent.',
+    nareis&&'Je blijft ook langer: de nareis staat na dag 29.'].filter(Boolean);
+  return [`Hoi ${String(naam).trim().split(' ')[0]},`,'',
+    'Je hebt nu toegang tot de AustralieApp, de reisapp voor onze rondreis.','',
+    `Adres: ${adres}`,'',`E-mailadres: ${email}`,`Wachtwoord: ${pw}`,'',
+    'Inloggen doe je in het tabblad Praktisch, onderaan. Daarna blijf je ingelogd.','',
+    'Wat je in de app vindt:',...tabs.map(t=>'• '+t),...(extra.length?['',...extra]:[]),'',
+    'Zet de app op je startscherm, dan opent hij als een gewone app en werkt hij ook zonder verbinding:',
+    "• iPhone: open het adres in Safari, tik op de deelknop (het vierkantje met de pijl omhoog) en kies 'Zet op beginscherm'.",
+    "• Android: open het adres in Chrome, tik op de drie puntjes rechtsboven en kies 'Toevoegen aan startscherm'."].join('\n');
+}
+// Na het toevoegen: het welkomstbericht in hetzelfde paneel, om te delen of te kopiëren. Het paneel blijft
+// open, want de melding onderin (toast) valt erachter, en het wachtwoord staat alleen hier. De tekst is
+// aan te passen voordat hij de deur uit gaat. Delen opent het deelmenu van de telefoon (WhatsApp, Berichten,
+// Mail); die knop is er alleen als de browser dat kan.
+function toonWelkom(el,close,gegevens){
+  el.querySelector('.sheet').innerHTML=`<div class="sheethead"><strong>${esc(gegevens.naam)} is toegevoegd</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
+    <div class="welkom"><p>Stuur dit bericht door. Je kunt de tekst eerst nog aanpassen.</p>
+    <textarea id="rwelkom" rows="14" autocapitalize="sentences"></textarea>
+    <div class="nrow"><button type="button" class="btn" id="rkopie">Kopiëren</button>${navigator.share?`<button type="button" class="btn primary" id="rdeel">Delen</button>`:''}</div>
+    <div class="nstatus" id="rstat"></div></div>`;
+  const ta=el.querySelector('#rwelkom'), st=el.querySelector('#rstat'), kop=el.querySelector('#rkopie'), deel=el.querySelector('#rdeel');
+  ta.value=welkomTekst(gegevens);
+  el.querySelector('#shclose').onclick=close;
+  kop.onclick=async()=>{
+    try{ await navigator.clipboard.writeText(ta.value); st.textContent=''; kop.textContent='Gekopieerd'; clearTimeout(kop._t); kop._t=setTimeout(()=>{ kop.textContent='Kopiëren'; },1600); }
+    catch(e){ ta.focus(); ta.select(); st.textContent='Kopiëren lukte niet. De tekst staat geselecteerd.'; }
+  };
+  if(deel) deel.onclick=async()=>{
+    try{ await navigator.share({text:ta.value}); }
+    catch(e){ if(!e||e.name!=='AbortError') st.textContent='Delen lukte niet. Gebruik Kopiëren.'; }   // annuleren is geen fout
+  };
+}
 // Schuifpaneel voor een nieuwe reiziger: naam, e-mail, wachtwoord en de delen van de reis.
 function openReizigerSheet(onDone){
   document.getElementById('sheet')?.remove();
@@ -1816,7 +1859,8 @@ function openReizigerSheet(onDone){
       const u=await nhSignup(email,pw,naam);
       st.textContent='Toevoegen aan de reizigerslijst…';
       await gql(M_INS_REIZIGER,{o:{user_id:u.id,naam,...delen}});
-      close(); toast(`${naam} is toegevoegd.`); onDone();
+      onDone();   // de lijst achter het paneel bijwerken; het paneel zelf toont nu het welkomstbericht
+      toonWelkom(el,close,{naam,email,pw,...delen});
     }catch(err){ knop.disabled=false; st.textContent=err.message; }
   });
   setTimeout(()=>el.querySelector('#rnaam').focus(),250);
@@ -2241,7 +2285,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-193';
+const APP_VERSIE='2026-09-12-194';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
