@@ -71,8 +71,8 @@
     aspect-ratio:12/5;background:var(--tone);
     padding:0;transition:background-image .35s ease;
     background-size:cover;background-position:center}
-  .hero .wrap{position:relative;z-index:1;flex:1 1 auto;min-height:0;width:100%;
-    padding:14px 22px 16px;
+  .hero .wrap{position:relative;z-index:1;height:100%;
+    padding:calc(env(safe-area-inset-top) + 14px) 22px 16px;
     display:flex;flex-direction:column;justify-content:flex-end}
   /* De datumknop blijft bovenaan, de rest staat onderaan, net als op de andere tabbladen. */
   .hero .eyebrow{margin-bottom:auto}
@@ -108,23 +108,9 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
     padding:5px 12px;border-radius:999px;font-size:13.5px;font-weight:600}
   .hero.banner{background-size:cover;background-position:center;padding:0;position:relative;overflow:hidden}
-  .hero.banner .wrap{position:relative;z-index:1;flex:1 1 auto;min-height:0;width:100%;
-    padding:14px 22px 16px;
+  .hero.banner .wrap{position:relative;z-index:1;height:100%;
+    padding:calc(env(safe-area-inset-top) + 14px) 22px 16px;
     display:flex;flex-direction:column;justify-content:flex-end}
-  /* De kop loopt onder de statusbalk van iOS door (zie index.html). De ruimte voor die balk komt bóven
-     het 12/5-vlak, niet erin: met content-box telt de padding niet mee in de aspect-ratio en blijft de
-     tekst even ruim staan. Op Android en op de desktop is de inset 0 en verandert er niets. */
-  .hero,.hero.banner{padding-top:env(safe-area-inset-top);box-sizing:content-box;display:flex;flex-direction:column}
-  /* De kop is een kolom: de .wrap vult wat er onder de statusbalk overblijft, de .track staat eronder.
-     Zo hangt de hoogte van de tekst niet af van een percentage, dat Safari hier tegen de hele kop
-     (mét de ruimte voor de statusbalk) afmeet, waardoor de titel onder de rand verdween. De .wrap
-     heeft width:100%, want als flex-item met margin:0 auto zou hij anders krimpen tot zijn inhoud
-     en in het midden komen te staan. */
-  /* Na het scrollen staat de klok niet meer op de foto maar op de pagina. Dan schuift er een strook in
-     de regiokleur onder, zodat het witte statusbalk-schrift leesbaar blijft. app.js zet .gescrold. */
-  body::after{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);z-index:25;
-    background:var(--tone,#0E1013);opacity:0;transition:opacity .2s;pointer-events:none}
-  body.gescrold::after{opacity:1}
   /* dezelfde regelhoogte als de titel op Vandaag, anders staat de tekst optisch hoger */
   .btitel{margin:0;font-size:clamp(28px,7.5vw,36px);font-weight:730;letter-spacing:-.03em;line-height:1.05;
     color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6), 0 1px 3px rgba(0,0,0,.45)}
@@ -133,12 +119,12 @@
   .blabel{align-self:flex-start;margin:0 0 8px;padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600;
     color:#fff;background:rgba(0,0,0,.34);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
   .hero.banner .track{position:relative;z-index:1;background:rgba(255,255,255,.15)}
-  .track{flex:none;height:3px;background:rgba(255,255,255,.22)}
+  .track{height:3px;background:rgba(255,255,255,.22)}
   .track i{display:block;height:100%;background:var(--accent);transition:width .35s ease;
     box-shadow:0 0 10px color-mix(in srgb, var(--accent) 60%, transparent)}
 
   /* ---------- Dagnavigatie (zwevend glas) ---------- */
-  .nav{position:sticky;top:env(safe-area-inset-top);z-index:20;margin:26px 12px 0}   /* dezelfde 26 als onder de balk; blijft onder de statusbalk */
+  .nav{position:sticky;top:0;z-index:20;margin:26px 12px 0}   /* dezelfde 26 als onder de balk */
   .nav .inner{max-width:660px;margin:0 auto;padding:6px;display:flex;align-items:center;gap:6px;
     border-radius:20px;background:var(--glass-2);border:1px solid var(--rim);
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow);

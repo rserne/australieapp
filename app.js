@@ -817,9 +817,8 @@ const reisPeriode=()=>{
   return `${start.getDate()} ${start.getMonth()===eind.getMonth()?'':MN[start.getMonth()]} `.replace('  ',' ')+
     `t/m ${eind.getDate()} ${MN[eind.getMonth()]} ${eind.getFullYear()}`;
 };
-// Per tabblad: foto, titel, ondertitel en de toon. De toon is de kleur van de strook die na het scrollen
-// onder de statusbalk van iOS staat (body::after in app.css); hij is gekozen bij de tekening, in dezelfde
-// diepte als het palet van de regio's.
+// Per tabblad: foto, titel, ondertitel en de toon, de kleur die onder de foto ligt. De toon is gekozen
+// bij de tekening, in dezelfde diepte als het palet van de regio's.
 const BANNERS={
   index:['banner-dagen.jpg','Alle dagen',null,TONE.nsw],
   alles:['banner-notities.jpg','Notities','',TONE.red],
@@ -2116,7 +2115,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-11-183';
+const APP_VERSIE='2026-09-12-184';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
@@ -2135,11 +2134,6 @@ function vraagStatus(){
     (reg.active||navigator.serviceWorker.controller)?.postMessage({type:'status'});
   }).catch(()=>{});
 }
-// Strook onder de statusbalk van iOS zodra de kop uit beeld scrolt (zie body::after in app.css).
-const zetGescrold=()=>document.body.classList.toggle('gescrold',window.scrollY>24);
-window.addEventListener('scroll',zetGescrold,{passive:true});
-zetGescrold();
-
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden) return;
   herbereken();                                  // na middernacht: 'Vandaag' verschuift
