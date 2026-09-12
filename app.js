@@ -1914,6 +1914,12 @@ const isGegeten=w=>hoeVan(w)==='gegeten';
 function dierTelling(hoe,lijst){ const t={}; (lijst||waarnemingen()).filter(w=>hoeVan(w)===(hoe||'gezien')).forEach(w=>{ t[w.dier]=(t[w.dier]||0)+1; }); return t; }
 // Soort van een waarneming: de sleutel uit dieren.js, of de naam van een ander dier
 const dierSleutel=w=>w.dier==='overig'?'overig:'+(w.opmerking||'').toLowerCase():w.dier;
+// Groep van een waarneming: die van het dier, 'overig' voor een ander dier, null als het dier niet meer bestaat
+const groepVan=w=>w.dier==='overig'?'overig':((dierVan(w.dier)||{}).g||null);
+// Aantal soorten in een lijst waarnemingen, van één soort (gezien of gegeten), eventueel binnen één groep.
+// Elk getal in de chips komt hiervandaan, zodat elke teller rekening houdt met de andere filters:
+// 'Robbert 0' naast een aangezette groep Vogels betekent dat Robbert geen vogel at.
+const soortenVan=(lijst,hoe,groep)=>new Set(lijst.filter(w=>hoeVan(w)===hoe&&(!groep||groepVan(w)===groep)).map(dierSleutel)).size;
 // De mensen die iets hebben gespot of gegeten, voor de namenrij in het tabblad Dieren: Ik voorop, dan de
 // reizigers en daarna de gasten, elk op alfabet. De naam komt uit de reizigerslijst, anders van de waarneming.
 function wieRij(lijst){
@@ -2027,6 +2033,7 @@ function renderDieren(){
   const wie=stand?(LS.get('aus_dwie')||[]).filter(id=>personen.some(p=>p.id===id)):[];
   const alle=wie.length?iedereen.filter(w=>wie.includes(w.user_id)):iedereen;
   const tel=dierTelling('gezien',alle), eetTel=dierTelling('gegeten',alle), groep=window._dgroep||'';
+  const hoe=stand==='gegeten'?'gegeten':'gezien';   // waar de getallen in de chips over gaan
   // 'ander dier' telt op naam, want daar is geen sleutel. Ook een ander dier kan op het bord liggen,
   // dus die regels krijgen het bestekje net als de dieren met eet:true.
   const telAnder=(naam,hoe)=>alle.filter(w=>w.dier==='overig'&&hoeVan(w)===(hoe||'gezien')&&(w.opmerking||'').toLowerCase()===naam.toLowerCase());
@@ -2064,7 +2071,8 @@ function renderDieren(){
       m.set(k,x); });
     return [...m.values()].sort((a,b)=>(b.tel+b.gegeten)-(a.tel+a.gegeten)||a.naam.localeCompare(b.naam)); })();
   const groepLijst=DIER_GROEP.filter(([g])=>g!=='overig'||anderen.length);
-  const telGroep=g=>g==='overig'?[anderen.filter(a=>a.tel).length,anderen.length]:[perGroep(g).filter(d=>tel[d.k]).length,perGroep(g).length];
+  // Per groep: hoeveel soorten van het actieve filter (gespot, of gegeten als dat aanstaat) van hoeveel in totaal
+  const telGroep=g=>[soortenVan(alle,hoe,g),g==='overig'?anderen.length:perGroep(g).length];
   h+=`<div class="dkop"><h2>Alle dieren</h2></div>`+
     `<input id="dzoek" class="dzoek" type="search" placeholder="Zoek een dier" autocomplete="off" value="${esc(window._dzoek||'')}">`+
     `<div class="dchips">`+
@@ -2075,8 +2083,7 @@ function renderDieren(){
         // Of de chips er staan, hangt af van de hele groep; het getal erin volgt de aangevinkte mensen. Anders
         // zou de chip verdwijnen zodra je iemand aanvinkt die alleen iets at, en daarmee ook de namenrij.
         const uit=`<span class="chipx" aria-hidden="true">×</span>`, aan=window._dfilter;
-        const nGespot=DIER_LIJST.filter(d=>tel[d.k]).length+anderen.filter(a=>a.tel).length,
-              nGegeten=DIER_LIJST.filter(d=>eetTel[d.k]).length+anderen.filter(a=>a.gegeten).length;
+        const nGespot=soortenVan(alle,'gezien',groep), nGegeten=soortenVan(alle,'gegeten',groep);
         const isGespot=iedereen.some(w=>!isGegeten(w)), isGegetenOoit=iedereen.some(isGegeten);
         return (isGespot?`<button type="button" class="dchip dfilter${aan==='gespot'?' on':''}" data-filter="gespot"${aan==='gespot'?' aria-pressed="true"':''}>Gespot<span>${nGespot}</span>${aan==='gespot'?uit:''}</button>`:'')+
           (isGegetenOoit?`<button type="button" class="dchip dfilter${aan==='gegeten'?' on':''}" data-filter="gegeten"${aan==='gegeten'?' aria-pressed="true"':''}>Gegeten<span>${nGegeten}</span>${aan==='gegeten'?uit:''}</button>`:'')+
@@ -2091,7 +2098,7 @@ function renderDieren(){
     // Een aangevinkte naam krijgt een rand in de kleur van het filter dat aanstaat: geel bij Gespot, oranje
     // bij Gegeten (data-stand op de rij, de opmaak doet de rest).
     (stand?`<div class="dchips dwierij" data-stand="${stand}">`+personen.map(p=>{ const on=wie.includes(p.id);
-        const n=new Set(iedereen.filter(w=>w.user_id===p.id&&hoeVan(w)===(stand==='gegeten'?'gegeten':'gezien')).map(dierSleutel)).size;
+        const n=soortenVan(iedereen.filter(w=>w.user_id===p.id),hoe,groep);
         return `<button type="button" class="dchip dwie${on?' on':''}" data-wie="${esc(p.id)}"${on?' aria-pressed="true"':''}>${esc(p.naam)}<span>${n}</span>${on?`<span class="chipx" aria-hidden="true">×</span>`:''}</button>`; }).join('')+`</div>`:'')+
     `<div id="dalle">`+groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g); if(!tot) return '';
       const rijen=g==='overig'
@@ -2110,8 +2117,7 @@ function renderDieren(){
   // de datum van de waarneming zelf en niet op het dagnummer: dan staat er ook een datum boven wat
   // iemand op een dag zonder nummer heeft gezien. De lijst volgt dezelfde filters als het raster: de
   // aangevinkte namen (zit al in alle), Gespot of Gegeten, en de groep.
-  const groepVan=w=>w.dier==='overig'?'overig':((dierVan(w.dier)||{}).g||'overig');
-  const lijst=alle.filter(w=>(!stand||hoeVan(w)===(stand==='gegeten'?'gegeten':'gezien'))&&(!groep||groepVan(w)===groep))
+  const lijst=alle.filter(w=>(!stand||hoeVan(w)===hoe)&&(!groep||groepVan(w)===groep))
     .sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
   h+=`<h2>${stand==='gegeten'?'Gegeten':'Gespot'}</h2>`;
   if(!lijst.length) h+=`<p class="dstatus">${alle.length?'Niets met deze filters.':'Nog niets gespot. De eerste is voor jou.'}</p>`;
@@ -2235,7 +2241,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-191';
+const APP_VERSIE='2026-09-12-192';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

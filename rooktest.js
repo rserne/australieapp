@@ -690,6 +690,7 @@ function zoek(w,fouten,term){
     w.document.querySelector('.dchip[data-filter="gegeten"]').click();
     eis(fouten,namen().join(' | ')==='Ik 1 | Anna 0 | Piet 0 | Aad 1 | Bram 0',`onder Gegeten telt de rij gegeten soorten (nu: ${namen().join(' | ')})`);
     eis(fouten,zicht()==='kangoeroe','alleen wat jij en Anna aten blijft over');
+    eis(fouten,/Zoogdieren1\/15/.test(w.document.querySelector('.dchip[data-groep="zoogdier"]').textContent)&&/Gegeten1/.test(w.document.querySelector('.dchip[data-filter="gegeten"]').textContent),'onder Gegeten tellen de groepschips gegeten soorten');
     const logKop=()=>[...w.document.querySelectorAll('#dieren h2')].find(h=>/^(Gespot|Gegeten)$/.test(h.textContent));
     const logNamen=()=>[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag) strong')].map(x=>x.textContent);
     eis(fouten,logKop()&&logKop().textContent==='Gegeten'&&logNamen().join(',')==='Kangoeroe',`de lijst onderaan heet nu Gegeten en toont alleen wat jij en Anna aten (nu: ${logNamen().join(',')})`);
@@ -723,6 +724,9 @@ function zoek(w,fouten,term){
     eis(fouten,$(w,'dleeg').hidden,'met alleen een groep is er niets leeg');
     w.document.querySelector('.dchip[data-filter="gespot"]').click();
     eis(fouten,!$(w,'dleeg').hidden&&$(w,'dleegtekst').textContent==='Geen dier gevonden met deze filters: In zee · Gespot.',`in zee is niets gespot, dus de melding noemt de filters (nu: '${$(w,'dleegtekst').textContent}')`);
+    // elk getal in de chips houdt rekening met de andere filters: onder In zee is er niets gespot
+    eis(fouten,/Gespot0/.test(w.document.querySelector('.dchip[data-filter="gespot"]').textContent)&&/Zoogdieren1\/15/.test(w.document.querySelector('.dchip[data-groep="zoogdier"]').textContent)&&/In zee0\//.test(w.document.querySelector('.dchip[data-groep="zee"]').textContent),'de chips Gespot en In zee tellen 0, Zoogdieren nog 1');
+    eis(fouten,w.document.querySelector('.dchip[data-wie="u2"] span').textContent==='0','de naam Anna telt 0 binnen In zee');
     w.document.querySelector('.dchip[data-wie="u2"]').click();
     eis(fouten,$(w,'dleegtekst').textContent==='Geen dier gevonden met deze filters: In zee · Gespot · Anna.','ook een aangevinkte naam staat erbij');
     const dz=$(w,'dzoek'); dz.value='haai'; dz.dispatchEvent(new w.Event('input'));

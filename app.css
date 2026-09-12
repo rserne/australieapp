@@ -445,8 +445,10 @@
   .dzoek::placeholder{color:var(--text-faint)}
   .dchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px;-webkit-overflow-scrolling:touch}
   .dchips::-webkit-scrollbar{display:none}
-  /* de namenrij (Ik en wie iets heeft gespot) staat vlak onder de filterchips */
-  .dchips.dwierij{padding-top:0}
+  /* de namenrij (Ik en wie iets heeft gespot) staat onder de filterchips, met wat lucht ertussen */
+  .dchips.dwierij{padding-top:6px}
+  /* de lege melding houdt afstand van de chips, net als de eerste groepskop */
+  #dleeg{margin-top:20px}
   .dchip{flex:none;height:40px;display:inline-flex;align-items:center;gap:7px;padding:0 14px;border-radius:20px;border:none;cursor:pointer;
     font:inherit;font-weight:600;font-size:14px;white-space:nowrap;
     background:color-mix(in srgb,var(--gl) 20%,transparent);color:var(--gl)}
