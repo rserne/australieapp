@@ -647,6 +647,61 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-10-06');
     eis(fouten,$(w,'btnDieren').hidden===true,'tabblad Dieren verborgen zonder login');
     meld('6 okt anoniem: Dieren achter de login',fouten); }
+  // Wie: de namenrij onder de filters. Ik voorop, dan de reizigers en daarna de gasten, op alfabet.
+  // Aangevinkte mensen zijn 'wij': alleen hun waarnemingen tellen mee.
+  { const lijst=[...REIZIGERS(false),{user_id:'u4',naam:'Bram',voorreis:false,reis:true,nareis:false,beheer:false,gast:true},
+      {user_id:'u5',naam:'Aad',voorreis:false,reis:true,nareis:false,beheer:false,gast:true}];
+    const {w,fouten}=start('2026-10-06',{login:'groep',lijst});
+    const wn=(id,dier,wie,hoe,t)=>({id:id+dier+hoe,user_id:id,dier,dag:6,gezien_op:`2026-10-06T${t}:00+10:30`,wie,hoe});
+    w.localStorage.setItem('aus_cache_waarn',JSON.stringify([
+      wn('u1','koala','Test','gezien','08:00'),wn('u1','kangoeroe','Test','gegeten','19:00'),
+      wn('u2','koala','Anna','gezien','08:05'),wn('u2','wombat','Anna','gezien','09:00'),
+      wn('u3','emoe','Piet','gezien','10:00'),wn('u4','kangoeroe','Bram','gezien','11:00'),
+      wn('u5','barramundi','Aad','gegeten','20:00')]));
+    klik(w,'btnDieren',fouten);
+    const rij=()=>w.document.querySelector('#dieren .dwierij');
+    const namen=()=>[...w.document.querySelectorAll('#dieren .dchip[data-wie]')].map(c=>c.firstChild.textContent+' '+c.querySelector('span').textContent);
+    const zicht=()=>[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier).join(',');
+    const totNuToe=()=>{ const p=[...w.document.querySelectorAll('#dieren h2')].find(h=>h.textContent==='Tot nu toe'); return p?p.nextElementSibling.textContent:''; };
+    const chipGespot=()=>w.document.querySelector('.dchip[data-filter="gespot"]');
+    eis(fouten,!rij(),'zonder Gespot of Gegeten staat er geen namenrij');
+    eis(fouten,/^Jullie hebben samen 5 dieren gespot, 4 verschillende soorten en 1 door jou\. Op het bord kwamen er 2, in 2 soorten, waarvan 1 soort die jullie ook in het wild zagen\.$/.test(totNuToe()),`zonder keuze telt de hele groep (nu: '${totNuToe()}')`);
+    chipGespot().click();
+    eis(fouten,!!rij()&&rij().previousElementSibling.classList.contains('dchips'),'met Gespot aan staat de namenrij onder de filterchips');
+    eis(fouten,namen().join(' | ')==='Ik 1 | Anna 2 | Piet 1 | Aad 0 | Bram 1',`Ik voorop, dan de reizigers en de gasten op alfabet, met het aantal gespotte soorten (nu: ${namen().join(' | ')})`);
+    eis(fouten,!w.document.querySelector('#dieren .dchip[data-wie].on'),'nog niemand aangevinkt');
+    w.document.querySelector('.dchip[data-wie="u2"]').click();
+    eis(fouten,JSON.stringify(JSON.parse(w.localStorage.getItem('aus_dwie')))==='["u2"]','de keuze staat op de telefoon');
+    eis(fouten,w.document.querySelector('.dchip[data-wie="u2"]').classList.contains('on')&&w.document.querySelector('.dchip[data-wie="u2"] .chipx'),'aangevinkte naam licht op met een kruisje');
+    eis(fouten,zicht()==='koala,wombat',`alleen wat Anna zag blijft over (nu ${zicht()||'niets'})`);
+    eis(fouten,/Gespot2/.test(chipGespot().textContent)&&/Zoogdieren2\/15/.test(w.document.querySelector('.dchip[data-groep="zoogdier"]').textContent),'de chips tellen alleen Anna');
+    eis(fouten,totNuToe()==='Anna heeft 2 dieren gespot, 2 verschillende soorten.',`Tot nu toe gaat over Anna (nu: '${totNuToe()}')`);
+    const log=[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag) strong')].map(x=>x.textContent);
+    eis(fouten,log.join(',')==='Wombat,Koala',`de lijst Gespot toont alleen Anna (nu: ${log.join(',')})`);
+    w.document.querySelector('.dchip[data-wie="u1"]').click();
+    eis(fouten,zicht()==='koala,wombat'&&w.document.querySelector('#dalle .drijwrap [data-dier="koala"]').closest('.drijwrap').querySelector('.dtel').textContent==='2','met Ik erbij telt de koala twee keer');
+    eis(fouten,totNuToe()==='Jij en Anna hebben samen 3 dieren gespot, 2 verschillende soorten en 1 door jou. Op het bord kwamen er 1, in 1 soort.',`Tot nu toe over jou en Anna, in de volgorde van de rij (nu: '${totNuToe()}')`);
+    // filter uit: alles terug naar de groep, de keuze blijft bewaard
+    chipGespot().click();
+    eis(fouten,!rij()&&zicht().split(',').length>=55&&/Jullie hebben samen 5 dieren/.test(totNuToe()),'Gespot uit: namenrij weg en weer de hele groep');
+    chipGespot().click();
+    eis(fouten,[...w.document.querySelectorAll('.dchip[data-wie].on')].map(c=>c.dataset.wie).join(',')==='u1,u2','Gespot weer aan: dezelfde mensen staan nog aangevinkt');
+    // Gegeten: dezelfde rij, met het aantal gegeten soorten
+    w.document.querySelector('.dchip[data-filter="gegeten"]').click();
+    eis(fouten,namen().join(' | ')==='Ik 1 | Anna 0 | Piet 0 | Aad 1 | Bram 0',`onder Gegeten telt de rij gegeten soorten (nu: ${namen().join(' | ')})`);
+    eis(fouten,zicht()==='kangoeroe','alleen wat jij en Anna aten blijft over');
+    w.document.querySelector('.dchip[data-wie="u2"]').click();
+    eis(fouten,totNuToe()==='Je hebt 1 dier gespot, 1 soort. Op het bord kreeg je er 1, in 1 soort.',`Tot nu toe over jou alleen (nu: '${totNuToe()}')`);
+    // een tik op een dier noteert nog altijd onder je eigen naam
+    w.document.querySelector('#dalle .drij[data-dier="kangoeroe"]').click(); await sleep(50);
+    const q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q.length===1&&q[0].dier==='kangoeroe'&&q[0].wie==='Test','noteren gaat gewoon door onder je eigen naam');
+    w.localStorage.setItem('aus_pending','[]');
+    // iemand die niet meer in de rij staat valt uit de keuze
+    w.localStorage.setItem('aus_dwie',JSON.stringify(['u9']));
+    w.renderDieren();
+    eis(fouten,!!rij()&&!w.document.querySelector('.dchip[data-wie].on')&&zicht()==='kangoeroe,barramundi',`een keuze zonder chip vervalt, zodat de lijst niet leeg blijft (nu ${zicht()})`);
+    meld('6 okt: namenrij en wij-filter bij Dieren',fouten); }
   // Boekingscodes per persoon: een regel met alleen een naam begint een blokje. Test (u1) is ingelogd;
   // hij krijgt zijn eigen SQ, de gedeelde Sawadee-code van boven de namen, en niets van Anna.
   { const {w,fouten}=start('2026-10-05',{login:'groep'});
