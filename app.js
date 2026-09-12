@@ -1750,6 +1750,21 @@ function renderBeheer(){
   box.querySelector('#radd').onclick=()=>openReizigerSheet(ververs);
 }
 const fmtTijd=iso=>{ const d=new Date(iso); return `${d.getDate()} ${MN[d.getMonth()].slice(0,3)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+// Dobbelsteen: een nieuw wachtwoord laten maken.
+const IC_DOBBEL='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg>';
+// Wachtwoord voor een nieuwe reiziger: drie dierennamen uit dieren.js en een getal, zoals
+// wombat-galah-koala-4821. Leesbaar en over te typen, en de app maakt het zelf. Een wachtwoordveld met
+// een voorstel van iOS zou hetzelfde doen, maar Safari zet zo'n voorstel meteen in de sleutelhanger van
+// de beheerder, onder het adres van de reiziger, en dat is vanuit een webpagina niet meer weg te halen.
+// Drie uit 45 woorden en een getal van vier cijfers is zo'n dertig bits aan willekeur: ruim genoeg
+// tegen raden bij Nhost, dat herhaalde pogingen afremt. Wie iets sterkers wil, wijzigt het via de herstelmail.
+function nieuwWachtwoord(){
+  let woorden=DIER_LIJST.map(d=>d.k).filter(k=>/^[a-z]{4,10}$/.test(k));
+  if(woorden.length<3) woorden=['wombat','koala','emoe','galah','quokka','wallaby'];
+  const r=n=>{ try{ const a=new Uint32Array(1); crypto.getRandomValues(a); return a[0]%n; }catch(e){ return Math.floor(Math.random()*n); } };
+  const w=[]; while(w.length<3){ const k=woorden[r(woorden.length)]; if(!w.includes(k)) w.push(k); }
+  return `${w.join('-')}-${1000+r(9000)}`;
+}
 // Schuifpaneel voor een nieuwe reiziger: naam, e-mail, wachtwoord en de delen van de reis.
 function openReizigerSheet(onDone){
   document.getElementById('sheet')?.remove();
@@ -1758,10 +1773,10 @@ function openReizigerSheet(onDone){
     <div class="sheethead"><strong>Reiziger toevoegen</strong><button class="nbtn" id="shclose" aria-label="Sluiten">×</button></div>
     <form id="rform" action="#" method="post" autocomplete="off">
     <input id="rnaam" class="shinput" type="text" placeholder="Naam van de reiziger" autocomplete="off" autocapitalize="words" required>
-    <input id="remail" class="shinput" type="email" placeholder="E-mailadres van de reiziger" autocomplete="username" inputmode="email" autocapitalize="none" required>
-    <div class="pwrij"><input id="rpw" class="shinput" type="password" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="new-password" autocapitalize="none" required>
-    <button type="button" class="nbtn" id="rpwkopie" aria-label="Wachtwoord kopiëren">${IC_KOPIE}</button></div>
-    <p class="pwlees" id="rpwlees" hidden></p>
+    <input id="remail" class="shinput" type="email" placeholder="E-mailadres van de reiziger" autocomplete="off" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+    <div class="pwrij"><input id="rpw" class="shinput" type="text" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+    <button type="button" class="nbtn" id="rpwnieuw" aria-label="Nieuw wachtwoord" title="Nieuw wachtwoord">${IC_DOBBEL}</button>
+    <button type="button" class="nbtn" id="rpwkopie" aria-label="Wachtwoord kopiëren" title="Wachtwoord kopiëren">${IC_KOPIE}</button></div>
     <div class="chips" id="rdelen">${DELEN_NIEUW.map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
     <div class="nrow"><button class="btn primary" id="rbtn" type="submit">Toevoegen</button></div><div class="nstatus" id="rstat"></div></form></div>`;
   document.body.appendChild(el);
@@ -1769,19 +1784,21 @@ function openReizigerSheet(onDone){
   const close=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),220)};
   el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
   el.querySelectorAll('#rdelen .chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
-  // Het veld blijft verborgen, zodat iOS een sterk wachtwoord aanbiedt. De knop ernaast zet het
-  // wachtwoord op het klembord, zodat je het meteen kunt doorsturen. Lukt kopiëren niet (geen
-  // toestemming, of een browser zonder clipboard-API), dan komt het als leesregel eronder te staan,
-  // want in het veld zelf houdt Safari een door hemzelf ingevuld wachtwoord gemaskeerd.
-  const pwv=el.querySelector('#rpw'), kop=el.querySelector('#rpwkopie'), lees=el.querySelector('#rpwlees');
-  const toonPw=()=>{ lees.hidden=false; lees.textContent=pwv.value; };
+  // Het wachtwoord staat leesbaar in een gewoon tekstveld, al ingevuld bij het openen. Bewust geen
+  // wachtwoordveld: zodra iOS er een ziet, stelt Safari zelf iets voor en zet dat meteen in de
+  // sleutelhanger van de beheerder (zie nieuwWachtwoord). De dobbelsteen maakt een nieuwe, de
+  // kopieerknop zet het op het klembord zodat je het meteen kunt doorsturen, en zelf iets typen kan ook.
+  // Lukt kopiëren niet (geen toestemming, of een browser zonder clipboard-API), dan staat het
+  // geselecteerd in het veld, zodat één tik op Kopieer genoeg is.
+  const pwv=el.querySelector('#rpw'), kop=el.querySelector('#rpwkopie');
+  pwv.value=nieuwWachtwoord();
+  el.querySelector('#rpwnieuw').onclick=()=>{ pwv.value=nieuwWachtwoord(); };
   kop.onclick=async()=>{
     const pw=pwv.value;
     if(!pw){ pwv.focus(); return; }
     try{ await navigator.clipboard.writeText(pw); toast('Wachtwoord gekopieerd.'); }
-    catch(e){ toonPw(); toast('Kopiëren lukte niet. Het wachtwoord staat nu onder het veld.'); }
+    catch(e){ pwv.focus(); pwv.setSelectionRange(0,pw.length); toast('Kopiëren lukte niet. Het wachtwoord staat geselecteerd in het veld.'); }
   };
-  pwv.addEventListener('input',()=>{ if(!lees.hidden) toonPw(); });
   const st=el.querySelector('#rstat');
   el.querySelector('#rform').addEventListener('submit',async e=>{
     e.preventDefault();
@@ -2155,7 +2172,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-186';
+const APP_VERSIE='2026-09-12-187';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

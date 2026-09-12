@@ -30,6 +30,9 @@ const VOORTEST=`const VOORDAGEN=[
 {datum:"2026-09-30",k:"vlucht",t:"Vlucht naar Sydney",p:"Cairns → Sydney",tz:10,body:["Naar de groep."]}
 ];`;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// De dierensleutels uit dieren.js, voor de controle van het gegenereerde wachtwoord (een const in de
+// app is geen eigenschap van window, dus we lezen het bestand hier zelf).
+const DIER_SLEUTELS=require('vm').runInNewContext(lees('dieren.js')+';DIEREN',{}).map(d=>d.k);
 
 // Een paar notities zoals ze uit Nhost komen: één voorreisnotitie (maakt u1 voorreiziger),
 // een Ticket-notitie met boekingscodes, en een bijlage van iemand anders zonder afzender.
@@ -260,20 +263,28 @@ function zoek(w,fouten,term){
     eis(fouten,sheet&&/Reiziger toevoegen/.test(sheet.textContent)&&$(w,'rnaam'),'plusknop opent het schuifpaneel');
     const chipsNieuw=[...sheet.querySelectorAll('#rdelen .chip')].map(c=>c.dataset.deel);
     eis(fouten,chipsNieuw.join(',')==='voorreis,reis,nareis,gast',`het paneel heeft ook een chip Gast, geen Beheer (nu: ${chipsNieuw.join(',')})`);
-    eis(fouten,$(w,'rpw').type==='password'&&$(w,'rpw').getAttribute('autocomplete')==='new-password','wachtwoordveld staat verborgen met new-password, zodat iOS een sterk wachtwoord aanbiedt');
-    // kopiëren naar het klembord, met de leesregel als terugval
+    // Het wachtwoord is een leesbaar tekstveld dat de app zelf vult: geen wachtwoordveld, anders zet iOS
+    // een eigen voorstel in de sleutelhanger van de beheerder. Ook het e-mailveld mag geen username zijn.
+    eis(fouten,$(w,'rpw').type==='text'&&$(w,'rpw').getAttribute('autocomplete')==='off'&&!sheet.querySelector('input[type="password"]'),'het wachtwoord staat in een gewoon tekstveld, zonder wachtwoordveld in het paneel');
+    eis(fouten,$(w,'remail').getAttribute('autocomplete')==='off','het e-mailveld staat niet op username, zodat iOS er het adres van de beheerder niet bij aanbiedt');
+    const sleutels=DIER_SLEUTELS, vorm=/^([a-z]+)-([a-z]+)-([a-z]+)-(\d{4})$/;
+    const pw1=$(w,'rpw').value, m1=pw1.match(vorm);
+    eis(fouten,m1&&m1.slice(1,4).every(x=>sleutels.includes(x))&&new Set(m1.slice(1,4)).size===3&&+m1[4]>=1000,`bij het openen staat er al een wachtwoord van drie verschillende dieren en een getal (nu: '${pw1}')`);
+    $(w,'rpwnieuw').click();
+    const pw2=$(w,'rpw').value;
+    eis(fouten,vorm.test(pw2)&&pw2!==pw1,`de dobbelsteen maakt een nieuw wachtwoord (nu: '${pw2}')`);
+    // kopiëren naar het klembord, met selecteren in het veld als terugval
     let klembord=null;
     w.navigator.clipboard={writeText:async t=>{klembord=t}};
-    $(w,'rpw').value='wombat-2026';
     $(w,'rpwkopie').click(); await sleep(50);
-    eis(fouten,klembord==='wombat-2026'&&$(w,'rpwlees').hidden,'de knop zet het wachtwoord op het klembord, zonder het te tonen');
+    eis(fouten,klembord===pw2,'de knop zet het wachtwoord op het klembord');
     eis(fouten,/gekopieerd/.test(($(w,'toast')||{textContent:''}).textContent),'en meldt dat');
     w.navigator.clipboard={writeText:async()=>{throw new Error('geweigerd')}};
     $(w,'rpwkopie').click(); await sleep(50);
-    eis(fouten,!$(w,'rpwlees').hidden&&$(w,'rpwlees').textContent==='wombat-2026',`als kopiëren niet lukt, komt het wachtwoord eronder te staan (nu: '${$(w,'rpwlees').textContent}')`);
-    $(w,'rpw').value='quokka-2026'; $(w,'rpw').dispatchEvent(new w.Event('input'));
-    eis(fouten,$(w,'rpwlees').textContent==='quokka-2026','de leesregel volgt wat er in het veld staat');
-    $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl'; $(w,'rpw').value='wombat-2026';
+    eis(fouten,$(w,'rpw').selectionStart===0&&$(w,'rpw').selectionEnd===pw2.length&&/geselecteerd/.test($(w,'toast').textContent),'als kopiëren niet lukt, staat het wachtwoord geselecteerd in het veld');
+    $(w,'rpw').value='wombat-2026';
+    eis(fouten,$(w,'rpw').value==='wombat-2026','zelf iets typen kan ook');
+    $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl';
     sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
     sheet.querySelector('#rdelen .chip[data-deel="gast"]').click();
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);
