@@ -778,4 +778,8 @@
   @media (min-width:760px){
     .hero{max-width:700px;margin:22px auto 0;border-radius:26px}
     .hero .wrap,.hero.banner .wrap{padding-top:16px}
+    /* Bladen en de updatebalk niet over de volle breedte van een iPad of desktop, maar even breed als de
+       kop en in het midden. Het blad komt dan los van de onderrand, met vier ronde hoeken. */
+    .sheet{max-width:700px;margin:0 auto;bottom:24px;border-radius:24px}
+    .updatebar{max-width:700px;margin:0 auto}
   }
