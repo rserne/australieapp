@@ -62,7 +62,7 @@ Wie eerder gaat of langer blijft, kan notities maken voor dagen buiten de groeps
 
 Bovenaan Alle dagen staat een regel **Reisoverzicht**, die naar diezelfde pagina brengt. Vóór vertrek telt die af naar het vertrek; zodra jouw reis loopt, toont hij de voortgang en dooft in het raster elke regio die achter je ligt. De voortgang gaat over je eigen reis: een voorreiziger is op 25 september al acht dagen onderweg van zijn 42, iemand zonder voorreis ziet op 14 oktober 'Dag 14 van 29'. Wie thuis nog wacht, blijft aftellen naar zijn eigen vertrek. Zo blijft Vandaag altijd de dag zelf tonen en heeft het overzicht toch een vaste ingang. Terugbladeren vanaf dag 1 (of de eerste voorreisdag) komt er ook uit.
 
-Vóór 1 oktober toont het tabblad Vandaag een startpagina met het aftellen tot het vertrek en de reis in beeld, een raster met per regio de foto en de dagen. Wie is ingelogd, ziet in dat raster ook een kaart Voorreis (en Nareis, als die er is). Tijdens de voorreis brengt die kaart je bij de notities van vandaag van wie onderweg is. Een voorreiziger telt op de startpagina af naar zijn eigen vertrek, en tijdens zijn voorreis toont Vandaag zijn dag zelf. Wie thuis nog wacht, blijft de startpagina zien. Inchecklinks, boekingscodes en bagage staan in het tabblad Praktisch.
+Vóór 1 oktober toont het tabblad Vandaag een startpagina met het aftellen tot het vertrek en de reis in beeld, een raster met per regio de foto en de dagen. Wie is ingelogd, ziet in dat raster ook een kaart Voorreis (en Nareis, als die er is); een gast alleen als hij er zelf aan meedoet (zie Gasten). Tijdens de voorreis brengt die kaart je bij de notities van vandaag van wie onderweg is. Een voorreiziger telt op de startpagina af naar zijn eigen vertrek, en tijdens zijn voorreis toont Vandaag zijn dag zelf. Wie thuis nog wacht, blijft de startpagina zien. Inchecklinks, boekingscodes en bagage staan in het tabblad Praktisch.
 
 Elke voorreisdag is een pagina met alleen notities, in dezelfde vorm als een reisdag. Bladeren loopt door van de startpagina naar de voorreis en dan naar dag 1 tot en met 29. Alleen de pijl vanaf de startpagina slaat de voorreis over voor wie er niet bij hoort. Via de kaart Voorreis of terugbladeren vanaf dag 1 kom je er wel.
 
@@ -82,7 +82,7 @@ Alle dertien dagen hebben een programma, van de vlucht vanaf Schiphol via Sydney
 
 ## Reizigers
 
-De tabel `reizigers` bij Nhost bepaalt twee dingen: wie de notities en waarnemingen van de groep mag zien, en wie aan welk deel van de reis meedoet. Eén rij per account, met het `user_id` uit `auth.users`, de naam en drie ja/nee-kolommen. De reisdatums zelf staan niet in de tabel; die komen uit `reis.js`.
+De tabel `reizigers` bij Nhost bepaalt drie dingen: wie de notities en waarnemingen van de groep mag zien, wie aan welk deel van de reis meedoet, en wie gast is (wel de reis en de waarnemingen, geen notities). Eén rij per account, met het `user_id` uit `auth.users`, de naam en vijf ja/nee-kolommen. De reisdatums zelf staan niet in de tabel; die komen uit `reis.js`.
 
 ```sql
 create table public.reizigers (
@@ -92,9 +92,12 @@ create table public.reizigers (
   reis boolean not null default true,
   nareis boolean not null default false,
   beheer boolean not null default false,
+  gast boolean not null default false,
   created_at timestamptz not null default now()
 );
--- op een bestaande tabel: alter table public.reizigers add column beheer boolean not null default false;
+-- op een bestaande tabel:
+-- alter table public.reizigers add column beheer boolean not null default false;
+-- alter table public.reizigers add column gast boolean not null default false;
 ```
 
 Vullen vanuit de bestaande accounts (de naam komt uit `display_name`; het statement is herhaalbaar voor nieuwe accounts):
@@ -109,24 +112,31 @@ update public.reizigers set voorreis = true
 where user_id in (select id from auth.users where email in ('rob@voorbeeld.nl'));
 ```
 
-Rechten in Hasura, voor de rol `user`: alleen select, alle kolommen, met als row-check dat de gebruiker zelf in de tabel staat:
+Rechten in Hasura, voor de rol `user`: alleen select, alle kolommen (ook `gast`, zie de opmerking onder Beheer over later toegevoegde kolommen), met als row-check dat de gebruiker zelf in de tabel staat:
 
 ```json
 { "_exists": { "_table": { "schema": "public", "name": "reizigers" },
                "_where": { "user_id": { "_eq": "X-Hasura-User-Id" } } } }
 ```
 
-Dezelfde check staat als row-permission op select én insert van `dagitems` en `waarnemingen`. Update en delete blijven `user_id` gelijk aan `X-Hasura-User-Id`. Zo hoeft er in geen enkele permissie een gebruikers-id te staan: een nieuwe reiziger is één rij in de tabel.
+Dezelfde check staat als row-permission op select én insert van `waarnemingen`: die zijn er voor iedereen in de lijst, gasten ook. Voor de notities krijgt de check er `gast = false` bij, zodat een gast ze niet kan lezen of schrijven. Deze staat op select én insert van `dagitems`, en op upload (insert) en download (select) van `storage.files` (zie Bijlagen):
+
+```json
+{ "_exists": { "_table": { "schema": "public", "name": "reizigers" },
+               "_where": { "user_id": { "_eq": "X-Hasura-User-Id" }, "gast": { "_eq": false } } } }
+```
+
+Update en delete blijven overal `user_id` gelijk aan `X-Hasura-User-Id`. Zo hoeft er in geen enkele permissie een gebruikers-id te staan: een nieuwe reiziger is één rij in de tabel, en een gast is één vinkje in die rij.
 
 ### Beheer vanuit de app
 
-Wie `beheer = true` heeft, ziet in Praktisch onder het inlogblok de knop **Reizigers beheren**. Die opent een eigen scherm met de reizigerslijst: per persoon de delen van de reis als chips (een tik zet een deel aan of uit) en een kruisje om iemand uit de lijst te halen. De knop Reiziger toevoegen opent een schuifpaneel met naam, e-mailadres, wachtwoord en de delen. Het wachtwoordveld staat op `new-password`, zodat iOS zelf een sterk wachtwoord voorstelt en in de sleutelhanger bewaart; de knop ernaast zet het wachtwoord op het klembord, zodat je het meteen kunt doorsturen. Lukt kopiëren niet, dan komt het als leesregel onder het veld te staan; in het veld zelf houdt Safari een door hemzelf ingevuld wachtwoord gemaskeerd, ook als de app het op tekst zet. Het e-mailveld staat op `username`, wat nodig is om dat voorstel op te roepen, maar waardoor iOS er ook het adres van de beheerder zelf bij aanbiedt; de tekst in het veld herinnert eraan dat het om de reiziger gaat. Het scherm gebruikt de foto van New South Wales (`reg-nsw.jpg`) als banner. De app maakt dan eerst het account aan via het gewone aanmeldpunt van Nhost Auth (`/signup/email-password`, met de naam als display name) en schrijft daarna de rij in `reizigers`. De beheerder blijft zelf ingelogd. Zo kan de lijst onderweg vanaf de telefoon worden bijgehouden; de Nhost-console is daar niet meer voor nodig. Jezelf verwijderen of je eigen beheer uitzetten kan niet in de app.
+Wie `beheer = true` heeft, ziet in Praktisch onder het inlogblok de knop **Reizigers beheren**. Die opent een eigen scherm met de reizigerslijst: per persoon de delen van de reis, Gast en Beheer als chips (een tik zet er een aan of uit) en een kruisje om iemand uit de lijst te halen. De knop Reiziger toevoegen opent een schuifpaneel met naam, e-mailadres, wachtwoord, de delen en de chip Gast. Het wachtwoordveld staat op `new-password`, zodat iOS zelf een sterk wachtwoord voorstelt en in de sleutelhanger bewaart; de knop ernaast zet het wachtwoord op het klembord, zodat je het meteen kunt doorsturen. Lukt kopiëren niet, dan komt het als leesregel onder het veld te staan; in het veld zelf houdt Safari een door hemzelf ingevuld wachtwoord gemaskeerd, ook als de app het op tekst zet. Het e-mailveld staat op `username`, wat nodig is om dat voorstel op te roepen, maar waardoor iOS er ook het adres van de beheerder zelf bij aanbiedt; de tekst in het veld herinnert eraan dat het om de reiziger gaat. Het scherm gebruikt de foto van New South Wales (`reg-nsw.jpg`) als banner. De app maakt dan eerst het account aan via het gewone aanmeldpunt van Nhost Auth (`/signup/email-password`, met de naam als display name) en schrijft daarna de rij in `reizigers`. De beheerder blijft zelf ingelogd. Zo kan de lijst onderweg vanaf de telefoon worden bijgehouden; de Nhost-console is daar niet meer voor nodig. Jezelf verwijderen of je eigen beheer uitzetten kan niet in de app.
 
 Onderaan het scherm staat wanneer de lijst voor het laatst is opgehaald, of waarom dat mislukte. Die melding staat dan ook in het inlogblok. Mislukt het ophalen, dan is de kolomlijst van de select-permissie de eerste verdachte: Hasura neemt een later toegevoegde kolom (zoals `beheer`) niet vanzelf op, ook niet als "alle kolommen" aanstond, en de app kan de kolom dan niet opvragen.
 
 Daarvoor is nodig:
 
-- Op `reizigers` voor de rol `user` ook **insert**, **update** en **delete**, alle kolommen behalve `created_at`, met als check dat de gebruiker zelf beheerder is:
+- Op `reizigers` voor de rol `user` ook **insert**, **update** en **delete**, alle kolommen behalve `created_at` (dus ook `gast`), met als check dat de gebruiker zelf beheerder is:
 
 ```json
 { "_exists": { "_table": { "schema": "public", "name": "reizigers" },
@@ -140,13 +150,23 @@ Een reiziger die zijn wachtwoord vergeet, gebruikt de gewone herstelmail van Nho
 
 De app haalt de lijst bij elke synchronisatie op en bewaart een kopie op de telefoon (`aus_cache_reizigers`), zodat hij ook offline weet wie je bent. Het inlogblok in Praktisch noemt je deelname. Sta je wel in `auth.users` maar niet in `reizigers`, dan meldt het blok dat, want dan houdt Hasura ook de notities voor je dicht. Zolang de tabel bij Nhost nog niet bestaat, valt de app terug op de oude regel: wie een voorreisnotitie schreef, is voorreiziger.
 
+### Gasten
+
+Wie `gast = true` heeft, reist mee zonder de notities van de groep te zien. Dat is bedoeld voor iemand die wel meedoet met de waarnemingen, maar niets te maken heeft met tickets, reserveringen, boekingscodes en verzekeringen. Een gast ziet de hele groepsreis en het tabblad Dieren, en kan daar net als iedereen waarnemingen noteren. Wat hij niet ziet: het tabblad Notities, de notities en de blokken 'Vandaag nodig' en 'Nodig op deze dag' op de dagpagina's, de knop Notitie toevoegen, de boekingscodes bij de vluchten en in Praktisch (en de callout die daarover gaat), en het blok Verzekeringen. In het inlogblok staat 'als gast' achter zijn deelname, en de kop erboven heet Account in plaats van Notities.
+
+Hasura houdt de notities en bijlagen voor een gast dicht via de `gast = false` in de check hierboven. De app vraagt ze dan ook niet op: bij het synchroniseren haalt hij eerst de reizigerslijst, slaat voor een gast de notities over en haalt een oude kopie van de telefoon, voor wie eerder gewoon reiziger was. Bij het inloggen haalt de app de lijst op voordat hij de tabbladen tekent, zodat een gast het tabblad Notities niet eerst even ziet.
+
+De voorreis en nareis volgen de bestaande vlaggen. Iedereen die is ingelogd, mag meekijken met de voorreis zodra iemand die doet; een gast niet, want die dagen bestaan grotendeels uit notities. Een gast ziet zo'n deel alleen als zijn eigen `voorreis` of `nareis` op `true` staat, en dan zonder notities: een voorreisdag zonder programma is voor hem leeg, en het Morgen-blok en Alle dagen zeggen 'Geen programma' waar anders het aantal notities staat.
+
+Zet in de Nhost-console bij `reizigers` de kolom `gast` aan bij select, insert en update, anders kan de app de lijst niet meer ophalen (zie de opmerking hierboven). De tabel `waarnemingen` verandert niet.
+
 ## Alle dagen
 
 Het tabblad Alle dagen groepeert de groepsreis per regio, in dezelfde indeling als het raster op de startpagina: een kop met de naam van de regio en het datumbereik, en daaronder de dagen. Een vliegdag telt mee bij de regio waar je heen gaat, dus dag 1 staat bij New South Wales. Het dagnummer draagt de kleur van de regio, uit `TONE_INK` in `reis.js`: per regio een kleur voor het lichte en een voor het donkere thema, net als bij de dierengroepen. De diepe kleuren uit `TONE` liggen onder een foto en worden flets zodra je ze klein en opgelicht gebruikt, dus daar staat een eigen palet naast. `check.js` controleert of elke regio zijn paar heeft. Het streepje aan de rand is vervallen; sinds de dagpagina een foto in de kop heeft, verwees die kleur nergens meer naar. De dag van vandaag krijgt een getinte rij, een gevuld nummer en 'vandaag' in plaats van de datum. Voorreis en nareis staan als eigen blok, met hun eigen paar in `TONE_INK` en een kop Groepsreis ertussen zodat duidelijk is waar de reis zelf begint.
 
 ## Dieren en waarnemingen
 
-Het tabblad Dieren (het pootje onderin, alleen voor wie is ingelogd) begint met Kans vandaag, de dieren uit het blok Dieren spotten van de dag, met de kans erbij. Daaronder staan alle 61 dieren uit `dieren.js` als lijst per groep, met een zoekveld en een chip per groep die op die groep filtert. Elke groep heeft een eigen kleur, met een variant voor het lichte en een voor het donkere thema. Het pootje volgt de kleur van de groep waarin het staat, en een dier dat de groep al zag krijgt die tint als achtergrond. Met de chip Gespot houd je alleen de dieren over die de groep al heeft gezien, en met Gegeten alleen wat op het bord kwam. Beide chips verschijnen pas zodra er iets te filteren valt. Er staat er één tegelijk aan, en de twee tellingen blijven gescheiden. Zoeken en de chips werken samen, en er kan één groep tegelijk aanstaan. Het zijn de dieren die je op deze route in het wild kunt tegenkomen. Wat je alleen op je bord ziet of vrijwel nooit in het wild, staat er bewust niet in. Eén tik op een dier is een waarneming, ook in Kans vandaag. Staat een dier uit de dagtekst niet in de lijst, dan krijgt het het pootje als icoon en noteert een tik het onder zijn eigen naam als ander dier. Alles wat zo is ingevoerd komt onderaan samen in de groep Overig, met het pootje als icoon en één regel per naam. Een tik daarop noteert hetzelfde dier nog een keer, dus wie na de eerste persoon dezelfde vogel ziet, hoeft de naam niet opnieuw te typen. Die groep staat er alleen als er iets in zit, en wordt gevuld uit de waarnemingen zelf, niet uit `dieren.js`. De app noteert het dier, wie het zag, de dag en de plaatselijke tijd, en de hele groep ziet het. Onder het raster staat wat er die dag is gezien, en op de dagpagina staat bij elk dier uit het blok Dieren spotten hoe vaak de groep het al zag. Wie mis tikt, gebruikt Ongedaan maken in de melding. Een dier dat niet in het raster staat, gaat via de knop Iets anders gezien, met een naam erbij.
+Het tabblad Dieren (het pootje onderin, alleen voor wie is ingelogd, gasten ook) begint met Kans vandaag, de dieren uit het blok Dieren spotten van de dag, met de kans erbij. Daaronder staan alle 61 dieren uit `dieren.js` als lijst per groep, met een zoekveld en een chip per groep die op die groep filtert. Elke groep heeft een eigen kleur, met een variant voor het lichte en een voor het donkere thema. Het pootje volgt de kleur van de groep waarin het staat, en een dier dat de groep al zag krijgt die tint als achtergrond. Met de chip Gespot houd je alleen de dieren over die de groep al heeft gezien, en met Gegeten alleen wat op het bord kwam. Beide chips verschijnen pas zodra er iets te filteren valt. Er staat er één tegelijk aan, en de twee tellingen blijven gescheiden. Zoeken en de chips werken samen, en er kan één groep tegelijk aanstaan. Het zijn de dieren die je op deze route in het wild kunt tegenkomen. Wat je alleen op je bord ziet of vrijwel nooit in het wild, staat er bewust niet in. Eén tik op een dier is een waarneming, ook in Kans vandaag. Staat een dier uit de dagtekst niet in de lijst, dan krijgt het het pootje als icoon en noteert een tik het onder zijn eigen naam als ander dier. Alles wat zo is ingevoerd komt onderaan samen in de groep Overig, met het pootje als icoon en één regel per naam. Een tik daarop noteert hetzelfde dier nog een keer, dus wie na de eerste persoon dezelfde vogel ziet, hoeft de naam niet opnieuw te typen. Die groep staat er alleen als er iets in zit, en wordt gevuld uit de waarnemingen zelf, niet uit `dieren.js`. De app noteert het dier, wie het zag, de dag en de plaatselijke tijd, en de hele groep ziet het. Onder het raster staat wat er die dag is gezien, en op de dagpagina staat bij elk dier uit het blok Dieren spotten hoe vaak de groep het al zag. Wie mis tikt, gebruikt Ongedaan maken in de melding. Een dier dat niet in het raster staat, gaat via de knop Iets anders gezien, met een naam erbij.
 
 ### Gespot en gegeten
 
@@ -203,11 +223,11 @@ Foto's en pdf's bij een notitie gaan naar Nhost Storage (bucket `default`). De n
 
 | Actie | Kolommen | Check |
 |---|---|---|
-| Upload (insert) | `id`, `bucket_id`, `name`, `size`, `mime_type` | de `_exists`-check op `reizigers` (zie Reizigers), met als column preset `uploaded_by_user_id = X-Hasura-User-Id` |
-| Download (select) | alle | dezelfde `_exists`-check, want de hele groep ziet elkaars bijlagen |
+| Upload (insert) | `id`, `bucket_id`, `name`, `size`, `mime_type` | de `_exists`-check op `reizigers` mét `gast = false` (zie Reizigers), met als column preset `uploaded_by_user_id = X-Hasura-User-Id` |
+| Download (select) | alle | dezelfde `_exists`-check mét `gast = false`, want de hele groep ziet elkaars bijlagen, een gast niet |
 | Delete | — | `uploaded_by_user_id` gelijk aan `X-Hasura-User-Id` |
 
-De `_exists`-check hoort ook hier, en niet alleen bij de notities: aanmelden staat open, dus wie het adres kent, kan een account maken. Zonder die check kan zo'n account bestanden uploaden, ook al ziet het verder niets van de groep. Stel bij de bucket in Storage ook een maximale bestandsgrootte in (20 MB past bij de app); de grens in `app.js` is alleen een controle in de browser.
+De `_exists`-check hoort ook hier, en niet alleen bij de notities: aanmelden staat open, dus wie het adres kent, kan een account maken. Zonder die check kan zo'n account bestanden uploaden, ook al ziet het verder niets van de groep. En de `gast = false` hoort erbij, want bijlagen zijn notities. Stel bij de bucket in Storage ook een maximale bestandsgrootte in (20 MB past bij de app); de grens in `app.js` is alleen een controle in de browser.
 
 De app haalt bijlagen op met de token in de header en niet via een deelbare link, en verwijdert ze altijd via Storage (`DELETE /files/{id}`), zodat het bestand zelf ook weggaat en niet alleen de rij.
 

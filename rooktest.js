@@ -42,14 +42,16 @@ const NOTITIES=[
 ];
 
 // De reizigerslijst zoals die uit de tabel reizigers komt. u1 is de ingelogde testgebruiker; of hij de
-// voorreis doet, hangt af van het scenario. Anna doet de voorreis altijd, Piet alleen de groepsreis.
-const REIZIGERS=(voor,beheer=false)=>[
-  {user_id:'u1',naam:'Test',voorreis:voor,reis:true,nareis:false,beheer},
-  {user_id:'u2',naam:'Anna',voorreis:true,reis:true,nareis:false,beheer:false},
-  {user_id:'u3',naam:'Piet',voorreis:false,reis:true,nareis:false,beheer:false}
+// voorreis doet, beheerder is of gast, hangt af van het scenario. Anna doet de voorreis altijd, Piet
+// alleen de groepsreis.
+const REIZIGERS=(voor,beheer=false,gast=false)=>[
+  {user_id:'u1',naam:'Test',voorreis:voor,reis:true,nareis:false,beheer,gast},
+  {user_id:'u2',naam:'Anna',voorreis:true,reis:true,nareis:false,beheer:false,gast:false},
+  {user_id:'u3',naam:'Piet',voorreis:false,reis:true,nareis:false,beheer:false,gast:false}
 ];
 
-// Start de app op een datum. login: 'voor' (voorreiziger), 'groep' (ingelogd, geen voorreis) of null.
+// Start de app op een datum. login: 'voor' (voorreiziger), 'groep' (ingelogd, geen voorreis), 'gast'
+// (ingelogd als gast: wel de reis en de waarnemingen, geen notities) of null.
 // online: navigator.onLine. Het netwerk zelf faalt altijd, zodat ook de herhaalpogingen doorlopen.
 // voorreis: JavaScript dat voorreis.js vervangt (VOORTEST), anders het echte bestand.
 // lijst: de kopie van de reizigerslijst. 'std' volgt login, null is geen kopie (terugval op de notities).
@@ -72,7 +74,8 @@ function start(datum,{login=null,online=false,voorreis=null,lijst='std'}={}){
     w.localStorage.setItem('aus_sess',JSON.stringify({refreshToken:'x',tijd:Date.now(),user:{id:'u1',displayName:'Test',email:'test@example.org'}}));
     w.localStorage.setItem('aus_cache_all',JSON.stringify(notities));
     notities.forEach(n=>{ const k='aus_cache_'+n.dag, l=JSON.parse(w.localStorage.getItem(k)||'[]'); l.push(n); w.localStorage.setItem(k,JSON.stringify(l)); });
-    if(lijst) w.localStorage.setItem('aus_cache_reizigers',JSON.stringify(lijst==='std'?REIZIGERS(login==='voor'):lijst));
+    // Een gast krijgt de notities toch in de kopie: de app hoort ze te negeren en bij het synchroniseren weg te halen.
+    if(lijst) w.localStorage.setItem('aus_cache_reizigers',JSON.stringify(lijst==='std'?REIZIGERS(login==='voor',false,login==='gast'):lijst));
   }
   w.addEventListener('error',e=>fouten.push((e.error&&e.error.stack)||e.message));
   try{ w.eval(code); }catch(e){ fouten.push('bij laden: '+e.stack); }
@@ -95,15 +98,15 @@ function zoek(w,fouten,term){
   const eis=(fouten,ok,tekst)=>{ if(!ok) fouten.push('verwachting: '+tekst); };
 
   const datums=['2026-09-09','2026-09-18','2026-09-25','2026-09-30','2026-10-01','2026-10-04','2026-10-18','2026-10-29','2026-10-30','2026-11-15'];
-  for(const [login,voorreis] of [[null,null],['groep',null],['voor',null],[null,VOORTEST],['groep',VOORTEST],['voor',VOORTEST]]){
+  for(const [login,voorreis] of [[null,null],['groep',null],['voor',null],['gast',null],[null,VOORTEST],['groep',VOORTEST],['voor',VOORTEST],['gast',VOORTEST]]){
     for(const datum of datums){
       const {w,fouten}=start(datum,{login,voorreis});
-      const naam=`${datum} ${login==null?'anoniem':login==='voor'?'ingelogd, voorreiziger':'ingelogd, groep'}${voorreis?', voorreis met programma':''}`;
-      if(login) eis(fouten,$(w,'btnAlles').hidden===false,'tabblad Notities zichtbaar na herstel uit de kopie');
+      const naam=`${datum} ${login==null?'anoniem':login==='voor'?'ingelogd, voorreiziger':login==='gast'?'ingelogd, gast':'ingelogd, groep'}${voorreis?', voorreis met programma':''}`;
+      if(login) eis(fouten,$(w,'btnAlles').hidden===(login==='gast'),`tabblad Notities ${login==='gast'?'verborgen voor een gast':'zichtbaar'} na herstel uit de kopie`);
       blader(w,fouten);
       klik(w,'btnIndex',fouten); zoek(w,fouten,'uluru'); zoek(w,fouten,'& bar'); zoek(w,fouten,'sq');
       klik(w,'btnPrakt',fouten);
-      if(login){ klik(w,'btnAlles',fouten); klik(w,'btnDieren',fouten); klik(w,'btnToday',fouten); const n=$(w,'nadd'); if(n) n.click(); const s=$(w,'shclose'); if(s) s.click(); }
+      if(login){ if(login!=='gast') klik(w,'btnAlles',fouten); klik(w,'btnDieren',fouten); klik(w,'btnToday',fouten); const n=$(w,'nadd'); if(n) n.click(); const s=$(w,'shclose'); if(s) s.click(); }
       klik(w,'btnToday',fouten);
       await sleep(150);
       meld(naam,fouten);
@@ -239,6 +242,8 @@ function zoek(w,fouten,term){
     eis(fouten,/Reizigers/.test($(w,'hero').textContent)&&/reg-nsw\.jpg/.test($(w,'hero').style.backgroundImage),`kop van het scherm (nu: '${$(w,'hero').textContent.trim().slice(0,40)}')`);
     const box=$(w,'beheer');
     eis(fouten,box.querySelectorAll('.rlijst li').length===3,`beheerder ziet de drie reizigers (nu ${box.querySelectorAll('.rlijst li').length})`);
+    const chipsPiet=[...box.querySelectorAll('.chip[data-id="u3"]')].map(c=>c.dataset.deel);
+    eis(fouten,chipsPiet.join(',')==='voorreis,reis,nareis,gast,beheer',`per reiziger een chip Gast, vóór Beheer (nu: ${chipsPiet.join(',')})`);
     eis(fouten,!box.querySelector('.dweg[data-weg="u1"]')&&box.querySelector('.chip[data-id="u1"][data-deel="beheer"]').disabled,'jezelf kun je niet verwijderen of je beheer afnemen');
     eis(fouten,/nog niet opgehaald/.test(box.querySelector('.rstatus').textContent),'zonder ophaalstatus meldt het scherm dat de lijst nog niet is opgehaald');
     // een deel omzetten bij Piet
@@ -246,10 +251,15 @@ function zoek(w,fouten,term){
     eis(fouten,mutaties.join(',')==='update'&&$(w,'beheer').querySelector('.chip[data-id="u3"][data-deel="voorreis"]').classList.contains('on'),'tik op een chip zet het deel aan en tekent de lijst opnieuw');
     eis(fouten,lijst.find(r=>r.user_id==='u3').voorreis===true,'wijziging is naar Nhost gestuurd');
     eis(fouten,/Lijst opgehaald/.test($(w,'beheer').querySelector('.rstatus').textContent),'na het verversen staat het tijdstip van ophalen op het scherm');
+    // Piet gast maken
+    $(w,'beheer').querySelector('.chip[data-id="u3"][data-deel="gast"]').click(); await sleep(100);
+    eis(fouten,mutaties.join(',')==='update,update'&&lijst.find(r=>r.user_id==='u3').gast===true&&$(w,'beheer').querySelector('.chip[data-id="u3"][data-deel="gast"]').classList.contains('on'),'de chip Gast zet gast=true en licht op');
     // een nieuwe reiziger via het schuifpaneel
     klik(w,'radd',fouten);
     let sheet=$(w,'sheet');
     eis(fouten,sheet&&/Reiziger toevoegen/.test(sheet.textContent)&&$(w,'rnaam'),'plusknop opent het schuifpaneel');
+    const chipsNieuw=[...sheet.querySelectorAll('#rdelen .chip')].map(c=>c.dataset.deel);
+    eis(fouten,chipsNieuw.join(',')==='voorreis,reis,nareis,gast',`het paneel heeft ook een chip Gast, geen Beheer (nu: ${chipsNieuw.join(',')})`);
     eis(fouten,$(w,'rpw').type==='password'&&$(w,'rpw').getAttribute('autocomplete')==='new-password','wachtwoordveld staat verborgen met new-password, zodat iOS een sterk wachtwoord aanbiedt');
     // kopiëren naar het klembord, met de leesregel als terugval
     let klembord=null;
@@ -265,9 +275,10 @@ function zoek(w,fouten,term){
     eis(fouten,$(w,'rpwlees').textContent==='quokka-2026','de leesregel volgt wat er in het veld staat');
     $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl'; $(w,'rpw').value='wombat-2026';
     sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
+    sheet.querySelector('#rdelen .chip[data-deel="gast"]').click();
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);
     eis(fouten,aanmeldingen.length===1&&aanmeldingen[0].email==='kees@voorbeeld.nl'&&aanmeldingen[0].options.displayName==='Kees','account aangemaakt via het aanmeldpunt met naam als displayName');
-    eis(fouten,mutaties[mutaties.length-1]==='insert'&&lijst.some(r=>r.user_id==='u9'&&r.naam==='Kees'&&r.reis&&r.nareis&&!r.voorreis),`rij in reizigers met de gekozen delen (nu ${JSON.stringify(lijst.find(r=>r.user_id==='u9'))})`);
+    eis(fouten,mutaties[mutaties.length-1]==='insert'&&lijst.some(r=>r.user_id==='u9'&&r.naam==='Kees'&&r.reis&&r.nareis&&r.gast===true&&!r.voorreis),`rij in reizigers met de gekozen delen en gast (nu ${JSON.stringify(lijst.find(r=>r.user_id==='u9'))})`);
     eis(fouten,!$(w,'sheet'),'paneel sluit na het toevoegen');
     eis(fouten,$(w,'beheer').querySelectorAll('.rlijst li').length===4,'nieuwe reiziger staat in de lijst');
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_sess')).user.id==='u1','beheerder blijft zelf ingelogd na het aanmaken van een account');
@@ -634,6 +645,105 @@ function zoek(w,fouten,term){
     eis(fouten,code('Jetstar')==='',`code uit andermans blokje wordt niet getoond (nu: '${code('Jetstar')}')`);
     eis(fouten,!/Boekingscodes toevoegen/.test($(w,'prakt').textContent),'callout blijft weg zodra er een eigen code is');
     meld('5 okt: boekingscodes per persoon in de Ticket-notitie',fouten); }
+
+  // Gast: doet mee met de waarnemingen en ziet de hele groepsreis, maar geen notities. De kopie op de
+  // telefoon bevat hier wél notities (van vóór de gastvlag): de app hoort ze te negeren.
+  { const {w,fouten}=start('2026-10-09',{login:'gast'});
+    eis(fouten,$(w,'btnAlles').hidden===true&&$(w,'btnDieren').hidden===false,'gast heeft wel het tabblad Dieren, niet Notities');
+    eis(fouten,kop(w)==='Dag 9van 29',`gast ziet de dag zelf (nu: '${kop(w)}')`);
+    eis(fouten,!$(w,'notes-top')&&!$(w,'notes-rest')&&!$(w,'nadd'),'geen notitieblokken en geen knop Notitie toevoegen op de dag');
+    eis(fouten,!/Vandaag nodig/.test($(w,'day').textContent)&&!/MONA-ticket 10\.30 uur/.test($(w,'day').textContent),'het ticket van dag 9 uit de kopie blijft weg');
+    // dag 1: de vluchten zonder boekingscode
+    klik(w,'btnIndex',fouten);
+    const rij1=[...w.document.querySelectorAll('#results .idx button')].find(b=>b.dataset.n==='1'); if(rij1) rij1.click();
+    eis(fouten,w.document.querySelector('#day .fcheck')&&!/Code /.test($(w,'day').textContent),'bij de vluchten van dag 1 staat geen boekingscode');
+    klik(w,'btnPrakt',fouten);
+    const p=$(w,'prakt');
+    eis(fouten,!$(w,'verz')&&!/Verzekeringen/.test(p.textContent),'geen blok Verzekeringen');
+    eis(fouten,!/Boekingscodes toevoegen/.test(p.textContent),'geen callout over boekingscodes');
+    eis(fouten,![...p.querySelectorAll('.row .r')].some(c=>/ABC123|DEF456|1234567|na inloggen/.test(c.textContent)),'geen boekingscodes bij Vluchten en boekingen, ook niet \'na inloggen\'');
+    const koppenP=[...p.querySelectorAll('h2')].map(h=>h.textContent);
+    eis(fouten,koppenP.includes('Account')&&!koppenP.includes('Notities'),`kop boven het inlogblok heet Account (nu: ${koppenP.join(' | ')})`);
+    const c=$(w,'acct').querySelector('.callout');
+    eis(fouten,c&&!c.classList.contains('let')&&/Je reist mee met de groepsreis, als gast/.test(c.textContent)&&/tabblad Dieren/.test(c.textContent)&&!/tabblad Notities/.test(c.textContent),`inlogblok noemt de gast (nu: '${c&&c.textContent.slice(0,140)}')`);
+    // zoeken vindt geen notities, wel het programma en Praktisch
+    klik(w,'btnIndex',fouten); zoek(w,fouten,'mona');
+    eis(fouten,![...w.document.querySelectorAll('#results .src')].some(s=>/Notitie|Bijlage/.test(s.textContent)),'zoeken vindt de notities uit de kopie niet');
+    zoek(w,fouten,'uluru');
+    eis(fouten,!!w.document.querySelector('#results .hits'),'zoeken in het programma werkt gewoon');
+    // Dieren werkt als voor iedereen
+    klik(w,'btnDieren',fouten);
+    eis(fouten,$(w,'dieren').style.display==='block'&&w.document.querySelectorAll('#dalle .drij').length>=55,'tabblad Dieren opent met de hele lijst');
+    w.document.querySelector('#dalle .drij[data-dier="koala"]').click(); await sleep(50);
+    const q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q.length===1&&q[0].tabel==='waarnemingen'&&q[0].dier==='koala'&&q[0].dag===9,`gast noteert een waarneming (nu ${JSON.stringify(q[0])})`);
+    w.localStorage.setItem('aus_pending','[]');
+    meld('9 okt: gast ziet de reis en de dieren, geen notities',fouten); }
+  // Voorreis en nareis blijven voor een gast dicht, ook al doet Anna de voorreis. Zijn eigen vlag beslist.
+  { const {w,fouten}=start('2026-09-25',{login:'gast',voorreis:VOORTEST});
+    eis(fouten,kop(w)==='Rondreis Australië',`gast ziet vóór vertrek de startpagina (nu: '${kop(w)}')`);
+    eis(fouten,!w.document.querySelector('.regio[data-go^="-"]'),'geen kaart Voorreis, ook al doet Anna de voorreis');
+    eis(fouten,/Vertrek donderdag 1 oktober/.test($(w,'day').textContent),'gast telt af naar 1 oktober');
+    eis(fouten,!$(w,'nadd'),'geen knop Notitie toevoegen op de startpagina');
+    klik(w,'next',fouten); eis(fouten,kop(w)==='Dag 1van 29',`de pijl gaat naar dag 1 (nu: '${kop(w)}')`);
+    klik(w,'prev',fouten); eis(fouten,kop(w)==='Rondreis Australië','en terug naar de startpagina, niet naar de voorreis');
+    w.ga(-11);
+    eis(fouten,kop(w)==='Rondreis Australië',`een voorreisdag rechtstreeks openen valt terug op de startpagina (nu: '${kop(w)}')`);
+    klik(w,'btnIndex',fouten);
+    eis(fouten,![...w.document.querySelectorAll('#results .idxkop h3')].some(h=>h.textContent==='Voorreis')&&!w.document.querySelector('#results .idxdeel'),'geen kop Voorreis en geen kop Groepsreis in Alle dagen');
+    eis(fouten,/^1 t\/m 29 oktober/.test(w.document.querySelector('#hero .bsub').textContent),`de periode boven Alle dagen begint op 1 oktober (nu: '${w.document.querySelector('#hero .bsub').textContent}')`);
+    zoek(w,fouten,'wombat');
+    eis(fouten,![...w.document.querySelectorAll('#results .dn')].some(x=>x.textContent==='Voorreis'),'zoeken vindt het voorreisprogramma niet');
+    meld('25 sep: gast, voorreis blijft verborgen',fouten); }
+  // Met voorreis=true doet een gast de voorreis wel mee: dan ziet hij zijn dag, zonder notities
+  { const {w,fouten}=start('2026-09-25',{login:'gast',voorreis:VOORTEST,lijst:REIZIGERS(true,false,true)});
+    eis(fouten,/^Voorreis/.test(kop(w)),`gast met de vlag voorreis landt op zijn voorreisdag (nu: '${kop(w)}')`);
+    eis(fouten,/geen programma/.test($(w,'day').textContent)&&!/notitie/i.test($(w,'day').textContent)&&!$(w,'nadd'),`een dag zonder programma is voor hem leeg, zonder notities of knop (nu: '${$(w,'day').textContent.trim().slice(0,60)}')`);
+    klik(w,'prev',fouten); while(!$(w,'prev').disabled) klik(w,'prev',fouten);
+    const kaart=w.document.querySelector('.regio[data-go^="-"] .rwie');
+    eis(fouten,kaart&&kaart.textContent==='Anna en Test','de kaart Voorreis staat er dan wel, met zijn naam erop');
+    const knopVoor=w.document.querySelector('.regio[data-go^="-"]'); if(knopVoor) knopVoor.click();
+    eis(fouten,$(w,'title').textContent==='Vrijdag 25 september','via de kaart Voorreis kom je op de voorreisdag van vandaag');
+    // 20 sep heeft programma; Morgen wijst naar 21 sep, een dag zonder programma
+    w.ga(-11);
+    const tmw=w.document.querySelector('#day .tomorrow .tt');
+    eis(fouten,$(w,'title').textContent==='Port Douglas en het rif'&&tmw&&tmw.textContent==='Geen programma',`Morgen naar een lege voorreisdag zegt 'Geen programma' in plaats van een aantal notities (nu: '${tmw&&tmw.textContent}')`);
+    eis(fouten,!$(w,'notes-top')&&!$(w,'notes-rest')&&!$(w,'nadd'),'ook een voorreisdag met programma heeft voor een gast geen notitieblokken');
+    meld('25 sep: gast met de vlag voorreis',fouten); }
+  // Synchroniseren slaat de notities over en haalt een oude kopie van de telefoon
+  { const {w,fouten}=start('2026-10-09',{login:'gast',online:true});
+    const queries=[];
+    w.gql=async q=>{ const t=(q.match(/\{\s*(\w+)/)||[])[1]; queries.push(t);
+      if(t==='reizigers') return {reizigers:REIZIGERS(false,false,true)};
+      if(t==='waarnemingen') return {waarnemingen:[]};
+      if(t==='dagitems') return {dagitems:[]};
+      throw new Error('onverwachte query '+q.slice(0,40)); };
+    eis(fouten,!!w.localStorage.getItem('aus_cache_all')&&!!w.localStorage.getItem('aus_cache_9'),'de kopie van de notities staat er nog, van vóór de gastvlag');
+    const items=await w.syncAlles(true);
+    eis(fouten,Array.isArray(items)&&items.length===0,'synchroniseren geeft voor een gast een lege lijst terug');
+    eis(fouten,queries.join(',')==='reizigers,waarnemingen',`alleen de reizigerslijst en de waarnemingen worden opgehaald, geen notities (nu: ${queries.join(',')})`);
+    eis(fouten,!w.localStorage.getItem('aus_cache_all')&&!w.localStorage.getItem('aus_cache_9')&&!w.localStorage.getItem('aus_cache_0'),'de oude kopie van de notities is van de telefoon');
+    eis(fouten,!!w.localStorage.getItem('aus_cache_reizigers')&&!!w.localStorage.getItem('aus_cache_waarn')&&!!w.localStorage.getItem('aus_sync'),'de reizigerslijst, de waarnemingen en het synchronisatiemoment blijven staan');
+    meld('9 okt: synchroniseren slaat de notities over voor een gast',fouten); }
+  // Een gast logt voor het eerst in: de app haalt eerst de lijst op en tekent dan pas
+  { const {w,fouten}=start('2026-10-09',{online:true});
+    w.fetch=async url=>{ if(/signin\/email-password/.test(url)) return {ok:true,status:200,json:async()=>({session:{accessToken:'t',refreshToken:'r',accessTokenExpiresIn:900,user:{id:'u1',displayName:'Test',email:'test@example.org'}}})}; throw new TypeError('Failed to fetch'); };
+    const queries=[];
+    w.gql=async q=>{ const t=(q.match(/\{\s*(\w+)/)||[])[1]; queries.push(t);
+      if(t==='reizigers') return {reizigers:REIZIGERS(false,false,true)};
+      if(t==='waarnemingen') return {waarnemingen:[]};
+      throw new Error('onverwachte query '+q.slice(0,40)); };
+    klik(w,'btnPrakt',fouten);
+    eis(fouten,$(w,'btnAlles').hidden===true,'anoniem is er geen tabblad Notities');
+    $(w,'lemail').value='test@example.org'; $(w,'lpw').value='wombat-2026';
+    $(w,'lform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);
+    eis(fouten,$(w,'btnAlles').hidden===true&&$(w,'btnDieren').hidden===false,'na het inloggen als gast is het tabblad Notities er niet, Dieren wel');
+    eis(fouten,!$(w,'verz')&&!/Boekingscodes toevoegen/.test($(w,'prakt').textContent),'Praktisch is meteen zonder de notitieblokken getekend');
+    eis(fouten,queries.includes('reizigers')&&!queries.includes('dagitems'),`de lijst is opgehaald, de notities niet (nu: ${queries.join(',')})`);
+    eis(fouten,/als gast/.test($(w,'acct').textContent),'inlogblok noemt de gast');
+    klik(w,'btnToday',fouten);
+    eis(fouten,kop(w)==='Dag 9van 29'&&!$(w,'notes-top')&&!$(w,'nadd'),'de dag staat er zonder notitieblokken');
+    meld('9 okt: gast logt voor het eerst in',fouten); }
 
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);

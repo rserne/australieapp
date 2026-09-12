@@ -105,10 +105,11 @@ function nlTime(){
 
 function render(){
   if(cur===0||cur===EINDE){ renderBuiten(); return; }
-  // Voorreis- en nareisdagen bestaan alleen voor wie is ingelogd. Zonder programma is het een dag met
-  // alleen notities. Mét programma tekent deze functie hem als een gewone reisdag.
+  // Voorreis- en nareisdagen bestaan alleen voor wie is ingelogd en mag meekijken (een gast alleen als
+  // hij er zelf aan meedoet). Zonder programma is het een dag met alleen notities. Mét programma tekent
+  // deze functie hem als een gewone reisdag.
   if(isBuiten(cur)){
-    if(!NH.user){ cur=T.before?0:1; render(); return; }
+    if(!magMeekijken(cur<0?'voorreis':'nareis')){ cur=T.before?0:1; render(); return; }
     if(!buitenData(cur)){ renderBuitenDag(); return; }
   }
   const buiten=isBuiten(cur), d=dagData(cur), date=dagDatum(cur);
@@ -178,7 +179,7 @@ function render(){
     h+=`<h2>Tijdschema</h2><ol class="agenda${dagdeel?' woorden':''}">`+d.agenda.map(([tm,ti,tx,pv])=>
       `<li><span class="atime">${esc(tm)}</span><span class="abody"><strong>${esc(ti)}</strong><span class="sub">${esc(tx)}${pv&&NH.user?` <span class="privtag">${esc(pv)}</span>`:''}</span></span></li>`).join('')+`</ol>`;
   }
-  if(NH.user) h+=`<div id="notes-top" class="notes"></div>`;
+  if(magNotities()) h+=`<div id="notes-top" class="notes"></div>`;
   if(d.wash) h+=`<div class="callout washing"><span class="ico">${WASH}</span><span><b>Was afgeven</b>${esc(d.wash)}</span></div>`;
   if(d.note) h+=cal(IC_LET,'Let op',d.note);
   if(d.tip)  h+=cal(IC_TIP,'Tip',d.tip);
@@ -221,7 +222,7 @@ function render(){
   }
   // Notities die je vandaag nodig hebt (tickets, reserveringen) staan boven bij het programma.
   // De rest staat verderop, vlak voor het eten. Beide blokken worden in één slag gevuld.
-  if(NH.user) h+=`<div id="notes-rest" class="notes"></div>`;
+  if(magNotities()) h+=`<div id="notes-rest" class="notes"></div>`;
   const morgen=volgende(cur);
   if(morgen!=null&&morgen!==EINDE) h+=`<h2>Morgen</h2>`+dagKnop(morgen,true,!buiten);
   if(d.rest){
@@ -273,12 +274,12 @@ function render(){
         `<span>${PIN} Meer restaurants in de buurt${d.h?' van het hotel':''}</span><span class="rchev">${ICO_CHEV}</span></a>`;})();
   }
   // Toevoegen staat onderaan de dag, in de stroom: geen knop die over de tekst zweeft.
-  if(NH.user) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
+  if(magNotities()) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   document.getElementById('day').innerHTML=h;
   const mt=document.getElementById('meertekst');
   if(mt) mt.onclick=()=>{ const t=document.getElementById('dagtekst');
     const dicht=t.classList.toggle('inkort'); mt.textContent=dicht?'Meer':'Minder'; };
-  if(NH.user){
+  if(magNotities()){
     renderNotes(cur);
     // Buiten de groepsreis ververst een nieuwe notitie alles: het aantal notities staat ook in de
     // lijsten, en zonder reizigerslijst kan een voorreisnotitie je nog voorreiziger maken.
@@ -294,7 +295,7 @@ const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span>
 // ---- Buiten de groepsreis: startpagina, voorreis- en nareisdagen, afsluitpagina ----
 // Posities in het bladeren: 0 is de startpagina, -1 t/m -VOOR de voorreis, 1 t/m 29 de groepsreis,
 // 30 en hoger de nareis, EINDE de afsluitpagina. Wie aan welk deel meedoet, staat in de tabel
-// reizigers bij Nhost (user_id, naam, voorreis, reis, nareis), met een kopie op de telefoon.
+// reizigers bij Nhost (user_id, naam, voorreis, reis, nareis, beheer, gast), met een kopie op de telefoon.
 const alleNotities=()=>LS.get('aus_cache_all')||[];
 // De reizigerslijst. Null zolang hij nog nooit is opgehaald (eerste keer op deze telefoon, of de tabel
 // bestaat bij Nhost nog niet). Dan valt de app terug op de notities: wie een voorreisnotitie schreef,
@@ -310,11 +311,21 @@ function doetMee(deel){
 }
 const voorreiziger=()=>doetMee('voorreis');
 const nareiziger=()=>doetMee('nareis');
+// Een gast (gast=true in de lijst) doet mee met de waarnemingen en ziet de hele groepsreis, maar geen
+// notities: geen tabblad Notities, geen notities op de dagen, geen boekingscodes. Hasura houdt de
+// notities voor hem dicht, dus de app haalt ze ook niet op. Zonder lijst is niemand gast.
+const isGast=()=>!!(mijnReiziger()||{}).gast;
+const magNotities=()=>!!NH.user&&!isGast();
+// Wat een dag zonder programma in een lijst of knop laat zien: het aantal notities. Een gast ziet geen
+// notities, dus voor hem is zo'n dag leeg.
+const notitiesTekst=n=>!magNotities()?'Geen programma':n?`${n} ${n===1?'notitie':'notities'}`:'Nog geen notities';
 // De voorreis en nareis staan in de app zodra iemand uit de lijst eraan meedoet, en dan voor iedereen
 // die is ingelogd, zodat je kunt meekijken. Zonder lijst: zodra reis.js er dagen voor heeft.
+// Een gast kijkt niet mee: die ziet zo'n deel alleen als hij er zelf aan meedoet, via zijn eigen vlag.
 const iemandDoet=deel=>{ const r=reizigers(); return !r||r.some(x=>x[deel]); };
-const heeftVoor=()=>!!NH.user&&VOOR>0&&iemandDoet('voorreis');
-const heeftNa=()=>!!NH.user&&NA>0&&iemandDoet('nareis');
+const magMeekijken=deel=>!!NH.user&&(!isGast()||doetMee(deel));
+const heeftVoor=()=>magMeekijken('voorreis')&&VOOR>0&&iemandDoet('voorreis');
+const heeftNa=()=>magMeekijken('nareis')&&NA>0&&iemandDoet('nareis');
 // Namen van wie een deel doet, als 'Rob, Els en Jan'. Voor de kaarten op de startpagina.
 const namenVan=deel=>(reizigers()||[]).filter(x=>x[deel]).map(x=>x.naam).filter(Boolean).sort((a,b)=>a.localeCompare(b,'nl'));
 const opsom=n=>n.length<=1?n.join(''):`${n.slice(0,-1).join(', ')} en ${n[n.length-1]}`;
@@ -367,8 +378,7 @@ function dagKnop(n,morgen,koffer){
     sub=morgen?[k?k[1]+k[0]:'',d.emoe?'emoe-alert':'',d.wash?'was afgeven':''].filter(Boolean).join(' · ')
               :[k?k[1]+k[0]:'',esc(d.p)].filter(Boolean).join(' · ');
   }else{
-    const aantal=alleNotities().filter(it=>it.dag===n).length;
-    tt=aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Nog geen notities';
+    tt=notitiesTekst(alleNotities().filter(it=>it.dag===n).length);
   }
   const p2=(morgen&&koffer!==false)?PACK.filter(p=>p[2].some(x=>dagNr(x)===n)).map(p=>p[0].toLowerCase()):[];
   return `<div class="tomorrow"><button class="ganaar" data-go="${n}">`+
@@ -471,11 +481,11 @@ function renderBuiten(){
     h+=`<h2>Terugkijken</h2>`+dagKnop(29);
   }
   document.getElementById('navlabel').textContent='Vandaag';
-  if(NH.user) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
+  if(magNotities()) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   zetInkt(document.getElementById('day'),start?'reis':'nareis');   // Terugkijken op de afsluitpagina volgt de kop
   document.getElementById('day').innerHTML=h;
   koppelGaNaar();
-  if(NH.user){
+  if(magNotities()){
     document.getElementById('nadd').onclick=()=>openSheet({
       dag:T.dag??(LS.get('aus_laatste_dag')??0),wie:NH.user.displayName||NH.user.email,kiesDag:true,onDone:versRender});
   }
@@ -498,12 +508,16 @@ function renderBuitenDag(){
   document.getElementById('navlabel').textContent=isToday?'Vandaag':fmtShort(date);
   const aantal=alleNotities().filter(it=>it.dag===dag).length+pendingVan('dagitems').filter(p=>p.dag===dag).length;
   // Alleen #notes-rest: dan zet renderNotes alles in één lijst, op soort gesorteerd zoals in het tabblad Notities.
-  let h=aantal?`<div id="notes-rest" class="notes"></div>`:`<div class="empty">Nog geen notities voor deze dag.</div>`;
-  h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
+  // Een gast ziet geen notities, dus voor hem is zo'n dag leeg: geen lijst en geen knop.
+  let h=!magNotities()?`<div class="empty">Voor deze dag staat er geen programma.</div>`
+    :aantal?`<div id="notes-rest" class="notes"></div>`:`<div class="empty">Nog geen notities voor deze dag.</div>`;
+  if(magNotities()) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   document.getElementById('day').innerHTML=h;
   koppelGaNaar();
-  renderNotes(dag);
-  document.getElementById('nadd').onclick=()=>openSheet({dag,wie:NH.user.displayName||NH.user.email,onDone:()=>{syncAlles(true).then(()=>render());}});
+  if(magNotities()){
+    renderNotes(dag);
+    document.getElementById('nadd').onclick=()=>openSheet({dag,wie:NH.user.displayName||NH.user.email,onDone:()=>{syncAlles(true).then(()=>render());}});
+  }
   zetPijlen();
   window.scrollTo(0,0);
 }
@@ -565,7 +579,7 @@ function snippet(text,term){
 // in de reizigerslijst staat (de voornaam is genoeg; 'Robbert en Gemma' geldt voor allebei). Een code
 // vóór de eerste naam is van iedereen. Een regel die geen naam en geen code is, zoals een titel, telt niet.
 function boekingscode(sleutel){
-  if(!NH.user) return null;
+  if(!magNotities()) return null;
   const alle=LS.get('aus_cache_all')||[];
   const re=new RegExp('^\\s*'+sleutel+'\\s*[:=\\-–]\\s*([A-Z0-9]{4,12})\\s*$','i');
   const norm=t=>String(t||'').trim().toLowerCase().replace(/[:\s]+$/,'');
@@ -592,7 +606,7 @@ function boekingscode(sleutel){
 }
 // notities uit de lokale kopie, zodat zoeken ook offline werkt
 function notitieTreffers(term){
-  if(!NH.user) return [];
+  if(!magNotities()) return [];
   const alle=LS.get('aus_cache_all')||[];
   const uit=[];
   alle.forEach(it=>{
@@ -617,7 +631,7 @@ function drawResults(term){
       const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29), k=b==='voor'?'voorreis':'nareis';
       return idxKop(b==='voor'?'Voorreis':'Nareis',k,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+
         `<ul class="idx" style="${inktVan(k)}"><li${vandaag?' class="now"':''}><button data-n="${vandaag?T.dag:eerste}">`+
-        `<span class="t">${n?`${n} ${n===1?'notitie':'notities'}`:'Nog geen notities'}</span>`+
+        `<span class="t">${notitiesTekst(n)}</span>`+
         `<span class="d">${vandaag?'vandaag':''}</span></button></li></ul>`;
     };
     // Zodra er programma is, staat elke dag apart, net als bij de groepsreis. Een dag zonder
@@ -629,7 +643,7 @@ function drawResults(term){
         const d=buitenData(n), aantal=alleNotities().filter(it=>it.dag===n).length, nu=T.dag===n;
         s+=`<li${nu?' class="now"':''}><button data-n="${n}">`+
           `<span class="n">${buitenVolgnr(n)}</span>`+
-          `<span class="t">${d?esc(d.t):(aantal?`${aantal} ${aantal===1?'notitie':'notities'}`:'Nog geen notities')}</span>`+
+          `<span class="t">${d?esc(d.t):notitiesTekst(aantal)}</span>`+
           (d&&KIND[d.k]?`<span class="k" title="${KIND[d.k][0]}">${KIND[d.k][1]}</span>`:'')+
           (d&&d.emoe?`<span class="e" title="Emoe-alert">${EMU}</span>`:'')+
           (d&&d.wash?`<span class="w">${WASH}</span>`:'')+
@@ -678,9 +692,9 @@ function drawResults(term){
          `<div class="sn">${snippet(t.tekst,term)}</div>`+
          `<div class="src">${esc(t.bron)}</div></button></li>`;
     });
-    // Programma van de voorreis en nareis, alleen voor wie is ingelogd (net als de dagen zelf).
+    // Programma van de voorreis en nareis, alleen voor wie mag meekijken (net als de dagen zelf).
     // De voorreis staat vóór de groepsreis, de nareis erna: op volgorde van de reis.
-    const buitenHits=voor=>{ if(!NH.user) return;
+    const buitenHits=voor=>{ if(!magMeekijken(voor?'voorreis':'nareis')) return;
       HAY_BUITEN.filter(([n])=>voor?n<0:n>29).forEach(([n,bits])=>{
         const hit=bits.find(([txt])=>txt.toLowerCase().includes(term));
         if(!hit) return;
@@ -776,8 +790,8 @@ function renderPrakt(){
    <ul class="list">`+NOOD.map(([a,b])=>`<li><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></li>`).join('')+`</ul>`;
   // Verzekeringsgegevens: notities van het type Verzekering, voor iedereen zichtbaar, door de
   // schrijver te wijzigen. Ze staan hier omdat je ze in een noodgeval als eerste zoekt.
-  // Zonder login bestaat het blok niet, net als het tabblad Notities.
-  if(NH.user) h+=`<h2>Verzekeringen</h2><div id="verz"></div>`;
+  // Zonder login bestaat het blok niet, net als het tabblad Notities. Voor een gast ook niet.
+  if(magNotities()) h+=`<h2>Verzekeringen</h2><div id="verz"></div>`;
 
   // Vluchten per maatschappij, afgeleid uit de dagen zelf: één bron
   const perMij={};
@@ -789,13 +803,14 @@ function renderPrakt(){
        `<span class="sub">${[...new Set(perMij[k])].map(esc).join(' · ')} — inchecken ${esc(c[2])}</span></span>${codeCel(k)}</div></li>`;}).join('')+
    BOEKINGEN.map(([a,b,k])=>`<li><div class="row"><span><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></span>${codeCel(k)}</div></li>`).join('')+
    `</ul>`+
-   (NH.user&&!Object.keys(CHECKIN).some(boekingscode)
+   (magNotities()&&!Object.keys(CHECKIN).some(boekingscode)
      ?`<div class="callout" style="margin-top:12px"><span class="ico">${IC_SLOT}</span><span><b>Boekingscodes toevoegen</b>Maak in Notities één notitie van het type Ticket, met per regel een maatschappij en de code, bijvoorbeeld <code>SQ: ABC123</code>. Verschillen de codes per persoon, zet dan boven elk blokje een regel met alleen de naam. De codes verschijnen dan hier en bij de vluchten. Ze staan zo veilig achter de login en niet in de openbare app.</span></div>`:'')+
    `<div class="callout" style="margin-top:12px"><span class="ico">${IC_KOFFER}</span><span><b>Bagage</b>${esc(BAGAGE)}</span></div>`;
 
   h+=`<h2>Weergave</h2><div class="chips" id="themekeuze">`+
      THEMES.map(([k,l,ico])=>`<button type="button" class="chip" data-th="${k}">${ico}${l}</button>`).join('')+`</div>`;
-  h+=`<h2>Notities</h2><div id="acct"></div>`;
+  // Voor een gast gaat het blok niet over notities, alleen over zijn account.
+  h+=`<h2>${NH.user&&!magNotities()?'Account':'Notities'}</h2><div id="acct"></div>`;
   document.getElementById('prakt').innerHTML=h;
   renderKoers(document.getElementById('koers'));
   renderVerzekeringen(document.getElementById('verz'));
@@ -865,12 +880,13 @@ function switchTo(v){
   else if(v==='dieren'){renderDieren();window.scrollTo(0,0)}
   else if(v==='beheer'){renderBeheer();window.scrollTo(0,0)}
 }
-// Notities en Dieren bestaan alleen voor wie is ingelogd, want beide schrijven op naam.
+// Notities en Dieren bestaan alleen voor wie is ingelogd, want beide schrijven op naam. Een gast
+// krijgt wel Dieren, maar geen Notities.
 function toonTabs(){
-  document.getElementById('btnAlles').hidden=!NH.user;
+  document.getElementById('btnAlles').hidden=!magNotities();
   document.getElementById('btnDieren').hidden=!NH.user;
   document.querySelector('.tabbar .inner').classList.toggle('vier',!!NH.user);
-  if(!NH.user&&(view==='alles'||view==='dieren'||view==='beheer')) switchTo('day');
+  if((!NH.user&&(view==='dieren'||view==='beheer'))||(!magNotities()&&view==='alles')) switchTo('day');
 }
 document.getElementById('prev').onclick=()=>ga(vorige(cur));
 document.getElementById('next').onclick=()=>ga(volgende(cur));
@@ -1030,9 +1046,10 @@ const Q_WAARN=`query{waarnemingen(order_by:{gezien_op:asc}){id user_id dier dag 
 const M_INS_WAARN=`mutation($o:waarnemingen_insert_input!){insert_waarnemingen_one(object:$o){id}}`;
 const M_DEL_WAARN=`mutation($id:uuid!){delete_waarnemingen_by_pk(id:$id){id}}`;
 const alleWaarnemingen=()=>LS.get('aus_cache_waarn')||[];
-// Reizigers: wie doet mee aan de voorreis, de groepsreis en de nareis. Alleen lezen; de tabel wordt
-// in de Nhost-console bijgehouden. Dezelfde tabel bepaalt bij Hasura wie de notities mag zien.
-const Q_REIZIGERS=`query{reizigers(order_by:{naam:asc}){user_id naam voorreis reis nareis beheer}}`;
+// Reizigers: wie doet mee aan de voorreis, de groepsreis en de nareis, wie beheerder is en wie gast.
+// Dezelfde tabel bepaalt bij Hasura wie de notities mag zien (een gast niet). Een nieuwe kolom moet
+// bij Hasura ook in de select-permissie staan, anders mislukt deze query.
+const Q_REIZIGERS=`query{reizigers(order_by:{naam:asc}){user_id naam voorreis reis nareis beheer gast}}`;
 // Beheer: wie beheer=true heeft, mag reizigers toevoegen, wijzigen en verwijderen. Hasura controleert dat
 // via dezelfde kolom; de app toont het blok alleen als het mag.
 const M_INS_REIZIGER=`mutation($o:reizigers_insert_input!){insert_reizigers_one(object:$o){user_id}}`;
@@ -1099,21 +1116,34 @@ async function syncAlles(force){
   _sync=(async()=>{
     if(!NH.user||!navigator.onLine) return null;
     try{
-      const d=await gql(Q_ALL); const items=d.dagitems;
-      LS.set('aus_cache_all',items);
-      const perDag={}; items.forEach(it=>{(perDag[it.dag]=perDag[it.dag]||[]).push(it)});
-      for(const i of [...Array.from({length:30},(_,k)=>k),...buitenDagen()]) LS.set('aus_cache_'+i,perDag[i]||[]);
-      // bijlagen die weg zijn ook uit de opslag halen
-      const geldig=new Set(items.filter(x=>x.file_id).map(x=>x.file_id));
-      (await idbKeys()).forEach(k=>{ if(!geldig.has(k)) idbDel(k); });
-      for(const it of items.filter(x=>x.soort==='bestand')) await cacheFile(it);
-      LS.set('aus_sync',{tijd:new Date().toISOString()});
+      // Eerst de reizigerslijst: die zegt of je gast bent. Een gast krijgt geen notities (Hasura houdt
+      // ze dicht), dus die halen we niet op, en een oude kopie op de telefoon gaat weg.
       await syncReizigers();
+      let items=[];
+      if(isGast()) await wisNotitieKopie();
+      else{
+        const d=await gql(Q_ALL); items=d.dagitems;
+        LS.set('aus_cache_all',items);
+        const perDag={}; items.forEach(it=>{(perDag[it.dag]=perDag[it.dag]||[]).push(it)});
+        for(const i of [...Array.from({length:30},(_,k)=>k),...buitenDagen()]) LS.set('aus_cache_'+i,perDag[i]||[]);
+        // bijlagen die weg zijn ook uit de opslag halen
+        const geldig=new Set(items.filter(x=>x.file_id).map(x=>x.file_id));
+        (await idbKeys()).forEach(k=>{ if(!geldig.has(k)) idbDel(k); });
+        for(const it of items.filter(x=>x.soort==='bestand')) await cacheFile(it);
+      }
+      LS.set('aus_sync',{tijd:new Date().toISOString()});
       await syncWaarnemingen();
       return items;
     }catch(e){ return null; } finally { _sync=null; }
   })();
   return _sync;
+}
+// De kopie van de notities en bijlagen van de telefoon halen, voor wie gast blijkt te zijn. Bij uitloggen
+// gebeurt dit al via wisPriveGegevens. De reizigerslijst, de waarnemingen en de wachtrij blijven staan.
+async function wisNotitieKopie(){
+  try{ Object.keys(localStorage).filter(k=>k==='aus_cache_all'||/^aus_cache_-?\d+$/.test(k)).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+  await wisThumbUrls();
+  try{ const db=await idb(); await new Promise(res=>{const t=db.transaction('files','readwrite').objectStore('files').clear();t.onsuccess=()=>res();t.onerror=()=>res()}); }catch(e){}
 }
 
 // Reizigerslijst apart ophalen. Mislukt dit (tabel nog niet aangemaakt of niet getrackt), dan blijft de
@@ -1434,7 +1464,7 @@ let alleItems=[], alleWie='';
 
 async function renderAlles(){
   const box=document.getElementById('alles');
-  if(!NH.user){ box.innerHTML=''; return; }
+  if(!magNotities()){ box.innerHTML=''; return; }
   const wie=alleWie=NH.user.displayName||NH.user.email;
   let items=LS.get('aus_cache_all')||[], status='';
   if(!box.querySelector('#nzoek')) box.innerHTML=`<div class="nstatus">Laden…</div>`;
@@ -1647,7 +1677,7 @@ function renderKoers(box){
 // Verzekeringen in het tabblad Praktisch: per persoon of huishouden één notitie met verzekeraar,
 // polisnummer en alarmcentrale. Uit de lokale kopie, dus ook offline.
 function renderVerzekeringen(box){
-  if(!box||!NH.user) return;
+  if(!box||!magNotities()) return;
   const wie=NH.user.displayName||NH.user.email;
   const items=[...alleNotities(),...pendingAlsItems()].filter(isVerz)
     .sort((a,b)=>String(a.created_at||'').localeCompare(String(b.created_at||'')));
@@ -1678,7 +1708,10 @@ function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>documen
 // reis als chips (tik wisselt om) en een kruisje om iemand uit de lijst te halen. Een nieuwe reiziger
 // gaat via de knop onderaan en een schuifpaneel: eerst een account bij Nhost Auth, dan de rij in
 // reizigers. Die rij is het slot: zonder rij ziet een account niets van de groep.
-const DELEN=[['voorreis','Voorreis'],['reis','Groepsreis'],['nareis','Nareis'],['beheer','Beheer']];
+// Gast is geen deel van de reis maar een beperking: wel de reis en de waarnemingen, geen notities.
+const DELEN=[['voorreis','Voorreis'],['reis','Groepsreis'],['nareis','Nareis'],['gast','Gast'],['beheer','Beheer']];
+// Bij een nieuwe reiziger: alles behalve Beheer, dat zet je daarna in de lijst.
+const DELEN_NIEUW=DELEN.filter(([k])=>k!=='beheer');
 // Kaartje met een vouw: de regel naar het reisoverzicht, zodat die niet op een dagnummer lijkt.
 const IC_KAART='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7z"/><path d="M9 4v13M15 7v13"/></svg>';
 const IC_PIJL='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
@@ -1729,7 +1762,7 @@ function openReizigerSheet(onDone){
     <div class="pwrij"><input id="rpw" class="shinput" type="password" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="new-password" autocapitalize="none" required>
     <button type="button" class="nbtn" id="rpwkopie" aria-label="Wachtwoord kopiëren">${IC_KOPIE}</button></div>
     <p class="pwlees" id="rpwlees" hidden></p>
-    <div class="chips" id="rdelen">${DELEN.slice(0,3).map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
+    <div class="chips" id="rdelen">${DELEN_NIEUW.map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
     <div class="nrow"><button class="btn primary" id="rbtn" type="submit">Toevoegen</button></div><div class="nstatus" id="rstat"></div></form></div>`;
   document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('on'));
@@ -1754,7 +1787,7 @@ function openReizigerSheet(onDone){
     e.preventDefault();
     const naam=el.querySelector('#rnaam').value.trim(), email=el.querySelector('#remail').value.trim(), pw=el.querySelector('#rpw').value;
     if(!naam||!email||!pw) return;
-    const delen={}; DELEN.slice(0,3).forEach(([k])=>{ delen[k]=el.querySelector(`#rdelen .chip[data-deel="${k}"]`).classList.contains('on'); });
+    const delen={}; DELEN_NIEUW.forEach(([k])=>{ delen[k]=el.querySelector(`#rdelen .chip[data-deel="${k}"]`).classList.contains('on'); });
     const knop=el.querySelector('#rbtn'); knop.disabled=true; st.textContent='Account aanmaken…';
     try{
       const u=await nhSignup(email,pw,naam);
@@ -1771,13 +1804,17 @@ function renderAccount(box){
   if(NH.user){
     // Wat de reizigerslijst over jou zegt. Staat de lijst er wel maar jij niet in, dan houdt Hasura ook
     // de notities voor je dicht: dat is de meest waarschijnlijke reden voor een lege app na het inloggen.
-    const r=reizigers(), mij=mijnReiziger();
+    const r=reizigers(), mij=mijnReiziger(), gast=isGast();
     const delen=mij?[mij.voorreis&&'de voorreis',mij.reis&&'de groepsreis',mij.nareis&&'de nareis'].filter(Boolean):[];
-    const deelTxt=!r?'':mij?(delen.length?`Je reist mee met ${opsom(delen)}. `:'Je staat in de reizigerslijst, maar bij geen enkel deel van de reis. ')
+    const deelTxt=!r?'':mij?(delen.length?`Je reist mee met ${opsom(delen)}${gast?', als gast':''}. `:'Je staat in de reizigerslijst, maar bij geen enkel deel van de reis. ')
       :'Je staat nog niet in de reizigerslijst. Daarom zie je geen notities van de groep; vraag de beheerder je toe te voegen. ';
+    // Een gast doet mee met de waarnemingen, maar ziet geen notities: dat zeggen we hier, zodat hij het
+    // tabblad niet gaat zoeken.
+    const uitleg=gast?'Je doet mee met de waarnemingen in het tabblad Dieren. Notities en boekingscodes van de groep zie je niet. '
+      :'Notities staan bij de dag zelf en bij elkaar in het tabblad Notities. ';
     const rs=LS.get('aus_reizigers_status'), fout=rs&&rs.fout?`Het ophalen van de reizigerslijst mislukte (${rs.fout}). `:'';
     box.innerHTML=`<div class="callout${(r&&!mij)||fout?' let':''}" style="margin:0"><span class="ico">${IC_SLOT}</span><span><b>Ingelogd als ${esc(mij?mij.naam:(NH.user.displayName||NH.user.email))}</b>`+
-      `${fout}${deelTxt}Notities staan bij de dag zelf en bij elkaar in het tabblad Notities. <a href="#" id="logout">Uitloggen</a></span></div>`;
+      `${fout}${deelTxt}${uitleg}<a href="#" id="logout">Uitloggen</a></span></div>`;
     box.querySelector('#logout').onclick=async e=>{e.preventDefault();
       if(navigator.onLine) await flushPending();
       const w=pending().length;
@@ -1798,9 +1835,11 @@ function renderAccount(box){
   box.querySelector('#lform').addEventListener('submit',async e=>{
     e.preventDefault();
     const st=box.querySelector('#lstat'); st.textContent='Inloggen…';
-    try{ await nhLogin(box.querySelector('#lemail').value.trim(),box.querySelector('#lpw').value); await flushPending(); toonTabs(); renderPrakt();
-      // Notities en reizigerslijst binnenhalen. Daarna het inlogblok opnieuw, met wat de lijst over je zegt.
-      syncAlles(true).then(()=>{ if(view==='prakt') renderAccount(document.getElementById('acct')); }); }
+    try{ await nhLogin(box.querySelector('#lemail').value.trim(),box.querySelector('#lpw').value);
+      // Eerst de reizigerslijst, zodat de app weet wie je bent (gast of niet) vóór hij de tabbladen en
+      // Praktisch tekent. Dan de notities en de rest, en daarna het inlogblok nog eens met wat de lijst zegt.
+      await syncReizigers(); await flushPending(); toonTabs(); renderPrakt();
+      syncAlles(true).then(()=>{ toonTabs(); if(view==='prakt') renderAccount(document.getElementById('acct')); }); }
     catch(err){ st.textContent=err.message==='Inloggen mislukt'?'Onjuist e-mailadres of wachtwoord.':err.message; }
   });
 }
@@ -2094,8 +2133,9 @@ function renderDieren(){
     if(!NH.user) return;
     flushPending();
     // alles op de achtergrond binnenhalen: notities én bijlagen. Wie voor het eerst op deze telefoon
-    // inlogt, blijkt pas hierna voorreiziger te zijn. Dan schuift 'Vandaag' door naar zijn dag.
-    syncAlles().then(items=>{ if(items&&view==='day'){ if(cur===0||cur===EINDE) cur=vandaagPagina(); render(); } });
+    // inlogt, blijkt pas hierna voorreiziger te zijn. Dan schuift 'Vandaag' door naar zijn dag. Wie gast
+    // blijkt, raakt hier het tabblad Notities kwijt.
+    syncAlles().then(items=>{ toonTabs(); if(items&&view==='day'){ if(cur===0||cur===EINDE) cur=vandaagPagina(); render(); } });
   });
 }
 window.addEventListener('online',()=>{
@@ -2106,7 +2146,7 @@ window.addEventListener('online',()=>{
     if(fn) toast(fn===1?'Eén notitie kon niet worden verstuurd. Kijk in Notities.':`${fn} notities konden niet worden verstuurd. Kijk in Notities.`);
     else if(fw) toast(fw===1?'Eén waarneming kon niet worden verstuurd. Kijk bij Dieren.':`${fw} waarnemingen konden niet worden verstuurd. Kijk bij Dieren.`);
     else if(aantal) toast(verstuurdTekst());
-    syncAlles(true).then(items=>{
+    syncAlles(true).then(items=>{ toonTabs();
       if(view==='alles') renderAlles(); else if(view==='day') render(); });
   }); },1500);
 });
@@ -2115,7 +2155,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-185';
+const APP_VERSIE='2026-09-12-186';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
