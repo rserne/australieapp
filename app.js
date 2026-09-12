@@ -2080,7 +2080,10 @@ function renderDieren(){
         const isGespot=iedereen.some(w=>!isGegeten(w)), isGegetenOoit=iedereen.some(isGegeten);
         return (isGespot?`<button type="button" class="dchip dfilter${aan==='gespot'?' on':''}" data-filter="gespot"${aan==='gespot'?' aria-pressed="true"':''}>Gespot<span>${nGespot}</span>${aan==='gespot'?uit:''}</button>`:'')+
           (isGegetenOoit?`<button type="button" class="dchip dfilter${aan==='gegeten'?' on':''}" data-filter="gegeten"${aan==='gegeten'?' aria-pressed="true"':''}>Gegeten<span>${nGegeten}</span>${aan==='gegeten'?uit:''}</button>`:'')+
-          groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g), on=window._dgroep===g;
+          // De aangezette groep staat voorop, vlak na Gespot en Gegeten. De rij scrolt zijwaarts en tekent
+          // na elke tik opnieuw vanaf het begin, dus een chip achteraan zou buiten beeld blijven staan
+          // terwijl hij de lijst leegfiltert. De groepen zelf houden in de lijst hun vaste volgorde.
+          [...groepLijst.filter(([g])=>g===window._dgroep),...groepLijst.filter(([g])=>g!==window._dgroep)].map(([g,label])=>{ const [gs,tot]=telGroep(g), on=window._dgroep===g;
             return `<button type="button" class="dchip${on?' on':''}" data-groep="${g}"${on?' aria-pressed="true"':''} style="${kleurVan(g)}">${esc(label)}<span>${gs}/${tot}</span>${on?uit:''}</button>`; }).join('');
       })()+`</div>`+
     // De namenrij, alleen als Gespot of Gegeten aanstaat. Het getal per naam is het aantal soorten van dat
@@ -2094,7 +2097,10 @@ function renderDieren(){
         : perGroep(g).map(d=>dierRij(d,{naam:d.n,tel:tel[d.k]||0,mijn:mijn[d.k]||0,groep:g,eet:!!d.eet,gegeten:eetTel[d.k]||0})).join('');
       return `<section class="dgroep" id="dg-${g}" style="${kleurVan(g)}"><div class="dkop"><h2>${esc(label)}</h2><span class="dsub">${gs} van ${tot}</span></div><div class="dlist">`+
         rijen+`</div></section>`; }).join('')+`</div>`;
-  h+=`<p class="dstatus" id="dleeg" hidden>Geen dier gevonden.</p>`+
+  // Blijft er niets over, dan zegt de melding welke filters dat doen, met een knop om ze in één keer
+  // uit te zetten. De namen blijven bewaard: die tellen alleen zolang Gespot of Gegeten aanstaat.
+  h+=`<div class="empty" id="dleeg" hidden><span id="dleegtekst">Geen dier gevonden.</span>`+
+    `<button type="button" class="btn wisfilter" id="dwis">Filters wissen</button></div>`+
     `<div class="dkop solo"><h2>Ander dier</h2></div>`+
     `<button type="button" class="dander" id="dander">${PAW}<span><b>Iets anders gezien of gegeten?</b>Typ de naam van het dier.</span><span class="arw">→</span></button>`;
 
@@ -2164,8 +2170,14 @@ function renderDieren(){
     box.querySelectorAll('#dalle .dgroep').forEach(g=>{
       g.hidden=(!!groep&&g.id!=='dg-'+groep)||((!!q||!!stand)&&![...g.querySelectorAll('.drijwrap')].some(r=>!r.hidden)); });
     const leeg=box.querySelector('#dleeg');
-    if(leeg) leeg.hidden=![...box.querySelectorAll('#dalle .dgroep')].every(g=>g.hidden); };
+    if(leeg){
+      leeg.hidden=![...box.querySelectorAll('#dalle .dgroep')].every(g=>g.hidden);
+      const aan=[q&&`‘${q}’`,groep&&(DIER_GROEP.find(x=>x[0]===groep)||[])[1],stand&&(stand==='gegeten'?'Gegeten':'Gespot'),
+        ...(stand?personen.filter(p=>wie.includes(p.id)).map(p=>p.naam):[])].filter(Boolean);
+      leeg.querySelector('#dleegtekst').textContent=aan.length?`Geen dier gevonden met deze filters: ${aan.join(' · ')}.`:'Geen dier gevonden.';
+    } };
   zoek.oninput=filter;
+  box.querySelector('#dwis').onclick=()=>{ window._dzoek=''; window._dfilter=''; window._dgroep=''; renderDieren(); };
   box.querySelectorAll('.dchip[data-filter]').forEach(c=>c.onclick=()=>{
     window._dfilter=window._dfilter===c.dataset.filter?'':c.dataset.filter; renderDieren(); });
   box.querySelectorAll('.dchip[data-groep]').forEach(c=>c.onclick=()=>{
@@ -2218,7 +2230,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-189';
+const APP_VERSIE='2026-09-12-190';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

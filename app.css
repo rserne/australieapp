@@ -5,6 +5,7 @@
     --bg:#0A0C10;
     --text:#F2F4F6; --text-dim:#A6AFB9; --text-faint:#737C88;
     --accent:#FBB41D; --accent-ink:#FBB41D; --star:#F2C452; --wash:#22B4C6; --alert:#F4543A;
+    --eet:#FB923C;   /* alles wat met eten te maken heeft: de chip Gegeten en het bestekje */
     /* glas */
     --glass:rgba(255,255,255,.065);
     --glass-2:rgba(255,255,255,.11);
@@ -27,6 +28,7 @@
     --bg:#EEF0F4;
     --text:#111418; --text-dim:#4B545F; --text-faint:#66707C;
     --star:#8F6600; --accent-ink:#8A5A00; --wash:#146582; --alert:#B0371B;
+    --eet:#C2410C;
     --glass:rgba(255,255,255,.58);
     --glass-2:rgba(255,255,255,.78);
     --glass-3:rgba(255,255,255,.92);
@@ -452,6 +454,10 @@
   .dchip.dfilter{background:var(--glass-2);color:var(--text-dim)}
   .dchip.dfilter.on{background:var(--accent);color:#0A0C10}
   .dchip.dfilter.on span{opacity:.7}
+  /* Gegeten is oranje, dezelfde kleur als het bestekje op de regels. De namenrij is een keuze binnen
+     het filter en krijgt de pil van de tabbalk, zodat hij niet met Gespot of een groep wordt verward. */
+  .dchip.dfilter[data-filter="gegeten"].on{background:var(--eet)}
+  .dchip.dwie.on{background:var(--pill);color:var(--pill-text)}
   .dchip .chipx{font-size:16px;line-height:1;opacity:.8;margin-left:-1px}
   .dchip span{font-size:13px;opacity:.8}
   /* een aangezette groepschip is vol gekleurd, zodat je in één oogopslag ziet waarop je filtert */
@@ -479,7 +485,7 @@
   .deet svg{display:block;width:13px;height:13px}
   .deet span{font-size:12.5px;font-weight:700}
   .deet:active{opacity:.6}
-  .deet.aan{background:var(--gl);border-color:transparent;color:#0A0C10}
+  .deet.aan{background:var(--eet);border-color:transparent;color:#0A0C10}
   html[data-theme="light"] .deet.aan{color:#fff}
   /* Geen vlak achter de tekening: het lijnwerk is één haarlijn dik en verliest het van een getinte
      ondergrond. De tekening staat nu groot en in de groepskleur op de rustige achtergrond van de lijst.
@@ -498,6 +504,8 @@
   html[data-theme="light"] .dchip{background:color-mix(in srgb,var(--gl) 13%,transparent)}
   html[data-theme="light"] .dchip.dfilter{background:var(--glass-2);color:var(--text-dim)}
   html[data-theme="light"] .dchip.dfilter.on{background:var(--pill);color:var(--pill-text)}
+  html[data-theme="light"] .dchip.dfilter[data-filter="gegeten"].on{background:var(--eet);color:#fff}
+  html[data-theme="light"] .dchip.dwie.on{background:var(--pill);color:var(--pill-text)}
   html[data-theme="light"] .drijwrap.gespot{background:color-mix(in srgb,var(--gl) 9%,transparent)}
   /* tussenkop per dag in de lijst Gespot */
   .dlijst .ddag{padding:9px 16px 7px;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
@@ -520,7 +528,7 @@
   .sheethead+.shinput{margin-top:10px}
   .dlijst li{display:flex;gap:12px;align-items:center}
   /* bestekje achter de naam in de lijst Gespot */
-  .dlijst .wvork{display:inline-flex;vertical-align:-2px;margin-left:7px;color:var(--text-faint)}
+  .dlijst .wvork{display:inline-flex;vertical-align:-2px;margin-left:7px;color:var(--eet)}
   .dlijst .dtijd{flex:none;width:3.4em;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
   .dlijst .wbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
   .dlijst .dweg{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--rim);background:none;

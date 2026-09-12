@@ -702,6 +702,26 @@ function zoek(w,fouten,term){
     w.renderDieren();
     eis(fouten,!!rij()&&!w.document.querySelector('.dchip[data-wie].on')&&zicht()==='kangoeroe,barramundi',`een keuze zonder chip vervalt, zodat de lijst niet leeg blijft (nu ${zicht()})`);
     meld('6 okt: namenrij en wij-filter bij Dieren',fouten); }
+  // Een aangezette groep schuift naar voren in de chiprij, en een lege lijst zegt welke filters dat doen
+  { const {w,fouten}=start('2026-10-06',{login:'groep'});
+    w.localStorage.setItem('aus_cache_waarn',JSON.stringify([{id:'a',user_id:'u2',dier:'koala',dag:6,gezien_op:'2026-10-06T08:00:00+10:30',wie:'Anna',hoe:'gezien'}]));
+    klik(w,'btnDieren',fouten);
+    const volgorde=()=>[...w.document.querySelectorAll('#dieren .dchips:not(.dwierij) .dchip')].map(c=>c.dataset.groep||c.dataset.filter);
+    eis(fouten,volgorde().join(',')==='gespot,zoogdier,vogel,reptiel,klein,zee,zoetwater','zonder keuze staan de groepen in hun vaste volgorde');
+    w.document.querySelector('.dchip[data-groep="zee"]').click();
+    eis(fouten,volgorde().join(',')==='gespot,zee,zoogdier,vogel,reptiel,klein,zoetwater',`de aangezette groep staat voorop, na de filterchips (nu: ${volgorde().join(',')})`);
+    eis(fouten,w.document.querySelector('.dchip[data-groep="zee"]').classList.contains('on')&&[...w.document.querySelectorAll('#dalle .dgroep')].map(g=>g.id)[4]==='dg-zee','de lijst zelf houdt zijn volgorde');
+    eis(fouten,$(w,'dleeg').hidden,'met alleen een groep is er niets leeg');
+    w.document.querySelector('.dchip[data-filter="gespot"]').click();
+    eis(fouten,!$(w,'dleeg').hidden&&$(w,'dleegtekst').textContent==='Geen dier gevonden met deze filters: In zee · Gespot.',`in zee is niets gespot, dus de melding noemt de filters (nu: '${$(w,'dleegtekst').textContent}')`);
+    w.document.querySelector('.dchip[data-wie="u2"]').click();
+    eis(fouten,$(w,'dleegtekst').textContent==='Geen dier gevonden met deze filters: In zee · Gespot · Anna.','ook een aangevinkte naam staat erbij');
+    const dz=$(w,'dzoek'); dz.value='haai'; dz.dispatchEvent(new w.Event('input'));
+    eis(fouten,/‘haai’ · In zee · Gespot · Anna/.test($(w,'dleegtekst').textContent),'en de zoekterm');
+    klik(w,'dwis',fouten);
+    eis(fouten,$(w,'dleeg').hidden&&$(w,'dzoek').value===''&&!w.document.querySelector('.dchip.on')&&[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).length>=55,'Filters wissen zet zoekterm, groep en Gespot uit');
+    eis(fouten,JSON.stringify(JSON.parse(w.localStorage.getItem('aus_dwie')))==='["u2"]','de gekozen naam blijft bewaard voor de volgende keer');
+    meld('6 okt: aangezette groep voorop en de lege melding',fouten); }
   // Boekingscodes per persoon: een regel met alleen een naam begint een blokje. Test (u1) is ingelogd;
   // hij krijgt zijn eigen SQ, de gedeelde Sawadee-code van boven de namen, en niets van Anna.
   { const {w,fouten}=start('2026-10-05',{login:'groep'});
