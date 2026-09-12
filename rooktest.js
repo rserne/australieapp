@@ -278,10 +278,15 @@ function zoek(w,fouten,term){
     w.navigator.clipboard={writeText:async t=>{klembord=t}};
     $(w,'rpwkopie').click(); await sleep(50);
     eis(fouten,klembord===pw2,'de knop zet het wachtwoord op het klembord');
-    eis(fouten,/gekopieerd/.test(($(w,'toast')||{textContent:''}).textContent),'en meldt dat');
+    // de toast ligt achter het paneel, dus de knop zelf toont even een vinkje
+    const kopieIcoon=$(w,'rpwkopie').innerHTML;
+    eis(fouten,$(w,'rpwkopie').classList.contains('ok')&&/M5 12\.5/.test(kopieIcoon),'en toont even een vinkje in de knop');
+    eis(fouten,!$(w,'toast')||!$(w,'toast').classList.contains('on'),'zonder toast, want die zou achter het paneel vallen');
+    await sleep(1700);
+    eis(fouten,!$(w,'rpwkopie').classList.contains('ok')&&$(w,'rpwkopie').innerHTML!==kopieIcoon,'daarna is het weer de kopieerknop');
     w.navigator.clipboard={writeText:async()=>{throw new Error('geweigerd')}};
     $(w,'rpwkopie').click(); await sleep(50);
-    eis(fouten,$(w,'rpw').selectionStart===0&&$(w,'rpw').selectionEnd===pw2.length&&/geselecteerd/.test($(w,'toast').textContent),'als kopiëren niet lukt, staat het wachtwoord geselecteerd in het veld');
+    eis(fouten,$(w,'rpw').selectionStart===0&&$(w,'rpw').selectionEnd===pw2.length&&/geselecteerd/.test($(w,'rstat').textContent),'als kopiëren niet lukt, staat het wachtwoord geselecteerd in het veld en zegt de statusregel dat');
     $(w,'rpw').value='wombat-2026';
     eis(fouten,$(w,'rpw').value==='wombat-2026','zelf iets typen kan ook');
     $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl';
@@ -676,7 +681,7 @@ function zoek(w,fouten,term){
     const koppenP=[...p.querySelectorAll('h2')].map(h=>h.textContent);
     eis(fouten,koppenP.includes('Account')&&!koppenP.includes('Notities'),`kop boven het inlogblok heet Account (nu: ${koppenP.join(' | ')})`);
     const c=$(w,'acct').querySelector('.callout');
-    eis(fouten,c&&!c.classList.contains('let')&&/Je reist mee met de groepsreis, als gast/.test(c.textContent)&&/tabblad Dieren/.test(c.textContent)&&!/tabblad Notities/.test(c.textContent),`inlogblok noemt de gast (nu: '${c&&c.textContent.slice(0,140)}')`);
+    eis(fouten,c&&!c.classList.contains('let')&&/Je reist mee met de groepsreis, als gast/.test(c.textContent)&&/tabblad Dieren/.test(c.textContent)&&!/tabblad Notities/.test(c.textContent)&&!/zie je niet/.test(c.textContent),`inlogblok noemt de gast, zonder te zeggen wat hij niet ziet (nu: '${c&&c.textContent.slice(0,140)}')`);
     // zoeken vindt geen notities, wel het programma en Praktisch
     klik(w,'btnIndex',fouten); zoek(w,fouten,'mona');
     eis(fouten,![...w.document.querySelectorAll('#results .src')].some(s=>/Notitie|Bijlage/.test(s.textContent)),'zoeken vindt de notities uit de kopie niet');

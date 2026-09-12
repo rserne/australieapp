@@ -1750,6 +1750,8 @@ function renderBeheer(){
   box.querySelector('#radd').onclick=()=>openReizigerSheet(ververs);
 }
 const fmtTijd=iso=>{ const d=new Date(iso); return `${d.getDate()} ${MN[d.getMonth()].slice(0,3)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+// Vinkje: even in de kopieerknop, als het wachtwoord op het klembord staat.
+const IC_VINK='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 // Dobbelsteen: een nieuw wachtwoord laten maken.
 const IC_DOBBEL='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg>';
 // Wachtwoord voor een nieuwe reiziger: drie dierennamen uit dieren.js en een getal, zoals
@@ -1790,16 +1792,19 @@ function openReizigerSheet(onDone){
   // kopieerknop zet het op het klembord zodat je het meteen kunt doorsturen, en zelf iets typen kan ook.
   // Lukt kopiëren niet (geen toestemming, of een browser zonder clipboard-API), dan staat het
   // geselecteerd in het veld, zodat één tik op Kopieer genoeg is.
-  const pwv=el.querySelector('#rpw'), kop=el.querySelector('#rpwkopie');
+  // Het paneel ligt boven de melding onderin (toast), dus die zou je hier niet zien. De knop laat het
+  // zelf zien: even een vinkje in plaats van de kopieerknop. Een mislukking komt in de statusregel.
+  const pwv=el.querySelector('#rpw'), kop=el.querySelector('#rpwkopie'), st=el.querySelector('#rstat');
   pwv.value=nieuwWachtwoord();
   el.querySelector('#rpwnieuw').onclick=()=>{ pwv.value=nieuwWachtwoord(); };
+  const gekopieerd=()=>{ kop.innerHTML=IC_VINK; kop.classList.add('ok'); clearTimeout(kop._t);
+    kop._t=setTimeout(()=>{ kop.innerHTML=IC_KOPIE; kop.classList.remove('ok'); },1600); };
   kop.onclick=async()=>{
     const pw=pwv.value;
     if(!pw){ pwv.focus(); return; }
-    try{ await navigator.clipboard.writeText(pw); toast('Wachtwoord gekopieerd.'); }
-    catch(e){ pwv.focus(); pwv.setSelectionRange(0,pw.length); toast('Kopiëren lukte niet. Het wachtwoord staat geselecteerd in het veld.'); }
+    try{ await navigator.clipboard.writeText(pw); st.textContent=''; gekopieerd(); }
+    catch(e){ pwv.focus(); pwv.setSelectionRange(0,pw.length); st.textContent='Kopiëren lukte niet. Het wachtwoord staat geselecteerd in het veld.'; }
   };
-  const st=el.querySelector('#rstat');
   el.querySelector('#rform').addEventListener('submit',async e=>{
     e.preventDefault();
     const naam=el.querySelector('#rnaam').value.trim(), email=el.querySelector('#remail').value.trim(), pw=el.querySelector('#rpw').value;
@@ -1827,7 +1832,7 @@ function renderAccount(box){
       :'Je staat nog niet in de reizigerslijst. Daarom zie je geen notities van de groep; vraag de beheerder je toe te voegen. ';
     // Een gast doet mee met de waarnemingen, maar ziet geen notities: dat zeggen we hier, zodat hij het
     // tabblad niet gaat zoeken.
-    const uitleg=gast?'Je doet mee met de waarnemingen in het tabblad Dieren. Notities en boekingscodes van de groep zie je niet. '
+    const uitleg=gast?'Je doet mee met de waarnemingen in het tabblad Dieren. '
       :'Notities staan bij de dag zelf en bij elkaar in het tabblad Notities. ';
     const rs=LS.get('aus_reizigers_status'), fout=rs&&rs.fout?`Het ophalen van de reizigerslijst mislukte (${rs.fout}). `:'';
     box.innerHTML=`<div class="callout${(r&&!mij)||fout?' let':''}" style="margin:0"><span class="ico">${IC_SLOT}</span><span><b>Ingelogd als ${esc(mij?mij.naam:(NH.user.displayName||NH.user.email))}</b>`+
@@ -2172,7 +2177,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-187';
+const APP_VERSIE='2026-09-12-188';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

@@ -409,6 +409,8 @@
     display:flex;align-items:center;justify-content:center}
   .pwrij .nbtn svg{width:17px;height:17px}
   .pwrij .nbtn:active{opacity:.6}
+  /* even een vinkje in de accentkleur nadat het wachtwoord op het klembord is gezet */
+  .pwrij .nbtn.ok{color:var(--accent-ink);border-color:var(--accent-ink)}
   #beheer .dagadd{margin:18px 0 0}
   .callout a{color:var(--accent-ink);font-weight:600}
   .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 86px);transform:translate(-50%,20px);
