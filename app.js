@@ -1777,7 +1777,7 @@ function welkomTekst({naam,email,pw,gast,voorreis,nareis}){
     'Alle dagen: de hele reis per regio, met een zoekveld.',
     ...(gast?[]:['Notities: tickets, reserveringen en notities van de groep, per dag en bij elkaar.']),
     'Praktisch: hoe laat het thuis is, de wisselkoers, noodnummers, vluchten en bagage.',
-    'Het pootje rechtsonder: Dieren. Tik op een dier zodra je het ziet, dan staat het meteen bij de hele groep.'];
+    'Het pootje rechtsonder: Dieren. Tik op een dier zodra je het ziet, dan staat het meteen bij de hele groep. Bij dieren die je ook op je bord kunt krijgen, staat een mes en vork: tik daarop als je het hebt gegeten.'];
   const extra=[voorreis&&'Je doet ook de voorreis: die dagen staan vóór dag 1, en Vandaag toont ze zodra je onderweg bent.',
     nareis&&'Je blijft ook langer: de nareis staat na dag 29.'].filter(Boolean);
   return [`Hoi ${String(naam).trim().split(' ')[0]},`,'',
@@ -2285,7 +2285,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-194';
+const APP_VERSIE='2026-09-12-195';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

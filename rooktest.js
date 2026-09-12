@@ -303,7 +303,7 @@ function zoek(w,fouten,term){
     const wt=$(w,'rwelkom').value;
     eis(fouten,/^Hoi Kees,\n\nJe hebt nu toegang/.test(wt)&&/Adres: https:\/\/rserne\.github\.io\/australieapp\/\n\nE-mailadres: kees@voorbeeld\.nl\nWachtwoord: wombat-2026\n/.test(wt),`het bericht begint met de aanhef en heeft het adres, een lege regel, e-mail en wachtwoord (nu: '${wt.slice(0,170).replace(/\n/g,'⏎')}')`);
     eis(fouten,!/Notities/.test(wt)&&/nareis staat na dag 29/.test(wt)&&!/voorreis/.test(wt),'een gast krijgt geen regel over Notities, wel over zijn nareis');
-    eis(fouten,/Dieren\. Tik op een dier/.test(wt)&&wt.trim().endsWith("'Toevoegen aan startscherm'.")&&/'Zet op beginscherm'/.test(wt),'de tabbladen staan erin en het startscherm staat helemaal onderaan');
+    eis(fouten,/Dieren\. Tik op een dier/.test(wt)&&/mes en vork: tik daarop als je het hebt gegeten/.test(wt)&&wt.trim().endsWith("'Toevoegen aan startscherm'.")&&/'Zet op beginscherm'/.test(wt),'de tabbladen staan erin, met het mes en vork bij Dieren, en het startscherm staat helemaal onderaan');
     $(w,'rdeel').click(); await sleep(50);
     eis(fouten,gedeeld&&gedeeld.text===wt,'Delen geeft het bericht aan het deelmenu van de telefoon');
     klembord=null; w.navigator.clipboard={writeText:async t=>{ klembord=t; }};
