@@ -1998,11 +1998,12 @@ const IC_VORK='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" strok
 // De regel zelf noteert 'gezien', het bestekje 'gegeten'. Daarom staat de knop naast de regel en niet
 // erin: een knop in een knop mag niet. De omhullende div vangt beide tikken op.
 // dier is een dier uit de lijst of null (dan een 'ander dier' met alleen een naam).
-function dierRij(dier,{naam,tekst,kans,tel,mijn,groep,eet,gegeten}){
+// De teller is geel zodra iemand het dier zag, het bestekje oranje zodra iemand het at, wie dan ook.
+function dierRij(dier,{naam,tekst,kans,tel,groep,eet,gegeten}){
   const k=dier?dier.k:'overig';
   // Een dier zonder eigen tekening krijgt het pootje, in de kleur van de groep waarin het staat.
   const ic=dier?(DIER_ICOON[dier.k]||PAW):PAW;
-  return `<div class="drijwrap${tel?' gespot':''}${mijn?' mijn':''}" data-zoek="${esc(zoekTekst(dier,naam))}"`+
+  return `<div class="drijwrap${tel?' gespot':''}" data-zoek="${esc(zoekTekst(dier,naam))}"`+
     ` data-gespot="${tel?1:0}" data-gegeten="${gegeten?1:0}" style="${kleurVan(groep)}">`+
     `<button type="button" class="drij" data-dier="${k}" data-naam="${esc(naam)}">`+
     `<span class="dico">${ic}</span>`+
@@ -2025,8 +2026,7 @@ function renderDieren(){
   const personen=wieRij(iedereen);
   const wie=stand?(LS.get('aus_dwie')||[]).filter(id=>personen.some(p=>p.id===id)):[];
   const alle=wie.length?iedereen.filter(w=>wie.includes(w.user_id)):iedereen;
-  const tel=dierTelling('gezien',alle), eetTel=dierTelling('gegeten',alle);
-  const mijn={}; alle.filter(w=>w.user_id===NH.user.id&&!isGegeten(w)).forEach(w=>{ mijn[w.dier]=(mijn[w.dier]||0)+1; });
+  const tel=dierTelling('gezien',alle), eetTel=dierTelling('gegeten',alle), groep=window._dgroep||'';
   // 'ander dier' telt op naam, want daar is geen sleutel. Ook een ander dier kan op het bord liggen,
   // dus die regels krijgen het bestekje net als de dieren met eet:true.
   const telAnder=(naam,hoe)=>alle.filter(w=>w.dier==='overig'&&hoeVan(w)===(hoe||'gezien')&&(w.opmerking||'').toLowerCase()===naam.toLowerCase());
@@ -2047,8 +2047,8 @@ function renderDieren(){
   // neutrale kleur van Overig, waar de waarneming straks ook terechtkomt.
   if(kansen.length){
     h+=`<div class="dkop solo"><h2>${vandaag?'Kans vandaag':'Kans op deze dag'}</h2></div><div class="dlist">`+
-      kansen.map(x=>{ const d=x.dier, n=d?(tel[d.k]||0):telAnder(x.naam).length, m=d?(mijn[d.k]||0):telAnder(x.naam).some(w=>w.user_id===NH.user.id);
-        return dierRij(d,{naam:x.naam,tekst:x.tekst,kans:x.kans,tel:n,mijn:m,groep:d?d.g:'overig',
+      kansen.map(x=>{ const d=x.dier, n=d?(tel[d.k]||0):telAnder(x.naam).length;
+        return dierRij(d,{naam:x.naam,tekst:x.tekst,kans:x.kans,tel:n,groep:d?d.g:'overig',
           eet:d?!!d.eet:true,gegeten:d?(eetTel[d.k]||0):telAnder(x.naam,'gegeten').length}); }).join('')+
       `</div><p class="dhint">Uit het programma van ${vandaag?'vandaag':'deze dag'}. De rest van de lijst staat eronder.</p>`;
   }
@@ -2059,8 +2059,8 @@ function renderDieren(){
   // 'Iets anders gezien' heeft ingevoerd, één regel per naam, met gespot en gegeten apart geteld.
   const anderen=(()=>{ const m=new Map();
     alle.filter(w=>w.dier==='overig'&&w.opmerking).forEach(w=>{ const k=w.opmerking.trim().toLowerCase();
-      const x=m.get(k)||{naam:w.opmerking.trim(),tel:0,mijn:0,gegeten:0};
-      if(isGegeten(w)) x.gegeten++; else { x.tel++; if(w.user_id===NH.user.id) x.mijn++; }
+      const x=m.get(k)||{naam:w.opmerking.trim(),tel:0,gegeten:0};
+      if(isGegeten(w)) x.gegeten++; else x.tel++;
       m.set(k,x); });
     return [...m.values()].sort((a,b)=>(b.tel+b.gegeten)-(a.tel+a.gegeten)||a.naam.localeCompare(b.naam)); })();
   const groepLijst=DIER_GROEP.filter(([g])=>g!=='overig'||anderen.length);
@@ -2088,13 +2088,15 @@ function renderDieren(){
       })()+`</div>`+
     // De namenrij, alleen als Gespot of Gegeten aanstaat. Het getal per naam is het aantal soorten van dat
     // filter, geteld over alles, zodat je ziet wat je erbij krijgt als je iemand aanvinkt.
-    (stand?`<div class="dchips dwierij">`+personen.map(p=>{ const on=wie.includes(p.id);
+    // Een aangevinkte naam krijgt een rand in de kleur van het filter dat aanstaat: geel bij Gespot, oranje
+    // bij Gegeten (data-stand op de rij, de opmaak doet de rest).
+    (stand?`<div class="dchips dwierij" data-stand="${stand}">`+personen.map(p=>{ const on=wie.includes(p.id);
         const n=new Set(iedereen.filter(w=>w.user_id===p.id&&hoeVan(w)===(stand==='gegeten'?'gegeten':'gezien')).map(dierSleutel)).size;
-        return `<button type="button" class="dchip dfilter dwie${on?' on':''}" data-wie="${esc(p.id)}"${on?' aria-pressed="true"':''}>${esc(p.naam)}<span>${n}</span>${on?`<span class="chipx" aria-hidden="true">×</span>`:''}</button>`; }).join('')+`</div>`:'')+
+        return `<button type="button" class="dchip dwie${on?' on':''}" data-wie="${esc(p.id)}"${on?' aria-pressed="true"':''}>${esc(p.naam)}<span>${n}</span>${on?`<span class="chipx" aria-hidden="true">×</span>`:''}</button>`; }).join('')+`</div>`:'')+
     `<div id="dalle">`+groepLijst.map(([g,label])=>{ const [gs,tot]=telGroep(g); if(!tot) return '';
       const rijen=g==='overig'
-        ? anderen.map(a=>dierRij(null,{naam:a.naam,tel:a.tel,mijn:a.mijn,groep:'overig',eet:true,gegeten:a.gegeten})).join('')
-        : perGroep(g).map(d=>dierRij(d,{naam:d.n,tel:tel[d.k]||0,mijn:mijn[d.k]||0,groep:g,eet:!!d.eet,gegeten:eetTel[d.k]||0})).join('');
+        ? anderen.map(a=>dierRij(null,{naam:a.naam,tel:a.tel,groep:'overig',eet:true,gegeten:a.gegeten})).join('')
+        : perGroep(g).map(d=>dierRij(d,{naam:d.n,tel:tel[d.k]||0,groep:g,eet:!!d.eet,gegeten:eetTel[d.k]||0})).join('');
       return `<section class="dgroep" id="dg-${g}" style="${kleurVan(g)}"><div class="dkop"><h2>${esc(label)}</h2><span class="dsub">${gs} van ${tot}</span></div><div class="dlist">`+
         rijen+`</div></section>`; }).join('')+`</div>`;
   // Blijft er niets over, dan zegt de melding welke filters dat doen, met een knop om ze in één keer
@@ -2104,12 +2106,15 @@ function renderDieren(){
     `<div class="dkop solo"><h2>Ander dier</h2></div>`+
     `<button type="button" class="dander" id="dander">${PAW}<span><b>Iets anders gezien of gegeten?</b>Typ de naam van het dier.</span><span class="arw">→</span></button>`;
 
-  // Gespot: alle waarnemingen, nieuwste bovenaan, met een tussenkop per kalenderdag. We groeperen op
+  // Gespot: de waarnemingen, nieuwste bovenaan, met een tussenkop per kalenderdag. We groeperen op
   // de datum van de waarneming zelf en niet op het dagnummer: dan staat er ook een datum boven wat
-  // iemand op een dag zonder nummer heeft gezien.
-  const lijst=[...alle].sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
-  h+=`<h2>Gespot</h2>`;
-  if(!lijst.length) h+=`<p class="dstatus">Nog niets gespot. De eerste is voor jou.</p>`;
+  // iemand op een dag zonder nummer heeft gezien. De lijst volgt dezelfde filters als het raster: de
+  // aangevinkte namen (zit al in alle), Gespot of Gegeten, en de groep.
+  const groepVan=w=>w.dier==='overig'?'overig':((dierVan(w.dier)||{}).g||'overig');
+  const lijst=alle.filter(w=>(!stand||hoeVan(w)===(stand==='gegeten'?'gegeten':'gezien'))&&(!groep||groepVan(w)===groep))
+    .sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
+  h+=`<h2>${stand==='gegeten'?'Gegeten':'Gespot'}</h2>`;
+  if(!lijst.length) h+=`<p class="dstatus">${alle.length?'Niets met deze filters.':'Nog niets gespot. De eerste is voor jou.'}</p>`;
   else{
     let vorige=null;
     h+=`<ul class="list dlijst">`+lijst.map(w=>{
@@ -2230,7 +2235,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-190';
+const APP_VERSIE='2026-09-12-191';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

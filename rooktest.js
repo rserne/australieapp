@@ -491,7 +491,7 @@ function zoek(w,fouten,term){
     // de datum in de tussenkop komt van de klok, die in deze test niet meeloopt met ?datum
     eis(fouten,gesp&&/^Dag 6 · [A-Z][a-z]+dag \d+ \w+$/.test(gesp.querySelector('.ddag').textContent)&&/Koala/.test(gesp.textContent)&&/1 waarneming wacht op verbinding/.test($(w,'dieren').textContent),`waarneming staat onder Gespot, onder een tussenkop met dagnummer en datum (nu '${gesp&&gesp.querySelector('.ddag').textContent}')`);
     const koala2=w.document.querySelector('#dalle .drij[data-dier="koala"]')?.closest('.drijwrap');
-    eis(fouten,koala2&&koala2.classList.contains('mijn')&&koala2.classList.contains('gespot')&&koala2.querySelector('.dtel').textContent==='1','teller en tint op de regel na de waarneming');
+    eis(fouten,koala2&&!koala2.classList.contains('mijn')&&koala2.classList.contains('gespot')&&koala2.querySelector('.dtel').textContent==='1','teller en tint op de regel na de waarneming, zonder onderscheid naar wie');
     eis(fouten,/Zoogdieren1\/15/.test(w.document.querySelectorAll('#dieren .dchip')[1].textContent),'chip telt mee');
     // filter Gespot
     const chipGespot=()=>w.document.querySelector('.dchip[data-filter="gespot"]');
@@ -690,6 +690,10 @@ function zoek(w,fouten,term){
     w.document.querySelector('.dchip[data-filter="gegeten"]').click();
     eis(fouten,namen().join(' | ')==='Ik 1 | Anna 0 | Piet 0 | Aad 1 | Bram 0',`onder Gegeten telt de rij gegeten soorten (nu: ${namen().join(' | ')})`);
     eis(fouten,zicht()==='kangoeroe','alleen wat jij en Anna aten blijft over');
+    const logKop=()=>[...w.document.querySelectorAll('#dieren h2')].find(h=>/^(Gespot|Gegeten)$/.test(h.textContent));
+    const logNamen=()=>[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag) strong')].map(x=>x.textContent);
+    eis(fouten,logKop()&&logKop().textContent==='Gegeten'&&logNamen().join(',')==='Kangoeroe',`de lijst onderaan heet nu Gegeten en toont alleen wat jij en Anna aten (nu: ${logNamen().join(',')})`);
+    eis(fouten,w.document.querySelector('.dwierij').dataset.stand==='gegeten','de namenrij weet dat Gegeten aanstaat, voor de oranje rand');
     w.document.querySelector('.dchip[data-wie="u2"]').click();
     eis(fouten,totNuToe()==='Je hebt 1 dier gespot, 1 soort. Op het bord kreeg je er 1, in 1 soort.',`Tot nu toe over jou alleen (nu: '${totNuToe()}')`);
     // een tik op een dier noteert nog altijd onder je eigen naam
@@ -708,7 +712,12 @@ function zoek(w,fouten,term){
     klik(w,'btnDieren',fouten);
     const volgorde=()=>[...w.document.querySelectorAll('#dieren .dchips:not(.dwierij) .dchip')].map(c=>c.dataset.groep||c.dataset.filter);
     eis(fouten,volgorde().join(',')==='gespot,zoogdier,vogel,reptiel,klein,zee,zoetwater','zonder keuze staan de groepen in hun vaste volgorde');
+    const logNamen=()=>[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag) strong')].map(x=>x.textContent);
+    eis(fouten,logNamen().join(',')==='Koala','zonder filters staat de koala van Anna in de lijst onderaan');
+    w.document.querySelector('.dchip[data-groep="zoogdier"]').click();
+    eis(fouten,logNamen().join(',')==='Koala','met Zoogdieren aan blijft hij staan');
     w.document.querySelector('.dchip[data-groep="zee"]').click();
+    eis(fouten,!logNamen().length&&/Niets met deze filters/.test($(w,'dieren').textContent),'met In zee aan is de lijst onderaan leeg, met een melding');
     eis(fouten,volgorde().join(',')==='gespot,zee,zoogdier,vogel,reptiel,klein,zoetwater',`de aangezette groep staat voorop, na de filterchips (nu: ${volgorde().join(',')})`);
     eis(fouten,w.document.querySelector('.dchip[data-groep="zee"]').classList.contains('on')&&[...w.document.querySelectorAll('#dalle .dgroep')].map(g=>g.id)[4]==='dg-zee','de lijst zelf houdt zijn volgorde');
     eis(fouten,$(w,'dleeg').hidden,'met alleen een groep is er niets leeg');
