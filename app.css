@@ -17,6 +17,15 @@
     --blob:color-mix(in srgb, var(--tone) 60%, transparent);
     --blob2:color-mix(in srgb, var(--accent) 16%, transparent);
     --pill:rgba(255,255,255,.92); --pill-text:#0A0C10;
+    /* de twee zwevende balken (dagnavigatie en tabbalk): dunner glas dan de kaarten, met lichtval van
+       boven, een donkere lijn aan de onderrand en een diepere schaduw. De blur dempt de foto erachter
+       iets, zodat de tekst leesbaar blijft. */
+    --bar:rgba(255,255,255,.06);
+    --bar-sheen:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.02) 55%,rgba(255,255,255,0));
+    --bar-rim:rgba(255,255,255,.17); --bar-hi:rgba(255,255,255,.32); --bar-lo:rgba(0,0,0,.28);
+    --bar-shadow:0 12px 32px rgba(0,0,0,.45);
+    --bar-filter:blur(30px) saturate(180%) brightness(.88);
+    --bar-text:#B4BCC6; --bar-knop-hi:rgba(255,255,255,.18); --pill-hi:#FFFFFF;
     /* Het blad ligt vóór de pagina en is daarom iets lichter dan de achtergrond: in het donker
        is een slagschaduw onzichtbaar, dus het verschil in helderheid moet het werk doen. */
     --sheet:#171B23; --scrim:rgba(0,0,0,.62); --grip:rgba(255,255,255,.30);
@@ -39,6 +48,12 @@
     --blob:color-mix(in srgb, var(--tone) 26%, transparent);
     --blob2:color-mix(in srgb, var(--accent) 22%, transparent);
     --pill:#111418; --pill-text:#FFFFFF;
+    --bar:rgba(255,255,255,.52);
+    --bar-sheen:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,.2) 60%,rgba(255,255,255,.05));
+    --bar-rim:rgba(255,255,255,.95); --bar-hi:#FFFFFF; --bar-lo:rgba(30,40,55,.10);
+    --bar-shadow:0 12px 32px rgba(30,40,55,.18);
+    --bar-filter:blur(30px) saturate(170%) brightness(1.06);
+    --bar-text:#3F4854; --bar-knop-hi:#FFFFFF; --pill-hi:rgba(255,255,255,.22);
     /* In het licht blijft het blad de achtergrondkleur: de velden erin zijn wit en zouden
        tegen een lichter blad wegvallen. Daar doen de schaduw en het waas het werk. */
     --sheet:#EEF0F4; --scrim:rgba(24,32,44,.34); --grip:rgba(17,20,24,.20);
@@ -128,15 +143,16 @@
   /* ---------- Dagnavigatie (zwevend glas) ---------- */
   .nav{position:sticky;top:0;z-index:20;margin:26px 12px 0}   /* dezelfde 26 als onder de balk */
   .nav .inner{max-width:660px;margin:0 auto;padding:6px;display:flex;align-items:center;gap:6px;
-    border-radius:20px;background:var(--glass-2);border:1px solid var(--rim);
-    box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow);
-    -webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%)}
+    border-radius:20px;background:var(--bar);background-image:var(--bar-sheen);border:1px solid var(--bar-rim);
+    box-shadow:inset 0 1px 0 var(--bar-hi), inset 0 -1px 0 var(--bar-lo), var(--bar-shadow);
+    -webkit-backdrop-filter:var(--bar-filter);backdrop-filter:var(--bar-filter)}
   .nav button{font:inherit;font-size:16px;color:var(--text);
     background:color-mix(in srgb, var(--text) 7%, transparent);
-    border:1px solid var(--rim);border-radius:14px;width:46px;height:42px;
+    border:1px solid var(--bar-rim);border-radius:14px;width:46px;height:42px;
+    box-shadow:inset 0 1px 0 var(--bar-knop-hi);
     cursor:pointer;display:grid;place-items:center}
   .nav button:disabled{opacity:.3}
-  .nav .label{flex:1;text-align:center;font-size:14.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}
+  .nav .label{flex:1;text-align:center;font-size:14.5px;color:var(--bar-text);font-variant-numeric:tabular-nums}
   button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   /* ---------- Inhoud ---------- */
@@ -740,9 +756,9 @@
   /* ---------- Tabbalk (zwevend glas) ---------- */
   .tabbar{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:30}
   .tabbar .inner{max-width:660px;margin:0 auto;display:flex;gap:3px;padding:4px;
-    border-radius:999px;background:var(--glass-2);border:1px solid var(--rim);
-    box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow);
-    -webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%)}
+    border-radius:999px;background:var(--bar);background-image:var(--bar-sheen);border:1px solid var(--bar-rim);
+    box-shadow:inset 0 1px 0 var(--bar-hi), inset 0 -1px 0 var(--bar-lo), var(--bar-shadow);
+    -webkit-backdrop-filter:var(--bar-filter);backdrop-filter:var(--bar-filter)}
   /* Met vijf knoppen krimpt de letter mee met het scherm, van 13 pixels op een gewone telefoon tot 11 op
      een smalle. Zo blijft 'Alle dagen' op één regel tot 320 punten breed en tot een letterschaal van
      120 procent op Android. */
@@ -784,10 +800,11 @@
   .shsel{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--glass-2);
     border:1px solid var(--rim);border-radius:14px;padding:12px 14px;-webkit-appearance:none;appearance:none}
   .tabbar button{flex:1;font:inherit;font-size:15px;font-weight:600;min-height:46px;
-    border-radius:999px;cursor:pointer;border:none;background:transparent;color:var(--text-dim);
+    border-radius:999px;cursor:pointer;border:none;background:transparent;color:var(--bar-text);
     transition:background .2s ease,color .2s ease}
+  /* de actieve pil krijgt dezelfde glimlijn aan de bovenkant als het glas, zodat hij erbij hoort */
   .tabbar button.on{background:var(--pill);color:var(--pill-text);
-    box-shadow:0 2px 8px rgba(0,0,0,.18)}
+    box-shadow:inset 0 1px 0 var(--pill-hi), 0 2px 8px rgba(0,0,0,.22)}
 
   footer{margin:36px 0 0;padding-top:18px;border-top:1px solid var(--rim);
     font-size:13.5px;color:var(--text-faint);line-height:1.5}
