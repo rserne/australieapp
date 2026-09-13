@@ -263,6 +263,8 @@ function zoek(w,fouten,term){
     eis(fouten,sheet&&/Reiziger toevoegen/.test(sheet.textContent)&&$(w,'rnaam'),'plusknop opent het schuifpaneel');
     const chipsNieuw=[...sheet.querySelectorAll('#rdelen .chip')].map(c=>c.dataset.deel);
     eis(fouten,chipsNieuw.join(',')==='voorreis,reis,nareis,gast',`het paneel heeft ook een chip Gast, geen Beheer (nu: ${chipsNieuw.join(',')})`);
+    const aanNieuw=[...sheet.querySelectorAll('#rdelen .chip.on')].map(c=>c.dataset.deel);
+    eis(fouten,aanNieuw.join(',')==='reis,gast',`Groepsreis en Gast staan meteen aan, de rest niet (nu: ${aanNieuw.join(',')})`);
     // Het wachtwoord is een leesbaar tekstveld dat de app zelf vult: geen wachtwoordveld, anders zet iOS
     // een eigen voorstel in de sleutelhanger van de beheerder. Ook het e-mailveld mag geen username zijn.
     eis(fouten,$(w,'rpw').type==='text'&&$(w,'rpw').getAttribute('autocomplete')==='off'&&!sheet.querySelector('input[type="password"]'),'het wachtwoord staat in een gewoon tekstveld, zonder wachtwoordveld in het paneel');
@@ -291,7 +293,6 @@ function zoek(w,fouten,term){
     eis(fouten,$(w,'rpw').value==='wombat-2026','zelf iets typen kan ook');
     $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl';
     sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
-    sheet.querySelector('#rdelen .chip[data-deel="gast"]').click();
     let gedeeld=null; w.navigator.share=async d=>{ gedeeld=d; };
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);
     eis(fouten,aanmeldingen.length===1&&aanmeldingen[0].email==='kees@voorbeeld.nl'&&aanmeldingen[0].options.displayName==='Kees','account aangemaakt via het aanmeldpunt met naam als displayName');

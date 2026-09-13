@@ -1727,6 +1727,10 @@ function naarPraktisch(id){ switchTo('prakt'); requestAnimationFrame(()=>documen
 const DELEN=[['voorreis','Voorreis'],['reis','Groepsreis'],['nareis','Nareis'],['gast','Gast'],['beheer','Beheer']];
 // Bij een nieuwe reiziger: alles behalve Beheer, dat zet je daarna in de lijst.
 const DELEN_NIEUW=DELEN.filter(([k])=>k!=='beheer');
+// Wat er bij het openen van het paneel al aan staat: de groepsreis, en Gast. Gast is de voorzichtige
+// kant: wie je toevoegt ziet de reis en doet mee met de dieren, maar komt niet bij de notities,
+// boekingscodes en verzekeringen van de groep. Hoort iemand er wél helemaal bij, dan zet je de chip uit.
+const DELEN_AAN=['reis','gast'];
 // Kaartje met een vouw: de regel naar het reisoverzicht, zodat die niet op een dagnummer lijkt.
 const IC_KAART='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7z"/><path d="M9 4v13M15 7v13"/></svg>';
 const IC_PIJL='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
@@ -1838,7 +1842,7 @@ function openReizigerSheet(onDone){
     <div class="pwrij"><input id="rpw" class="shinput" type="text" placeholder="Wachtwoord, minimaal 9 tekens" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" required>
     <button type="button" class="nbtn" id="rpwnieuw" aria-label="Nieuw wachtwoord" title="Nieuw wachtwoord">${IC_DOBBEL}</button>
     <button type="button" class="nbtn" id="rpwkopie" aria-label="Wachtwoord kopiëren" title="Wachtwoord kopiëren">${IC_KOPIE}</button></div>
-    <div class="chips" id="rdelen">${DELEN_NIEUW.map(([k,l])=>`<button type="button" class="chip${k==='reis'?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
+    <div class="chips" id="rdelen">${DELEN_NIEUW.map(([k,l])=>`<button type="button" class="chip${DELEN_AAN.includes(k)?' on':''}" data-deel="${k}">${l}</button>`).join('')}</div>
     <div class="nrow"><button class="btn primary" id="rbtn" type="submit">Toevoegen</button></div><div class="nstatus" id="rstat"></div></form></div>`;
   document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('on'));
@@ -2457,7 +2461,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-13-208';
+const APP_VERSIE='2026-09-13-209';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
