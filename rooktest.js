@@ -515,7 +515,7 @@ function zoek(w,fouten,term){
     // de eerste waarneming levert meteen de kaart van de eerste prijs op; die sluiten we, de melding onderin blijft
     await sleep(400);
     const kaart0=w.document.querySelector('#sheet .sheet.prijs');
-    eis(fouten,kaart0&&kaart0.dataset.prijs==='eerste'&&/nog 15 klaar/.test(kaart0.textContent),'de eerste waarneming brengt de kaart G\'day!, met het aantal andere prijzen');
+    eis(fouten,kaart0&&kaart0.dataset.prijs==='eerste'&&/nog 15 te verdienen/.test(kaart0.textContent),'de eerste waarneming brengt de kaart G\'day!, met het aantal andere prijzen');
     klik(w,'shclose',fouten); await sleep(260);
     // filter Gespot
     const chipGespot=()=>w.document.querySelector('.dchip[data-filter="gespot"]');
@@ -843,7 +843,7 @@ function zoek(w,fouten,term){
     w.document.querySelector('#dieren .pmed[data-prijs="emoe"]').click(); await sleep(50);
     const kh=w.document.querySelector('#sheet .sheet.prijs');
     eis(fouten,kh&&/Voor de 2e keer verdiend op donderdag 8 oktober/.test(kh.querySelector('.pdatum').textContent)&&/De eerste op dinsdag 6 oktober/.test(kh.querySelector('.pvaker').textContent),'de kaart zegt de hoeveelste keer, met de eerste keer eronder');
-    eis(fouten,/Emoe nummer 2/.test(kh.querySelector('.ptekst').textContent)&&w.document.querySelector('#dieren .pmed[data-prijs="emoe"] .keer').textContent==='\u00d72','met de tekst voor een herhaling, en een telletje op de medaille');
+    eis(fouten,/Alweer een emoe! Nummer 2/.test(kh.querySelector('.ptekst').textContent)&&w.document.querySelector('#dieren .pmed[data-prijs="emoe"] .keer').textContent==='\u00d72','met de tekst voor een herhaling, en een telletje op de medaille');
     klik(w,'shclose',fouten); await sleep(260);
     // de stempelkaart: bij een korte keuzelijst staan de dieren die je nog mist er flauw bij
     zet([wn('emoe',T(6),{hoe:'gegeten'})]); w.renderDieren();
@@ -860,7 +860,7 @@ function zoek(w,fouten,term){
     w.nuISO=()=>T(9,'16:42');
     zet([wn('emoe',T(6))]); w.renderDieren();
     w.document.querySelector('#dalle .drij[data-dier="emoe"]').click(); await sleep(450);
-    eis(fouten,!$(w,'sheet')&&/^Emoe nummer 2, om 16\.42 uur/.test($(w,'toast').textContent)&&$(w,'toast').querySelector('button'),'de tweede emoe geeft geen kaart maar een melding, met Ongedaan maken');
+    eis(fouten,!$(w,'sheet')&&/^Alweer een emoe! Nummer 2, om 16\.42 uur/.test($(w,'toast').textContent)&&$(w,'toast').querySelector('button'),'de tweede emoe geeft geen kaart maar een melding, met Ongedaan maken');
     w.localStorage.setItem('aus_pending','[]');
     // de kast en de kaart
     zet([wn('wombat',T(6)),wn('wallaby',T(7,'09:00')),wn('tasmaanse-duivel',T(8,'21:30'))]);

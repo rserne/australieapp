@@ -132,15 +132,15 @@ const DIEREN=[
 // Controleer na een wijziging met  node check.js  (bestaan de dieren, de groep, de tekening en de kleur).
 const PRIJZEN=[
  {k:"eerste",n:"G'day!",kleur:"#0F6E56",ic:"poot",regel:{soort:"eerste"},
-  t:"Je eerste dier staat erin. Er liggen er nog {rest} klaar, en wat je daarvoor moet zien, hoor je pas als je het hebt."},
+  t:"Je eerste dier staat erin, en daarmee je eerste prijs. Er zijn er nog {rest} te verdienen, maar welke dat zijn, merk je vanzelf."},
  {k:"nachtwacht",n:"Nachtwacht",kleur:"#3B2E7E",ic:"possum",regel:{soort:"tijd",van:"19:00",tot:"05:30"},herhaal:true,
   t:"De meeste Australische zoogdieren komen pas na zonsondergang tevoorschijn. Jij was nog wakker.",
   t2:"Alweer laat buiten geweest. Dat zijn er {keer}."},
  {k:"lijstenmaker",n:"Streepjes zetten",kleur:"#0369A1",ic:"turf",regel:{soort:"soorten",n:15},
   t:"Vijftien soorten. De kangoeroes en de kaketoes heb je gehad, nu begint het zoeken."},
  {k:"emoe",n:"Emoe!",kleur:"#A8380A",ic:"emoe",regel:{soort:"keer",dier:"emoe",n:1},herhaal:"stil",
-  t:"Een emoe. Hij haalt vijftig kilometer per uur, kijkt alsof jij hier de vreemde bent, en loopt daarna gewoon door.",
-  t2:"Emoe nummer {keer}"},
+  t:"EMOE! Daar is hij dan. Vijftig kilometer per uur, een blik alsof jij hier de vreemde bent, en hij loopt gewoon door.",
+  t2:"Alweer een emoe! Nummer {keer}"},
  {k:"tassie",n:"Tassie",kleur:"#014747",ic:"tasmaanse-duivel",regel:{soort:"set",dieren:["tasmaanse-duivel","wombat","wallaby"]},
   t:"Duivel, wombat en wallaby. Buiten Tasmanië kom je ze zelden alle drie tegen. Jij wel."},
  {k:"walvis",n:"Kop boven water",kleur:"#0C4A6E",ic:"bultrug",regel:{soort:"keuze",dieren:["bultrug","dolfijn","zeehond"],n:2},
