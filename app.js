@@ -2159,7 +2159,7 @@ async function registreerWaarneming(dier,opmerking,hoe){
   // onderin: bij de zevende emoe is een schuifpaneel meer werk dan plezier.
   const stil=erbij.find(x=>x.keer>1&&x.p.herhaal==='stil');
   toonNieuwePrijzen(erbij.filter(x=>x!==stil));
-  const melding=stil?`${stil.p.n} ${String(stil.p.t2||'').replace('{keer}',String(stil.keer))}, om ${tijdVan(rec.gezien_op)} uur`
+  const melding=stil?`${String(stil.p.t2||'').replace('{keer}',String(stil.keer))}, om ${tijdVan(rec.gezien_op)} uur`
                     :`${naam} ${isGegeten(rec)?'gegeten':'gespot'} om ${tijdVan(rec.gezien_op)} uur`;
   toast(melding,'Ongedaan maken',async()=>{
     if(id){
@@ -2461,7 +2461,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-13-210';
+const APP_VERSIE='2026-09-13-211';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

@@ -122,8 +122,8 @@ const DIEREN=[
 //            keer dat je de regel volmaakt komt de kaart opnieuw, en op de medaille staat een telletje.
 //            'stil' is hetzelfde, maar dan zonder kaart: na de eerste keer alleen een regel in de melding
 //            onderin. Voor prijzen die je vaak haalt, zoals de emoe.
-//   t2     de tekst bij zo'n herhaling, waar {keer} het aantal wordt. Bij 'stil' is dit de melding zelf,
-//            achter de naam van de prijs, dus kort houden.
+//   t2     de tekst bij zo'n herhaling, waar {keer} het aantal wordt. Bij 'stil' is dit de melding
+//            onderin, in zijn geheel: noem de prijs daar zelf en houd het kort.
 //          Wat herhalen precies betekent, hangt van de regel af: keuze, groep, soorten en regios tellen
 //          door vanaf de n-de (Bushtucker bij één, twee en drie van het bord), keer telt elke n-de
 //          waarneming, reeks elke volgende n dagen binnen dezelfde reeks, en tijd één keer per nacht.
@@ -132,43 +132,43 @@ const DIEREN=[
 // Controleer na een wijziging met  node check.js  (bestaan de dieren, de groep, de tekening en de kleur).
 const PRIJZEN=[
  {k:"eerste",n:"G'day!",kleur:"#0F6E56",ic:"poot",regel:{soort:"eerste"},
-  t:"Je eerste waarneming staat erin. Er zijn nog {rest} prijzen te verdienen. Welke? Dat merk je vanzelf."},
+  t:"Je eerste dier staat erin. Er liggen er nog {rest} klaar, en wat je daarvoor moet zien, hoor je pas als je het hebt."},
  {k:"nachtwacht",n:"Nachtwacht",kleur:"#3B2E7E",ic:"possum",regel:{soort:"tijd",van:"19:00",tot:"05:30"},herhaal:true,
-  t:"Australië gaat na zonsondergang pas echt open: possums, suikereekhoorns en de vleerhonden die boven de stad uitvliegen. Jij was erbij.",
-  t2:"Alweer een avond buiten gebleven in plaats van vroeg naar bed. Dat zijn er {keer}, en het donker levert nog altijd de mooiste dieren op."},
+  t:"De meeste Australische zoogdieren komen pas na zonsondergang tevoorschijn. Jij was nog wakker.",
+  t2:"Alweer laat buiten geweest. Dat zijn er {keer}."},
  {k:"lijstenmaker",n:"Streepjes zetten",kleur:"#0369A1",ic:"turf",regel:{soort:"soorten",n:15},
-  t:"Vijftien streepjes, vijftien verschillende soorten. De lijst telt er 68, dus er is nog ruimte."},
+  t:"Vijftien soorten. De kangoeroes en de kaketoes heb je gehad, nu begint het zoeken."},
  {k:"emoe",n:"Emoe!",kleur:"#A8380A",ic:"emoe",regel:{soort:"keer",dier:"emoe",n:1},herhaal:"stil",
-  t:"Een emoe. Hij rent harder dan jij, kijkt je aan alsof jij de vreemde bent, en jij zag hem het eerst.",
-  t2:"Dat is nummer {keer}"},
+  t:"Een emoe. Hij haalt vijftig kilometer per uur, kijkt alsof jij hier de vreemde bent, en loopt daarna gewoon door.",
+  t2:"Emoe nummer {keer}"},
  {k:"tassie",n:"Tassie",kleur:"#014747",ic:"tasmaanse-duivel",regel:{soort:"set",dieren:["tasmaanse-duivel","wombat","wallaby"]},
-  t:"Duivel, wombat en wallaby: de drie van Tasmanië, en jij hebt ze alle drie gezien."},
+  t:"Duivel, wombat en wallaby. Buiten Tasmanië kom je ze zelden alle drie tegen. Jij wel."},
  {k:"walvis",n:"Kop boven water",kleur:"#0C4A6E",ic:"bultrug",regel:{soort:"keuze",dieren:["bultrug","dolfijn","zeehond"],n:2},
-  t:"Twee van bultrug, dolfijn en zeehond. Oktober is trektijd langs de kust, en jij keek op het goede moment de goede kant op."},
+  t:"Twee van de drie boven water. In oktober trekken de bultruggen langs de kust, dus je zat op de goede plek op het goede moment."},
  {k:"papegaaien",n:"Herrie in de boom",kleur:"#116B33",ic:"regenbooglori",regel:{soort:"keuze",dieren:["galah","kaketoe","regenbooglori","rosella"],n:3},
-  t:"Drie soorten papegaaien, en je hoorde ze vast eerder dan je ze zag. In Australië zijn ze gewoon de duiven, alleen luider."},
+  t:"Drie soorten papegaaien, en je hoorde ze ruim voordat je ze zag. Zo klinkt een Australische ochtend."},
  {k:"koudbloedig",n:"Zonnekloppers",kleur:"#7A1B4E",ic:"varaan",regel:{soort:"groep",g:"reptiel",n:4},
-  t:"Vier verschillende reptielen, liggend in de zon of wachtend in het water. Skinks tellen mee, krokodillen ook, en jij hebt ze allemaal met rust gelaten."},
+  t:"Vier reptielen. Ze bewegen pas als de zon hoog staat, dus jij hebt vooral heel goed stilgestaan."},
  {k:"loopvogels",n:"Loopclubje",kleur:"#5B3A0C",ic:"kasuaris",regel:{soort:"set",dieren:["emoe","kasuaris"]},
-  t:"Emoe én kasuaris: de twee vogels van Australië die het vliegen hebben opgegeven. De kasuaris laat zich zelden zien, dus dit is er een om te onthouden."},
+  t:"Emoe en kasuaris, de twee zwaarste vogels van Australië. Vliegen zit er niet in, en jij hebt ze allebei."},
  {k:"bushtucker",n:"Bushtucker",kleur:"#B4410E",ic:"bestek",regel:{soort:"keuze",dieren:["kangoeroe","emoe","zoutwaterkrokodil"],n:1,hoe:"gegeten"},herhaal:true,
-  t:"Kangoeroe, emoe of krokodil van het bord. In Australië kom je ze niet alleen in het wild tegen, maar ook op de kaart.",
-  t2:"Weer een van de drie op je bord. Daarmee heb je er {keer} geproefd."},
+  t:"Kangoeroe, emoe of krokodil van het bord. In Australië lopen ze niet alleen rond, ze staan ook gewoon op de menukaart.",
+  t2:"Nummer {keer} van de drie op je bord."},
  {k:"levend",n:"Gevaarlijk gezelschap",kleur:"#8A1C1C",ic:"roodrugspin",regel:{soort:"keuze",dieren:["zoutwaterkrokodil","bruine-slang","tijgerslang","roodbuikzwarte-slang","roodrugspin","trechterspin","haai","kwal","kasuaris","dingo"],n:3},
-  t:"Drie van de dieren waar Australië berucht om is, gezien en niet aangeraakt. Precies zoals het hoort."},
+  t:"Drie van de tien dieren waar Australië berucht om is. Je leest deze tekst, dus het ging goed."},
  {k:"reeks",n:"Week zonder missers",kleur:"#6D28D9",ic:"zeven",regel:{soort:"reeks",n:7},herhaal:true,
   t:"Zeven dagen achter elkaar iets gespot. Dat is geen geluk meer, dat is opletten.",
-  t2:"En nog eens zeven dagen achter elkaar. Dat maakt {keer} volle weken zonder een dag over te slaan."},
+  t2:"En nog eens zeven dagen op rij. Dat maakt {keer} volle weken zonder een dag over te slaan."},
  {k:"australie",n:"Kriskras",kleur:"#A21C64",ic:"australie",regel:{soort:"regios",n:6},herhaal:true,
-  t:"Kriskras door Australië, en in zes van de zeven streken van de reis iets gespot. Van de kust tot het Rode Centrum keek je overal om je heen.",
-  t2:"En daarmee alle zeven streken van de reis. Er is geen hoek van dit land waar je niet hebt opgekeken."},
+  t:"Zes van de zeven streken. Tussen de eerste en de laatste ligt ruim drieduizend kilometer.",
+  t2:"En nu alle zeven. Geen streek overgeslagen."},
  {k:"grote-lijst",n:"Dertig op zak",kleur:"#0C6058",ic:"ster",regel:{soort:"soorten",n:30},
-  t:"Dertig verschillende soorten op zak, bijna de helft van de lijst, in één reis. Dit is de prijs voor de echte spotter."},
+  t:"Dertig soorten op zak. Nog vier en je hebt de halve lijst gehad."},
  {k:"zeldzaam",n:"Geluksvogel",kleur:"#365314",ic:"boomkangoeroe",regel:{soort:"keuze",dieren:["boomkangoeroe","quoll"],n:1},herhaal:true,
-  t:"Boomkangoeroe of quoll: twee dieren die bijna niemand te zien krijgt. Jij wel.",
-  t2:"En nu de andere ook. Boomkangoeroe én quoll op één reis: dat is geen geluk meer, dat is een uitzonderlijke maand."},
+  t:"Boomkangoeroe of quoll. Gidsen die hier al jaren rondlopen, hebben ze soms nog nooit gezien.",
+  t2:"En nu de andere ook. Boomkangoeroe én quoll in één reis komt bijna niet voor."},
  {k:"grote-vijf",n:"De grote vijf",kleur:"#8A5A00",ic:"koala",regel:{soort:"set",dieren:["kangoeroe","koala","wombat","echidna","vogelbekdier"]},
-  t:"Kangoeroe, koala, wombat, echidna en vogelbekdier: de vijf waar iedereen voor komt. Jij hebt ze alle vijf gezien."}
+  t:"Kangoeroe, koala, wombat, echidna en vogelbekdier. De vijf waar iedereen voor komt, en jij hebt ze compleet."}
 ];
 // Tekeningen voor prijzen zonder dier, in dezelfde stijl als dieren-iconen.js: één kleur, fill="currentColor".
 // Vak van 100 bij 100. Het pootje en het bestek staan hier los van de kleine varianten in app.js, zodat ze
