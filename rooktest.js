@@ -618,12 +618,22 @@ function zoek(w,fouten,term){
     w.localStorage.setItem('aus_pending',JSON.stringify([
       {dag:6,tekst:'Oude notitie zonder tabel',wie:'Test',type:'notitie'},
       {tabel:'waarnemingen',dier:'emoe',dag:6,gezien_op:'2026-10-06T08:00:00+10:30',wie:'Test',fout:"field 'dag' not found in type: 'waarnemingen_insert_input'"}]));
-    klik(w,'btnDieren',fouten);
+    klik(w,'btnDieren',fouten); await sleep(20);
     eis(fouten,/1 waarneming kon niet worden verstuurd/.test($(w,'dieren').textContent)&&/versturen mislukt: field 'dag'/.test($(w,'dieren').textContent),'mislukte waarneming staat er net als een mislukte notitie, met de reden');
+    eis(fouten,opgehaald===1,'het tabblad Dieren haalt de waarnemingen van de anderen op');
     const n=await w.flushPending();
     eis(fouten,n===2&&mutaties.join(',')==='insert_dagitems_one,insert_waarnemingen_one',`wachtrij stuurt elk item naar zijn eigen tabel, ook na een eerdere fout (nu ${n}, ${mutaties.join(',')})`);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0,'wachtrij leeg na versturen');
-    eis(fouten,opgehaald===1,'na het versturen is de kopie ververst');
+    eis(fouten,opgehaald===2,'en na het versturen wordt de kopie opnieuw ververst');
+    // terugkomen in de app: verversen, maar niet vaker dan eens in de vijf minuten
+    let rondes=0; const echteSync=w.syncAlles; w.syncAlles=async()=>{rondes++;return [];};
+    const terug=async min=>{ w.localStorage.setItem('aus_sync',JSON.stringify({tijd:new Date(Date.now()-min*60000).toISOString()}));
+      w.document.dispatchEvent(new w.Event('visibilitychange')); await sleep(20); };
+    await terug(1);
+    eis(fouten,rondes===0,'de app naar voren halen ververst niets als de kopie net is opgehaald');
+    await terug(6);
+    eis(fouten,rondes===1,'is de kopie ouder dan vijf minuten, dan haalt hij alles opnieuw op');
+    w.syncAlles=echteSync;
     eis(fouten,!/kon niet worden verstuurd/.test($(w,'dieren').textContent),'statusregel verdwijnt van het scherm');
     eis(fouten,w.verstuurdTekst()==='Je notitie en je waarneming zijn verstuurd',`melding na versturen (nu '${w.verstuurdTekst()}')`);
     // met verbinding gaat een waarneming direct naar Nhost en komt in de kopie

@@ -879,8 +879,21 @@ function switchTo(v){
   if(v==='index'){renderIndex();window.scrollTo(0,0)}
   else if(v==='prakt'){renderPrakt();window.scrollTo(0,0)}
   else if(v==='alles'){renderAlles();window.scrollTo(0,0)}
-  else if(v==='dieren'){renderDieren();window.scrollTo(0,0)}
+  else if(v==='dieren'){renderDieren();window.scrollTo(0,0);
+    // De waarnemingen van de anderen zijn ondertussen misschien veranderd. Eén query, geen bijlagen,
+    // dus die halen we hier altijd op: wie op Dieren tikt, hoort de laatste stand te zien.
+    if(NH.user&&navigator.onLine) syncWaarnemingen().then(()=>{ if(view==='dieren') renderDieren(); });}
   else if(v==='beheer'){renderBeheer();window.scrollTo(0,0)}
+}
+// Hetzelfde scherm opnieuw tekenen na een verversing op de achtergrond. Anders dan switchTo houdt dit
+// de scrollpositie vast: je bent aan het lezen, er komt alleen nieuwe inhoud onder je vinger bij.
+function hertekenView(){
+  toonTabs();
+  if(view==='day') render();
+  else if(view==='alles') renderAlles();
+  else if(view==='dieren') renderDieren();
+  else if(view==='prakt') renderPrakt();
+  else if(view==='beheer') renderBeheer();
 }
 // Notities en Dieren bestaan alleen voor wie is ingelogd, want beide schrijven op naam. Een gast
 // krijgt wel Dieren, maar geen Notities.
@@ -2444,7 +2457,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-13-207';
+const APP_VERSIE='2026-09-13-208';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
@@ -2463,11 +2476,22 @@ function vraagStatus(){
     (reg.active||navigator.serviceWorker.controller)?.postMessage({type:'status'});
   }).catch(()=>{});
 }
+// Hoe lang een kopie mag blijven staan voordat de app hem bij het naar voren komen ververst.
+// visibilitychange vuurt bij elke wissel tussen apps, en zonder drempel zou even naar WhatsApp gaan
+// telkens een ronde vragen naar Nhost opleveren. Onderweg is dat zonde van de data en de accu.
+const VERVERS_NA=5*60*1000;
+function verversIndienOud(){
+  if(!NH.user||!navigator.onLine) return;
+  const t=LS.get('aus_sync'), sinds=t&&t.tijd?Date.now()-new Date(t.tijd).getTime():Infinity;
+  if(sinds<VERVERS_NA) return;
+  syncAlles(true).then(items=>{ if(items) hertekenView(); });
+}
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden) return;
   herbereken();                                  // na middernacht: 'Vandaag' verschuift
   if(swReg&&navigator.onLine) swReg.update().catch(()=>{});   // sw.js opnieuw ophalen: een paar honderd bytes
   vraagStatus();
+  verversIndienOud();                            // andermans notities en waarnemingen van ondertussen
 });
 
 // ---- Offline: service worker (alleen als de app van een website komt, niet als los bestand) ----
