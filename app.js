@@ -2031,7 +2031,7 @@ function prijsSub(p){
   switch(r.soort){
     case 'eerste': return 'Je eerste waarneming';
     case 'set': return `${r.dieren.length} van ${r.dieren.length} ${r.hoe==='gegeten'?'gegeten':'gespot'}`;
-    case 'keuze': return `${r.n} van ${r.dieren.length}`;
+    case 'keuze': return `${r.n} van ${r.dieren.length}${r.hoe==='gegeten'?' gegeten':''}`;
     case 'groep': return `${r.n} ${schoon((DIER_GROEP.find(g=>g[0]===r.g)||[])[1]||'soorten').toLowerCase()}`;
     case 'soorten': return `${r.n} soorten`;
     case 'keer': { const d=schoon((dierVan(r.dier)||{n:r.dier}).n).toLowerCase(); return r.n===1?`Je eerste ${d}`:`${r.n} keer ${d}`; }
@@ -2404,7 +2404,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-13-202';
+const APP_VERSIE='2026-09-13-203';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

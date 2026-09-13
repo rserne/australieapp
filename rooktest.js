@@ -803,8 +803,10 @@ function zoek(w,fouten,term){
     const per=w.dagenPerRegio(), streken=Object.keys(per);
     const perStreek=streken.map(r=>wn('ekster',T(per[r][0]),{dag:per[r][0]}));
     eis(fouten,streken.length===7&&!zet(perStreek.slice(0,5)).includes('australie')&&zet(perStreek.slice(0,6)).includes('australie'),`Kriskras bij zes van ${streken.length} streken`);
-    // set gegeten: Bushtucker
-    eis(fouten,!zet([wn('kangoeroe',T(6),{hoe:'gegeten'}),wn('emoe',T(7),{hoe:'gegeten'}),wn('zoutwaterkrokodil',T(8))]).includes('bushtucker')&&zet([wn('kangoeroe',T(6),{hoe:'gegeten'}),wn('emoe',T(7),{hoe:'gegeten'}),wn('zoutwaterkrokodil',T(8),{hoe:'gegeten'})]).includes('bushtucker'),'Bushtucker als alle drie van het bord kwamen');
+    // keuze gegeten: Bushtucker bij één van de drie van het bord, een gespotte telt niet
+    eis(fouten,!zet([wn('kangoeroe',T(6)),wn('emoe',T(7)),wn('zoutwaterkrokodil',T(8))]).includes('bushtucker')&&zet([wn('emoe',T(7),{hoe:'gegeten'})]).includes('bushtucker'),'Bushtucker bij één gegeten van de drie');
+    // keuze met twee: Kop boven water
+    eis(fouten,!zet([wn('dolfijn',T(6))]).includes('walvis')&&zet([wn('dolfijn',T(6)),wn('zeehond',T(8))]).includes('walvis')&&w.verdiendePrijzen().find(x=>x.p.k==='walvis').op===T(8),'Kop boven water bij twee van drie, op de datum van de tweede');
     // de kast en de kaart
     zet([wn('wombat',T(6)),wn('wallaby',T(7,'09:00')),wn('tasmaanse-duivel',T(8,'21:30'))]);
     w.renderDieren();
