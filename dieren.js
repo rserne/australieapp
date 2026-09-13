@@ -127,8 +127,8 @@ const PRIJZEN=[
   t:"Australië gaat na zonsondergang pas echt open: possums, suikereekhoorns en de vleerhonden die boven de stad uitvliegen. Jij was erbij."},
  {k:"lijstenmaker",n:"Turver",kleur:"#0369A1",ic:"turf",regel:{soort:"soorten",n:15},
   t:"Vijftien verschillende soorten geturfd. De lijst telt er 68, dus er is nog ruimte."},
- {k:"emoe",n:"Emoe!",kleur:"#A8380A",ic:"emoe",regel:{soort:"keer",dier:"emoe",n:5},
-  t:"Vijf keer een emoe. Ze rennen harder dan jij, kijken je aan alsof jij de vreemde bent, en jij bleef tellen."},
+ {k:"emoe",n:"Emoe!",kleur:"#A8380A",ic:"emoe",regel:{soort:"keer",dier:"emoe",n:1},
+  t:"Een emoe. Hij rent harder dan jij, kijkt je aan alsof jij de vreemde bent, en jij zag hem het eerst."},
  {k:"tassie",n:"Tassie",kleur:"#014747",ic:"tasmaanse-duivel",regel:{soort:"set",dieren:["tasmaanse-duivel","wombat","wallaby"]},
   t:"Duivel, wombat en wallaby: de drie van Tasmanië, en jij hebt ze alle drie gezien."},
  {k:"walvis",n:"Walvisseizoen",kleur:"#0C4A6E",ic:"bultrug",regel:{soort:"set",dieren:["bultrug","dolfijn","zeehond"]},
@@ -149,6 +149,8 @@ const PRIJZEN=[
   t:"In zes van de zeven streken van de reis iets gespot. Van de kust tot het Rode Centrum, en overal keek je om je heen."},
  {k:"grote-lijst",n:"Grote lijst",kleur:"#0C6058",ic:"ster",regel:{soort:"soorten",n:30},
   t:"Dertig verschillende soorten. Bijna de helft van de lijst, in één reis. Dit is de prijs voor de echte spotter."},
+ {k:"zeldzaam",n:"Zeldzaam",kleur:"#365314",ic:"boomkangoeroe",regel:{soort:"keuze",dieren:["boomkangoeroe","quoll"],n:1},
+  t:"Boomkangoeroe of quoll: twee dieren die bijna niemand te zien krijgt. Jij wel."},
  {k:"grote-vijf",n:"De grote vijf",kleur:"#8A5A00",ic:"koala",regel:{soort:"set",dieren:["kangoeroe","koala","wombat","echidna","vogelbekdier"]},
   t:"Kangoeroe, koala, wombat, echidna en vogelbekdier: de vijf waar iedereen voor komt. Jij hebt ze alle vijf gezien."}
 ];

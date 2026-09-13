@@ -514,7 +514,7 @@ function zoek(w,fouten,term){
     // de eerste waarneming levert meteen de kaart van de eerste prijs op; die sluiten we, de melding onderin blijft
     await sleep(400);
     const kaart0=w.document.querySelector('#sheet .sheet.prijs');
-    eis(fouten,kaart0&&kaart0.dataset.prijs==='eerste'&&/nog 14 prijzen/.test(kaart0.textContent),'de eerste waarneming brengt de kaart Eerste dier, met het aantal andere prijzen');
+    eis(fouten,kaart0&&kaart0.dataset.prijs==='eerste'&&/nog 15 prijzen/.test(kaart0.textContent),'de eerste waarneming brengt de kaart Eerste dier, met het aantal andere prijzen');
     klik(w,'shclose',fouten); await sleep(260);
     // filter Gespot
     const chipGespot=()=>w.document.querySelector('.dchip[data-filter="gespot"]');
@@ -780,9 +780,10 @@ function zoek(w,fouten,term){
     eis(fouten,!zet([wn('wombat',T(6),{hoe:'gegeten'}),wn('wallaby',T(7)),wn('tasmaanse-duivel',T(8))]).includes('tassie'),'een gegeten wombat telt niet voor Tassie');
     // tijd: de grenzen van Nachtwacht
     eis(fouten,zet([wn('possum',T(6,'18:59'))]).includes('nachtwacht')===false&&zet([wn('possum',T(6,'19:00'))]).includes('nachtwacht')&&zet([wn('possum',T(6,'05:29'))]).includes('nachtwacht')&&!zet([wn('possum',T(6,'05:30'))]).includes('nachtwacht'),'Nachtwacht loopt van 19.00 tot 05.30 uur');
-    // keer: vijf emoes, niet vier
-    const emoes=n=>Array.from({length:n},(_,i)=>wn('emoe',T(10+i)));
-    eis(fouten,!zet(emoes(4)).includes('emoe')&&zet(emoes(5)).includes('emoe'),'Emoe! na vijf emoes, niet na vier');
+    // keer: één emoe is genoeg, een gegeten emoe niet
+    eis(fouten,!zet([wn('emoe',T(10),{hoe:'gegeten'})]).includes('emoe')&&zet([wn('emoe',T(10))]).includes('emoe'),'Emoe! bij de eerste gespotte emoe');
+    // keuze met één: Zeldzaam bij de boomkangoeroe óf de quoll
+    eis(fouten,!zet([wn('kangoeroe',T(10))]).includes('zeldzaam')&&zet([wn('quoll',T(10))]).includes('zeldzaam')&&zet([wn('boomkangoeroe',T(11))]).includes('zeldzaam'),'Zeldzaam bij een van de twee');
     // keuze: drie van vier papegaaien, en drie van tien gevaarlijke dieren
     eis(fouten,!zet([wn('galah',T(6)),wn('kaketoe',T(7))]).includes('papegaaien')&&zet([wn('galah',T(6)),wn('kaketoe',T(7)),wn('rosella',T(8)),wn('galah',T(9))]).includes('papegaaien'),'Papegaaien bij drie verschillende soorten, dubbele tellen niet');
     zet([wn('zoutwaterkrokodil',T(6)),wn('kasuaris',T(7)),wn('dingo',T(9))]); gev=w.verdiendePrijzen();
