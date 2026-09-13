@@ -514,7 +514,7 @@ function zoek(w,fouten,term){
     // de eerste waarneming levert meteen de kaart van de eerste prijs op; die sluiten we, de melding onderin blijft
     await sleep(400);
     const kaart0=w.document.querySelector('#sheet .sheet.prijs');
-    eis(fouten,kaart0&&kaart0.dataset.prijs==='eerste'&&/nog 15 prijzen/.test(kaart0.textContent),'de eerste waarneming brengt de kaart Eerste dier, met het aantal andere prijzen');
+    eis(fouten,kaart0&&kaart0.dataset.prijs==='eerste'&&/nog 15 prijzen/.test(kaart0.textContent),'de eerste waarneming brengt de kaart G\'day!, met het aantal andere prijzen');
     klik(w,'shclose',fouten); await sleep(260);
     // filter Gespot
     const chipGespot=()=>w.document.querySelector('.dchip[data-filter="gespot"]');
@@ -544,7 +544,7 @@ function zoek(w,fouten,term){
     eis(fouten,q2.length===1&&q2[0].dier==='overig'&&q2[0].opmerking==='Pauw','getypte naam wordt genoteerd, met een hoofdletter');
     // het blad is dicht, en omdat dit je eerste waarneming is, schuift de kaart van de eerste prijs omhoog
     const kaart1=w.document.querySelector('#sheet .sheet.prijs');
-    eis(fouten,!$(w,'shdier')&&kaart1&&kaart1.dataset.prijs==='eerste'&&kaart1.querySelector('h3').textContent==='Eerste dier','blad sluit na het noteren en de kaart Eerste dier verschijnt');
+    eis(fouten,!$(w,'shdier')&&kaart1&&kaart1.dataset.prijs==='eerste'&&kaart1.querySelector('h3').textContent==='G\'day!','blad sluit na het noteren en de kaart G\'day! verschijnt');
     klik(w,'shclose',fouten); await sleep(260);
     eis(fouten,!$(w,'sheet'),'de kaart sluit weer');
     klik(w,'dander',fouten); $(w,'shdier').value='Wombat met jong'; $(w,'shsave').click(); await sleep(300);
@@ -771,7 +771,7 @@ function zoek(w,fouten,term){
     klik(w,'btnDieren',fouten);
     eis(fouten,!zet([]).length&&![...w.document.querySelectorAll('#dieren h2')].some(h=>h.textContent==='Prijzenkast'),'zonder waarnemingen geen prijzen en geen kast');
     eis(fouten,zet([{...wn('koala',T(6)),user_id:'u2',wie:'Anna'}]).join()==='','waarnemingen van een ander tellen niet');
-    eis(fouten,zet([wn('koala',T(6))]).join()==='eerste','de eerste eigen waarneming geeft Eerste dier, en verder niets');
+    eis(fouten,zet([wn('koala',T(6))]).join()==='eerste','de eerste eigen waarneming geeft G\'day!, en verder niets');
     // set: Tassie, met de datum van het laatste dier; de duivel om half tien geeft ook Nachtwacht
     zet([wn('wombat',T(6)),wn('wallaby',T(7,'09:00')),wn('tasmaanse-duivel',T(8,'21:30'))]);
     let gev=w.verdiendePrijzen();
@@ -783,26 +783,26 @@ function zoek(w,fouten,term){
     // keer: één emoe is genoeg, een gegeten emoe niet
     eis(fouten,!zet([wn('emoe',T(10),{hoe:'gegeten'})]).includes('emoe')&&zet([wn('emoe',T(10))]).includes('emoe'),'Emoe! bij de eerste gespotte emoe');
     // keuze met één: Zeldzaam bij de boomkangoeroe óf de quoll
-    eis(fouten,!zet([wn('kangoeroe',T(10))]).includes('zeldzaam')&&zet([wn('quoll',T(10))]).includes('zeldzaam')&&zet([wn('boomkangoeroe',T(11))]).includes('zeldzaam'),'Zeldzaam bij een van de twee');
+    eis(fouten,!zet([wn('kangoeroe',T(10))]).includes('zeldzaam')&&zet([wn('quoll',T(10))]).includes('zeldzaam')&&zet([wn('boomkangoeroe',T(11))]).includes('zeldzaam'),'Geluksvogel bij een van de twee');
     // keuze: drie van vier papegaaien, en drie van tien gevaarlijke dieren
-    eis(fouten,!zet([wn('galah',T(6)),wn('kaketoe',T(7))]).includes('papegaaien')&&zet([wn('galah',T(6)),wn('kaketoe',T(7)),wn('rosella',T(8)),wn('galah',T(9))]).includes('papegaaien'),'Papegaaien bij drie verschillende soorten, dubbele tellen niet');
+    eis(fouten,!zet([wn('galah',T(6)),wn('kaketoe',T(7))]).includes('papegaaien')&&zet([wn('galah',T(6)),wn('kaketoe',T(7)),wn('rosella',T(8)),wn('galah',T(9))]).includes('papegaaien'),'Herrie in de boom bij drie verschillende soorten, dubbele tellen niet');
     zet([wn('zoutwaterkrokodil',T(6)),wn('kasuaris',T(7)),wn('dingo',T(9))]); gev=w.verdiendePrijzen();
     eis(fouten,gev.some(x=>x.p.k==='levend'&&x.op===T(9)),'Gevaarlijk gezelschap bij drie van tien, op de datum van de derde');
     // groep: vier reptielen; skink en krokodil tellen mee, een gegeten krokodil niet
-    eis(fouten,!zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8))]).includes('koudbloedig')&&zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8)),wn('zoutwaterkrokodil',T(9))]).includes('koudbloedig')&&!zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8)),wn('zoutwaterkrokodil',T(9),{hoe:'gegeten'})]).includes('koudbloedig'),'Koudbloedig bij vier gespotte reptielen');
+    eis(fouten,!zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8))]).includes('koudbloedig')&&zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8)),wn('zoutwaterkrokodil',T(9))]).includes('koudbloedig')&&!zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8)),wn('zoutwaterkrokodil',T(9),{hoe:'gegeten'})]).includes('koudbloedig'),'Zonnekloppers bij vier gespotte reptielen');
     // soorten: vijftien, een ander dier met naam telt als soort, dezelfde naam maar één keer
     const soorten=['kangoeroe','wallaby','koala','wombat','quokka','emoe','galah','kaketoe','regenbooglori','ekster','ibis','pelikaan','skink','dolfijn'];
     const veertien=soorten.map((k,i)=>wn(k,T(6,String(8+i).padStart(2,'0')+':00')));
-    eis(fouten,!zet(veertien).includes('lijstenmaker')&&!zet([...veertien,wn('overig',T(7),{opmerking:'Pauw'}),wn('overig',T(8),{opmerking:'pauw'})]).includes('lijstenmaker')===false,'Turver bij vijftien soorten; een ander dier telt als soort, dezelfde naam één keer');
+    eis(fouten,!zet(veertien).includes('lijstenmaker')&&!zet([...veertien,wn('overig',T(7),{opmerking:'Pauw'}),wn('overig',T(8),{opmerking:'pauw'})]).includes('lijstenmaker')===false,'Streepjes zetten bij vijftien soorten; een ander dier telt als soort, dezelfde naam één keer');
     eis(fouten,zet([...veertien,wn('overig',T(7),{opmerking:'Pauw'})]).includes('lijstenmaker'),'de vijftiende soort maakt hem compleet');
     // reeks: zeven dagen achter elkaar, een gat breekt de reeks
     const reeks=dagen=>dagen.map(d=>wn('ekster',T(d)));
-    eis(fouten,!zet(reeks([6,7,8,9,10,12,13,14])).includes('reeks')&&zet(reeks([6,7,8,9,10,11,12])).includes('reeks'),'Zeven op een rij vraagt zeven aaneengesloten dagen');
+    eis(fouten,!zet(reeks([6,7,8,9,10,12,13,14])).includes('reeks')&&zet(reeks([6,7,8,9,10,11,12])).includes('reeks'),'Week zonder missers vraagt zeven aaneengesloten dagen');
     eis(fouten,w.verdiendePrijzen().find(x=>x.p.k==='reeks').op===T(12),'verdiend op de zevende dag');
     // regios: zes van de zeven streken, via de indeling van de startpagina
     const per=w.dagenPerRegio(), streken=Object.keys(per);
     const perStreek=streken.map(r=>wn('ekster',T(per[r][0]),{dag:per[r][0]}));
-    eis(fouten,streken.length===7&&!zet(perStreek.slice(0,5)).includes('australie')&&zet(perStreek.slice(0,6)).includes('australie'),`Heel Australië bij zes van ${streken.length} streken`);
+    eis(fouten,streken.length===7&&!zet(perStreek.slice(0,5)).includes('australie')&&zet(perStreek.slice(0,6)).includes('australie'),`Kriskras bij zes van ${streken.length} streken`);
     // set gegeten: Bushtucker
     eis(fouten,!zet([wn('kangoeroe',T(6),{hoe:'gegeten'}),wn('emoe',T(7),{hoe:'gegeten'}),wn('zoutwaterkrokodil',T(8))]).includes('bushtucker')&&zet([wn('kangoeroe',T(6),{hoe:'gegeten'}),wn('emoe',T(7),{hoe:'gegeten'}),wn('zoutwaterkrokodil',T(8),{hoe:'gegeten'})]).includes('bushtucker'),'Bushtucker als alle drie van het bord kwamen');
     // de kast en de kaart
