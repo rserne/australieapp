@@ -2046,19 +2046,21 @@ function verdiendePrijzen(){
   return PRIJS_LIJST.map(p=>{ const alle=beoordeelPrijs(p,mijn);
     return {p,alle,keer:alle.length,eersteOp:alle[0]||null,op:alle[alle.length-1]||null}; }).filter(x=>x.keer);
 }
-// De regel onder de naam op de kaart: wat de prijs is, in cijfers
-function prijsSub(p){
-  const r=p.regel||{};
+// De regel onder de naam op de kaart: wat de prijs is, in cijfers. Bij een herhaalde prijs telt hij mee
+// hoe ver je inmiddels bent: de tweede Geluksvogel is niet een van twee, maar twee van twee.
+function prijsSub(p,keer){
+  const r=p.regel||{}, k=keer||1, m=(r.n||0)+k-1;
   switch(r.soort){
     case 'eerste': return 'Je eerste waarneming';
     case 'set': return `${r.dieren.length} van ${r.dieren.length} ${r.hoe==='gegeten'?'gegeten':'gespot'}`;
-    case 'keuze': return `${r.n} van ${r.dieren.length}${r.hoe==='gegeten'?' gegeten':''}`;
-    case 'groep': return `${r.n} ${schoon((DIER_GROEP.find(g=>g[0]===r.g)||[])[1]||'soorten').toLowerCase()}`;
-    case 'soorten': return `${r.n} soorten`;
-    case 'keer': { const d=schoon((dierVan(r.dier)||{n:r.dier}).n).toLowerCase(); return r.n===1?`Je eerste ${d}`:`${r.n} keer ${d}`; }
+    case 'keuze': return `${m} van ${r.dieren.length}${r.hoe==='gegeten'?' gegeten':''}`;
+    case 'groep': return `${m} ${schoon((DIER_GROEP.find(g=>g[0]===r.g)||[])[1]||'soorten').toLowerCase()}`;
+    case 'soorten': return `${m} soorten`;
+    case 'keer': { const d=schoon((dierVan(r.dier)||{n:r.dier}).n).toLowerCase(), x=r.n*k; return x===1?`Je eerste ${d}`:`${x} keer ${d}`; }
+    // De reeks blijft zeven dagen: een tweede week hoeft niet aan de eerste vast te zitten.
     case 'reeks': return `${r.n} dagen op rij`;
     case 'tijd': return `tussen ${r.van.replace(':','.')} en ${r.tot.replace(':','.')} uur`;
-    case 'regios': return `${r.n} van ${Object.keys(dagenPerRegio()).length} streken`;
+    case 'regios': return `${m} van ${Object.keys(dagenPerRegio()).length} streken`;
     default: return '';
   }
 }
@@ -2082,7 +2084,7 @@ function openPrijsKaart({p,op,keer,eersteOp},naSluiten){
   const el=document.createElement('div'); el.id='sheet'; el.className='sheetwrap';
   el.innerHTML=`<div class="sheetbg"></div><div class="sheet prijs" role="dialog" aria-modal="true" style="--pk:${esc(p.kleur)}" data-prijs="${esc(p.k)}">
     <button class="nbtn pclose" id="shclose" aria-label="Sluiten">×</button>
-    <h3>${esc(p.n)}</h3><p class="psub">${esc(prijsSub(p))}</p>
+    <h3>${esc(p.n)}</h3><p class="psub">${esc(prijsSub(p,n))}</p>
     <div class="pring"><div class="pmunt">${prijsIcoon(p)}</div></div>
     ${dieren.length?`<div class="pdieren">${dieren.map(k=>`<i title="${esc(schoon((dierVan(k)||{n:k}).n))}">${DIER_ICOON[k]||PRIJS_ICOON.poot}</i>`).join('')}</div>`:''}
     <p class="ptekst">${esc(tekst)}</p>
@@ -2095,7 +2097,7 @@ function openPrijsKaart({p,op,keer,eersteOp},naSluiten){
   el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
   const deel=el.querySelector('#pdeel');
   if(deel) deel.onclick=async()=>{
-    try{ await navigator.share({text:`${p.n}, ${prijsSub(p)}. ${tekst}\n${datum} in de AustralieApp.`}); }
+    try{ await navigator.share({text:`${p.n}, ${prijsSub(p,n)}. ${tekst}\n${datum} in de AustralieApp.`}); }
     catch(e){}   // annuleren is geen fout
   };
 }

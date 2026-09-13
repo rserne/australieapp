@@ -821,6 +821,9 @@ function zoek(w,fouten,term){
     eis(fouten,keren('bushtucker')===2,'Bushtucker telt door bij de tweede van het bord');
     zet([wn('quoll',T(6)),wn('boomkangoeroe',T(8)),wn('quoll',T(9))]);
     eis(fouten,keren('zeldzaam')===2,'Geluksvogel komt terug bij het andere dier, een tweede quoll telt niet');
+    w.renderDieren(); w.document.querySelector('#dieren .pmed[data-prijs="zeldzaam"]').click(); await sleep(50);
+    eis(fouten,w.document.querySelector('#sheet .psub').textContent==='2 van 2'&&w.document.querySelectorAll('#sheet .pdieren i').length===2,'en de kaart zegt dan 2 van 2, met allebei de dieren erop');
+    klik(w,'shclose',fouten); await sleep(260);
     zet(perStreek); eis(fouten,keren('australie')===2,'Kriskras komt terug bij de zevende streek');
     zet([wn('koala',T(6)),wn('kangoeroe',T(7))]);
     eis(fouten,keren('eerste')===1&&keren('grote-vijf')===0,'een prijs zonder herhaal blijft bij een');
