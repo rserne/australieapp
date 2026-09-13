@@ -786,7 +786,7 @@ function zoek(w,fouten,term){
     // keuze: drie van vier papegaaien, en drie van tien gevaarlijke dieren
     eis(fouten,!zet([wn('galah',T(6)),wn('kaketoe',T(7))]).includes('papegaaien')&&zet([wn('galah',T(6)),wn('kaketoe',T(7)),wn('rosella',T(8)),wn('galah',T(9))]).includes('papegaaien'),'Papegaaien bij drie verschillende soorten, dubbele tellen niet');
     zet([wn('zoutwaterkrokodil',T(6)),wn('kasuaris',T(7)),wn('dingo',T(9))]); gev=w.verdiendePrijzen();
-    eis(fouten,gev.some(x=>x.p.k==='levend'&&x.op===T(9)),'Levend thuisgekomen bij drie van tien, op de datum van de derde');
+    eis(fouten,gev.some(x=>x.p.k==='levend'&&x.op===T(9)),'Gevaarlijk gezelschap bij drie van tien, op de datum van de derde');
     // groep: vier reptielen; skink en krokodil tellen mee, een gegeten krokodil niet
     eis(fouten,!zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8))]).includes('koudbloedig')&&zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8)),wn('zoutwaterkrokodil',T(9))]).includes('koudbloedig')&&!zet([wn('skink',T(6)),wn('varaan',T(7)),wn('python',T(8)),wn('zoutwaterkrokodil',T(9),{hoe:'gegeten'})]).includes('koudbloedig'),'Koudbloedig bij vier gespotte reptielen');
     // soorten: vijftien, een ander dier met naam telt als soort, dezelfde naam maar één keer
