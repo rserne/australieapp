@@ -86,10 +86,10 @@ VOORDAGEN.forEach((d,i)=>{
 
 // Dieren (dieren.js): sleutels uniek en in een bekende groep. Elk dier uit een wild-blok dat op naam
 // of synoniem aan de lijst is te koppelen, krijgt in de app een teller; de rest kan onder 'Ander dier'.
-let DIEREN=[], DIER_GROEPEN=[];
+let DIEREN=[], DIER_GROEPEN=[], PRIJZEN=[], PRIJS_ICONEN={};
 if(!fs.existsSync(__dirname+'/dieren.js')) fout('dieren.js ontbreekt');
 else{
-  ({DIEREN,DIER_GROEPEN}=vm.runInNewContext(fs.readFileSync(__dirname+'/dieren.js','utf8')+';({DIEREN,DIER_GROEPEN})',{}));
+  ({DIEREN,DIER_GROEPEN,PRIJZEN,PRIJS_ICONEN}=vm.runInNewContext(fs.readFileSync(__dirname+'/dieren.js','utf8')+';({DIEREN,DIER_GROEPEN,PRIJZEN:typeof PRIJZEN==="undefined"?[]:PRIJZEN,PRIJS_ICONEN:typeof PRIJS_ICONEN==="undefined"?{}:PRIJS_ICONEN})',{}));
   let ICONEN={};
   if(!fs.existsSync(__dirname+'/dieren-iconen.js')) fout('dieren-iconen.js ontbreekt');
   else ICONEN=vm.runInNewContext(fs.readFileSync(__dirname+'/dieren-iconen.js','utf8')+';DIER_ICONEN',{});
@@ -122,6 +122,32 @@ else{
   alleDagen.forEach(d=>(d.wild||[]).forEach(w=>{ if(!bekend(w[0])) zonder.add(w[0]); }));
   const metIcoon=DIEREN.filter(d=>d.ic||ICONEN[d.k]).length;
   DIEREN.filter(d=>!d.ic&&!ICONEN[d.k]).forEach(d=>waarschuw(`dieren.js: '${d.k}' heeft geen icoon en krijgt de eerste letter`));
+  // Prijzen (PRIJZEN in dieren.js): sleutels uniek, elk genoemd dier en elke groep bestaat, de tekening is
+  // er (dieren-iconen.js of PRIJS_ICONEN), de kleur is een hex-kleur en de regel heeft de velden die app.js verwacht.
+  const prijsSleutels=new Set(), soorten={eerste:[],set:['dieren'],keuze:['dieren','n'],groep:['g','n'],soorten:['n'],keer:['dier','n'],reeks:['n'],tijd:['van','tot'],regios:['n']};
+  PRIJZEN.forEach(p=>{
+    const w=`dieren.js: prijs '${p.k}'`;
+    if(!/^[a-z0-9-]+$/.test(p.k||'')) fout(`dieren.js: prijssleutel '${p.k}' mag alleen kleine letters, cijfers en streepjes bevatten`);
+    if(prijsSleutels.has(p.k)) fout(`dieren.js: prijssleutel '${p.k}' staat er twee keer in`); prijsSleutels.add(p.k);
+    if(!p.n) fout(`${w} heeft geen naam`);
+    if(!p.t) fout(`${w} heeft geen tekst`);
+    if(!/^#[0-9A-Fa-f]{6}$/.test(p.kleur||'')) fout(`${w} mist een kleur (#rrggbb)`);
+    if(!ICONEN[p.ic]&&!PRIJS_ICONEN[p.ic]) fout(`${w} verwijst naar tekening '${p.ic}', die niet bestaat`);
+    const r=p.regel||{};
+    if(!soorten[r.soort]) fout(`${w} heeft onbekende regel '${r.soort}'`);
+    else soorten[r.soort].forEach(v=>{ if(!(v in r)) fout(`${w}: regel '${r.soort}' mist '${v}'`); });
+    (r.dieren||[]).concat(r.dier?[r.dier]:[]).forEach(k=>{ if(!DIEREN.some(d=>d.k===k)) fout(`${w} noemt dier '${k}', dat niet in dieren.js staat`); });
+    if(r.g&&!groepen.has(r.g)) fout(`${w} noemt groep '${r.g}', die niet bestaat`);
+    if('n' in r&&!(Number.isInteger(r.n)&&r.n>0)) fout(`${w}: n moet een heel getal boven nul zijn`);
+    if(r.soort==='keuze'&&r.n>(r.dieren||[]).length) fout(`${w}: vraagt ${r.n} uit een lijst van ${(r.dieren||[]).length}`);
+    if(r.hoe&&!['gezien','gegeten'].includes(r.hoe)) fout(`${w}: hoe moet 'gezien' of 'gegeten' zijn`);
+    if(r.soort==='tijd'&&![r.van,r.tot].every(t=>/^\d\d:\d\d$/.test(t||''))) fout(`${w}: van en tot als uu:mm`);
+  });
+  Object.entries(PRIJS_ICONEN).forEach(([k,svg])=>{
+    if(!/^<svg[\s>]/.test(svg)||!/viewBox=/.test(svg)) fout(`dieren.js: prijstekening '${k}' is geen svg met viewBox`);
+    if(!PRIJZEN.some(p=>p.ic===k)) waarschuw(`dieren.js: prijstekening '${k}' wordt door geen enkele prijs gebruikt`);
+  });
+  if(PRIJZEN.length) console.log(`  info:    ${PRIJZEN.length} prijzen in dieren.js, ${PRIJZEN.filter(p=>ICONEN[p.ic]).length} met een dierentekening.`);
   console.log(`  info:    ${DIEREN.length} dieren in dieren.js, ${metIcoon} met icoon, ${DIEREN.filter(d=>d.eet).length} eetbaar. ${zonder.size} ${zonder.size===1?'naam uit de dagen heeft':'namen uit de dagen hebben'} geen eigen knop en krijgen het pootje.`);
 }
 

@@ -665,6 +665,37 @@
   #nlijst>.empty:first-child,#nlijst>h2:first-child{margin-top:34px}
   #nlijst>.nlist:first-child{margin-top:20px}
 
+  /* ---------- Prijzen ---------- */
+  /* De kast: ronde medailles, drie naast elkaar, alleen de verdiende. De munt is crème met de tekening in
+     de kleur van de prijs (--pk komt van de knop zelf), zodat de eenkleurige dierentekeningen bruikbaar zijn. */
+  .pkast{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 8px;margin-top:12px}
+  .pmed{font:inherit;background:none;border:none;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text)}
+  .pmed .pmunt{width:74px;height:74px;border-radius:50%;background:var(--pk);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.25)}
+  .pmed .pmunt span{width:60px;height:60px;border-radius:50%;background:#F4EFE2;display:flex;align-items:center;justify-content:center;color:var(--pk)}
+  .pmed .pmunt svg{width:40px;height:40px}
+  .pmed b{font-size:13.5px;font-weight:600;text-align:center;line-height:1.2}
+  .pmed small{font-size:12px;color:var(--text-dim)}
+  .pmed:active{opacity:.7}
+  /* De kaart: het schuifpaneel in de kleur van de prijs, witte tekst in beide thema's. */
+  .sheet.prijs{background:var(--pk);color:#fff;text-align:center;align-items:center;gap:0;padding-top:12px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 -22px 55px rgba(0,0,0,.5)}
+  .sheet.prijs::before{background:rgba(255,255,255,.35)}
+  .sheet.prijs .pclose{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.18);color:#fff;border:none}
+  .sheet.prijs h3{margin:22px 0 0;font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1.15;max-width:300px}
+  .sheet.prijs .psub{margin:4px 0 0;font-size:14.5px;color:rgba(255,255,255,.8)}
+  .pring{width:204px;height:204px;border-radius:50%;background:rgba(255,255,255,.16);margin:24px auto 0;display:flex;align-items:center;justify-content:center;flex:none}
+  .pring .pmunt{width:168px;height:168px;border-radius:50%;background:#F4EFE2;display:flex;align-items:center;justify-content:center;color:var(--pk)}
+  .pring svg{width:112px;height:112px}
+  .pdieren{display:flex;justify-content:center;gap:10px;margin:20px 0 0;flex-wrap:wrap;max-width:320px}
+  .pdieren i{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;color:#fff}
+  .pdieren svg{width:27px;height:27px}
+  .sheet.prijs .ptekst{margin:20px 0 0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.92);max-width:340px}
+  .sheet.prijs .pdatum{margin:14px 0 0;font-size:13.5px;color:rgba(255,255,255,.72)}
+  .sheet.prijs .pdeel{width:100%;max-width:340px;margin:18px 0 0;height:46px;border:none;border-radius:999px;
+    background:rgba(255,255,255,.22);color:#fff;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+  .sheet.prijs .pdeel:active{opacity:.7}
+
   /* ---------- Morgen ---------- */
   .tomorrow{margin-top:0;overflow:hidden;border-radius:var(--radius);
     background:var(--glass);border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}

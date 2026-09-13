@@ -1974,12 +1974,120 @@ function wieRij(lijst){
   return [{id:mij,naam:'Ik',gast:false,ik:true},...rest];
 }
 
+// ---- Prijzen ----
+// De definities staan in dieren.js (PRIJZEN). Een prijs gaat over je eigen waarnemingen, ook die in de
+// wachtrij, en blijft verborgen tot je hem hebt. Elke regel geeft null terug, of het tijdstip (gezien_op)
+// van de waarneming die hem compleet maakte: dat is de datum op de kaart, en de volgorde in de kast.
+const PRIJS_LIJST=typeof PRIJZEN!=='undefined'&&Array.isArray(PRIJZEN)?PRIJZEN:[];
+const PRIJS_ICOON=typeof PRIJS_ICONEN==='object'&&PRIJS_ICONEN?PRIJS_ICONEN:{};
+const prijsIcoon=p=>DIER_ICOON[p.ic]||PRIJS_ICOON[p.ic]||PRIJS_ICOON.poot;
+const mijnWaarnemingen=()=>NH.user?waarnemingen().filter(w=>w.user_id===NH.user.id).sort((a,b)=>String(a.gezien_op).localeCompare(String(b.gezien_op))):[];
+// Streek van een waarneming op een dag van de groepsreis, via dezelfde indeling als de startpagina
+const streekVan=w=>{ if(!(w.dag>=1&&w.dag<=29)) return null; const per=dagenPerRegio(); return Object.keys(per).find(r=>per[r].includes(w.dag))||null; };
+// Het n-de tijdstip waarop een nieuw ding (soort, dier, streek) voor het eerst voorkomt, of null
+function nde(lijst,sleutelVan,n){
+  const gezien=new Set();
+  for(const w of lijst){ const k=sleutelVan(w); if(k==null||gezien.has(k)) continue; gezien.add(k); if(gezien.size===n) return w.gezien_op; }
+  return null;
+}
+function beoordeelPrijs(p,mijn){
+  const r=p.regel||{}, hoe=r.hoe||'gezien', vanSoort=mijn.filter(w=>hoeVan(w)===hoe);
+  const eerste=k=>vanSoort.find(w=>w.dier===k);
+  switch(r.soort){
+    case 'eerste': return mijn.length?mijn[0].gezien_op:null;
+    case 'set': { const ts=(r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op); return ts.every(Boolean)?ts.sort().pop():null; }
+    case 'keuze': { const ts=(r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op).filter(Boolean).sort(); return ts.length>=r.n?ts[r.n-1]:null; }
+    case 'groep': return nde(vanSoort.filter(w=>groepVan(w)===r.g),dierSleutel,r.n);
+    case 'soorten': return nde(vanSoort,dierSleutel,r.n);
+    case 'keer': { const ws=vanSoort.filter(w=>w.dier===r.dier); return ws.length>=r.n?ws[r.n-1].gezien_op:null; }
+    case 'reeks': {
+      // kalenderdagen uit het tijdstip zelf (plaatselijke tijd), n achter elkaar
+      const dagen=[...new Set(vanSoort.map(w=>String(w.gezien_op).slice(0,10)))].sort();
+      const dagNr=d=>Math.round(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))/86400000);
+      let start=0;
+      for(let i=1;i<=dagen.length;i++){
+        if(i===dagen.length||dagNr(dagen[i])!==dagNr(dagen[i-1])+1){ if(i-start>=r.n){ const d=dagen[start+r.n-1]; return vanSoort.find(w=>String(w.gezien_op).startsWith(d)).gezien_op; } start=i; }
+      }
+      return null; }
+    case 'tijd': {
+      const min=t=>{ const [h,m]=t.split(':').map(Number); return h*60+m; }, van=min(r.van), tot=min(r.tot);
+      const w=vanSoort.find(w=>{ const m=String(w.gezien_op).match(/T(\d\d):(\d\d)/); if(!m) return false; const t=+m[1]*60+ +m[2];
+        return van<=tot?(t>=van&&t<tot):(t>=van||t<tot); });
+      return w?w.gezien_op:null; }
+    case 'regios': return nde(vanSoort,streekVan,r.n);
+    default: return null;
+  }
+}
+// Alle verdiende prijzen, op de volgorde van dieren.js, elk met het tijdstip waarop hij binnenkwam
+function verdiendePrijzen(){
+  const mijn=mijnWaarnemingen();
+  return PRIJS_LIJST.map(p=>({p,op:beoordeelPrijs(p,mijn)})).filter(x=>x.op);
+}
+// De regel onder de naam op de kaart: wat de prijs is, in cijfers
+function prijsSub(p){
+  const r=p.regel||{};
+  switch(r.soort){
+    case 'eerste': return 'Je eerste waarneming';
+    case 'set': return `${r.dieren.length} van ${r.dieren.length} ${r.hoe==='gegeten'?'gegeten':'gespot'}`;
+    case 'keuze': return `${r.n} van ${r.dieren.length}`;
+    case 'groep': return `${r.n} ${schoon((DIER_GROEP.find(g=>g[0]===r.g)||[])[1]||'soorten').toLowerCase()}`;
+    case 'soorten': return `${r.n} soorten`;
+    case 'keer': return `${r.n} keer ${schoon((dierVan(r.dier)||{n:r.dier}).n).toLowerCase()}`;
+    case 'reeks': return `${r.n} dagen op rij`;
+    case 'tijd': return `tussen ${r.van.replace(':','.')} en ${r.tot.replace(':','.')} uur`;
+    case 'regios': return `${r.n} van ${Object.keys(dagenPerRegio()).length} streken`;
+    default: return '';
+  }
+}
+// De dieren die op de kaart in een rij onder de munt staan: bij een set allemaal, bij een keuze alleen
+// de dieren die jij ervan zag, in de volgorde van de lijst
+function prijsDieren(p,mijn){
+  const r=p.regel||{}, hoe=r.hoe||'gezien';
+  if(r.soort==='set') return r.dieren;
+  if(r.soort==='keuze') return r.dieren.filter(k=>mijn.some(w=>w.dier===k&&hoeVan(w)===hoe));
+  return [];
+}
+const prijsDatum=op=>{ const m=String(op).match(/^(\d{4})-(\d\d)-(\d\d)/); return m?new Date(+m[1],+m[2]-1,+m[3]):new Date(); };
+// De kaart: een schuifpaneel in de kleur van de prijs, met de munt, de rij dieren, de tekst, de datum en
+// Delen. Verschijnt op het moment dat je de prijs verdient, en later opnieuw vanuit de kast.
+function openPrijsKaart({p,op},naSluiten){
+  document.getElementById('sheet')?.remove();
+  const mijn=mijnWaarnemingen(), dieren=prijsDieren(p,mijn);
+  const tekst=String(p.t||'').replace('{rest}',String(PRIJS_LIJST.length-1));
+  const el=document.createElement('div'); el.id='sheet'; el.className='sheetwrap';
+  el.innerHTML=`<div class="sheetbg"></div><div class="sheet prijs" role="dialog" aria-modal="true" style="--pk:${esc(p.kleur)}" data-prijs="${esc(p.k)}">
+    <button class="nbtn pclose" id="shclose" aria-label="Sluiten">×</button>
+    <h3>${esc(p.n)}</h3><p class="psub">${esc(prijsSub(p))}</p>
+    <div class="pring"><div class="pmunt">${prijsIcoon(p)}</div></div>
+    ${dieren.length?`<div class="pdieren">${dieren.map(k=>`<i title="${esc(schoon((dierVan(k)||{n:k}).n))}">${DIER_ICOON[k]||PRIJS_ICOON.poot}</i>`).join('')}</div>`:''}
+    <p class="ptekst">${esc(tekst)}</p>
+    <p class="pdatum">Verdiend op ${fmtLong(prijsDatum(op))}</p>
+    ${navigator.share?`<button type="button" class="pdeel" id="pdeel">Delen</button>`:''}</div>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('on'));
+  const close=()=>{ el.classList.remove('on'); setTimeout(()=>el.remove(),220); if(naSluiten) naSluiten(); };
+  el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
+  const deel=el.querySelector('#pdeel');
+  if(deel) deel.onclick=async()=>{
+    try{ await navigator.share({text:`${p.n}, ${prijsSub(p)}. ${tekst}\nVerdiend op ${fmtLong(prijsDatum(op))} in de AustralieApp.`}); }
+    catch(e){}   // annuleren is geen fout
+  };
+}
+// Nieuwe prijzen na een waarneming: de kaarten een voor een, in de volgorde van dieren.js
+function toonNieuwePrijzen(lijst){
+  if(!lijst.length) return;
+  const [kop,...rest]=lijst;
+  setTimeout(()=>openPrijsKaart(kop,()=>toonNieuwePrijzen(rest)),350);
+}
+
 async function registreerWaarneming(dier,opmerking,hoe){
   if(!NH.user) return;
   const wie=NH.user.displayName||NH.user.email;
   const rec={tabel:'waarnemingen',dier,dag:waarnDag(),gezien_op:nuISO(),wie,opmerking:opmerking||null,hoe:hoe==='gegeten'?'gegeten':'gezien'};
   const naam=dierNaam(rec);
   let id=null;
+  // Prijzen: wat je vóór deze waarneming al had, om straks te zien of er een bij is gekomen
+  const hadAl=new Set(verdiendePrijzen().map(x=>x.p.k));
   const inWachtrij=()=>LS.set('aus_pending',[...pending(),rec]);
   if(navigator.onLine){
     try{
@@ -1993,6 +2101,7 @@ async function registreerWaarneming(dier,opmerking,hoe){
     }
   } else inWachtrij();
   renderDieren();
+  toonNieuwePrijzen(verdiendePrijzen().filter(x=>!hadAl.has(x.p.k)));
   toast(`${naam} ${isGegeten(rec)?'gegeten':'gespot'} om ${tijdVan(rec.gezien_op)} uur`,'Ongedaan maken',async()=>{
     if(id){
       try{ await gql(M_DEL_WAARN,{id}); }catch(e){ toast('Weghalen lukte niet. Probeer het straks opnieuw.'); return; }
@@ -2201,7 +2310,15 @@ function renderDieren(){
       (gegeten.length?` Op het bord ${gekozen.length&&!ikErbij&&alleen?`kreeg ${esc(namen)}`:gekozen.length&&alleen?'kreeg je':'kwamen'} er ${gegeten.length}, in ${new Set(gegeten.map(sleutel)).size} ${new Set(gegeten.map(sleutel)).size===1?'soort':'soorten'}`+
         (beide?`, waarvan ${beide} ${beide===1?'soort die':'soorten die'} ${esc(ookWild)}.`:'.'):'')+`</p>`;
   }
+  // Prijzenkast: alleen wat je hebt, de nieuwste voorop. Zonder prijzen staat het blok er niet, en er
+  // staat nergens wat er nog te winnen valt: dat blijft een verrassing.
+  const prijzen=verdiendePrijzen().sort((a,b)=>String(b.op).localeCompare(String(a.op)));
+  if(prijzen.length){
+    h+=`<h2>Prijzenkast</h2><div class="pkast">`+prijzen.map(({p,op})=>
+      `<button type="button" class="pmed" data-prijs="${esc(p.k)}" style="--pk:${esc(p.kleur)}"><span class="pmunt"><span>${prijsIcoon(p)}</span></span><b>${esc(p.n)}</b><small>${fmtShort(prijsDatum(op))}</small></button>`).join('')+`</div>`;
+  }
   box.innerHTML=h;
+  box.querySelectorAll('.pmed').forEach(b=>b.onclick=()=>{ const x=verdiendePrijzen().find(y=>y.p.k===b.dataset.prijs); if(x) openPrijsKaart(x); });
 
   box.querySelectorAll('.drijwrap').forEach(w=>w.onclick=e=>{
     const eetknop=e.target.closest('.deet');
@@ -2285,7 +2402,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-12-196';
+const APP_VERSIE='2026-09-13-198';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
