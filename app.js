@@ -2064,12 +2064,19 @@ function prijsSub(p,keer){
     default: return '';
   }
 }
-// De dieren die op de kaart in een rij onder de munt staan: bij een set allemaal, bij een keuze alleen
-// de dieren die jij ervan zag, in de volgorde van de lijst
+// De dieren die op de kaart in een rij onder de munt staan, als een stempelkaart: elk dier met of het
+// al binnen is. Bij een set zijn ze per definitie allemaal binnen. Bij een keuze staan ook de dieren
+// die je nog mist erbij, flauw, maar alleen bij een korte lijst: bij Gevaarlijk gezelschap (tien dieren,
+// waarvan je er drie nodig hebt) zou de rij vol gemiste dieren komen te staan, en dat verklapt te veel.
+const PRIJS_STEMPELS_MAX=4;
 function prijsDieren(p,mijn){
   const r=p.regel||{}, hoe=r.hoe||'gezien';
-  if(r.soort==='set') return r.dieren;
-  if(r.soort==='keuze') return r.dieren.filter(k=>mijn.some(w=>w.dier===k&&hoeVan(w)===hoe));
+  const heeft=k=>mijn.some(w=>w.dier===k&&hoeVan(w)===hoe);
+  if(r.soort==='set') return r.dieren.map(k=>({k,mist:false}));
+  if(r.soort==='keuze'){
+    if(r.dieren.length>PRIJS_STEMPELS_MAX) return r.dieren.filter(heeft).map(k=>({k,mist:false}));
+    return r.dieren.map(k=>({k,mist:!heeft(k)}));
+  }
   return [];
 }
 const prijsDatum=op=>{ const m=String(op).match(/^(\d{4})-(\d\d)-(\d\d)/); return m?new Date(+m[1],+m[2]-1,+m[3]):new Date(); };
@@ -2086,7 +2093,8 @@ function openPrijsKaart({p,op,keer,eersteOp},naSluiten){
     <button class="nbtn pclose" id="shclose" aria-label="Sluiten">×</button>
     <h3>${esc(p.n)}</h3><p class="psub">${esc(prijsSub(p,n))}</p>
     <div class="pring"><div class="pmunt">${prijsIcoon(p)}</div></div>
-    ${dieren.length?`<div class="pdieren">${dieren.map(k=>`<i title="${esc(schoon((dierVan(k)||{n:k}).n))}">${DIER_ICOON[k]||PRIJS_ICOON.poot}</i>`).join('')}</div>`:''}
+    ${dieren.length?`<div class="pdieren">${dieren.map(({k,mist})=>{ const naam=schoon((dierVan(k)||{n:k}).n);
+      return `<i class="${mist?'mist':''}" title="${esc(mist?naam+', nog niet gespot':naam)}">${DIER_ICOON[k]||PRIJS_ICOON.poot}</i>`; }).join('')}</div>`:''}
     <p class="ptekst">${esc(tekst)}</p>
     <p class="pdatum">${esc(datum)}</p>
     ${n>1&&eersteOp?`<p class="pvaker">De eerste op ${fmtLong(prijsDatum(eersteOp))}</p>`:''}

@@ -693,6 +693,8 @@
   .pring svg{width:112px;height:112px}
   .pdieren{display:flex;justify-content:center;gap:10px;margin:20px 0 0;flex-wrap:wrap;max-width:320px}
   .pdieren i{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;color:#fff}
+  /* Nog niet gespot: een lege stempelplek, met de tekening er flauw in. */
+  .pdieren i.mist{background:none;border:1.5px dashed rgba(255,255,255,.4);color:rgba(255,255,255,.38)}
   .pdieren svg{width:27px;height:27px}
   .sheet.prijs .ptekst{margin:20px 0 0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.92);max-width:340px}
   .sheet.prijs .pdatum{margin:14px 0 0;font-size:13.5px;color:rgba(255,255,255,.72)}

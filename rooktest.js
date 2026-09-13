@@ -834,6 +834,17 @@ function zoek(w,fouten,term){
     eis(fouten,kh&&/Voor de 2e keer verdiend op donderdag 8 oktober/.test(kh.querySelector('.pdatum').textContent)&&/De eerste op dinsdag 6 oktober/.test(kh.querySelector('.pvaker').textContent),'de kaart zegt de hoeveelste keer, met de eerste keer eronder');
     eis(fouten,/Dat is nummer 2/.test(kh.querySelector('.ptekst').textContent)&&w.document.querySelector('#dieren .pmed[data-prijs="emoe"] .keer').textContent==='\u00d72','met de tekst voor een herhaling, en een telletje op de medaille');
     klik(w,'shclose',fouten); await sleep(260);
+    // de stempelkaart: bij een korte keuzelijst staan de dieren die je nog mist er flauw bij
+    zet([wn('emoe',T(6),{hoe:'gegeten'})]); w.renderDieren();
+    w.document.querySelector('#dieren .pmed[data-prijs="bushtucker"]').click(); await sleep(50);
+    const ks=w.document.querySelectorAll('#sheet .pdieren i');
+    eis(fouten,ks.length===3&&[...ks].filter(i=>i.classList.contains('mist')).length===2&&!ks[1].classList.contains('mist'),'Bushtucker toont alle drie de dieren, met de twee die je mist als lege plek');
+    eis(fouten,/nog niet gespot/.test(ks[0].getAttribute('title'))&&ks[1].getAttribute('title')==='Emoe','en de gemiste dieren zeggen dat ook in hun titel');
+    klik(w,'shclose',fouten); await sleep(260);
+    zet([wn('zoutwaterkrokodil',T(6)),wn('kasuaris',T(7)),wn('dingo',T(9))]); w.renderDieren();
+    w.document.querySelector('#dieren .pmed[data-prijs="levend"]').click(); await sleep(50);
+    eis(fouten,w.document.querySelectorAll('#sheet .pdieren i').length===3&&!w.document.querySelector('#sheet .pdieren i.mist'),'bij een lange lijst (Gevaarlijk gezelschap, tien dieren) alleen wat je zag');
+    klik(w,'shclose',fouten); await sleep(260);
     // de stille herhaling: geen kaart meer, maar een regel in de melding onderin
     w.nuISO=()=>T(9,'16:42');
     zet([wn('emoe',T(6))]); w.renderDieren();
