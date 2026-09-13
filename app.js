@@ -1978,52 +1978,73 @@ function wieRij(lijst){
 
 // ---- Prijzen ----
 // De definities staan in dieren.js (PRIJZEN). Een prijs gaat over je eigen waarnemingen, ook die in de
-// wachtrij, en blijft verborgen tot je hem hebt. Elke regel geeft null terug, of het tijdstip (gezien_op)
-// van de waarneming die hem compleet maakte: dat is de datum op de kaart, en de volgorde in de kast.
+// wachtrij, en blijft verborgen tot je hem hebt. Elke regel geeft de tijdstippen (gezien_op) terug van de
+// waarnemingen die hem compleet maakten: leeg is niet verdiend, één is de gewone prijs, en bij een prijs
+// met herhaal in dieren.js kunnen het er meer zijn. Het laatste tijdstip is de datum op de kaart en de
+// volgorde in de kast, het aantal is het telletje op de medaille.
 const PRIJS_LIJST=typeof PRIJZEN!=='undefined'&&Array.isArray(PRIJZEN)?PRIJZEN:[];
 const PRIJS_ICOON=typeof PRIJS_ICONEN==='object'&&PRIJS_ICONEN?PRIJS_ICONEN:{};
 const prijsIcoon=p=>DIER_ICOON[p.ic]||PRIJS_ICOON[p.ic]||PRIJS_ICOON.poot;
 const mijnWaarnemingen=()=>NH.user?waarnemingen().filter(w=>w.user_id===NH.user.id).sort((a,b)=>String(a.gezien_op).localeCompare(String(b.gezien_op))):[];
 // Streek van een waarneming op een dag van de groepsreis, via dezelfde indeling als de startpagina
 const streekVan=w=>{ if(!(w.dag>=1&&w.dag<=29)) return null; const per=dagenPerRegio(); return Object.keys(per).find(r=>per[r].includes(w.dag))||null; };
-// Het n-de tijdstip waarop een nieuw ding (soort, dier, streek) voor het eerst voorkomt, of null
-function nde(lijst,sleutelVan,n){
-  const gezien=new Set();
-  for(const w of lijst){ const k=sleutelVan(w); if(k==null||gezien.has(k)) continue; gezien.add(k); if(gezien.size===n) return w.gezien_op; }
-  return null;
+// De tijdstippen waarop een nieuw ding (soort, dier, streek, nacht) voor het eerst voorkomt, op volgorde
+function nieuwe(lijst,sleutelVan){
+  const gezien=new Set(), uit=[];
+  for(const w of lijst){ const k=sleutelVan(w); if(k==null||gezien.has(k)) continue; gezien.add(k); uit.push(w.gezien_op); }
+  return uit;
 }
+// Het n-de tijdstip, en bij een herhaalbare prijs alles wat daarna nog bij kwam
+const vanafDe=(ts,n,herh)=>ts.length<n?[]:(herh?ts.slice(n-1):[ts[n-1]]);
 function beoordeelPrijs(p,mijn){
-  const r=p.regel||{}, hoe=r.hoe||'gezien', vanSoort=mijn.filter(w=>hoeVan(w)===hoe);
+  const r=p.regel||{}, hoe=r.hoe||'gezien', vanSoort=mijn.filter(w=>hoeVan(w)===hoe), herh=!!p.herhaal;
   const eerste=k=>vanSoort.find(w=>w.dier===k);
   switch(r.soort){
-    case 'eerste': return mijn.length?mijn[0].gezien_op:null;
-    case 'set': { const ts=(r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op); return ts.every(Boolean)?ts.sort().pop():null; }
-    case 'keuze': { const ts=(r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op).filter(Boolean).sort(); return ts.length>=r.n?ts[r.n-1]:null; }
-    case 'groep': return nde(vanSoort.filter(w=>groepVan(w)===r.g),dierSleutel,r.n);
-    case 'soorten': return nde(vanSoort,dierSleutel,r.n);
-    case 'keer': { const ws=vanSoort.filter(w=>w.dier===r.dier); return ws.length>=r.n?ws[r.n-1].gezien_op:null; }
+    case 'eerste': return mijn.length?[mijn[0].gezien_op]:[];
+    case 'set': { const ts=(r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op); return ts.every(Boolean)?[ts.sort().pop()]:[]; }
+    case 'keuze': return vanafDe((r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op).filter(Boolean).sort(),r.n,herh);
+    case 'groep': return vanafDe(nieuwe(vanSoort.filter(w=>groepVan(w)===r.g),dierSleutel),r.n,herh);
+    case 'soorten': return vanafDe(nieuwe(vanSoort,dierSleutel),r.n,herh);
+    case 'regios': return vanafDe(nieuwe(vanSoort,streekVan),r.n,herh);
+    // keer: elke n-de keer dat je het dier noteert. Met n=1 en herhaal telt dus iedere waarneming.
+    case 'keer': return vanSoort.filter(w=>w.dier===r.dier).filter((w,i)=>(i+1)%r.n===0&&(herh||i+1===r.n)).map(w=>w.gezien_op);
     case 'reeks': {
-      // kalenderdagen uit het tijdstip zelf (plaatselijke tijd), n achter elkaar
+      // kalenderdagen uit het tijdstip zelf (plaatselijke tijd), n achter elkaar. Bij herhaal telt elke
+      // volgende n dagen binnen dezelfde reeks opnieuw: veertien dagen zonder missers zijn twee weken.
       const dagen=[...new Set(vanSoort.map(w=>String(w.gezien_op).slice(0,10)))].sort();
       const dagNr=d=>Math.round(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))/86400000);
-      let start=0;
+      const opDag=d=>vanSoort.find(w=>String(w.gezien_op).startsWith(d)).gezien_op;
+      const uit=[]; let start=0;
       for(let i=1;i<=dagen.length;i++){
-        if(i===dagen.length||dagNr(dagen[i])!==dagNr(dagen[i-1])+1){ if(i-start>=r.n){ const d=dagen[start+r.n-1]; return vanSoort.find(w=>String(w.gezien_op).startsWith(d)).gezien_op; } start=i; }
+        if(i===dagen.length||dagNr(dagen[i])!==dagNr(dagen[i-1])+1){
+          for(let j=start+r.n-1;j<i;j+=r.n){ uit.push(opDag(dagen[j])); if(!herh) return uit; }
+          start=i;
+        }
       }
-      return null; }
+      return uit; }
     case 'tijd': {
       const min=t=>{ const [h,m]=t.split(':').map(Number); return h*60+m; }, van=min(r.van), tot=min(r.tot);
-      const w=vanSoort.find(w=>{ const m=String(w.gezien_op).match(/T(\d\d):(\d\d)/); if(!m) return false; const t=+m[1]*60+ +m[2];
-        return van<=tot?(t>=van&&t<tot):(t>=van||t<tot); });
-      return w?w.gezien_op:null; }
-    case 'regios': return nde(vanSoort,streekVan,r.n);
-    default: return null;
+      const binnen=w=>{ const m=String(w.gezien_op).match(/T(\d\d):(\d\d)/); if(!m) return false; const t=+m[1]*60+ +m[2];
+        return van<=tot?(t>=van&&t<tot):(t>=van||t<tot); };
+      const raak=vanSoort.filter(binnen);
+      if(!raak.length) return [];
+      if(!herh) return [raak[0].gezien_op];
+      // Eén per nacht. Loopt het venster over middernacht, dan hoort wat ná twaalven valt nog bij de
+      // avond ervoor: anders zou één avond doorspotten twee keer tellen.
+      const nacht=w=>{ const m=String(w.gezien_op).match(/^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)/); if(!m) return null;
+        const t=+m[4]*60+ +m[5];
+        if(van<=tot||t>=van) return m[1]+'-'+m[2]+'-'+m[3];
+        const d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3]-1)); return d.toISOString().slice(0,10); };
+      return nieuwe(raak,nacht); }
+    default: return [];
   }
 }
-// Alle verdiende prijzen, op de volgorde van dieren.js, elk met het tijdstip waarop hij binnenkwam
+// Alle verdiende prijzen, op de volgorde van dieren.js, elk met het aantal keer dat hij binnenkwam,
+// het eerste tijdstip en het laatste (dat is de datum op de kaart en de plek in de kast).
 function verdiendePrijzen(){
   const mijn=mijnWaarnemingen();
-  return PRIJS_LIJST.map(p=>({p,op:beoordeelPrijs(p,mijn)})).filter(x=>x.op);
+  return PRIJS_LIJST.map(p=>{ const alle=beoordeelPrijs(p,mijn);
+    return {p,alle,keer:alle.length,eersteOp:alle[0]||null,op:alle[alle.length-1]||null}; }).filter(x=>x.keer);
 }
 // De regel onder de naam op de kaart: wat de prijs is, in cijfers
 function prijsSub(p){
@@ -2052,10 +2073,12 @@ function prijsDieren(p,mijn){
 const prijsDatum=op=>{ const m=String(op).match(/^(\d{4})-(\d\d)-(\d\d)/); return m?new Date(+m[1],+m[2]-1,+m[3]):new Date(); };
 // De kaart: een schuifpaneel in de kleur van de prijs, met de munt, de rij dieren, de tekst, de datum en
 // Delen. Verschijnt op het moment dat je de prijs verdient, en later opnieuw vanuit de kast.
-function openPrijsKaart({p,op},naSluiten){
+function openPrijsKaart({p,op,keer,eersteOp},naSluiten){
   document.getElementById('sheet')?.remove();
-  const mijn=mijnWaarnemingen(), dieren=prijsDieren(p,mijn);
-  const tekst=String(p.t||'').replace('{rest}',String(PRIJS_LIJST.length-1));
+  const mijn=mijnWaarnemingen(), dieren=prijsDieren(p,mijn), n=keer||1;
+  // Bij een herhaling de tweede tekst, zodat de kaart niet leest alsof je hem net ontdekt
+  const tekst=String((n>1&&p.t2)||p.t||'').replace('{rest}',String(PRIJS_LIJST.length-1)).replace('{keer}',String(n));
+  const datum=n>1?`Voor de ${n}e keer verdiend op ${fmtLong(prijsDatum(op))}`:`Verdiend op ${fmtLong(prijsDatum(op))}`;
   const el=document.createElement('div'); el.id='sheet'; el.className='sheetwrap';
   el.innerHTML=`<div class="sheetbg"></div><div class="sheet prijs" role="dialog" aria-modal="true" style="--pk:${esc(p.kleur)}" data-prijs="${esc(p.k)}">
     <button class="nbtn pclose" id="shclose" aria-label="Sluiten">×</button>
@@ -2063,7 +2086,8 @@ function openPrijsKaart({p,op},naSluiten){
     <div class="pring"><div class="pmunt">${prijsIcoon(p)}</div></div>
     ${dieren.length?`<div class="pdieren">${dieren.map(k=>`<i title="${esc(schoon((dierVan(k)||{n:k}).n))}">${DIER_ICOON[k]||PRIJS_ICOON.poot}</i>`).join('')}</div>`:''}
     <p class="ptekst">${esc(tekst)}</p>
-    <p class="pdatum">Verdiend op ${fmtLong(prijsDatum(op))}</p>
+    <p class="pdatum">${esc(datum)}</p>
+    ${n>1&&eersteOp?`<p class="pvaker">De eerste op ${fmtLong(prijsDatum(eersteOp))}</p>`:''}
     ${navigator.share?`<button type="button" class="pdeel" id="pdeel">Delen</button>`:''}</div>`;
   document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('on'));
@@ -2071,7 +2095,7 @@ function openPrijsKaart({p,op},naSluiten){
   el.querySelector('.sheetbg').onclick=close; el.querySelector('#shclose').onclick=close;
   const deel=el.querySelector('#pdeel');
   if(deel) deel.onclick=async()=>{
-    try{ await navigator.share({text:`${p.n}, ${prijsSub(p)}. ${tekst}\nVerdiend op ${fmtLong(prijsDatum(op))} in de AustralieApp.`}); }
+    try{ await navigator.share({text:`${p.n}, ${prijsSub(p)}. ${tekst}\n${datum} in de AustralieApp.`}); }
     catch(e){}   // annuleren is geen fout
   };
 }
@@ -2088,8 +2112,8 @@ async function registreerWaarneming(dier,opmerking,hoe){
   const rec={tabel:'waarnemingen',dier,dag:waarnDag(),gezien_op:nuISO(),wie,opmerking:opmerking||null,hoe:hoe==='gegeten'?'gegeten':'gezien'};
   const naam=dierNaam(rec);
   let id=null;
-  // Prijzen: wat je vóór deze waarneming al had, om straks te zien of er een bij is gekomen
-  const hadAl=new Set(verdiendePrijzen().map(x=>x.p.k));
+  // Prijzen: hoe vaak je ze vóór deze waarneming al had, om straks te zien wat erbij komt
+  const hadAl=new Map(verdiendePrijzen().map(x=>[x.p.k,x.keer]));
   const inWachtrij=()=>LS.set('aus_pending',[...pending(),rec]);
   if(navigator.onLine){
     try{
@@ -2103,8 +2127,14 @@ async function registreerWaarneming(dier,opmerking,hoe){
     }
   } else inWachtrij();
   renderDieren();
-  toonNieuwePrijzen(verdiendePrijzen().filter(x=>!hadAl.has(x.p.k)));
-  toast(`${naam} ${isGegeten(rec)?'gegeten':'gespot'} om ${tijdVan(rec.gezien_op)} uur`,'Ongedaan maken',async()=>{
+  const erbij=verdiendePrijzen().filter(x=>x.keer>(hadAl.get(x.p.k)||0));
+  // Een prijs met herhaal:'stil' krijgt na de eerste keer geen kaart meer, maar een regel in de melding
+  // onderin: bij de zevende emoe is een schuifpaneel meer werk dan plezier.
+  const stil=erbij.find(x=>x.keer>1&&x.p.herhaal==='stil');
+  toonNieuwePrijzen(erbij.filter(x=>x!==stil));
+  const melding=stil?`${stil.p.n} ${String(stil.p.t2||'').replace('{keer}',String(stil.keer))}, om ${tijdVan(rec.gezien_op)} uur`
+                    :`${naam} ${isGegeten(rec)?'gegeten':'gespot'} om ${tijdVan(rec.gezien_op)} uur`;
+  toast(melding,'Ongedaan maken',async()=>{
     if(id){
       try{ await gql(M_DEL_WAARN,{id}); }catch(e){ toast('Weghalen lukte niet. Probeer het straks opnieuw.'); return; }
       LS.set('aus_cache_waarn',alleWaarnemingen().filter(w=>w.id!==id));
@@ -2316,8 +2346,8 @@ function renderDieren(){
   // staat nergens wat er nog te winnen valt: dat blijft een verrassing.
   const prijzen=verdiendePrijzen().sort((a,b)=>String(b.op).localeCompare(String(a.op)));
   if(prijzen.length){
-    h+=`<h2>Prijzenkast</h2><div class="pkast">`+prijzen.map(({p,op})=>
-      `<button type="button" class="pmed" data-prijs="${esc(p.k)}" style="--pk:${esc(p.kleur)}"><span class="pmunt"><span>${prijsIcoon(p)}</span></span><b>${esc(p.n)}</b><small>${fmtShort(prijsDatum(op))}</small></button>`).join('')+`</div>`;
+    h+=`<h2>Prijzenkast</h2><div class="pkast">`+prijzen.map(({p,keer})=>
+      `<button type="button" class="pmed" data-prijs="${esc(p.k)}" style="--pk:${esc(p.kleur)}"><span class="pmunt"><span>${prijsIcoon(p)}</span>${keer>1?`<i class="keer">×${keer}</i>`:''}</span><b>${esc(p.n)}</b></button>`).join('')+`</div>`;
   }
   box.innerHTML=h;
   box.querySelectorAll('.pmed').forEach(b=>b.onclick=()=>{ const x=verdiendePrijzen().find(y=>y.p.k===b.dataset.prijs); if(x) openPrijsKaart(x); });
@@ -2404,7 +2434,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-13-204';
+const APP_VERSIE='2026-09-13-205';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

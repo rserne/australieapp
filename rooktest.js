@@ -807,12 +807,42 @@ function zoek(w,fouten,term){
     eis(fouten,!zet([wn('kangoeroe',T(6)),wn('emoe',T(7)),wn('zoutwaterkrokodil',T(8))]).includes('bushtucker')&&zet([wn('emoe',T(7),{hoe:'gegeten'})]).includes('bushtucker'),'Bushtucker bij één gegeten van de drie');
     // keuze met twee: Kop boven water
     eis(fouten,!zet([wn('dolfijn',T(6))]).includes('walvis')&&zet([wn('dolfijn',T(6)),wn('zeehond',T(8))]).includes('walvis')&&w.verdiendePrijzen().find(x=>x.p.k==='walvis').op===T(8),'Kop boven water bij twee van drie, op de datum van de tweede');
+    // herhaalbare prijzen (herhaal in dieren.js): hoe vaak je ze verdiende, en waar het opnieuw begint
+    const keren=k=>(w.verdiendePrijzen().find(x=>x.p.k===k)||{keer:0}).keer;
+    zet([wn('emoe',T(6)),wn('emoe',T(7)),wn('emoe',T(7,'16:42'))]);
+    eis(fouten,keren('emoe')===3&&w.verdiendePrijzen().find(x=>x.p.k==='emoe').op===T(7,'16:42')&&w.verdiendePrijzen().find(x=>x.p.k==='emoe').eersteOp===T(6),'Emoe! telt elke emoe, met het eerste en het laatste tijdstip erbij');
+    zet([wn('possum',T(6,'20:00')),wn('possum',T(6,'23:30')),wn('possum',T(7,'01:00')),wn('possum',T(9,'21:00'))]);
+    eis(fouten,keren('nachtwacht')===2,'Nachtwacht telt per nacht: doorspotten na middernacht hoort bij de avond ervoor');
+    zet(reeks([6,7,8,9,10,11,12,13]));
+    const week1=keren('reeks');
+    zet(reeks([6,7,8,9,10,11,12,13,14,15,16,17,18,19]));
+    eis(fouten,week1===1&&keren('reeks')===2,'Week zonder missers telt elke volle week binnen dezelfde reeks');
+    zet([wn('kangoeroe',T(6),{hoe:'gegeten'}),wn('emoe',T(7),{hoe:'gegeten'})]);
+    eis(fouten,keren('bushtucker')===2,'Bushtucker telt door bij de tweede van het bord');
+    zet([wn('quoll',T(6)),wn('boomkangoeroe',T(8)),wn('quoll',T(9))]);
+    eis(fouten,keren('zeldzaam')===2,'Geluksvogel komt terug bij het andere dier, een tweede quoll telt niet');
+    zet(perStreek); eis(fouten,keren('australie')===2,'Kriskras komt terug bij de zevende streek');
+    zet([wn('koala',T(6)),wn('kangoeroe',T(7))]);
+    eis(fouten,keren('eerste')===1&&keren('grote-vijf')===0,'een prijs zonder herhaal blijft bij een');
+    // de kaart bij een herhaling: eigen tekst, de hoeveelste keer en de datum van de eerste
+    zet([wn('emoe',T(6)),wn('emoe',T(8))]); w.renderDieren();
+    w.document.querySelector('#dieren .pmed[data-prijs="emoe"]').click(); await sleep(50);
+    const kh=w.document.querySelector('#sheet .sheet.prijs');
+    eis(fouten,kh&&/Voor de 2e keer verdiend op donderdag 8 oktober/.test(kh.querySelector('.pdatum').textContent)&&/De eerste op dinsdag 6 oktober/.test(kh.querySelector('.pvaker').textContent),'de kaart zegt de hoeveelste keer, met de eerste keer eronder');
+    eis(fouten,/Dat is nummer 2/.test(kh.querySelector('.ptekst').textContent)&&w.document.querySelector('#dieren .pmed[data-prijs="emoe"] .keer').textContent==='\u00d72','met de tekst voor een herhaling, en een telletje op de medaille');
+    klik(w,'shclose',fouten); await sleep(260);
+    // de stille herhaling: geen kaart meer, maar een regel in de melding onderin
+    w.nuISO=()=>T(9,'16:42');
+    zet([wn('emoe',T(6))]); w.renderDieren();
+    w.document.querySelector('#dalle .drij[data-dier="emoe"]').click(); await sleep(450);
+    eis(fouten,!$(w,'sheet')&&/Emoe! Dat is nummer 2, om 16\.42 uur/.test($(w,'toast').textContent)&&$(w,'toast').querySelector('button'),'de tweede emoe geeft geen kaart maar een melding, met Ongedaan maken');
+    w.localStorage.setItem('aus_pending','[]');
     // de kast en de kaart
     zet([wn('wombat',T(6)),wn('wallaby',T(7,'09:00')),wn('tasmaanse-duivel',T(8,'21:30'))]);
     w.renderDieren();
     const medailles=[...w.document.querySelectorAll('#dieren .pmed')];
     eis(fouten,[...w.document.querySelectorAll('#dieren h2')].some(h=>h.textContent==='Prijzenkast')&&medailles.map(m=>m.dataset.prijs).join(',')==='tassie,nachtwacht,eerste'||medailles.map(m=>m.dataset.prijs).join(',')==='nachtwacht,tassie,eerste',`de kast toont de verdiende prijzen, nieuwste voorop (nu: ${medailles.map(m=>m.dataset.prijs).join(',')})`);
-    eis(fouten,medailles.every(m=>m.querySelector('svg')&&m.querySelector('b').textContent&&/\d+ okt/.test(m.querySelector('small').textContent)),'elke medaille heeft een tekening, een naam en de datum');
+    eis(fouten,medailles.every(m=>m.querySelector('svg')&&m.querySelector('b').textContent&&!m.querySelector('small')),'elke medaille heeft een tekening en een naam, en geen datum eronder');
     eis(fouten,!$(w,'dieren').textContent.includes('De grote vijf')&&!$(w,'dieren').textContent.includes('nog'),'wat je niet hebt, staat nergens');
     let gedeeld=null; w.navigator.share=async d=>{ gedeeld=d; };
     medailles.find(m=>m.dataset.prijs==='tassie').click(); await sleep(50);

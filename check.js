@@ -142,6 +142,14 @@ else{
     if(r.soort==='keuze'&&r.n>(r.dieren||[]).length) fout(`${w}: vraagt ${r.n} uit een lijst van ${(r.dieren||[]).length}`);
     if(r.hoe&&!['gezien','gegeten'].includes(r.hoe)) fout(`${w}: hoe moet 'gezien' of 'gegeten' zijn`);
     if(r.soort==='tijd'&&![r.van,r.tot].every(t=>/^\d\d:\d\d$/.test(t||''))) fout(`${w}: van en tot als uu:mm`);
+    // Herhaalbare prijzen: alleen bij regels waar een tweede keer kan bestaan, en met een eigen tekst,
+    // anders zou de kaart bij elke herhaling hetzelfde vertellen.
+    if('herhaal' in p){
+      if(p.herhaal!==true&&p.herhaal!=='stil') fout(`${w}: herhaal moet true of 'stil' zijn`);
+      if(['eerste','set'].includes(r.soort)) fout(`${w}: een regel '${r.soort}' kun je maar één keer volmaken, dus herhaal kan hier niet`);
+      if(!p.t2) fout(`${w} is herhaalbaar en mist t2, de tekst bij een herhaling`);
+      if(p.herhaal==='stil'&&(p.t2||'').length>60) waarschuw(`${w}: t2 komt in de melding onderin te staan en is met ${p.t2.length} tekens aan de lange kant`);
+    } else if(p.t2) fout(`${w} heeft t2, maar zonder herhaal komt die tekst nergens te staan`);
   });
   Object.entries(PRIJS_ICONEN).forEach(([k,svg])=>{
     if(!/^<svg[\s>]/.test(svg)||!/viewBox=/.test(svg)) fout(`dieren.js: prijstekening '${k}' is geen svg met viewBox`);
