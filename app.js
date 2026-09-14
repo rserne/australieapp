@@ -267,7 +267,6 @@ function render(){
              `<div class="where">${PIN}${esc(wh)}</div><p>${esc(no)}</p>`+
              (bk?`<div class="book"><b>Reserveren</b><span>${esc(bk)}</span></div>`:'')+
              `<div class="btns">${btns}</div>`+
-             `<div class="checked">Score en openingstijden: ${SRC}, gecontroleerd ${CHECKED}. Prijzen zijn een schatting op basis van de prijsklasse.${wk>0?(meta.wv?' Looptijd volgens Google Maps, vanaf het hotel.':' Looptijd geschat vanaf het hotel, met een kwart opslag voor de omweg om bouwblokken en water. Tik op Route voor de werkelijke wandelroute.'):''}</div>`+
              `</div></details>`;
     }).join('')+
     // De app geeft hints. Ter plekke kijk je vaak toch even rond op de kaart.
@@ -322,7 +321,6 @@ function winkelsBlok(d){
         `<div class="where">${PIN}${esc(wh)}</div><p>${esc(no)}</p>`+
         `<div class="btns"><a class="btn" href="${dir}" target="_blank" rel="noopener">Route</a>`+
         `<a class="btn" href="${url}" target="_blank" rel="noopener">Op de kaart</a></div>`+
-        `<div class="checked">Openingstijden: ${SRC}, gecontroleerd ${typeof WINKELS_CHECKED==='string'?WINKELS_CHECKED:CHECKED}. Looptijd geschat vanaf het hotel, met een kwart opslag voor de omweg om bouwblokken en water. Tik op Route voor de werkelijke wandelroute.</div>`+
         `</div></details>`;
     }).join('');
 }
@@ -2495,7 +2493,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-14-214';
+const APP_VERSIE='2026-09-14-215';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
