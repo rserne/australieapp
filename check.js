@@ -2,10 +2,10 @@
 // Controleert reis.js en voorreis.js vóór je een nieuwe versie online zet:  node check.js
 // Sluit af met code 1 als er iets mis is, zodat je het ook in een git pre-commit hook kunt zetten.
 const fs=require('fs'), vm=require('vm');
-const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','TONE_INK','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN','SOS'];
+const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','TONE_INK','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN','SOS','WINKELS'];
 // const-declaraties komen niet op het context-object terecht. Daarom halen we ze expliciet terug
 const data=vm.runInNewContext(fs.readFileSync(__dirname+'/reis.js','utf8')+`;({${NAMEN.join(',')}})`,{});
-const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,TONE_INK,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN,SOS}=data;
+const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,TONE_INK,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN,SOS,WINKELS}=data;
 
 const fouten=[], waarschuwingen=[];
 const fout=m=>fouten.push(m), waarschuw=m=>waarschuwingen.push(m);
@@ -215,6 +215,24 @@ inBeeld.forEach(b=>{ if(!verwezen.has(b)) waarschuw(`sw.js BEELD noemt '${b}', m
 const weg=[...verwezen].filter(b=>!fs.existsSync(__dirname+'/'+b));
 if(weg.length) waarschuw(weg.length===verwezen.size?`geen van de ${weg.length} beelden staat in deze map (alleen code hier? dan is dit in orde)`:`beeld ontbreekt in deze map: ${weg.join(', ')}`);
 
+// Winkels bij het hotel: elke sleutel is een hotel dat ergens in het programma voorkomt, en elke winkel
+// heeft naam, soort (supermarkt of bakker), straat, looptijd (geheel getal in minuten), openingstijden en
+// een opmerking. Een hotel zonder winkels is geen fout: dan blijft het blok weg.
+const hotelsInProgramma=new Set([...DAYS,...VOORDAGEN].map(d=>d.h).filter(Boolean));
+let winkelAantal=0;
+Object.entries(WINKELS||{}).forEach(([hotel,lijst])=>{
+  if(!hotelsInProgramma.has(hotel)) fout(`WINKELS: '${hotel}' is geen hotel uit het programma`);
+  if(!Array.isArray(lijst)||!lijst.length) fout(`WINKELS: '${hotel}' heeft geen winkels`);
+  (lijst||[]).forEach(w=>{
+    winkelAantal++;
+    const [nm,soort,wh,wk,open,no]=w;
+    if(w.length!==6||!nm||!soort||!wh||!open||!no) fout(`WINKELS: '${hotel}' → '${nm||'?'}' mist een veld (naam, soort, straat, looptijd, openingstijden, opmerking)`);
+    if(!['supermarkt','bakker'].includes(soort)) fout(`WINKELS: '${nm}' heeft soort '${soort}', dat moet supermarkt of bakker zijn`);
+    if(!Number.isInteger(wk)||wk<1) fout(`WINKELS: '${nm}' heeft geen looptijd in hele minuten`);
+  });
+});
+hotelsInProgramma.forEach(h=>{ if(!(WINKELS||{})[h]&&!/kamp/i.test(h)) waarschuw(`WINKELS: geen winkels bij '${h}'`); });
+
 // Versienummers moeten samen omhoog
 const app=fs.readFileSync(__dirname+'/app.js','utf8').match(/APP_VERSIE='([^']+)'/);
 const sw=fs.readFileSync(__dirname+'/sw.js','utf8').match(/VERSION='v(\d+)'/);
@@ -224,6 +242,7 @@ waarschuwingen.forEach(m=>console.log('  let op:  '+m));
 fouten.forEach(m=>console.log('  FOUT:    '+m));
 const wvAantal=Object.values(RDATA).filter(m=>m.wv).length;
 console.log(`  info:    ${wvAantal} van de ${Object.keys(RDATA).length} looptijden zijn met Google Maps gecontroleerd.`);
+console.log(`  info:    ${winkelAantal} winkels bij ${Object.keys(WINKELS||{}).length} hotels.`);
 const voorTxt=VOORDAGEN.length?`, voorreis ${VOORDAGEN.length} van ${VOORREIS} dagen met programma`:`, voorreis alleen notities`;
 console.log(fouten.length?`\n${fouten.length} fout(en), ${waarschuwingen.length} waarschuwing(en).`:`\nreis.js is in orde (${DAYS.length} dagen, ${Object.keys(RDATA).length} restaurants, ${EXC.length} excursies${voorTxt}). ${waarschuwingen.length} waarschuwing(en).`);
 process.exit(fouten.length?1:0);

@@ -459,6 +459,27 @@ function zoek(w,fouten,term){
     eis(fouten,tmw&&/Dag 6/.test(tmw.textContent)&&tmw.querySelector('.ganaar'),'Morgen-blok op een groepsdag werkt via dagKnop');
     if(tmw){ tmw.querySelector('.ganaar').click(); eis(fouten,kop(w)==='Dag 6van 29',`tik op Morgen gaat naar dag 6 (nu: '${kop(w)}')`); }
     meld('5 okt: Morgen-blok op een gewone reisdag',fouten); }
+  // Winkels bij het hotel: uit WINKELS in reis.js, per hotel, onder Eten vanavond. Zonder hotel geen blok.
+  { const {w,fouten}=start('2026-10-03');
+    const kaarten=()=>[...w.document.querySelectorAll('#day details.rcard')].filter(c=>!c.querySelector('.role'));
+    const kopjes=()=>[...w.document.querySelectorAll('#day h2')].map(h=>h.textContent);
+    eis(fouten,kopjes().includes('Winkels bij het hotel')&&kaarten().length===1&&/Woolworths Metro/.test(kaarten()[0].textContent),`dag 3 (Sydney) toont de winkel bij The Ultimo (nu ${kaarten().length} kaarten)`);
+    const k=kaarten()[0];
+    eis(fouten,/1 min lopen/.test(k.querySelector('.rkort').textContent)&&/open 7\.00–23\.00/.test(k.querySelector('.rkort').textContent),`de dichte kaart noemt looptijd en openingstijden (nu: '${k.querySelector('.rkort').textContent}')`);
+    eis(fouten,kopjes().indexOf('Winkels bij het hotel')>kopjes().indexOf('Eten vanavond'),'het blok staat onder Eten vanavond');
+    const route=k.querySelector('.btns a');
+    eis(fouten,route&&/origin=-33\.88/.test(route.href)&&/travelmode=walking/.test(route.href),'Route vertrekt op de coördinaten van het hotel');
+    w.ga(5);
+    eis(fouten,kaarten().length===1&&/Woolworths Metro/.test(kaarten()[0].textContent),'dag 5 deelt het blok met dag 3, want het is hetzelfde hotel');
+    w.ga(24);
+    eis(fouten,kaarten().length===4&&/Coles/.test(kaarten()[0].textContent),`dag 24 (Perth) toont vier winkels (nu ${kaarten().length})`);
+    w.ga(1);
+    eis(fouten,!kopjes().includes('Winkels bij het hotel'),'dag 1 heeft geen hotel en dus geen blok');
+    w.ga(13);
+    eis(fouten,!kopjes().includes('Winkels bij het hotel'),'dag 13 heeft nog geen hotel en dus geen blok');
+    klik(w,'btnIndex',fouten); zoek(w,fouten,'raine square');
+    eis(fouten,[...w.document.querySelectorAll('#results .src')].some(s=>/Winkel bij het hotel/.test(s.textContent)),'zoeken vindt een winkel op naam van de straat');
+    meld('3 okt: winkels bij het hotel',fouten); }
 
   // Dieren: waarnemingen
   { const {w,fouten}=start('2026-10-06',{login:'groep'});

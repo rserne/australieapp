@@ -7,7 +7,7 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 
 | Bestand | Wat erin staat | Wanneer aanpassen |
 |---|---|---|
-| `reis.js` | Alle inhoud, dus dagen, hotels, restaurants, excursies, kofferlijst, noodnummers, en de kleuren per regio (`TONE` en `TONE_INK`) | Bij elke inhoudelijke wijziging |
+| `reis.js` | Alle inhoud, dus dagen, hotels, restaurants, winkels bij het hotel, excursies, kofferlijst, noodnummers, en de kleuren per regio (`TONE` en `TONE_INK`) | Bij elke inhoudelijke wijziging |
 | `voorreis.js` | Programma van de voorreis, in dezelfde vorm als de dagen in `reis.js`. Leeg als de voorreis alleen uit notities bestaat | Bij een wijziging in het voorreisprogramma |
 | `dieren.js` | De dieren voor de waarnemingen, met naam, groep en synoniemen, en de prijzen | Bij een nieuw dier, een andere naam of een andere prijs |
 | `dieren-iconen.js` | De iconen bij die dieren, per sleutel één svg als tekst | Bij een nieuw of ander icoon |
@@ -241,6 +241,10 @@ De `_exists`-check hoort ook hier, en niet alleen bij de notities: aanmelden sta
 
 De app haalt bijlagen op met de token in de header en niet via een deelbare link, en verwijdert ze altijd via Storage (`DELETE /files/{id}`), zodat het bestand zelf ook weggaat en niet alleen de rij.
 
+## Winkels bij het hotel
+
+Niet elk hotel serveert ontbijt, en soms vertrekt de groep ervoor. Daarom staat op elke dag met een hotel, onder Eten vanavond, het blok Winkels bij het hotel: de dichtstbijzijnde supermarkt en, als die vroeg open is, een bakker, als dichtgeklapte kaarten zoals de restaurants, met looptijd, openingstijden, Route en Op de kaart. De lijst staat in `reis.js` als `WINKELS`, per hotel (dezelfde naam als in `h:` en `HOTELGEO`), zodat drie nachten Sydney één lijst delen. Per winkel: naam, soort (`supermarkt` of `bakker`), straat, looptijd in hele minuten, openingstijden en een opmerking. De looptijd is geschat zoals bij de restaurants zonder `wv`; de route vertrekt op de coördinaten uit `HOTELGEO`. De opmerking zegt niets over ontbijt in het hotel, want dat is niet bekend; wel over openingstijden tegenover een vaste vertrektijd, zoals de vlucht van 07.25 uur uit Sydney. `check.js` controleert dat elk hotel bestaat en de velden compleet zijn, en waarschuwt bij een hotel zonder winkels. De voorreis heeft geen hotels en dus geen blok.
+
 ## Hotel dag 13 en 14
 
-Sawadee heeft nog niet vastgelegd welk hotel het wordt. Zodra dat bekend is, voeg je `h:"…"` toe op dag 13 en 14 in `reis.js`, de coördinaten in `HOTELGEO` zetten en de `note` op beide dagen aanpassen.
+Sawadee heeft nog niet vastgelegd welk hotel het wordt. Zodra dat bekend is, voeg je `h:"…"` toe op dag 13 en 14 in `reis.js`, de coördinaten in `HOTELGEO` zetten, de winkels in `WINKELS` en de `note` op beide dagen aanpassen.

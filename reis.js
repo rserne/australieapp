@@ -549,7 +549,7 @@ const EXC=[
  ["Fietstour Melbourne",17,"\u20ac 100 via Sawadee","Ongeveer vier uur fietsen met een lokale gids langs de Yarra River, de Shrine of Remembrance, de Melbourne Cricket Ground, Parliament House en de straatkunst van Hosier Lane, met verhalen over de stad onderweg. Sawadee biedt hem vooraf aan."],
  ["Helikoptervlucht Uluru",18,"A$180\u2013250, zelf boeken","Boven Uluru en Kata Tjuta; alleen vanuit de lucht zie je hoe de rots in het vlakke land ligt. Zelf te boeken via flyuluru.com.au, en door het programma past alleen de sunset flight. Kies je die, dan mis je de zonsondergang bij het uitzichtpunt met de groep."],
  ["Sounds of Silence-diner",18,"\u00b1 A$285","Diner in de openlucht in de duinen. Champagne bij zonsondergang met zicht op Uluru, buffet met inheemse ingredi\u00ebnten, en na het eten gaan de lampen uit voor een sterrenkijksessie met een gids. Ongeveer vier uur."],
- ["Daintree en Cape Tribulation",23,"\u20ac 75 via Sawadee","Hele dag met gids: cruise op de Daintree River op zoek naar krokodillen, boardwalk door het oudste regenwoud ter wereld, een 4WD-tocht door het bos en het strand van Cape Tribulation waar het bos de zee raakt, met een Daintree-ijsje op de terugweg. Zwemmen kan er niet. De brief van Sawadee noemt dag 21, maar dat is de vliegdag; ga uit van deze vrije dag en check het bij de reisbegeleider."],
+ ["Daintree en Cape Tribulation",23,"\u20ac 75 via Sawadee","Hele dag met gids: cruise op de Daintree River op zoek naar krokodillen, boardwalk door het oudste regenwoud ter wereld, een 4WD-tocht door het bos en het strand van Cape Tribulation waar het bos de zee raakt, met een Daintree-ijsje op de terugweg. Zwemmen kan er niet."],
  ["Great Barrier Reef Cruise",22,"\u20ac 230 via Sawadee","Van 08.15 tot 17.00 uur: in anderhalf uur vanuit Cairns naar een ponton op Moore Reef, en dan vijf uur op het rif. Snorkelen, een glasbodemboot en het onderwaterobservatorium zijn inbegrepen, net als een buffetlunch. Tegen bijbetaling een snorkeltour met een marien bioloog, een introductieduik of een helikoptervlucht boven het rif. Reken op een aparte rifheffing."],
  ["Kuranda-trein en Skyrail",23,"\u00b1 A$140","Historische trein uit 1891 omhoog door vijftien tunnels en langs de Barron-watervallen naar het bergdorp Kuranda, en met de kabelbaan over het bladerdak terug. Als combinatieticket goedkoper dan los."],
  ["Fremantle Prison",25,"\u00b1 A$25","Rondleiding door de gevangenis die dwangarbeiders in de negentiende eeuw voor zichzelf bouwden en die tot 1991 in gebruik bleef. UNESCO-werelderfgoed. Anderhalf uur. Er is ook een tunneltour door de watergangen eronder."],
@@ -639,6 +639,54 @@ const PRICE={
  4:["Menu vanaf ± AUD 130","Diner ± AUD 150+ p.p. excl. drank"]};
 const ROLE=["Eerste keuze","Alternatief","Reserve"];
 const MIN_SCORE=4.4;
+
+// ============================================================
+//  WINKELS BIJ HET HOTEL. Niet elk hotel serveert ontbijt, en soms vertrekken we ervoor. Per hotel
+//  de dichtstbijzijnde supermarkt en, als die vroeg open is, een bakker. Het blok staat op elke dag
+//  met dat hotel, onder Eten vanavond. Per winkel: naam, soort, straat, looptijd in minuten vanaf het
+//  hotel (geschat zoals bij de restaurants, hemelsbreed plus een kwart), openingstijden op de dagen dat
+//  we er zijn, en een opmerking. De opmerking zegt niets over ontbijt in het hotel (dat weten we niet),
+//  wel over openingstijden tegenover een vaste vertrektijd uit het programma.
+//  Bron: Google Maps, opgehaald op 14 september 2026.
+// ============================================================
+const WINKELS={
+"The Ultimo, Haymarket":[
+ ["Woolworths Metro","supermarkt","Quay Street",1,"7.00–23.00","Vlak naast het hotel: brood, fruit, yoghurt en broodjes uit het koelvak. Op de vertrekdag naar Launceston (dinsdag, vlucht 07.25 uur) is hij nog dicht als je weggaat, dus maandagavond inslaan. De bakkers in Haymarket openen pas om 9.00 of 10.00 uur."]],
+"Hotel Grand Chancellor, Cameron Street":[
+ ["Bread + Butter Bakeshop","bakker","Cimitiere Street",3,"7.00–14.00","Om de hoek. Croissants, focaccia en broodjes. Op zondag dicht, maar jullie zijn er woensdag en donderdag."],
+ ["Woolworths","supermarkt","West Tamar Highway",11,"7.00–23.00","De grote supermarkt van het centrum, met eigen bakkerij."]],
+"Beachfront Bicheno, Tasman Highway":[
+ ["Blue Edge Bakery","bakker","Burgess Street",6,"5.00–15.00","Het ontbijtadres van Bicheno: pies, broodjes, koffie en een echt ontbijt, al vanaf vijf uur."],
+ ["IGA","supermarkt","Foster Street",5,"8.00–18.00","Kleine supermarkt met brood van de bakker, fruit en zuivel."]],
+"Ibis Styles, Macquarie Street":[
+ ["Daci & Daci","bakker","Murray Street",7,"7.00–17.00","Bakker met ontbijt, vlak bij de haven. Croissants, danish en broodjes om mee te nemen."],
+ ["Woolworths","supermarkt","Argyle Street",10,"7.00–22.00","Grote supermarkt in het centrum, elke dag dezelfde tijden."]],
+"The Terrace Hotel, South Terrace":[
+ ["IGA","supermarkt","Gilbert Street",7,"7.00–21.30","Buurtsupermarkt, ook op zondagavond open tot half tien."],
+ ["The Old Croissant Factory","bakker","Hutt Street",12,"8.00–14.00","Kleine bakker met croissants en danish. Op maandag dicht, en dag 12 is een maandag; dinsdag wel open."]],
+"Comfort Inn Western, Kepler Street":[
+ ["IGA","supermarkt","Timor Street",1,"7.30–21.00","Om de hoek. Goed gesorteerd, met kant-en-klare maaltijden."],
+ ["Coles","supermarkt","Lava Street",9,"6.00–21.00","Voor wie vroeg weg wil: al open om zes uur."],
+ ["Browns Depot Bakery","bakker","Koroit Street",8,"7.00–15.00","Pies, broodjes en gebak. Vrijdag gewoon open."]],
+"Ibis Melbourne, Therry Street":[
+ ["Woolworths Metro","supermarkt","Elizabeth Street",5,"6.00–23.00, weekend vanaf 7.00","Op de vertrekdag naar Uluru (zondag, vlucht 08.50 uur) opent hij pas om zeven uur; met een vertrek rond half zeven is dat te krap, dus zaterdagavond inslaan."],
+ ["Queen Victoria Market","bakker","Queen Street, Dairy Produce Hall",3,"6.00–15.00","Woodfrog Bakery en M&G Caiafa in de markthal: croissants en brood. De markt is dicht op maandag en woensdag; jullie zijn er vrijdag en zaterdag."]],
+"Outback Hotel & Lodge, Ayers Rock Resort":[
+ ["IGA","supermarkt","Town Square, Yulara",10,"9.00–20.00, vr–zo vanaf 8.00","Te voet of met de gratis resortshuttle. Op maandag gaat hij pas om negen uur open, dus voor de busreis naar Alice Springs zondagavond inslaan."],
+ ["Kulata Academy Cafe","bakker","Town Square, Yulara",10,"7.00–14.00","Broodjes, pies en gebak om mee te nemen, naast de IGA."]],
+"Desert Palms Resort, Barrett Drive":[
+ ["Coles","supermarkt","Bath Street",23,"7.00–19.00","In het centrum, dus overdag lopen of een taxi. Sluit al om zeven uur: koop vóór het avondeten."],
+ ["Woolworths","supermarkt","Bath Street",25,"7.00–19.00","Even verderop dan Coles, dezelfde tijden. Geen bakker in de buurt van het hotel."]],
+"Cairns Plaza Hotel, Esplanade":[
+ ["Woolworths","supermarkt","Abbott Street",14,"6.00–22.00, weekend vanaf 7.00","Grote supermarkt met bakkerij. Op de vertrekdag naar Perth (zaterdag) vanaf zeven uur open, ruim voor de vlucht van 10.45 uur."],
+ ["Palms Supermarket","supermarkt","Aplin Street",8,"6.00–24.00","Dichterbij en lang open, maar fors duurder dan Woolworths."]],
+"Ibis Perth, Murray Street":[
+ ["Coles","supermarkt","Raine Square",3,"8.00–21.00, za tot 17.00, zo 11.00–17.00","Om de hoek, maar Perth houdt korte winkeltijden: bij aankomst op zaterdagavond is hij al dicht, en zondag gaat hij pas om elf uur open."],
+ ["CBD Supermarket","supermarkt","Hay Street",11,"za 10.00–21.00, zo 10.00–20.00, ma–do 7.00–20.00","De winkel voor de zaterdagavond na aankomst en de zondagochtend."],
+ ["City Convenience Store","supermarkt","Murray Street",5,"6.30–24.00","Buurtwinkel voor het hoognodige, elke dag vroeg open."],
+ ["Croff Bakehouse","bakker","Raine Square",2,"7.00–14.30, weekend dicht","Croissants en broodjes, alleen op werkdagen: maandag, dinsdag en woensdag."]]
+};
+const WINKELS_CHECKED='14 sep 2026';
 
 // Praktisch: noodgevallen en bagage. Wordt in het tabblad Praktisch getoond én doorzocht.
 const SOS=["000","Politie, brandweer en ambulance in heel Australië. Vanaf een mobiel werkt 112 ook."];

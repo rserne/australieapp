@@ -275,6 +275,7 @@ function render(){
       return `<a class="rmore" href="https://www.google.com/maps/search/?api=1&query=${bij}" target="_blank" rel="noopener">`+
         `<span>${PIN} Meer restaurants in de buurt${d.h?' van het hotel':''}</span><span class="rchev">${ICO_CHEV}</span></a>`;})();
   }
+  h+=winkelsBlok(d);
   // Toevoegen staat onderaan de dag, in de stroom: geen knop die over de tekst zweeft.
   if(magNotities()) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   document.getElementById('day').innerHTML=h;
@@ -293,6 +294,39 @@ function render(){
   window.scrollTo(0,0);
 }
 const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span><span><b>${label}</b>${esc(txt)}</span></div>`;
+
+// Winkels bij het hotel (WINKELS in reis.js, per hotel). Dezelfde dichtgeklapte kaart als een restaurant,
+// maar zonder score, prijsklasse of rol: naam, soort, looptijd en openingstijden zijn genoeg om te kiezen.
+// De route vertrekt bij het hotel, op coördinaten als die er zijn, zodat hij niet bij een andere
+// vestiging van dezelfde keten begint.
+const WINKELLIJST=typeof WINKELS==='object'&&WINKELS?WINKELS:{};
+function winkelsBlok(d){
+  const lijst=d.h&&WINKELLIJST[d.h];
+  if(!lijst||!lijst.length) return '';
+  const g=HOTELGEO[d.h];
+  const origin=g?`${g[0]},${g[1]}`:encodeURIComponent(d.h+', '+d.p+', Australia');
+  return `<h2>Winkels bij het hotel</h2>`+
+    `<p class="wintro">Voor wie zelf ontbijt of proviand koopt: niet elk hotel serveert ontbijt, en soms vertrekken we ervoor.</p>`+
+    lijst.map(([nm,soort,wh,wk,open,no])=>{
+      const q=encodeURIComponent(nm+', '+wh+', '+d.p+', Australia');
+      const url='https://www.google.com/maps/search/?api=1&query='+q;
+      const dir=`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${q}&travelmode=walking`;
+      const kort=[soort,wk?`${wk} min lopen`:'',`open ${open}`].filter(Boolean).join(' · ');
+      let b=wk?`<span class="badge">≈ ${wk} min lopen</span>`:'';
+      if(wk>=15) b+=`<span class="badge">≈ ${Math.max(5,Math.round(wk/4)+2)} min taxi</span>`;
+      if(wk&&d.shuttle) b+=`<span class="badge">${esc(d.shuttle)}</span>`;
+      b+=`<span class="badge">Open ${esc(open)}</span>`;
+      return `<details class="card rcard"><summary>`+
+        `<span class="rtop"><span class="rname">${esc(nm)}</span><span class="rkort">${esc(kort)}</span></span>`+
+        `<span class="rchev">${ICO_CHEV}</span></summary>`+
+        `<div class="rbody"><div class="badges">${b}</div>`+
+        `<div class="where">${PIN}${esc(wh)}</div><p>${esc(no)}</p>`+
+        `<div class="btns"><a class="btn" href="${dir}" target="_blank" rel="noopener">Route</a>`+
+        `<a class="btn" href="${url}" target="_blank" rel="noopener">Op de kaart</a></div>`+
+        `<div class="checked">Openingstijden: ${SRC}, gecontroleerd ${typeof WINKELS_CHECKED==='string'?WINKELS_CHECKED:CHECKED}. Looptijd geschat vanaf het hotel, met een kwart opslag voor de omweg om bouwblokken en water. Tik op Route voor de werkelijke wandelroute.</div>`+
+        `</div></details>`;
+    }).join('');
+}
 
 // ---- Buiten de groepsreis: startpagina, voorreis- en nareisdagen, afsluitpagina ----
 // Posities in het bladeren: 0 is de startpagina, -1 t/m -VOOR de voorreis, 1 t/m 29 de groepsreis,
@@ -546,6 +580,7 @@ function hooiberg(d,n){
   (d.prac||[]).forEach(x=>bits.push([x,'Goed om te weten']));
   (d.food||[]).forEach(([a,b])=>bits.push([a+' — '+b,'Specialiteit']));
   (d.rest||[]).forEach(r=>bits.push([r[0]+((RDATA[r[0]]||{}).k?' — '+RDATA[r[0]].k:'')+' — '+r[1]+'. '+r[5]+(r[6]?' Reserveren: '+r[6]:''),'Restaurant']));
+  ((d.h&&WINKELLIJST[d.h])||[]).forEach(w=>bits.push([w[0]+' — '+w[1]+' — '+w[2]+', open '+w[4]+'. '+w[5],'Winkel bij het hotel']));
   if(d.note) bits.push([d.note,'Let op']);
   if(d.rnote) bits.push([d.rnote,'Openingstijden']);
   EXC.filter(e=>dagNr(e[1])===n).forEach(e=>bits.push([e[0]+' — '+e[3]+' Richtprijs '+e[2]+'.','Optionele excursie']));
@@ -2461,7 +2496,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-13-212';
+const APP_VERSIE='2026-09-14-213';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

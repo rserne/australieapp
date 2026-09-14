@@ -228,6 +228,8 @@
   details.rcard[open]>summary .rchev{transform:rotate(90deg)}
   .rbody{padding:0 15px 16px}
   .rbody .badges{margin-top:0}
+  /* Inleidende regel onder het kopje Winkels bij het hotel */
+  .wintro{margin:-4px 4px 12px;font-size:14px;line-height:1.45;color:var(--text-dim)}
   /* Lange dagtekst: acht regels zichtbaar, de rest achter dezelfde knop als bij de notities.
      line-clamp knipt op een regelgrens en zet er een beletselteken achter; een maximale hoogte
      in pixels sneed de laatste regel doormidden. */
