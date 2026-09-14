@@ -305,8 +305,7 @@ function winkelsBlok(d){
   if(!lijst||!lijst.length) return '';
   const g=HOTELGEO[d.h];
   const origin=g?`${g[0]},${g[1]}`:encodeURIComponent(d.h+', '+d.p+', Australia');
-  return `<h2>Winkels bij het hotel</h2>`+
-    `<p class="wintro">Voor wie zelf ontbijt of proviand koopt: niet elk hotel serveert ontbijt, en soms vertrekken we ervoor.</p>`+
+  return `<h2>Winkels</h2>`+
     lijst.map(([nm,soort,wh,wk,open,no])=>{
       const q=encodeURIComponent(nm+', '+wh+', '+d.p+', Australia');
       const url='https://www.google.com/maps/search/?api=1&query='+q;
@@ -580,7 +579,7 @@ function hooiberg(d,n){
   (d.prac||[]).forEach(x=>bits.push([x,'Goed om te weten']));
   (d.food||[]).forEach(([a,b])=>bits.push([a+' — '+b,'Specialiteit']));
   (d.rest||[]).forEach(r=>bits.push([r[0]+((RDATA[r[0]]||{}).k?' — '+RDATA[r[0]].k:'')+' — '+r[1]+'. '+r[5]+(r[6]?' Reserveren: '+r[6]:''),'Restaurant']));
-  ((d.h&&WINKELLIJST[d.h])||[]).forEach(w=>bits.push([w[0]+' — '+w[1]+' — '+w[2]+', open '+w[4]+'. '+w[5],'Winkel bij het hotel']));
+  ((d.h&&WINKELLIJST[d.h])||[]).forEach(w=>bits.push([w[0]+' — '+w[1]+' — '+w[2]+', open '+w[4]+'. '+w[5],'Winkel']));
   if(d.note) bits.push([d.note,'Let op']);
   if(d.rnote) bits.push([d.rnote,'Openingstijden']);
   EXC.filter(e=>dagNr(e[1])===n).forEach(e=>bits.push([e[0]+' — '+e[3]+' Richtprijs '+e[2]+'.','Optionele excursie']));
