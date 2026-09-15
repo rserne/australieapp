@@ -56,18 +56,20 @@
   .nieuwcat input{flex:1;min-width:0;font:inherit;font-size:15.5px;color:var(--text);padding:10px 14px;border-radius:14px;
     background:var(--glass-2);border:1px solid var(--rim);-webkit-appearance:none;appearance:none}
   .nieuwcat input::placeholder{color:var(--text-faint)}
-  .voet{margin:30px 0 0;font-size:13.5px;color:var(--text-faint);line-height:1.5}
-  .voet p{margin:0 0 8px}
+  .voet{margin:30px 0 0;text-align:center}
+  .voet p{margin:0}
   .voet button{font:inherit;font-size:13.5px;color:var(--text-dim);background:none;border:none;padding:0;text-decoration:underline;cursor:pointer}
-  .hero .eyebrow{text-decoration:none}
+  /* de filterchip is een schakelaar: aan toont hij een kruisje om hem weer uit te zetten */
+  .chip.schakel{display:inline-flex;align-items:center;gap:7px}
+  .chip.schakel svg{display:none;width:12px;height:12px}
+  .chip.schakel.on svg{display:block}
   @media (prefers-reduced-motion:reduce){.cathead .pijl,.track i,.toast{transition:none}}
 </style>
 </head>
 <body>
 
-<div class="hero banner" style="background-image:url('banner-praktisch.jpg')">
+<div class="hero banner" style="background-image:url('reg-voorreis.jpg')">
   <div class="wrap">
-    <a class="eyebrow" href="index.html">‹ AustralieApp</a>
     <h1 class="btitel">Paklijst</h1>
     <p class="bsub" id="sub"></p>
   </div>
@@ -76,8 +78,7 @@
 
 <main class="wrap">
   <div class="acties">
-    <button class="chip on" id="fAlles">Alles</button>
-    <button class="chip" id="fNog">Nog in te pakken</button>
+    <button class="chip schakel" id="fNog" aria-pressed="false">Nog in te pakken<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8"/></svg></button>
     <span class="ruimte"></span>
     <button class="chip" id="uitvinken">Alles uitvinken</button>
     <button class="chip" id="delen">Delen</button>
@@ -87,11 +88,7 @@
     <input id="nieuwcatnaam" placeholder="Nieuwe categorie…" autocomplete="off" autocapitalize="sentences" enterkeyhint="done">
     <button id="nieuwcatknop" aria-label="Categorie toevoegen">+</button>
   </div>
-  <div class="voet">
-    <p>Begonnen met een voorstel voor deze reis: haal weg wat je niet meeneemt en vul aan. Typ een getal vóór de naam ('3 T-shirts') om meteen het aantal te zetten.</p>
-    <p>Bij aankomst in Australië: eten, planten, hout en dierlijke producten altijd aangeven. Ze zijn er streng op.</p>
-    <p><button id="herstel">Startlijst herstellen</button></p>
-  </div>
+  <div class="voet"><p><button id="herstel">Startlijst herstellen</button></p></div>
 </main>
 
 <div class="toast" id="toast" role="status"></div>
@@ -170,8 +167,7 @@ const vind=id=>{ for(const c of S.cats){ const i=c.items.findIndex(x=>x.id===id)
 function teken(){
   const lijst=document.getElementById('lijst');
   const nog=S.filter==='nog';
-  document.getElementById('fAlles').classList.toggle('on',!nog);
-  document.getElementById('fNog').classList.toggle('on',nog);
+  const f=document.getElementById('fNog'); f.classList.toggle('on',nog); f.setAttribute('aria-pressed',String(nog));
   let totaal=0, klaar=0, catsKlaar=0;
   lijst.innerHTML=S.cats.map(c=>{
     const n=c.items.length, k=c.items.filter(x=>x.ok).length;
@@ -237,8 +233,7 @@ function nieuweCategorie(){
 }
 document.getElementById('nieuwcatknop').onclick=nieuweCategorie;
 document.getElementById('nieuwcatnaam').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); nieuweCategorie(); } });
-document.getElementById('fAlles').onclick=()=>{ S.filter='alles'; bewaar(); teken(); };
-document.getElementById('fNog').onclick=()=>{ S.filter='nog'; bewaar(); teken(); };
+document.getElementById('fNog').onclick=()=>{ S.filter=S.filter==='nog'?'alles':'nog'; bewaar(); teken(); };
 // Voor het opnieuw inpakken bij de volgende verhuizing: alles uit, de lijst zelf blijft.
 document.getElementById('uitvinken').onclick=()=>{
   const was=S.cats.map(c=>c.items.filter(x=>x.ok).map(x=>x.id));
