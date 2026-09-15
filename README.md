@@ -252,7 +252,7 @@ Schrijven naar de wachtrij wordt gecontroleerd. 'Bewaard op de telefoon' verschi
 
 ### Uitgesteld
 
-Uitgave 216 is bewust klein gehouden. De volgende punten uit de bredere review staan nog open en zijn niet aangepakt: beveiliging bij uitloggen en het wisselen van account (de wachtrij van een vorige gebruiker), het samenvoegen van overlappende synchronisatierondes, algemene foutafhandeling van IndexedDB, betrouwbaar opruimen van verwijderde bestanden bij Nhost Storage, en de herbouw van het updatesysteem in `sw.js`. Dat laatste gaat ervan uit dat de appversie tijdens de reis gelijk blijft; nieuwe notities bij Nhost zijn geen code-uitgave, een nieuwe versie onderweg wel, en die vraagt opnieuw aandacht voor het bekende updaterisico.
+De uitgaven 216 en 217 zijn bewust klein gehouden (217 voegt aan 216 alleen het slot op verstuurde maar niet opgeruimde items en de uitgeschakelde bijlageknop zonder verbinding toe). De volgende punten uit de bredere review staan nog open en zijn niet aangepakt: beveiliging bij uitloggen en het wisselen van account (de wachtrij van een vorige gebruiker), het samenvoegen van overlappende synchronisatierondes, algemene foutafhandeling van IndexedDB, betrouwbaar opruimen van verwijderde bestanden bij Nhost Storage, en de herbouw van het updatesysteem in `sw.js`. Dat laatste gaat ervan uit dat de appversie tijdens de reis gelijk blijft; nieuwe notities bij Nhost zijn geen code-uitgave, een nieuwe versie onderweg wel, en die vraagt opnieuw aandacht voor het bekende updaterisico.
 
 ## Bijlagen
 
@@ -266,7 +266,7 @@ Foto's en pdf's bij een notitie gaan naar Nhost Storage (bucket `default`). De n
 
 De `_exists`-check hoort ook hier, en niet alleen bij de notities: aanmelden staat open, dus wie het adres kent, kan een account maken. Zonder die check kan zo'n account bestanden uploaden, ook al ziet het verder niets van de groep. En de `gast = false` hoort erbij, want bijlagen zijn notities. Stel bij de bucket in Storage ook een maximale bestandsgrootte in (20 MB past bij de app); de grens in `app.js` (`MAX_UPLOAD`) is alleen een controle in de browser. Bijlagen tot 10 MB (`IDB_MAX`) gaan bij het synchroniseren automatisch mee naar de telefoon; een grotere pdf is alleen met verbinding te openen en telt in Notities niet mee als offline beschikbaar.
 
-De app haalt bijlagen op met de token in de header en niet via een deelbare link, en verwijdert ze altijd via Storage (`DELETE /files/{id}`), zodat het bestand zelf ook weggaat en niet alleen de rij.
+De app haalt bijlagen op met de token in de header en niet via een deelbare link, en verwijdert ze altijd via Storage (`DELETE /files/{id}`), zodat het bestand zelf ook weggaat en niet alleen de rij. Bijlagen gaan niet in de wachtrij: zonder verbinding staat de knop Foto of pdf in het formulier uit, en een tik erop zegt dat uploaden verbinding nodig heeft. Een notitie zonder bijlage kan wel offline.
 
 ## Winkels bij het hotel
 

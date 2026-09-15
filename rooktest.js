@@ -1371,6 +1371,25 @@ function zoek(w,fouten,term){
     eis(fouten,n2===0&&nh.verstuurd.length===2&&wachtrij(w).length===0,`zodra schrijven weer lukt, worden beide opgeruimd zonder nieuwe verzending (nu ${n2}, ${nh.verstuurd.length} verstuurd, ${wachtrij(w).length} in de rij)`);
     eis(fouten,/niet meer in de wachtrij/.test(w.pendingUpdate('q1',{tekst:'x'}).reden),'daarna zegt bewerken dat het item weg is');
     meld('6 okt: verstuurd maar niet opgeruimd item staat op slot',fouten); }
+  // De knop Foto of pdf staat zonder verbinding uit, zegt bij een tik waarom, en gaat weer aan zodra de
+  // verbinding terug is terwijl het blad openstaat
+  { const {w,fouten}=start('2026-10-06',{login:'groep'});   // zonder verbinding
+    klik(w,'nadd',fouten); await sleep(20);
+    const fi=()=>$(w,'shfile'), lab=()=>fi()&&fi().closest('label');
+    eis(fouten,!!fi()&&fi().disabled&&lab().getAttribute('aria-disabled')==='true'&&lab().style.opacity==='0.45',`zonder verbinding is de knop uitgeschakeld en gedempt (nu disabled=${fi()&&fi().disabled}, aria=${lab()&&lab().getAttribute('aria-disabled')})`);
+    lab().click(); await sleep(10);
+    eis(fouten,$(w,'shstat').textContent==='Uploaden lukt alleen met verbinding.'&&!!$(w,'sheet'),`een tik zegt waarom, in het blad zelf (nu: '${$(w,'shstat').textContent}')`);
+    Object.defineProperty(w.navigator,'onLine',{value:true,configurable:true});
+    w.dispatchEvent(new w.Event('online')); await sleep(10);
+    eis(fouten,!fi().disabled&&lab().getAttribute('aria-disabled')==='false'&&lab().style.opacity==='','met verbinding gaat de knop weer aan');
+    Object.defineProperty(w.navigator,'onLine',{value:false,configurable:true});
+    w.dispatchEvent(new w.Event('offline')); await sleep(10);
+    eis(fouten,fi().disabled&&lab().getAttribute('aria-disabled')==='true','en valt de verbinding weg, dan gaat hij weer uit');
+    // de tekstknop werkt gewoon: een notitie zonder bijlage kan wel offline
+    $(w,'shtext').value='Notitie zonder bijlage'; $(w,'shsave').click(); await sleep(260);
+    eis(fouten,!$(w,'sheet')&&wachtrij(w).length===1&&wachtrij(w)[0].tekst==='Notitie zonder bijlage','een notitie zonder bijlage gaat gewoon in de wachtrij');
+    w.localStorage.setItem('aus_pending','[]');
+    meld('6 okt: knop Foto of pdf zonder verbinding',fouten); }
 
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);

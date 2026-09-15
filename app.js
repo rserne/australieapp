@@ -1604,6 +1604,20 @@ function openSheet({dag,wie,item,onDone,kiesDag,type:typeStart,vast}){
     }
   };
   const fi=el.querySelector('#shfile');
+  if(fi){
+    // Zonder verbinding kan uploaden niet, en bijlagen gaan niet in de wachtrij. Dat laat de knop meteen
+    // zien: gedempt en uitgeschakeld, en een tik zegt in het blad waarom. Komt de verbinding terug terwijl
+    // het blad openstaat, dan gaat de knop weer aan. Is het blad weg, dan ruimt de luisteraar zichzelf op.
+    const lab=fi.closest('label');
+    const zetKnop=()=>{
+      if(!el.isConnected){ window.removeEventListener('online',zetKnop); window.removeEventListener('offline',zetKnop); return; }
+      const uit=!navigator.onLine;
+      fi.disabled=uit; lab.style.opacity=uit?'.45':''; lab.setAttribute('aria-disabled',uit?'true':'false');
+    };
+    zetKnop();
+    lab.addEventListener('click',e=>{ if(!navigator.onLine){ e.preventDefault(); st.textContent='Uploaden lukt alleen met verbinding.'; } });
+    window.addEventListener('online',zetKnop); window.addEventListener('offline',zetKnop);
+  }
   if(fi) fi.onchange=async e=>{
     const files=[...e.target.files]; if(!files.length) return;
     if(!navigator.onLine){ st.textContent='Uploaden lukt alleen met verbinding.'; return; }
@@ -2653,7 +2667,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-15-216';
+const APP_VERSIE='2026-09-15-217';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
