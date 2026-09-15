@@ -2492,7 +2492,10 @@ function renderDieren(){
   // Per groep: hoeveel soorten van het actieve filter (gespot, of gegeten als dat aanstaat) van hoeveel in totaal
   const telGroep=g=>[soortenVan(alle,hoe,g),g==='overig'?anderen.length:perGroep(g).length];
   h+=`<div class="dkop"><h2>Alle dieren</h2></div>`+
-    `<input id="dzoek" class="dzoek" type="search" placeholder="Zoek een dier" autocomplete="off" value="${esc(window._dzoek||'')}">`+
+    // Zelfde zoekveld als bij Notities: vergrootglas links, en rechts een kruisje om te wissen zodra er iets staat.
+    `<div class="search" style="margin-bottom:10px"><span class="mag">${MAG}</span>`+
+    `<input id="dzoek" type="search" placeholder="Zoek een dier" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" value="${esc(window._dzoek||'')}">`+
+    `<button class="wis" id="dzwis" type="button" aria-label="Zoekveld wissen"${(window._dzoek||'')?'':' hidden'}>${WIS}</button></div>`+
     `<div class="dchips">`+
       (()=>{ // Een aangezette chip krijgt een kruisje, net als de filters in Notities, zodat zichtbaar
              // is dat je hem ook weer uit kunt zetten. Gespot en Gegeten zijn twee aparte tellingen:
@@ -2596,11 +2599,11 @@ function renderDieren(){
   // Het zoekveld en de chips filteren samen de lijst Alle dieren. Een chip is een schakelaar, geen
   // sprong naar beneden: zo houd je na het filteren de knop 'Ander dier' meteen in beeld. Er kan één
   // groep tegelijk aanstaan. Alles blijft staan na een tik op een dier, want dan wordt opnieuw getekend.
-  const zoek=box.querySelector('#dzoek');
+  const zoek=box.querySelector('#dzoek'), zwis=box.querySelector('#dzwis');
   // Staat het filter aan terwijl zijn chip is verdwenen (de laatste waarneming weggehaald), dan zou de
   // lijst leeg blijven zonder dat je hem uit kunt zetten. Daarom hier laten vallen.
   if(window._dfilter&&!box.querySelector(`.dchip[data-filter="${window._dfilter}"]`)) window._dfilter='';
-  const filter=()=>{ const q=zoek.value.trim().toLowerCase(); window._dzoek=q;
+  const filter=()=>{ const q=zoek.value.trim().toLowerCase(); window._dzoek=q; zwis.hidden=!zoek.value;
     const stand=window._dfilter||'', groep=window._dgroep||'';
     box.querySelectorAll('#dalle .drijwrap').forEach(r=>{
       r.hidden=(!!q&&!r.dataset.zoek.includes(q))||(!!stand&&r.dataset[stand]!=='1'); });
@@ -2614,6 +2617,7 @@ function renderDieren(){
       leeg.querySelector('#dleegtekst').textContent=aan.length?`Geen dier gevonden met deze filters: ${aan.join(' · ')}.`:'Geen dier gevonden.';
     } };
   zoek.oninput=filter;
+  zwis.onclick=()=>{ zoek.value=''; zoek.focus(); filter(); };
   box.querySelector('#dwis').onclick=()=>{ window._dzoek=''; window._dfilter=''; window._dgroep=''; renderDieren(); };
   box.querySelectorAll('.dchip[data-filter]').forEach(c=>c.onclick=()=>{
     window._dfilter=window._dfilter===c.dataset.filter?'':c.dataset.filter; renderDieren(); });
@@ -2667,7 +2671,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-15-217';
+const APP_VERSIE='2026-09-15-218';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

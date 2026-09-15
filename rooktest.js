@@ -515,6 +515,13 @@ function zoek(w,fouten,term){
     const zichtbaar=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
     eis(fouten,zichtbaar.join(',')==='zoutwaterkrokodil,zoetwaterkrokodil',`zoeken op 'krok' laat twee krokodillen over (nu ${zichtbaar.join(',')})`);
     eis(fouten,[...w.document.querySelectorAll('#dalle .dgroep')].filter(g=>!g.hidden).length===1,'groepen zonder treffer verdwijnen bij zoeken');
+    // het kruisje in het zoekveld: onzichtbaar zolang het veld leeg is, en wist de zoekterm in één tik
+    const zwis=$(w,'dzwis'), zichtbaarNu=()=>[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).length;
+    eis(fouten,!!zwis&&!zwis.hidden&&zwis.closest('.search')===zoek.closest('.search'),'bij een zoekterm staat er een kruisje in het zoekveld');
+    zwis.click();
+    eis(fouten,zoek.value===''&&zwis.hidden&&!w._dzoek&&zichtbaarNu()>=55&&w.document.activeElement===zoek,`het kruisje wist de zoekterm en toont weer alle dieren (nu ${zichtbaarNu()} zichtbaar)`);
+    zoek.value='krok'; zoek.dispatchEvent(new w.Event('input'));
+    eis(fouten,zichtbaarNu()===2&&!zwis.hidden,'en daarna werkt zoeken gewoon weer');
     // een samengesteld synoniem als 'Rode reuzenkangoeroe en emoe' mag de kangoeroe niet onder 'emoe' vinden
     zoek.value='emoe'; zoek.dispatchEvent(new w.Event('input'));
     const opEmoe=[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier);
