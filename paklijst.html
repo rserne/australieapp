@@ -12,7 +12,6 @@
   /* Paklijst: één los bestand naast de app. Alles staat op deze telefoon (localStorage), er gaat niets
      naar Nhost. De opmaak komt uit app.css; hieronder alleen wat de lijst zelf nodig heeft. */
   .acties{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:22px 0 18px}
-  .acties .ruimte{flex:1}
   .cat.card{padding:0;overflow:hidden}
   .cathead{display:flex;align-items:center;gap:10px;width:100%;padding:15px 17px;
     background:none;border:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
@@ -79,9 +78,6 @@
 <main class="wrap">
   <div class="acties">
     <button class="chip schakel" id="fNog" aria-pressed="false">Nog in te pakken<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8"/></svg></button>
-    <span class="ruimte"></span>
-    <button class="chip" id="uitvinken">Alles uitvinken</button>
-    <button class="chip" id="delen">Delen</button>
   </div>
   <div id="lijst"></div>
   <div class="nieuwcat">
@@ -234,29 +230,10 @@ function nieuweCategorie(){
 document.getElementById('nieuwcatknop').onclick=nieuweCategorie;
 document.getElementById('nieuwcatnaam').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); nieuweCategorie(); } });
 document.getElementById('fNog').onclick=()=>{ S.filter=S.filter==='nog'?'alles':'nog'; bewaar(); teken(); };
-// Voor het opnieuw inpakken bij de volgende verhuizing: alles uit, de lijst zelf blijft.
-document.getElementById('uitvinken').onclick=()=>{
-  const was=S.cats.map(c=>c.items.filter(x=>x.ok).map(x=>x.id));
-  if(!was.some(a=>a.length)){ toast('Er is nog niets afgevinkt'); return; }
-  if(!confirm('Alle vinkjes weghalen? De lijst zelf blijft staan.')) return;
-  S.cats.forEach(c=>c.items.forEach(x=>x.ok=false)); bewaar(); teken();
-  toast('Alles uitgevinkt','Ongedaan maken',()=>{ S.cats.forEach((c,i)=>c.items.forEach(x=>{ if(was[i]&&was[i].includes(x.id)) x.ok=true; })); bewaar(); teken(); });
-};
 document.getElementById('herstel').onclick=()=>{
   if(!confirm('De startlijst terugzetten? Je eigen aanpassingen gaan verloren.')) return;
   const oud=S; S=startlijst(); bewaar(); teken();
   toast('Startlijst teruggezet','Ongedaan maken',()=>{ S=oud; bewaar(); teken(); });
-};
-// Als tekst, bijvoorbeeld voor een berichtje aan een medereiziger
-document.getElementById('delen').onclick=async()=>{
-  let totaal=0, klaar=0;
-  const regels=S.cats.filter(c=>c.items.length).map(c=>`${c.naam}\n`+c.items.map(it=>{ totaal++; if(it.ok) klaar++;
-    return `${it.ok?'☑':'☐'} ${it.aantal>1?it.aantal+'× ':''}${it.naam}`; }).join('\n'));
-  const tekst=`Paklijst Australië, ${klaar} van ${totaal} ingepakt\n\n`+regels.join('\n\n');
-  try{
-    if(navigator.share){ await navigator.share({title:'Paklijst',text:tekst}); return; }
-    await navigator.clipboard.writeText(tekst); toast('Lijst gekopieerd');
-  }catch(e){ if(e&&e.name==='AbortError') return; try{ await navigator.clipboard.writeText(tekst); toast('Lijst gekopieerd'); }catch(e2){ toast('Delen lukt hier niet'); } }
 };
 // Thema volgt de app als die in een ander tabblad wordt omgezet
 window.addEventListener('storage',e=>{ if(e.key==='aus_thema') document.documentElement.setAttribute('data-theme',e.newValue==='dark'?'dark':'light'); });
