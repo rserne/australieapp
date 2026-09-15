@@ -1061,6 +1061,7 @@ async function wisPriveGegevens(){
   window._notZoek=''; window._notType=''; window._notVandaag=false; window._notBuiten='';
   window._dzoek=''; window._dfilter=''; window._dgroep='';
   await wisThumbUrls();
+  _verzonden.clear(); _migratie=null;   // wat de wachtrij in het geheugen nog wist, hoort bij het vorige account
   try{ Object.keys(localStorage).filter(k=>k.startsWith('aus_')&&k!=='aus_thema'&&k!=='aus_koers').forEach(k=>localStorage.removeItem(k)); }catch(e){}
   try{ const db=await idb(); await new Promise(res=>{const t=db.transaction('files','readwrite').objectStore('files').clear();t.onsuccess=()=>res();t.onerror=()=>res()}); }catch(e){}
 }
@@ -1173,13 +1174,17 @@ async function syncAlles(force){
         LS.set('aus_cache_all',items);
         const perDag={}; items.forEach(it=>{(perDag[it.dag]=perDag[it.dag]||[]).push(it)});
         for(const i of [...Array.from({length:30},(_,k)=>k),...buitenDagen()]) LS.set('aus_cache_'+i,perDag[i]||[]);
+      }
+      // De waarnemingen vóór de bijlagen: één kleine query, die niet hoeft te wachten op een trage
+      // pdf-download. Het scherm Dieren heeft er dan al de laatste stand van.
+      await syncWaarnemingen();
+      if(!isGast()){
         // bijlagen die weg zijn ook uit de opslag halen
         const geldig=new Set(items.filter(x=>x.file_id).map(x=>x.file_id));
         (await idbKeys()).forEach(k=>{ if(!geldig.has(k)) idbDel(k); });
         for(const it of items.filter(x=>x.soort==='bestand')) await cacheFile(it);
       }
       LS.set('aus_sync',{tijd:new Date().toISOString()});
-      await syncWaarnemingen();
       return items;
     }catch(e){ return null; } finally { _sync=null; }
   })();
@@ -1243,50 +1248,148 @@ async function deleteFile(id){
 
 // Wachtrij voor alles wat zonder verbinding is vastgelegd. Elk item draagt de tabel waar het heen moet
 // (dagitems voor notities, waarnemingen voor dieren). Items van vóór de waarnemingen hebben geen tabel
-// en zijn notities. pending() geeft de hele rij, de rest kijkt alleen naar de eigen tabel, maar de
-// plek in de rij (pix) blijft die in de hele rij, zodat bewerken en weggooien op de juiste landen.
-function pending(){return LS.get('aus_pending')||[]}
+// en zijn notities. pending() geeft de hele rij, de rest kijkt alleen naar de eigen tabel.
+//
+// Elk item heeft een vaste, lokale uid. Die is de sleutel voor bewerken, weggooien, foutmeldingen en
+// het opruimen na versturen. Vroeger was dat de plek in de rij, en die verschuift zodra er tijdens het
+// versturen iets bij komt of af gaat: dan landde een tik op het verkeerde item, of verdween een net
+// toegevoegde notitie door het terugschrijven van een oude momentopname. De uid gaat niet naar Hasura.
+const maakUid=()=>{
+  try{ if(typeof crypto!=='undefined'&&crypto.randomUUID) return crypto.randomUUID(); }catch(e){}
+  return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);
+};
+// Schrijven mét controle. LS.set slikt fouten in (vol, privémodus), en juist bij de wachtrij willen we
+// weten of het is gelukt: anders zegt de app 'Bewaard op de telefoon' terwijl er niets staat.
+function schrijfPending(q){
+  let tekst; try{ tekst=JSON.stringify(q); localStorage.setItem('aus_pending',tekst); }catch(e){ return false; }
+  try{ return localStorage.getItem('aus_pending')===tekst; }catch(e){ return false; }
+}
+// Een oude wachtrij zonder uid's krijgt ze eenmalig en wordt meteen teruggeschreven. Lukt dat schrijven
+// niet, dan blijven de items gewoon zichtbaar (met dezelfde uid's zolang de opslag niet verandert), maar
+// begint het versturen niet: verzonden items zouden dan niet uit de rij te halen zijn.
+let _migratie=null, _pendingOnbewaard=false;
+function pending(){
+  let ruw=null; try{ ruw=localStorage.getItem('aus_pending'); }catch(e){}
+  let q=null; try{ q=JSON.parse(ruw); }catch(e){}
+  if(!Array.isArray(q)) return [];
+  q=q.filter(p=>p&&typeof p==='object');
+  if(q.every(p=>p.uid)){ _pendingOnbewaard=false; return q; }
+  if(_migratie&&_migratie.ruw===ruw){
+    if(_pendingOnbewaard) _pendingOnbewaard=!schrijfPending(_migratie.q);   // nog eens proberen, zelfde uid's
+    return _migratie.q;
+  }
+  const m=q.map(p=>p.uid?p:{...p,uid:maakUid()});
+  _migratie={ruw,q:m};
+  _pendingOnbewaard=!schrijfPending(m);
+  return m;
+}
 const tabelVan=p=>p.tabel||'dagitems';
-const pendingVan=tabel=>pending().map((p,i)=>({...p,pix:i})).filter(p=>tabelVan(p)===tabel);
-// Wachtende notities in dezelfde vorm als de notities van Nhost, met hun plek in de wachtrij (pix)
-// erbij zodat je ze kunt bewerken of weggooien voordat ze zijn verstuurd.
-const pendingAlsItems=()=>pendingVan('dagitems').map(p=>({...p,id:'wacht'+p.pix,user_id:NH.user.id,soort:'notitie',
+const pendingVan=tabel=>pending().filter(p=>tabelVan(p)===tabel);
+// Wachtende notities in dezelfde vorm als de notities van Nhost, met de uid als id, zodat je ze kunt
+// bewerken of weggooien voordat ze zijn verstuurd.
+const pendingAlsItems=()=>pendingVan('dagitems').map(p=>({...p,id:'wacht'+p.uid,user_id:NH.user.id,soort:'notitie',
   type:p.type||'notitie',created_at:new Date().toISOString(),pending:true}));
 // Hetzelfde voor waarnemingen
-const pendingWaarnemingen=()=>pendingVan('waarnemingen').map(p=>({...p,id:'wacht'+p.pix,user_id:NH.user.id,pending:true}));
+const pendingWaarnemingen=()=>pendingVan('waarnemingen').map(p=>({...p,id:'wacht'+p.uid,user_id:NH.user.id,pending:true}));
 // Eén item in de wachtrij versturen, naar de eigen tabel
 async function verstuurPending(it){
   if(tabelVan(it)==='waarnemingen') return gql(M_INS_WAARN,{o:{dier:it.dier,dag:it.dag,gezien_op:it.gezien_op,wie:it.wie,opmerking:it.opmerking||null,hoe:it.hoe||'gezien'}});
   return gql(M_INS,{o:{dag:it.dag,soort:'notitie',tekst:it.tekst,wie:it.wie,type:it.type||'notitie'}});
 }
-// Notities die nog op verbinding wachten staan alleen op deze telefoon. Ze krijgen een eigen
-// index als sleutel, zodat je ze kunt aanpassen of weggooien voordat ze zijn verstuurd.
-function pendingUpdate(ix,velden){ const q=pending(); if(!q[ix])return; q[ix]={...q[ix],...velden}; LS.set('aus_pending',q); }
-function pendingDelete(ix){ const q=pending(); q.splice(ix,1); LS.set('aus_pending',q); }
-async function flushPending(){
-  const q=pending(); if(!q.length||!navigator.onLine) return 0;
-  const rest=[]; let verstuurd=0, waarn=0;
-  LAATST_VERSTUURD.notities=0; LAATST_VERSTUURD.waarnemingen=0;
-  for(const it of q){
-    try{ await verstuurPending(it); verstuurd++; if(tabelVan(it)==='waarnemingen') waarn++; LAATST_VERSTUURD[tabelVan(it)==='waarnemingen'?'waarnemingen':'notities']++; }
-    // Tijdelijk: gewoon laten staan. Blijvend (rechten, ongeldige invoer): ook laten staan, want de
-    // tekst mag niet verloren gaan, maar met de reden erbij zodat je hem kunt aanpassen of weggooien.
-    catch(e){ rest.push(e.tijdelijk?it:{...it,fout:e.message}); }
+// Wat nu daadwerkelijk onderweg is naar Nhost. Zo'n item mag je even niet bewerken of weggooien: het
+// antwoord kan al binnen zijn terwijl jij nog typt, en dan zou je wijziging stilzwijgend verloren gaan.
+const _onderweg=new Set();
+const isOnderweg=uid=>_onderweg.has(uid);
+// Verzonden, maar niet uit de wachtrij te halen omdat schrijven mislukte. Binnen deze sessie slaan we
+// ze over en proberen we het opruimen opnieuw. Ook zo'n item is op slot: het staat al bij Nhost, dus een
+// bewerking hier zou bij het opruimen verdwijnen terwijl de server de oude tekst houdt, en weghalen hier
+// zou de notitie niet weghalen. Na een herstart weet de app dit niet meer: dan kan zo'n item nog een keer
+// worden verstuurd. Dat restrisico noemt de README.
+const _verzonden=new Set();
+const isVerzonden=uid=>_verzonden.has(uid);
+const soortNaam=p=>tabelVan(p)==='waarnemingen'?'waarneming':'notitie';
+const ONDERWEG=p=>`Deze ${soortNaam(p)} wordt nu verstuurd. Probeer het zo opnieuw.`;
+const VERZONDEN=p=>`Deze ${soortNaam(p)} is al verstuurd, maar kon nog niet uit de wachtrij worden gehaald. Zodra dat lukt, staat hij in de lijst en kun je hem daar bewerken of weghalen.`;
+// De reden waarom een wachtend item nu niet te bewerken of weg te halen is, of '' als dat wel kan.
+const slotReden=p=>_verzonden.has(p.uid)?VERZONDEN(p):_onderweg.has(p.uid)?ONDERWEG(p):'';
+// Wat er op de kaart staat in plaats van 'wacht op verbinding'
+const wachtTekst=p=>_verzonden.has(p.uid)?'verstuurd, wachtrij nog niet bijgewerkt':_onderweg.has(p.uid)?'wordt verstuurd…':'wacht op verbinding';
+const OPSLAG_MISLUKT='Bewaren op de telefoon is mislukt. Er is te weinig opslagruimte, of de browser staat het niet toe.';
+// De drie bewerkingen geven {ok, reden} terug; reden is een melding voor op het scherm.
+function pendingAdd(rec){
+  const uid=rec.uid||maakUid();
+  const ok=schrijfPending([...pending(),{...rec,uid}]);
+  return {ok,uid,reden:ok?'':OPSLAG_MISLUKT};
+}
+function pendingUpdate(uid,velden){
+  const q=pending(), ix=q.findIndex(p=>p.uid===uid);
+  if(ix<0) return {ok:false,reden:'Deze notitie staat niet meer in de wachtrij.'};
+  const slot=slotReden(q[ix]); if(slot) return {ok:false,reden:slot};
+  q[ix]={...q[ix],...velden};
+  const ok=schrijfPending(q);
+  return {ok,reden:ok?'':OPSLAG_MISLUKT};
+}
+function pendingDelete(uid){
+  const q=pending(), it=q.find(p=>p.uid===uid);
+  if(!it) return {ok:true,reden:''};   // al weg
+  const slot=slotReden(it); if(slot) return {ok:false,reden:slot};
+  const ok=schrijfPending(q.filter(p=>p.uid!==uid));
+  return {ok,reden:ok?'':'Weghalen is mislukt: de wachtrij kon niet worden bewaard op de telefoon.'};
+}
+// Eén ronde tegelijk. Een tweede aanroep (inloggen én weer online, of twee tabbladen) sluit aan op de
+// lopende ronde in plaats van hetzelfde item nog eens te versturen.
+let _flush=null;
+function flushPending(){
+  if(!_flush) _flush=verstuurWachtrij().finally(()=>{_flush=null});
+  return _flush;
+}
+async function verstuurWachtrij(){
+  if(!navigator.onLine) return 0;
+  if(!pending().length) return 0;
+  if(_pendingOnbewaard) return 0;   // uid's staan nog niet op de telefoon: dan kunnen we niet opruimen
+  LAATST_VERSTUURD.notities=0; LAATST_VERSTUURD.waarnemingen=0; LAATST_VERSTUURD.opruimFout=0;
+  let verstuurd=0, waarn=0;
+  const geprobeerd=new Set();
+  // Eerst wat nog opgeruimd moet worden van een eerdere ronde
+  for(const uid of [..._verzonden]){ if(schrijfPending(pending().filter(p=>p.uid!==uid))) _verzonden.delete(uid); geprobeerd.add(uid); }
+  // Wat er tijdens de ronde bij komt, wachten we niet af: het krijgt een vervolgronde (hoogstens drie in
+  // totaal, tegen eindeloos doorgaan). Blijft er dan nog iets over, dan wacht dat op de volgende keer.
+  for(let ronde=0;ronde<3;ronde++){
+    const te=pending().filter(p=>!geprobeerd.has(p.uid));
+    if(!te.length) break;
+    for(const oud of te){
+      const uid=oud.uid; geprobeerd.add(uid);
+      // Vlak vóór het versturen de actuele stand lezen: intussen weggegooid, dan overslaan; intussen
+      // bewerkt, dan de nieuwe tekst. Vanaf hier is het item onderweg en op slot.
+      const it=pending().find(p=>p.uid===uid); if(!it) continue;
+      _onderweg.add(uid);
+      try{
+        await verstuurPending(it);
+        verstuurd++; if(tabelVan(it)==='waarnemingen') waarn++; LAATST_VERSTUURD[tabelVan(it)==='waarnemingen'?'waarnemingen':'notities']++;
+        // Alleen deze uid uit de actuele wachtrij, nooit de momentopname van vóór het versturen terug.
+        if(!schrijfPending(pending().filter(p=>p.uid!==uid))){ _verzonden.add(uid); LAATST_VERSTUURD.opruimFout++; }
+      }catch(e){
+        // Tijdelijk: gewoon laten staan. Blijvend (rechten, ongeldige invoer): ook laten staan, want de
+        // tekst mag niet verloren gaan, maar met de reden erbij zodat je hem kunt aanpassen of weggooien.
+        if(!e.tijdelijk){ const q=pending(), ix=q.findIndex(p=>p.uid===uid); if(ix>=0){ q[ix]={...q[ix],fout:e.message}; schrijfPending(q); } }
+      }finally{ _onderweg.delete(uid); }
+    }
   }
-  LS.set('aus_pending',rest);
   // Zijn er waarnemingen doorgekomen, dan is de eerdere reden voorbij. Kopie verversen zodat
   // de tellers kloppen, en het scherm Dieren bijwerken als dat openstaat.
   if(waarn){ await syncWaarnemingen(); if(view==='dieren') renderDieren(); }
   return verstuurd;
 }
 const mislukt=(tabel='dagitems')=>pendingVan(tabel).filter(p=>p.fout).length;
-const LAATST_VERSTUURD={notities:0,waarnemingen:0};
+const LAATST_VERSTUURD={notities:0,waarnemingen:0,opruimFout:0};
 // 'Je notitie is verstuurd', '2 notities en je waarneming zijn verstuurd'
 function verstuurdTekst(){
   const n=LAATST_VERSTUURD.notities, w=LAATST_VERSTUURD.waarnemingen, d=[];
   if(n) d.push(n===1?'je notitie':`${n} notities`); if(w) d.push(w===1?'je waarneming':`${w} waarnemingen`);
   if(!d.length) return '';
-  const t=d.join(' en ')+(n+w===1?' is':' zijn')+' verstuurd';
+  let t=d.join(' en ')+(n+w===1?' is':' zijn')+' verstuurd';
+  // Verstuurd, maar niet uit de wachtrij te halen: dat is geen afgeronde handeling, dus dat zeggen we.
+  if(LAATST_VERSTUURD.opruimFout) t+=', maar de wachtrij op de telefoon kon niet worden bijgewerkt';
   return t.charAt(0).toUpperCase()+t.slice(1);
 }
 
@@ -1319,11 +1422,11 @@ function noteCard(it,kop,{zonderNaam=false}={}){
   const wie=mine?(NH.user.displayName||it.wie||NH.user.email):(it.wie||'Onbekend');
   const lang=(it.tekst||'').split('\n').length>4||(it.tekst||'').length>280;
   const txt=it.tekst?`<span class="ntext${lang?' clamp':''}">${linkify(it.tekst)}</span>${lang?`<button class="nmore" type="button">Meer</button>`:''}`:'';
-  const pix=it.pending?` data-pix="${it.pix}"`:'';
-  const acts=mine?`<span class="nacts"><button class="nbtn" data-edit="${esc(it.id||'')}"${pix} aria-label="Bewerken">✎</button>`+
-    `<button class="nbtn ndel" data-del="${esc(it.id||'')}"${pix}${it.file_id?` data-file="${esc(it.file_id)}"`:''} aria-label="Verwijderen">×</button></span>`:'';
+  const uid=it.pending?` data-uid="${esc(it.uid||'')}"`:'';
+  const acts=mine?`<span class="nacts"><button class="nbtn" data-edit="${esc(it.id||'')}"${uid} aria-label="Bewerken">✎</button>`+
+    `<button class="nbtn ndel" data-del="${esc(it.id||'')}"${uid}${it.file_id?` data-file="${esc(it.file_id)}"`:''} aria-label="Verwijderen">×</button></span>`:'';
   const head=`<div class="nhead">${kop}${acts}</div>`;
-  const wanneer=it.pending?(it.fout?`versturen mislukt: ${esc(it.fout)}`:'wacht op verbinding'):fmtWhen(it.created_at);
+  const wanneer=it.pending?(it.fout?`versturen mislukt: ${esc(it.fout)}`:wachtTekst(it)):fmtWhen(it.created_at);
   const bewerkt=(!it.pending&&it.updated_at&&it.updated_at!==it.created_at)?' · bewerkt':'';
   if(it.soort==='bestand'){
     const isImg=/^image\//.test(it.mime||'');
@@ -1381,8 +1484,8 @@ async function renderNotes(dag){
   function teken(items,status){
   const pend=pendingVan('dagitems').filter(p=>p.dag===dag);
   // user_id meegeven, anders herkent noteCard een wachtende notitie niet als de jouwe
-  // en verschijnen de knoppen Bewerken en Verwijderen niet. pix is de plek in de hele wachtrij.
-  const all=[...items,...pend.map(p=>({...p,soort:'notitie',pending:true,user_id:NH.user.id}))]
+  // en verschijnen de knoppen Bewerken en Verwijderen niet. De uid wordt het id op de kaart.
+  const all=[...items,...pend.map(p=>({...p,id:'wacht'+p.uid,soort:'notitie',pending:true,user_id:NH.user.id}))]
     .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||'')));
   const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
   // Tickets en reserveringen heb je op een moment nodig. De rest is naslag.
@@ -1398,12 +1501,13 @@ async function renderNotes(dag){
     koppelKaarten(box);
     const refresh=()=>renderNotes(dag);
     box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
-      const it=all.find(x=>x.id===b.dataset.edit)||all.find(x=>String(x.pix)===b.dataset.pix);
+      const it=all.find(x=>x.id===b.dataset.edit);
+      if(it&&it.pending&&slotReden(it)){ toast(slotReden(it)); return; }
       if(it) openSheet({dag,wie,item:it,onDone:refresh});
     });
     box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
       if(!confirm('Verwijderen?')) return;
-      if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); refresh(); return; }
+      if(b.dataset.uid!==undefined){ const r=pendingDelete(b.dataset.uid); if(!r.ok) toast(r.reden); refresh(); return; }
       try{ await verwijderItem(b.dataset.del,b.dataset.file); refresh(); }
       catch(e){ toast('Verwijderen mislukt: '+e.message); }
     });
@@ -1450,11 +1554,24 @@ function openSheet({dag,wie,item,onDone,kiesDag,type:typeStart,vast}){
   const ta=el.querySelector('#shtext'), st=el.querySelector('#shstat');
   setTimeout(()=>ta.focus(),250);
 
+  // Een wachtende notitie die intussen onderweg is naar Nhost (of al verstuurd, maar nog in de rij): dat
+  // zeggen we meteen, in het blad zelf. De melding onderin zou achter het blad verdwijnen.
+  if(isEdit&&item.pending&&slotReden(item)) st.textContent=slotReden(item);
+  // Zonder verbinding (of als de server even niet antwoordt) gaat een nieuwe notitie in de wachtrij.
+  // 'Bewaard op de telefoon' zeggen we alleen als dat schrijven ook echt is gelukt; anders blijft de
+  // tekst in het blad staan, met de reden erbij.
+  const bewaarLokaal=rec=>{
+    const r=pendingAdd(rec);
+    if(!r.ok){ st.textContent=r.reden; return; }
+    close(); toast('Bewaard op de telefoon. Hij wordt verstuurd zodra er verbinding is.'); onDone();
+  };
   el.querySelector('#shsave').onclick=async()=>{
     const t=ta.value.trim();
     if(isEdit&&item.pending){
       if(!t){ st.textContent='Typ eerst een notitie.'; return; }
-      pendingUpdate(item.pix,{tekst:t,type,dag:dagVan(),fout:undefined});   // opnieuw proberen na aanpassing
+      // pendingUpdate weigert zelf als het item intussen onderweg is, ook al stond dit blad al open.
+      const r=pendingUpdate(item.uid,{tekst:t,type,dag:dagVan(),fout:undefined});   // opnieuw proberen na aanpassing
+      if(!r.ok){ st.textContent=r.reden; return; }
       close(); onDone(); return;
     }
     if(isEdit){
@@ -1475,14 +1592,14 @@ function openSheet({dag,wie,item,onDone,kiesDag,type:typeStart,vast}){
     }
     if(!t){ st.textContent='Typ eerst een notitie, of kies een foto of pdf.'; return; }
     const rec={dag:dagVan(),tekst:t,wie,type};
-    if(!navigator.onLine){ LS.set('aus_pending',[...pending(),rec]); close(); toast('Bewaard op de telefoon. Hij wordt verstuurd zodra er verbinding is.'); onDone(); return; }
+    if(!navigator.onLine){ bewaarLokaal(rec); return; }
     if(kiesDag) LS.set('aus_laatste_dag',dagVan());
     st.textContent='Opslaan…';
     try{ await gql(M_INS,{o:{...rec,soort:'notitie'}}); close(); onDone(); }
     catch(e){
       // Geen verbinding of server even weg: bewaren en later versturen. Een fout van Hasura zelf
       // (rechten, ongeldige invoer) gaat niet in de wachtrij. Die zou daar eindeloos blijven mislukken.
-      if(e.tijdelijk){ LS.set('aus_pending',[...pending(),rec]); close(); toast('Bewaard op de telefoon. Hij wordt verstuurd zodra er verbinding is.'); onDone(); }
+      if(e.tijdelijk) bewaarLokaal(rec);
       else st.textContent='Opslaan mislukt: '+e.message;
     }
   };
@@ -1509,46 +1626,41 @@ function openSheet({dag,wie,item,onDone,kiesDag,type:typeStart,vast}){
 // staan: dat scheelt het herstellen van focus en cursor, en het typen voelt rustig.
 let alleItems=[], alleWie='';
 
+// Eerst de kopie van de telefoon, dan pas Nhost. Bij slecht bereik kan een antwoord seconden of langer
+// uitblijven, en de notities staan er allang. Na de synchronisatie worden alleen de lijst, de tellers
+// en de status bijgewerkt: het zoekveld, de chips en de scrollpositie blijven zoals je ze had.
+// Het rondenummer voorkomt dat een traag antwoord een scherm overschrijft dat intussen opnieuw is
+// opgebouwd (bijvoorbeeld na het bewaren van een notitie).
+let _allesRonde=0;
 async function renderAlles(){
   const box=document.getElementById('alles');
   if(!magNotities()){ box.innerHTML=''; return; }
-  const wie=alleWie=NH.user.displayName||NH.user.email;
-  let items=LS.get('aus_cache_all')||[], status='';
-  if(!box.querySelector('#nzoek')) box.innerHTML=`<div class="nstatus">Laden…</div>`;
+  alleWie=NH.user.displayName||NH.user.email;
+  const ronde=++_allesRonde;
+  let items=LS.get('aus_cache_all')||[];
+  bouwAllesSchil(box);
+  toonAlles(items,navigator.onLine?'Bijwerken…':'Geen verbinding, laatst opgeslagen versie',ronde);
   const verse=await syncAlles(true);
-  if(verse){ items=verse; const t=LS.get('aus_sync'); status=`Bijgewerkt ${fmtWhen(t.tijd)}`; }
+  if(ronde!==_allesRonde) return;                    // een nieuwere ronde heeft het scherm al
+  if(!magNotities()){ box.innerHTML=''; return; }    // intussen gast geworden of uitgelogd
+  let status;
+  if(verse){ items=verse; const t=LS.get('aus_sync'); status=`Bijgewerkt ${fmtWhen((t&&t.tijd)||new Date().toISOString())}`; }
   else status=navigator.onLine?'Kon niet bijwerken, laatst opgeslagen versie':'Geen verbinding, laatst opgeslagen versie';
-  const fout=mislukt(), wacht=pendingVan('dagitems').length-fout;
-  if(wacht) status+=` · ${wacht} ${wacht===1?'notitie wacht':'notities wachten'} op verbinding`;
-  if(fout) status+=` · ${fout} ${fout===1?'notitie kon':'notities konden'} niet worden verstuurd`;
-  // hoeveel bijlagen staan er op de telefoon?
-  const metBijlage=items.filter(x=>x.soort==='bestand');
-  let bijl='';
-  if(metBijlage.length){
-    const opslag=await idbKeys();
-    const offline=metBijlage.filter(x=>opslag.includes(x.file_id)).length;
-    bijl=`${offline} van ${metBijlage.length} bijlagen offline`;
-    status+=` · ${offline} van ${metBijlage.length} bijlagen offline beschikbaar`;
-  }
-  if(view==='alles'){
-    const tekst=`${items.length} ${items.length===1?'notitie':'notities'}${bijl?' · '+bijl:''}`;
-    const bs=document.querySelector('#hero .bsub');
-    if(bs) bs.textContent=tekst;
-    else { const w=document.querySelector('#hero .wrap'); if(w) w.insertAdjacentHTML('beforeend',`<p class="bsub">${tekst}</p>`); }
-  }
-  // notities die nog op verbinding wachten, horen ook hier zichtbaar te zijn
-  alleItems=[...items,...pendingAlsItems()];
-
+  toonAlles(items,status,ronde);
+}
+// De vaste schil: zoekveld, plusknop, de plekken voor chips, lijst en status, en de knop voor de
+// bijlagen. Staat hij er al, dan blijft hij staan, met focus en cursor in het zoekveld.
+function bouwAllesSchil(box){
+  if(box.querySelector('#nzoek')) return;
   box.innerHTML=`<div class="notes"><div class="zoekrij"><div class="search"><span class="mag">${MAG}</span>`+
     `<input id="nzoek" type="search" placeholder="Zoek in notities…" autocomplete="off" `+
     `autocorrect="off" autocapitalize="none" spellcheck="false" value="${esc(window._notZoek||'')}">`+
     `<button class="wis" id="nwis" type="button" aria-label="Zoekveld wissen"${(window._notZoek||'')?'':' hidden'}>${WIS}</button></div>`+
     `<button class="plusknop" id="aadd" aria-label="Notitie toevoegen">${PLUS}</button></div>`+
     `<div id="filterrij"></div><div id="nlijst"></div>`+
-    `<div class="nstatus" style="margin-top:18px">${esc(status)}</div>`+
-    (metBijlage.length?`<div class="nrow" style="margin-top:8px"><button class="btn" id="acache">Bijlagen opnieuw ophalen</button></div>`:'')+
+    `<div class="nstatus" id="nstatus" style="margin-top:18px"></div>`+
+    `<div class="nrow" id="acacherij" style="margin-top:8px;display:none"><button class="btn" id="acache">Bijlagen opnieuw ophalen</button></div>`+
     `</div>`;
-
   const zv=box.querySelector('#nzoek');
   zv.addEventListener('input',()=>{
     window._notZoek=zv.value;
@@ -1558,15 +1670,52 @@ async function renderAlles(){
   box.querySelector('#nwis').onclick=()=>{ window._notZoek=''; zv.value=''; box.querySelector('#nwis').hidden=true; zv.focus(); tekenLijst(); };
   box.querySelector('#aadd').onclick=()=>openSheet({
     // Voorgeselecteerd: tijdens de reis vandaag, daarbuiten de dag die je het laatst koos.
-    dag:T.dag??(LS.get('aus_laatste_dag')??0),wie,kiesDag:true,onDone:renderAlles});
+    dag:T.dag??(LS.get('aus_laatste_dag')??0),wie:alleWie,kiesDag:true,onDone:renderAlles});
   const cb=box.querySelector('#acache');
-  if(cb) cb.onclick=async()=>{
+  cb.onclick=async()=>{
     if(!navigator.onLine){ toast('Hiervoor heb je verbinding nodig'); return; }
     cb.textContent='Ophalen…';
     for(const it of alleItems.filter(x=>x.soort==='bestand')) await cacheFile(it);
+    cb.textContent='Bijlagen opnieuw ophalen';
     renderAlles();
   };
+}
+// De lijst tekenen met deze notities plus wat nog op verbinding wacht, en de status erbij zetten.
+function toonAlles(items,basis,ronde){
+  const box=document.getElementById('alles');
+  if(!box.querySelector('#nlijst')) return;
+  alleItems=[...items,...pendingAlsItems()];
+  const y=window.scrollY;
   tekenLijst();
+  if(view==='alles'&&y) window.scrollTo(0,y);   // je was aan het lezen: daar blijven
+  zetAllesStatus(items,basis,ronde);
+}
+// De statusregel en de teller in de banner. Het tellen van de bijlagen op de telefoon is een
+// IndexedDB-aanroep; daar wacht de lijst niet op. Mislukt die, dan telt de app nul bijlagen offline.
+async function zetAllesStatus(items,basis,ronde){
+  let status=basis;
+  const fout=mislukt(), wacht=pendingVan('dagitems').length-fout;
+  if(wacht) status+=` · ${wacht} ${wacht===1?'notitie wacht':'notities wachten'} op verbinding`;
+  if(fout) status+=` · ${fout} ${fout===1?'notitie kon':'notities konden'} niet worden verstuurd`;
+  const metBijlage=items.filter(x=>x.soort==='bestand');
+  let bijl='';
+  if(metBijlage.length){
+    const opslag=await idbKeys();
+    if(ronde!==_allesRonde) return;
+    const offline=metBijlage.filter(x=>opslag.includes(x.file_id)).length;
+    bijl=`${offline} van ${metBijlage.length} bijlagen offline`;
+    status+=` · ${offline} van ${metBijlage.length} bijlagen offline beschikbaar`;
+  }
+  const box=document.getElementById('alles'), st=box.querySelector('#nstatus');
+  if(!st) return;
+  st.textContent=status;
+  const rij=box.querySelector('#acacherij'); if(rij) rij.style.display=metBijlage.length?'':'none';
+  if(view==='alles'){
+    const tekst=`${items.length} ${items.length===1?'notitie':'notities'}${bijl?' · '+bijl:''}`;
+    const bs=document.querySelector('#hero .bsub');
+    if(bs) bs.textContent=tekst;
+    else { const w=document.querySelector('#hero .wrap'); if(w) w.insertAdjacentHTML('beforeend',`<p class="bsub">${tekst}</p>`); }
+  }
 }
 
 function tekenLijst(){
@@ -1665,11 +1814,13 @@ function tekenLijst(){
     if(dg>=1&&dg<=29||isBuiten(dg)){cur=dg;switchTo('day')}
     else switchTo('prakt');});
   lijst.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
-    const it=items.find(x=>x.id===b.dataset.edit); if(it) openSheet({dag:it.dag,wie,item:it,onDone:renderAlles,kiesDag:true});
+    const it=items.find(x=>x.id===b.dataset.edit); if(!it) return;
+    if(it.pending&&slotReden(it)){ toast(slotReden(it)); return; }
+    openSheet({dag:it.dag,wie,item:it,onDone:renderAlles,kiesDag:true});
   });
   lijst.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
     if(!confirm('Verwijderen?')) return;
-    if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); renderAlles(); return; }
+    if(b.dataset.uid!==undefined){ const r=pendingDelete(b.dataset.uid); if(!r.ok) toast(r.reden); renderAlles(); return; }
     try{ await verwijderItem(b.dataset.del,b.dataset.file); renderAlles(); }
     catch(e){ toast('Verwijderen mislukt: '+e.message); }
   });
@@ -1739,11 +1890,13 @@ function renderVerzekeringen(box){
   box.querySelector('#vadd').onclick=()=>openSheet({dag:0,wie,type:'verzekering',vast:true,onDone:refresh});
   koppelKaarten(box);
   box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
-    const it=items.find(x=>x.id===b.dataset.edit); if(it) openSheet({dag:it.dag,wie,item:it,vast:true,onDone:refresh});
+    const it=items.find(x=>x.id===b.dataset.edit); if(!it) return;
+    if(it.pending&&slotReden(it)){ toast(slotReden(it)); return; }
+    openSheet({dag:it.dag,wie,item:it,vast:true,onDone:refresh});
   });
   box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
     if(!confirm('Verwijderen?')) return;
-    if(b.dataset.pix!==undefined){ pendingDelete(+b.dataset.pix); refresh(); return; }
+    if(b.dataset.uid!==undefined){ const r=pendingDelete(b.dataset.uid); if(!r.ok) toast(r.reden); refresh(); return; }
     try{ await verwijderItem(b.dataset.del,b.dataset.file); refresh(); }
     catch(e){ toast('Verwijderen mislukt: '+e.message); }
   });
@@ -2168,24 +2321,28 @@ function toonNieuwePrijzen(lijst){
 async function registreerWaarneming(dier,opmerking,hoe){
   if(!NH.user) return;
   const wie=NH.user.displayName||NH.user.email;
-  const rec={tabel:'waarnemingen',dier,dag:waarnDag(),gezien_op:nuISO(),wie,opmerking:opmerking||null,hoe:hoe==='gegeten'?'gegeten':'gezien'};
+  // De uid staat er vanaf het begin op: daarmee vindt Ongedaan maken straks precies dit item terug,
+  // ook als er intussen andere waarnemingen bij of af zijn gegaan.
+  const rec={tabel:'waarnemingen',uid:maakUid(),dier,dag:waarnDag(),gezien_op:nuISO(),wie,opmerking:opmerking||null,hoe:hoe==='gegeten'?'gegeten':'gezien'};
   const naam=dierNaam(rec);
-  let id=null;
+  let id=null, bewaard=true, reden='';
   // Prijzen: hoe vaak je ze vóór deze waarneming al had, om straks te zien wat erbij komt
   const hadAl=new Map(verdiendePrijzen().map(x=>[x.p.k,x.keer]));
-  const inWachtrij=()=>LS.set('aus_pending',[...pending(),rec]);
+  const inWachtrij=extra=>{ const r=pendingAdd({...rec,...extra}); if(!r.ok){ bewaard=false; reden=r.reden; } };
   if(navigator.onLine){
     try{
       const d=await gql(M_INS_WAARN,{o:{dier:rec.dier,dag:rec.dag,gezien_op:rec.gezien_op,wie:rec.wie,opmerking:rec.opmerking,hoe:rec.hoe}});
       id=d.insert_waarnemingen_one.id;
-      LS.set('aus_cache_waarn',[...alleWaarnemingen(),{...rec,id,user_id:NH.user.id,created_at:rec.gezien_op}]);
+      LS.set('aus_cache_waarn',[...alleWaarnemingen(),{dier:rec.dier,dag:rec.dag,gezien_op:rec.gezien_op,wie:rec.wie,opmerking:rec.opmerking,hoe:rec.hoe,id,user_id:NH.user.id,created_at:rec.gezien_op}]);
     }catch(e){
       // Tijdelijk: in de wachtrij. Blijvend (tabel ontbreekt, rechten): ook in de wachtrij, met de reden
       // erbij, net als bij een notitie. De waarneming mag niet verloren gaan.
-      if(e.tijdelijk) inWachtrij(); else LS.set('aus_pending',[...pending(),{...rec,fout:e.message}]);
+      if(e.tijdelijk) inWachtrij(); else inWachtrij({fout:e.message});
     }
   } else inWachtrij();
   renderDieren();
+  // Niet bewaard: dan is er ook niets genoteerd, en geen prijs en geen Ongedaan maken. Dat zeggen we.
+  if(!bewaard){ toast(`${naam}: niet genoteerd. ${reden}`); return; }
   const erbij=verdiendePrijzen().filter(x=>x.keer>(hadAl.get(x.p.k)||0));
   // Een prijs met herhaal:'stil' krijgt na de eerste keer geen kaart meer, maar een regel in de melding
   // onderin: bij de zevende emoe is een schuifpaneel meer werk dan plezier.
@@ -2198,14 +2355,17 @@ async function registreerWaarneming(dier,opmerking,hoe){
       try{ await gql(M_DEL_WAARN,{id}); }catch(e){ toast('Weghalen lukte niet. Probeer het straks opnieuw.'); return; }
       LS.set('aus_cache_waarn',alleWaarnemingen().filter(w=>w.id!==id));
     }else{
-      const ix=pending().findIndex(q=>tabelVan(q)==='waarnemingen'&&q.gezien_op===rec.gezien_op&&q.dier===rec.dier&&hoeVan(q)===hoeVan(rec));
-      if(ix>=0) pendingDelete(ix);
+      // Intussen verstuurd (de verbinding kwam net terug)? Dan staat hij bij Nhost en is hij in de lijst
+      // Gespot weg te halen; hier zonder id kunnen we hem niet meer terugtrekken.
+      if(!pending().some(q=>q.uid===rec.uid)){ toast(`${naam} is intussen verstuurd. Haal hem zo nodig weg in de lijst Gespot.`); return; }
+      const r=pendingDelete(rec.uid);
+      if(!r.ok){ toast(r.reden); return; }
     }
     renderDieren();
   });
 }
 async function verwijderWaarneming(w){
-  if(w.pending){ pendingDelete(w.pix); renderDieren(); return; }
+  if(w.pending){ const r=pendingDelete(w.uid); if(!r.ok) toast(r.reden); renderDieren(); return; }
   const n=dierNaam(w);
   if(!confirm(`Je ${isGegeten(w)?'gegeten ':''}${n.charAt(0).toLowerCase()+n.slice(1)} van ${tijdVan(w.gezien_op)} uur weghalen?`)) return;
   try{ await gql(M_DEL_WAARN,{id:w.id}); }catch(e){ toast(e.tijdelijk?'Geen verbinding. Probeer het straks opnieuw.':'Weghalen lukte niet. '+e.message); return; }
@@ -2376,7 +2536,7 @@ function renderDieren(){
         kop=`<li class="ddag">${esc(voor+lang)}</li>`; }
       return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}`+
         (isGegeten(w)?`<span class="wvork" title="Gegeten">${IC_VORK}</span>`:'')+`</strong>`+
-        `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · wacht op verbinding'):''}</span></span>`+
+        `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · '+wachtTekst(w)):''}</span></span>`+
         (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
     }).join('')+`</ul>`;
   }
@@ -2493,7 +2653,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-14-215';
+const APP_VERSIE='2026-09-15-216';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

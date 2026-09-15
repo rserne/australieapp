@@ -1026,6 +1026,352 @@ function zoek(w,fouten,term){
     eis(fouten,kop(w)==='Dag 9van 29'&&!$(w,'notes-top')&&!$(w,'nadd'),'de dag staat er zonder notitieblokken');
     meld('9 okt: gast logt voor het eerst in',fouten); }
 
+  // ============================================================
+  // Uitgave 216: notities meteen uit de kopie, en een wachtrij die veilig is bij gelijktijdige handelingen.
+  // De tests sturen Nhost zelf: elke insert wacht op een belofte die de test op het juiste moment vrijgeeft.
+  // ============================================================
+  // Een bestuurbare belofte. De catch voorkomt een 'unhandled rejection' als de test hem laat mislukken
+  // voordat de app erop wacht.
+  const stuur=()=>{ let res,rej; const p=new Promise((a,b)=>{res=a;rej=b}); p.catch(()=>{}); return {p,res,rej}; };
+  // Nhost nagebootst voor de wachtrij: elke insert wacht op zijn eigen belofte, met als sleutel de tekst
+  // van de notitie of het dier van de waarneming. verstuurd: wat er in welke volgorde is aangeboden.
+  const nepNhost=w=>{
+    const houd={}, verstuurd=[], teksten=[];
+    const van=k=>(houd[k]=houd[k]||stuur());
+    w.gql=async(q,v)=>{
+      if(/^query/.test(q)&&/waarnemingen/.test(q)) return {waarnemingen:[]};
+      if(/insert_dagitems_one/.test(q)){ const k=v.o.tekst; verstuurd.push(k); teksten.push(v.o.tekst); await van(k).p; return {insert_dagitems_one:{id:'n'+verstuurd.length,created_at:'2026-10-06T00:00:00Z'}}; }
+      if(/insert_waarnemingen_one/.test(q)){ const k=v.o.dier; verstuurd.push(k); await van(k).p; return {insert_waarnemingen_one:{id:'w'+verstuurd.length}}; }
+      throw new Error('onverwachte query '+q.slice(0,40));
+    };
+    // faal laat de lopende insert mislukken en zet een verse belofte klaar voor de volgende poging
+    return {verstuurd,teksten,vrij:k=>van(k).res(),faal:(k,tijdelijk)=>{ const e=new Error('geweigerd: '+k); if(tijdelijk) e.tijdelijk=true; const h=van(k); delete houd[k]; h.rej(e); }};
+  };
+  const wachtrij=w=>JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+  const notitie=(uid,tekst,dag=6)=>({uid,dag,tekst,wie:'Test',type:'notitie'});
+  const waarneming=(uid,dier,t='08:00')=>({uid,tabel:'waarnemingen',dier,dag:6,gezien_op:`2026-10-06T${t}:00+10:30`,wie:'Test',hoe:'gezien'});
+  // localStorage laten mislukken voor de wachtrij alleen; de rest van de opslag blijft werken
+  const breekOpslag=w=>{ const orig=w.Storage.prototype.setItem;
+    w.Storage.prototype.setItem=function(k,v){ if(k==='aus_pending') throw new Error('QuotaExceededError'); return orig.call(this,k,v); };
+    return ()=>{ w.Storage.prototype.setItem=orig; }; };
+
+  // 1. Notities meteen uit de kopie, terwijl de synchronisatie nog op Nhost wacht
+  { const {w,fouten}=start('2026-10-05',{login:'groep',online:true});
+    const hou=stuur(); let rondes=0;
+    w.syncAlles=()=>{ rondes++; return hou.p; };   // Nhost antwoordt voorlopig niet
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('q1','Wachtende notitie',5)]));
+    klik(w,'btnAlles',fouten); await sleep(20);
+    const box=$(w,'alles'), items=()=>[...box.querySelectorAll('#nlijst .nitem')];
+    eis(fouten,rondes===1,'Notities start één synchronisatie');
+    eis(fouten,!/Laden…/.test(box.textContent)&&!!$(w,'nzoek'),'geen Laden… meer: het zoekveld en de lijst staan er meteen');
+    eis(fouten,items().length===5&&/Wachtende notitie/.test(box.textContent)&&/wacht op verbinding/.test(box.textContent),`de vier notities uit de kopie plus de wachtende staan er direct (nu ${items().length})`);
+    eis(fouten,/^Bijwerken…/.test($(w,'nstatus').textContent)&&/1 notitie wacht op verbinding/.test($(w,'nstatus').textContent),`status zegt Bijwerken… en telt de wachtende (nu: '${$(w,'nstatus').textContent}')`);
+    await sleep(20);   // het tellen van de bijlagen is een aparte stap
+    eis(fouten,w.document.querySelector('#hero .bsub')&&w.document.querySelector('#hero .bsub').textContent==='4 notities · 0 van 1 bijlagen offline',`banner telt de kopie (nu: '${w.document.querySelector('#hero .bsub')?.textContent}')`);
+    // zoeken en filteren terwijl de synchronisatie nog loopt
+    const zv=$(w,'nzoek'); zv.value='allianz'; zv.dispatchEvent(new w.Event('input')); await sleep(200);
+    eis(fouten,items().length===1&&/12345678/.test(items()[0].textContent),'zoeken werkt terwijl de synchronisatie wacht');
+    const chip=()=>box.querySelector('#typefilter .chip[data-f="verzekering"]');
+    eis(fouten,!!chip(),'de typechip Verzekering staat er');
+    if(chip()) chip().click();
+    eis(fouten,chip()&&chip().classList.contains('on'),'de chip gaat aan');
+    // even naar de dagpagina en terug: het scherm wordt opnieuw opgebouwd, met een nieuwe ronde
+    // (het antwoord van de eerste ronde mag daar straks niet meer overheen schrijven)
+    eis(fouten,rondes===1,'nog steeds één ronde');
+    // Nhost antwoordt: één notitie gewijzigd en één erbij
+    const vers=NOTITIES.filter(n=>n.dag>=0).map(n=>n.id==='e'?{...n,tekst:'Allianz, polis 99999999. Alarmcentrale +31 20 123 4567.'}:n)
+      .concat([{id:'f',user_id:'u2',dag:7,soort:'notitie',type:'notitie',tekst:'Allianz-brochure meegenomen',wie:'Anna',created_at:'2026-09-05T10:00:00Z',updated_at:'2026-09-05T10:00:00Z'}]);
+    w.localStorage.setItem('aus_sync',JSON.stringify({tijd:'2026-10-05T08:00:00+11:00'}));
+    w.localStorage.setItem('aus_cache_all',JSON.stringify(vers));   // zoals de echte syncAlles doet
+    hou.res(vers); await sleep(50);
+    eis(fouten,$(w,'nzoek')===zv&&zv.value==='allianz'&&w._notZoek==='allianz','het zoekveld blijft staan, met de zoektekst');
+    eis(fouten,chip()&&chip().classList.contains('on'),'de chip blijft aan');
+    eis(fouten,items().length===1&&/99999999/.test(items()[0].textContent),`de lijst toont de verse tekst binnen zoekterm en filter (nu ${items().length}: '${items()[0]?.textContent.slice(0,60)}')`);
+    eis(fouten,/^Bijgewerkt /.test($(w,'nstatus').textContent)&&/1 notitie wacht/.test($(w,'nstatus').textContent),`status zegt Bijgewerkt (nu: '${$(w,'nstatus').textContent}')`);
+    eis(fouten,w.document.querySelector('#hero .bsub').textContent==='5 notities · 0 van 1 bijlagen offline',`banner telt de verse gegevens (nu: '${w.document.querySelector('#hero .bsub').textContent}')`);
+    if(chip()) chip().click();
+    eis(fouten,items().length===2&&/brochure/.test(box.textContent),'chip uit: de nieuwe notitie staat er ook');
+    // Kon niet bijwerken: de kopie blijft staan en de status zegt niet Bijgewerkt
+    w.syncAlles=async()=>null;
+    w.renderAlles(); await sleep(30);
+    eis(fouten,items().length===2&&/^Kon niet bijwerken, laatst opgeslagen versie/.test($(w,'nstatus').textContent),`bij een netwerkfout blijft alles zichtbaar met een passende status (nu: '${$(w,'nstatus').textContent}')`);
+    // Een traag antwoord van een vervangen ronde bouwt het scherm niet opnieuw op
+    const traag=stuur(); w.syncAlles=()=>traag.p;
+    w.renderAlles(); await sleep(10);
+    w.syncAlles=async()=>vers; w.renderAlles(); await sleep(30);
+    const statusNa=$(w,'nstatus').textContent;
+    eis(fouten,/^Bijgewerkt /.test(statusNa),'de nieuwere ronde zet de status');
+    klik(w,'btnToday',fouten);
+    traag.res([]); await sleep(30);
+    eis(fouten,$(w,'nstatus').textContent===statusNa&&items().length===2,'het late antwoord van de oude ronde overschrijft niets');
+    eis(fouten,$(w,'day').style.display==='block'&&$(w,'alles').style.display==='none','en brengt je niet naar een ander tabblad');
+    meld('5 okt: Notities meteen uit de kopie, synchronisatie komt erachteraan',fouten); }
+
+  // 2. Een item toevoegen terwijl een ander wordt verstuurd: het verdwijnt niet
+  { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
+    const nh=nepNhost(w);
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('a','A')]));
+    const p=w.flushPending(); await sleep(10);
+    eis(fouten,nh.verstuurd.join()==='A','A is onderweg');
+    const r=w.pendingAdd(notitie(undefined,'C'));
+    eis(fouten,r.ok&&typeof r.uid==='string'&&wachtrij(w).some(q=>q.uid===r.uid),'C komt met een eigen uid in de wachtrij terwijl A onderweg is');
+    nh.vrij('A'); await sleep(10);
+    eis(fouten,wachtrij(w).length===1&&wachtrij(w)[0].uid===r.uid,`na de bevestiging van A staat alleen C nog in de rij (nu: ${wachtrij(w).map(q=>q.tekst).join()||'leeg'})`);
+    eis(fouten,nh.verstuurd.join()==='A,C','C gaat in een vervolgronde meteen mee');
+    nh.vrij('C'); const n=await p;
+    eis(fouten,n===2&&wachtrij(w).length===0,'beide zijn verstuurd en de rij is leeg');
+    // hetzelfde met een waarneming erbij tijdens het versturen van een notitie
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('b','B')]));
+    const p2=w.flushPending(); await sleep(10);
+    klik(w,'btnDieren',fouten);
+    Object.defineProperty(w.navigator,'onLine',{value:false,configurable:true});   // het bereik valt net weg
+    w.document.querySelector('#dalle .drij[data-dier="koala"]').click(); await sleep(50);
+    eis(fouten,wachtrij(w).length===2&&wachtrij(w)[1].dier==='koala','een waarneming tijdens het versturen komt gewoon in de gedeelde rij');
+    Object.defineProperty(w.navigator,'onLine',{value:true,configurable:true});
+    nh.vrij('B'); await sleep(10);
+    eis(fouten,wachtrij(w).length===1&&wachtrij(w)[0].dier==='koala','de koala blijft na de bevestiging van B');
+    nh.vrij('koala'); await p2; await sleep(20);
+    eis(fouten,wachtrij(w).length===0&&nh.verstuurd.slice(-2).join()==='B,koala','en gaat daarna zelf weg');
+    meld('6 okt: toevoegen tijdens het versturen',fouten); }
+
+  // 3. Twee gelijktijdige flushPending-aanroepen sturen hetzelfde item één keer
+  { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
+    const nh=nepNhost(w);
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('a','A'),waarneming('e','emoe')]));
+    const p1=w.flushPending(), p2=w.flushPending();
+    eis(fouten,p1===p2,'de tweede aanroep sluit aan op de lopende ronde');
+    await sleep(10);
+    eis(fouten,nh.verstuurd.join()==='A','tijdens het wachten is A één keer aangeboden');
+    nh.vrij('A'); await sleep(10); nh.vrij('emoe');
+    const [n1,n2]=await Promise.all([p1,p2]);
+    eis(fouten,n1===2&&n2===2&&nh.verstuurd.join()==='A,emoe'&&wachtrij(w).length===0,`elk item is precies één keer verstuurd en beide aanroepen krijgen dezelfde uitkomst (nu: ${n1}, ${n2}, ${nh.verstuurd.join()})`);
+    // na een fout is de blokkering weg en start een nieuwe ronde gewoon
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('b','B')]));
+    const p3=w.flushPending(); await sleep(10); nh.faal('B',true); const n3=await p3;
+    eis(fouten,n3===0&&wachtrij(w).length===1&&!wachtrij(w)[0].fout,'een tijdelijke fout laat B zonder reden staan');
+    const p4=w.flushPending();
+    eis(fouten,p4!==p3,'daarna start een nieuwe ronde');
+    await sleep(10); nh.faal('B',false); const n4=await p4;
+    eis(fouten,n4===0&&wachtrij(w).length===1&&/geweigerd/.test(wachtrij(w)[0].fout),'een blijvende fout zet de reden erbij en laat het item staan');
+    // Ongedaan maken van een waarneming die intussen is verstuurd
+    w.localStorage.setItem('aus_pending','[]');
+    Object.defineProperty(w.navigator,'onLine',{value:false,configurable:true});
+    klik(w,'btnDieren',fouten);
+    w.document.querySelector('#dalle .drij[data-dier="wombat"]').click(); await sleep(450);
+    klik(w,'shclose',fouten); await sleep(260);   // de kaart van de eerste prijs
+    eis(fouten,wachtrij(w).length===1&&wachtrij(w)[0].dier==='wombat'&&!!wachtrij(w)[0].uid,'de waarneming wacht, met uid');
+    Object.defineProperty(w.navigator,'onLine',{value:true,configurable:true});
+    nh.vrij('wombat'); await w.flushPending(); await sleep(20);
+    eis(fouten,wachtrij(w).length===0,'de verbinding kwam terug: de wombat is verstuurd');
+    const t=$(w,'toast'); if(t&&t.querySelector('button')) t.querySelector('button').click(); await sleep(20);
+    eis(fouten,/intussen verstuurd/.test($(w,'toast').textContent),`Ongedaan maken zegt dat hij al weg is (nu: '${$(w,'toast').textContent}')`);
+    meld('6 okt: twee gelijktijdige rondes en de blokkering daarna',fouten); }
+
+  // 4. Een later wachtend item weggooien of bewerken terwijl een eerder item wordt verstuurd
+  { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
+    const nh=nepNhost(w);
+    // weggooien: B (notitie) en de kangoeroe (waarneming, via het scherm Dieren) gaan niet meer mee
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('a','A'),notitie('b','B'),waarneming('k','kangoeroe'),notitie('c','C')]));
+    const p=w.flushPending(); await sleep(10);
+    eis(fouten,nh.verstuurd.join()==='A','A is onderweg, de rest wacht');
+    const rd=w.pendingDelete('b');
+    eis(fouten,rd.ok&&!wachtrij(w).some(q=>q.uid==='b'),'B is weggegooid terwijl A onderweg is');
+    klik(w,'btnDieren',fouten);
+    const weg=[...w.document.querySelectorAll('#dieren .dweg')].find(b=>b.dataset.weg==='wachtk');
+    eis(fouten,!!weg,'de wachtende kangoeroe staat in de lijst Gespot met een kruisje');
+    if(weg) weg.click(); await sleep(20);
+    eis(fouten,!wachtrij(w).some(q=>q.uid==='k')&&wachtrij(w).some(q=>q.uid==='a')&&wachtrij(w).some(q=>q.uid==='c'),`de kangoeroe is weg, A en C staan er nog (nu: ${wachtrij(w).map(q=>q.uid).join()})`);
+    // bewerken: C krijgt nieuwe tekst vóór zijn beurt
+    const ru=w.pendingUpdate('c',{tekst:'C, aangepast',fout:undefined});
+    eis(fouten,ru.ok&&wachtrij(w).find(q=>q.uid==='c').tekst==='C, aangepast','C is bewerkt terwijl A onderweg is');
+    nh.vrij('A'); await sleep(10); nh.vrij('C, aangepast'); const n=await p;
+    eis(fouten,n===2&&nh.verstuurd.join()==='A,C, aangepast'&&wachtrij(w).length===0,`B en de kangoeroe zijn overgeslagen, C ging met de nieuwe tekst (nu: ${nh.verstuurd.join(' | ')})`);
+    meld('6 okt: weggooien en bewerken tijdens het versturen van een ander item',fouten); }
+
+  // 5. Het item dat daadwerkelijk onderweg is, is op slot, ook vanuit een al geopend bewerkvenster
+  { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
+    const nh=nepNhost(w);
+    w.syncAlles=async()=>NOTITIES.filter(x=>x.dag>=0);   // Notities zonder echte synchronisatie
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('a','A'),waarneming('e','emoe')]));
+    // het bewerkvenster van A staat al open vóór het versturen begint
+    klik(w,'btnAlles',fouten); await sleep(30);
+    const knop=$(w,'alles').querySelector('[data-edit="wachta"]');
+    eis(fouten,!!knop&&knop.dataset.uid==='a','de wachtende notitie heeft een bewerkknop met haar uid');
+    if(knop) knop.click(); await sleep(20);
+    eis(fouten,!!$(w,'sheet')&&$(w,'shtext').value==='A','het bewerkvenster staat open');
+    $(w,'shtext').value='A, tijdens het versturen gewijzigd';
+    const p=w.flushPending(); await sleep(10);
+    eis(fouten,nh.verstuurd.join()==='A','A is onderweg');
+    $(w,'shsave').click(); await sleep(20);
+    eis(fouten,!!$(w,'sheet')&&$(w,'shtext').value==='A, tijdens het versturen gewijzigd','opslaan wordt geweigerd: het venster blijft open met de getypte tekst');
+    eis(fouten,/wordt nu verstuurd/.test($(w,'shstat').textContent),`met de reden in het venster (nu: '${$(w,'shstat').textContent}')`);
+    eis(fouten,wachtrij(w).find(q=>q.uid==='a').tekst==='A','de wachtrij is niet aangepast');
+    // rechtstreeks: bewerken en weggooien van A weigeren, van de emoe (nog niet aan de beurt) niet
+    const ru=w.pendingUpdate('a',{tekst:'A2'}), rd=w.pendingDelete('a');
+    eis(fouten,!ru.ok&&/wordt nu verstuurd/.test(ru.reden)&&!rd.ok&&/wordt nu verstuurd/.test(rd.reden),'pendingUpdate en pendingDelete weigeren het onderweg zijnde item');
+    eis(fouten,wachtrij(w).length===2&&wachtrij(w)[0].tekst==='A','en er is niets veranderd of verdwenen');
+    klik(w,'shclose',fouten); await sleep(260);
+    // via de knoppen op het scherm: bewerken en weggooien geven een melding, geen venster
+    w.renderAlles(); await sleep(30);
+    eis(fouten,/wordt verstuurd…/.test($(w,'alles').textContent),'de kaart zegt dat de notitie wordt verstuurd');
+    $(w,'alles').querySelector('[data-edit="wachta"]').click(); await sleep(20);
+    eis(fouten,!$(w,'sheet')&&/wordt nu verstuurd/.test($(w,'toast').textContent),'bewerken vanaf de kaart opent geen venster maar geeft de melding');
+    $(w,'alles').querySelector('[data-del="wachta"]').click(); await sleep(30);
+    eis(fouten,wachtrij(w).length===2&&/wordt nu verstuurd/.test($(w,'toast').textContent),'weggooien vanaf de kaart wordt geweigerd');
+    // dezelfde blokkering voor een waarneming die onderweg is
+    nh.vrij('A'); await sleep(10);
+    eis(fouten,nh.verstuurd.join()==='A,emoe'&&wachtrij(w).length===1,'A is weg, de emoe is nu onderweg');
+    klik(w,'btnDieren',fouten);
+    const weg=[...w.document.querySelectorAll('#dieren .dweg')].find(b=>b.dataset.weg==='wachte');
+    eis(fouten,!!weg&&/wordt verstuurd…/.test(weg.closest('li').textContent),'de lijst Gespot zegt dat de emoe wordt verstuurd');
+    if(weg) weg.click(); await sleep(20);
+    eis(fouten,wachtrij(w).length===1&&/wordt nu verstuurd/.test($(w,'toast').textContent),'weghalen van de onderweg zijnde waarneming wordt geweigerd');
+    nh.vrij('emoe'); const n=await p; await sleep(20);
+    eis(fouten,n===2&&wachtrij(w).length===0&&nh.teksten.join()==='A','na afloop is alles verstuurd, A met zijn oorspronkelijke tekst, en de rij is leeg');
+    const ru2=w.pendingUpdate('a',{tekst:'A3'});
+    eis(fouten,!ru2.ok&&/niet meer in de wachtrij/.test(ru2.reden),'een bewerking na het versturen zegt dat het item weg is');
+    meld('6 okt: het onderweg zijnde item staat op slot',fouten); }
+
+  // 6. Een oude wachtrij zonder uid's: inhoud blijft, uid's blijven gelijk na opnieuw uitlezen en herstart
+  { const {w,fouten}=start('2026-10-06',{login:'groep'});
+    const oud=[{dag:6,tekst:'Oud zonder tabel',wie:'Test',type:'notitie'},
+      {tabel:'waarnemingen',dier:'emoe',dag:6,gezien_op:'2026-10-06T08:00:00+10:30',wie:'Test',fout:"field 'dag' not found"},
+      {tabel:'dagitems',dag:6,tekst:'Tweede notitie',wie:'Test',type:'tip'}];
+    w.localStorage.setItem('aus_pending',JSON.stringify(oud));
+    const q1=w.pending(), uids=q1.map(p=>p.uid);
+    eis(fouten,q1.length===3&&uids.every(u=>typeof u==='string'&&u.length>=8)&&new Set(uids).size===3,`elk item krijgt een eigen uid (nu: ${uids.join()})`);
+    eis(fouten,q1[0].tekst==='Oud zonder tabel'&&!q1[0].tabel&&q1[1].dier==='emoe'&&q1[1].fout==="field 'dag' not found"&&q1[1].gezien_op===oud[1].gezien_op&&q1[2].type==='tip','inhoud, soort, tijdstip, volgorde en foutmelding blijven');
+    eis(fouten,wachtrij(w).map(p=>p.uid).join()===uids.join(),'de uid\'s zijn meteen teruggeschreven');
+    eis(fouten,w.pending().map(p=>p.uid).join()===uids.join(),'opnieuw uitlezen geeft dezelfde uid\'s');
+    // herstart: een nieuw venster met dezelfde opslag
+    const {w:w2,fouten:f2}=start('2026-10-06',{login:'groep'});
+    w2.localStorage.setItem('aus_pending',w.localStorage.getItem('aus_pending'));
+    eis(fouten,w2.pending().map(p=>p.uid).join()===uids.join(),'na een herstart dezelfde uid\'s');
+    fouten.push(...f2);
+    // op de dagpagina: het kruisje bij de tweede notitie haalt precies die weg
+    klik(w,'btnToday',fouten);
+    const kaarten=()=>[...$(w,'day').querySelectorAll('.nitem')].filter(li=>/wacht op verbinding|versturen mislukt/.test(li.textContent));
+    eis(fouten,kaarten().length===2&&kaarten().every(li=>li.querySelector('[data-del]')?.dataset.uid),`beide wachtende notities staan op dag 6 met hun uid op de knop (nu ${kaarten().length})`);
+    const tweede=kaarten().find(li=>/Tweede notitie/.test(li.textContent));
+    if(tweede) tweede.querySelector('[data-del]').click(); await sleep(20);
+    eis(fouten,wachtrij(w).length===2&&wachtrij(w).map(p=>p.uid).join()===[uids[0],uids[1]].join()&&/Oud zonder tabel/.test($(w,'day').textContent)&&!/Tweede notitie/.test($(w,'day').textContent),'precies de tweede notitie is weg, de emoe en de eerste blijven');
+    // bewerken via de dagpagina landt op de juiste uid
+    kaarten()[0].querySelector('[data-edit]').click(); await sleep(20);
+    eis(fouten,!!$(w,'sheet')&&$(w,'shtext').value==='Oud zonder tabel','het bewerkvenster opent met de juiste notitie');
+    $(w,'shtext').value='Oud, aangepast'; $(w,'shsave').click(); await sleep(260);
+    eis(fouten,!$(w,'sheet')&&wachtrij(w)[0].tekst==='Oud, aangepast'&&wachtrij(w)[0].uid===uids[0]&&wachtrij(w)[1].dier==='emoe','de bewerking landt op het juiste item, de uid blijft');
+    // de migratie kan niet worden weggeschreven: items blijven zichtbaar, uid's stabiel, versturen begint niet
+    const {w:w3,fouten:f3}=start('2026-10-06',{login:'groep',online:true});
+    w3.localStorage.setItem('aus_pending',JSON.stringify(oud));
+    const herstel=breekOpslag(w3);
+    const nh=nepNhost(w3);
+    const a=w3.pending(), b=w3.pending();
+    eis(fouten,a.length===3&&a.map(p=>p.uid).join()===b.map(p=>p.uid).join()&&a.every(p=>p.uid),'zonder geslaagde schrijfactie blijven de items zichtbaar, met dezelfde uid\'s');
+    eis(fouten,wachtrij(w3).length===3&&!wachtrij(w3).some(p=>p.uid),'de oude items staan onveranderd in de opslag');
+    const n=await w3.flushPending();
+    eis(fouten,n===0&&nh.verstuurd.length===0&&wachtrij(w3).length===3,'versturen begint niet met uid\'s die niet zijn bewaard');
+    klik(w3,'btnToday',fouten);
+    eis(fouten,/Oud zonder tabel/.test($(w3,'day').textContent)&&/Tweede notitie/.test($(w3,'day').textContent),'de notities staan gewoon op de dagpagina');
+    // de opslag herstelt: dezelfde uid's worden bewaard en versturen kan
+    herstel();
+    const c=w3.pending();
+    eis(fouten,c.map(p=>p.uid).join()===a.map(p=>p.uid).join()&&wachtrij(w3).map(p=>p.uid).join()===a.map(p=>p.uid).join(),'zodra schrijven weer lukt, worden dezelfde uid\'s bewaard');
+    ['Oud zonder tabel','emoe','Tweede notitie'].forEach(k=>nh.vrij(k));
+    const n2=await w3.flushPending(); await sleep(20);
+    eis(fouten,n2===3&&wachtrij(w3).length===0,`daarna gaat alles in één ronde weg (nu ${n2})`);
+    fouten.push(...f3);
+    meld('6 okt: oude wachtrij zonder uid\'s',fouten); }
+
+  // 7. Mislukte opslag van de wachtrij: geen onterechte succesmelding en geen verloren tekst
+  { const {w,fouten}=start('2026-10-06',{login:'groep'});   // zonder verbinding
+    const herstel=breekOpslag(w);
+    // een notitie via het formulier op de dagpagina
+    klik(w,'nadd',fouten); await sleep(20);
+    $(w,'shtext').value='Belangrijke tekst die niet verloren mag gaan'; $(w,'shsave').click(); await sleep(50);
+    eis(fouten,!!$(w,'sheet')&&$(w,'shtext').value==='Belangrijke tekst die niet verloren mag gaan','het formulier blijft open met de tekst');
+    eis(fouten,/Bewaren op de telefoon is mislukt/.test($(w,'shstat').textContent),`met een begrijpelijke foutmelding (nu: '${$(w,'shstat').textContent}')`);
+    eis(fouten,!$(w,'toast')||!/Bewaard op de telefoon/.test($(w,'toast').textContent),'geen melding Bewaard op de telefoon');
+    eis(fouten,wachtrij(w).length===0,'de wachtrij is niet aangeraakt');
+    klik(w,'shclose',fouten); await sleep(260);
+    // een waarneming
+    klik(w,'btnDieren',fouten);
+    w.document.querySelector('#dalle .drij[data-dier="koala"]').click(); await sleep(450);
+    const t=$(w,'toast');
+    eis(fouten,t&&/Koala: niet genoteerd/.test(t.textContent)&&/Bewaren op de telefoon is mislukt/.test(t.textContent)&&!t.querySelector('button'),`de waarneming meldt dat ze niet is bewaard, zonder Ongedaan maken (nu: '${t&&t.textContent}')`);
+    eis(fouten,!w.document.querySelector('#sheet .sheet.prijs'),'en er komt geen prijskaart');
+    eis(fouten,!w.document.querySelector('#dalle .drij[data-dier="koala"]').closest('.drijwrap').classList.contains('gespot')&&!$(w,'dieren').querySelector('.dlijst'),'de koala telt nergens als gespot');
+    // bewerken, weggooien en opruimen van een bestaand wachtend item
+    herstel();
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('q1','Blijft staan')]));
+    const herstel2=breekOpslag(w);
+    const ru=w.pendingUpdate('q1',{tekst:'Anders'});
+    eis(fouten,!ru.ok&&/Bewaren op de telefoon is mislukt/.test(ru.reden)&&wachtrij(w)[0].tekst==='Blijft staan','bewerken meldt de mislukte opslag en laat de tekst zoals hij was');
+    const rd=w.pendingDelete('q1');
+    eis(fouten,!rd.ok&&/Weghalen is mislukt/.test(rd.reden)&&wachtrij(w).length===1,'weggooien meldt de mislukte opslag en laat het item staan');
+    klik(w,'btnToday',fouten);
+    const kn=[...$(w,'day').querySelectorAll('[data-edit]')].find(b=>b.dataset.uid==='q1'); if(kn) kn.click(); await sleep(20);
+    $(w,'shtext').value='Anders, via het venster'; $(w,'shsave').click(); await sleep(20);
+    eis(fouten,!!$(w,'sheet')&&$(w,'shtext').value==='Anders, via het venster'&&/Bewaren op de telefoon is mislukt/.test($(w,'shstat').textContent),'ook via het bewerkvenster blijft de tekst staan met de reden');
+    klik(w,'shclose',fouten); await sleep(260);
+    herstel2();
+    meld('6 okt: mislukte opslag van de wachtrij, zonder verbinding',fouten); }
+  { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
+    // verstuurd, maar het opruimen mislukt: geen 'klaar', geen tweede verzending in deze sessie
+    const nh=nepNhost(w);
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('q1','Eén keer')]));
+    const herstel=breekOpslag(w);
+    nh.vrij('Eén keer');
+    const n=await w.flushPending();
+    eis(fouten,n===1&&nh.verstuurd.length===1&&wachtrij(w).length===1,'verstuurd, maar het item staat nog in de rij omdat schrijven mislukte');
+    eis(fouten,/verstuurd, maar de wachtrij op de telefoon kon niet worden bijgewerkt/.test(w.verstuurdTekst()),`de melding zegt dat het niet is afgerond (nu: '${w.verstuurdTekst()}')`);
+    const n2=await w.flushPending();
+    eis(fouten,n2===0&&nh.verstuurd.length===1&&wachtrij(w).length===1,'een volgende ronde in dezelfde sessie verstuurt het niet nog eens');
+    herstel();
+    const n3=await w.flushPending();
+    eis(fouten,n3===0&&nh.verstuurd.length===1&&wachtrij(w).length===0,'zodra schrijven weer lukt, wordt het opgeruimd zonder nieuwe verzending');
+    meld('6 okt: opruimen na verzending mislukt',fouten); }
+  // Regressie: een verstuurd maar niet opgeruimd item is op slot. Anders zou een bewerking bij het
+  // opruimen verdwijnen terwijl Nhost de oude tekst houdt, en zou weghalen hier voor 'weg' doorgaan.
+  { const {w,fouten}=start('2026-10-06',{login:'groep',online:true});
+    const nh=nepNhost(w);
+    w.syncAlles=async()=>NOTITIES.filter(x=>x.dag>=0);
+    w.localStorage.setItem('aus_pending',JSON.stringify([notitie('q1','Oorspronkelijk'),waarneming('e','emoe')]));
+    // het bewerkvenster staat al open vóór het versturen begint
+    klik(w,'btnAlles',fouten); await sleep(30);
+    $(w,'alles').querySelector('[data-edit="wachtq1"]').click(); await sleep(20);
+    eis(fouten,!!$(w,'sheet')&&$(w,'shtext').value==='Oorspronkelijk','het bewerkvenster staat open');
+    const herstel=breekOpslag(w);
+    nh.vrij('Oorspronkelijk'); nh.vrij('emoe');
+    const n=await w.flushPending(); await sleep(20);
+    eis(fouten,n===2&&nh.verstuurd.join()==='Oorspronkelijk,emoe'&&wachtrij(w).length===2,`beide zijn verstuurd maar staan nog in de rij, want opruimen mislukte (nu ${n}, ${wachtrij(w).length} in de rij)`);
+    // opslaan vanuit het al geopende venster wordt geweigerd; de getypte tekst blijft staan
+    $(w,'shtext').value='Gewijzigd na verzending'; $(w,'shsave').click(); await sleep(20);
+    eis(fouten,!!$(w,'sheet')&&$(w,'shtext').value==='Gewijzigd na verzending'&&/al verstuurd/.test($(w,'shstat').textContent),`opslaan wordt geweigerd met de reden in het venster (nu: '${$(w,'shstat').textContent}')`);
+    eis(fouten,wachtrij(w)[0].tekst==='Oorspronkelijk','de wachtrij houdt de verstuurde tekst');
+    klik(w,'shclose',fouten); await sleep(260);
+    // rechtstreeks: bewerken en weghalen weigeren voor de notitie én de waarneming
+    const ru=w.pendingUpdate('q1',{tekst:'Anders'}), rd=w.pendingDelete('q1'), rw=w.pendingDelete('e');
+    eis(fouten,!ru.ok&&/notitie is al verstuurd/.test(ru.reden)&&!rd.ok&&/notitie is al verstuurd/.test(rd.reden)&&!rw.ok&&/waarneming is al verstuurd/.test(rw.reden),`pendingUpdate en pendingDelete weigeren beide items met de reden (nu: '${ru.reden}' / '${rw.reden}')`);
+    eis(fouten,wachtrij(w).length===2&&wachtrij(w)[0].tekst==='Oorspronkelijk','en er is niets veranderd of verdwenen');
+    // via het scherm: de kaart zegt het, bewerken opent geen venster, weghalen doet niets
+    w.renderAlles(); await sleep(30);
+    eis(fouten,/verstuurd, wachtrij nog niet bijgewerkt/.test($(w,'alles').textContent),'de kaart zegt dat de notitie al is verstuurd');
+    $(w,'alles').querySelector('[data-edit="wachtq1"]').click(); await sleep(20);
+    eis(fouten,!$(w,'sheet')&&/al verstuurd/.test($(w,'toast').textContent),'bewerken vanaf de kaart opent geen venster maar geeft de melding');
+    $(w,'alles').querySelector('[data-del="wachtq1"]').click(); await sleep(30);
+    eis(fouten,wachtrij(w).length===2&&/al verstuurd/.test($(w,'toast').textContent),'weghalen vanaf de kaart wordt geweigerd');
+    klik(w,'btnDieren',fouten);
+    const weg=[...w.document.querySelectorAll('#dieren .dweg')].find(b=>b.dataset.weg==='wachte');
+    eis(fouten,!!weg&&/verstuurd, wachtrij nog niet bijgewerkt/.test(weg.closest('li').textContent),'de lijst Gespot zegt het ook');
+    if(weg) weg.click(); await sleep(20);
+    eis(fouten,wachtrij(w).length===2&&/waarneming is al verstuurd/.test($(w,'toast').textContent),'weghalen van de waarneming wordt geweigerd');
+    // de opslag herstelt: opruimen zonder nieuwe verzending, daarna is het item echt weg
+    herstel();
+    const n2=await w.flushPending(); await sleep(20);
+    eis(fouten,n2===0&&nh.verstuurd.length===2&&wachtrij(w).length===0,`zodra schrijven weer lukt, worden beide opgeruimd zonder nieuwe verzending (nu ${n2}, ${nh.verstuurd.length} verstuurd, ${wachtrij(w).length} in de rij)`);
+    eis(fouten,/niet meer in de wachtrij/.test(w.pendingUpdate('q1',{tekst:'x'}).reden),'daarna zegt bewerken dat het item weg is');
+    meld('6 okt: verstuurd maar niet opgeruimd item staat op slot',fouten); }
+
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);
   process.exit(fout?1:0);

@@ -16,13 +16,13 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 | `index.html` | Het skelet van de pagina | Zelden |
 | `sw.js` | Service worker met offline-cache en updatemelding | `VERSION` ophogen en een nieuwe foto ook aan `BEELD` toevoegen |
 | `check.js` | Controleert `reis.js`, `voorreis.js`, de beelden en de versienummers | Draaien vóór elke uitgave |
-| `rooktest.js` | Start de app in een kale browser (jsdom) op een reeks datums en meldt elke JavaScript-fout | Draaien na een wijziging in `app.js` |
+| `rooktest.js` | Start de app in een kale browser (jsdom) op een reeks datums, meldt elke JavaScript-fout en beproeft de wachtrij met nagebootste Nhost-antwoorden | Draaien na een wijziging in `app.js` |
 
 ## Een nieuwe versie uitbrengen
 
 1. Pas `reis.js` (of een ander bestand) aan.
 2. `node check.js`, dat moet eindigen met "reis.js is in orde". Een waarschuwing dat de beelden niet in de map staan, mag je negeren als je alleen de codebestanden bij de hand hebt.
-3. Na een wijziging in `app.js` draai je `node rooktest.js`, dat moet eindigen met "geen fouten". Hiervoor is jsdom nodig, eenmalig te installeren met `npm install -g jsdom`.
+3. Na een wijziging in `app.js` draai je `node rooktest.js`, dat moet eindigen met "geen fouten". Hiervoor is jsdom nodig, eenmalig te installeren met `npm install -g jsdom` (of lokaal in een aparte map met `npm install jsdom` en die map in `NODE_PATH`). De app zelf gebruikt jsdom niet.
 4. Hoog `APP_VERSIE` in `app.js` op (bijv. `2026-09-08-45`) en `VERSION` in `sw.js` (bijv. `v45`). De laatste cijfers horen gelijk te lopen. `check.js` waarschuwt als dat niet zo is.
 5. Commit en push. Binnen een paar minuten ziet iedereen bij het openen van de app de balk "Er is een nieuwe versie". De service worker haalt eerst alle codebestanden vers op en meldt het dan pas, zodat een tik op Vernieuwen geen mengsel van oud en nieuw oplevert.
 
@@ -199,7 +199,7 @@ create table public.waarnemingen (
 create index waarnemingen_dag_idx on public.waarnemingen (dag);
 ```
 
-Zet daarna bij Hasura (Permissions) voor de rol `user` dezelfde rechten als op `dagitems`. Select op alle kolommen zonder filter. Insert op de kolommen `wie`, `dier`, `dag`, `gezien_op` en `opmerking`, met als column preset `user_id` gelijk aan `X-Hasura-User-Id`. Update en delete alleen waar `user_id` gelijk is aan `X-Hasura-User-Id`. Zolang de tabel of de rechten ontbreken, blijft de rest van de app werken. Het tabblad Dieren meldt dan dat waarnemingen nog niet verstuurd kunnen worden en bewaart ze op de telefoon.
+Zet daarna bij Hasura (Permissions) voor de rol `user` de rechten. Select op alle kolommen (ook `hoe`) en insert op de kolommen `wie`, `dier`, `dag`, `gezien_op`, `opmerking` en `hoe`, beide met als row-check de `_exists`-controle op lidmaatschap van `reizigers` uit het hoofdstuk Reizigers, dus **zonder** de `gast = false` van de notities: gasten doen mee met de waarnemingen. Bij insert komt daar de column preset `user_id` gelijk aan `X-Hasura-User-Id` bij. Update en delete alleen waar `user_id` gelijk is aan `X-Hasura-User-Id`. Zolang de tabel of de rechten ontbreken, blijft de rest van de app werken. Het tabblad Dieren meldt dan dat waarnemingen nog niet verstuurd kunnen worden en bewaart ze op de telefoon.
 
 In `dieren.js` heeft elke groep een sleutel, een naam en twee kleuren als `#rrggbb`, eerst die voor het lichte thema en dan die voor het donkere. Dat is een eigen palet en niet dat van de regio's, want die kleuren liggen onder een foto en worden flets zodra je ze klein gebruikt. Elk dier heeft een sleutel `k` (die komt in de tabel), een naam `n` en een groep `g`, en eventueel `eet:true`. Het icoon staat onder dezelfde sleutel in `dieren-iconen.js`, een svg als tekst met `fill="currentColor"`, zodat het de tekstkleur van het thema volgt. Met `syn` koppel je de namen uit de `wild`-blokken van de dagen aan een dier, zodat de teller op de dagpagina klopt. `check.js` meldt hoeveel dieren uit de dagen geen eigen knop hebben. Het tabblad heeft een eigen banner, `banner-dieren.jpg`, die net als de andere banners in de map en in `BEELD` moet staan.
 
@@ -227,6 +227,33 @@ Een notitie die je zonder verbinding schrijft, blijft op de telefoon staan en wo
 
 Bij het openen herstelt de app de sessie eerst uit de kopie op de telefoon, zodat de notities er direct staan, en vernieuwt hij pas daarna bij Nhost. Alleen een afwijzing van de server (401) logt uit. Geen verbinding doet dat nooit.
 
+### Notities meteen uit de kopie
+
+Het tabblad Notities tekent eerst de kopie van de telefoon, met de wachtende notities erbij, en haalt daarna pas Nhost erbij. Bij slecht bereik kan dat antwoord lang uitblijven; lezen en zoeken werken ondertussen gewoon. Zodra de synchronisatie klaar is, worden alleen de lijst, de tellers en de statusregel bijgewerkt: het zoekveld, de chips en de scrollpositie blijven zoals je ze had. Mislukt het ophalen, dan blijft de kopie staan met de status 'Kon niet bijwerken, laatst opgeslagen versie'; 'Bijgewerkt' staat er alleen na een geslaagd antwoord. Het tellen van de bijlagen op de telefoon houdt de lijst niet op, en de waarnemingen worden bij het synchroniseren vóór de bijlagen opgehaald, zodat een trage pdf-download het scherm Dieren niet ophoudt.
+
+### Wachtrij
+
+Alles wat zonder verbinding is vastgelegd, notities én waarnemingen, staat in één wachtrij op de telefoon (`aus_pending`). Sinds uitgave 216 heeft elk item daarin een vaste, lokale `uid`. Die is de sleutel voor bewerken, weggooien, foutmeldingen en het opruimen na versturen; hij gaat niet naar Hasura. Een wachtrij van vóór 216 krijgt de id's eenmalig bij het eerste uitlezen en wordt meteen teruggeschreven. Lukt dat schrijven niet, dan blijven de items gewoon zichtbaar, maar begint het versturen niet: verzonden items zouden dan niet uit de rij te halen zijn.
+
+Er loopt maar één verzendronde tegelijk; een tweede aanroep (inloggen en tegelijk weer online) sluit aan op de lopende. Vlak vóór het versturen leest de app elk item opnieuw: een intussen weggegooid item wordt overgeslagen, een intussen bewerkt item gaat met de nieuwe tekst. Zolang een item echt onderweg is, kun je het niet bewerken of weggooien, ook niet vanuit een bewerkvenster dat al openstond; de app zegt dan dat het wordt verstuurd en je tekst blijft staan. Na een bevestiging haalt de app alleen dat ene item uit de actuele rij, zodat wat er ondertussen bij kwam, blijft. Wat tijdens een ronde bij komt, gaat in een vervolgronde mee (hoogstens drie per keer) of wacht op de volgende gelegenheid.
+
+Schrijven naar de wachtrij wordt gecontroleerd. 'Bewaard op de telefoon' verschijnt alleen als dat is gelukt; anders blijft de notitie in het formulier staan met de reden, en een waarneming die niet bewaard kon worden, wordt als 'niet genoteerd' gemeld, zonder prijs en zonder Ongedaan maken. Wordt een item wel verstuurd maar kan het niet uit de rij worden gehaald, dan zegt de melding dat de wachtrij niet is bijgewerkt en wordt het in deze sessie niet nog eens verstuurd. Zo'n item is ook op slot: een bewerking zou bij het opruimen verdwijnen terwijl Nhost de oude tekst houdt, en weghalen zou de notitie niet weghalen. De kaart zegt dan 'verstuurd, wachtrij nog niet bijgewerkt'; zodra het opruimen lukt, staat het item in de gewone lijst en kun je het daar aanpassen of weghalen.
+
+**Restrisico.** Valt de verbinding weg tussen het moment dat Nhost de rij opslaat en het moment dat het antwoord de telefoon bereikt, dan weet de app niet dat het gelukt is en probeert hij het later opnieuw. Datzelfde geldt na een herstart voor een item dat wel verstuurd maar niet opgeruimd kon worden. In beide gevallen kan een notitie of waarneming dubbel bij Nhost komen; de app garandeert geen eenmalige serververwerking. Een dubbele rij haal je in de app weg met het kruisje.
+
+### Praktische offlinecontrole, per telefoon
+
+1. Via wifi de app openen en onderin Praktisch controleren dat de versie klopt. Inloggen en in Notities wachten tot de status 'Bijgewerkt' zegt en het aantal bijlagen offline gelijk is aan het aantal bijlagen. Staat dat niet gelijk, dan Bijlagen opnieuw ophalen.
+2. Controleren dat alle benodigde pdf's onder 10 MB blijven: bijlagen boven die grens (`IDB_MAX` in `app.js`) worden niet duurzaam op de telefoon bewaard en tellen niet mee als offline beschikbaar. Zo'n bestand verkleinen of opsplitsen vóór vertrek.
+3. De app volledig afsluiten, vliegtuigmodus aan, de app opnieuw openen.
+4. Alle belangrijke tickets en reisprogramma's daadwerkelijk openen vanuit Notities of de dagpagina.
+5. In Dieren één waarneming vastleggen, de app afsluiten en opnieuw openen; de waarneming moet er staan met 'wacht op verbinding'.
+6. Vliegtuigmodus uit en wachten op de melding dat de waarneming is verstuurd. In de lijst Gespot hoort hij dan één keer te staan, zonder 'wacht op verbinding'.
+
+### Uitgesteld
+
+Uitgave 216 is bewust klein gehouden. De volgende punten uit de bredere review staan nog open en zijn niet aangepakt: beveiliging bij uitloggen en het wisselen van account (de wachtrij van een vorige gebruiker), het samenvoegen van overlappende synchronisatierondes, algemene foutafhandeling van IndexedDB, betrouwbaar opruimen van verwijderde bestanden bij Nhost Storage, en de herbouw van het updatesysteem in `sw.js`. Dat laatste gaat ervan uit dat de appversie tijdens de reis gelijk blijft; nieuwe notities bij Nhost zijn geen code-uitgave, een nieuwe versie onderweg wel, en die vraagt opnieuw aandacht voor het bekende updaterisico.
+
 ## Bijlagen
 
 Foto's en pdf's bij een notitie gaan naar Nhost Storage (bucket `default`). De notitie zelf onthoudt alleen het `file_id`, de naam, het type en de grootte. Storage controleert elke upload, download en verwijdering via de rechten op de tabel `storage.files` in Hasura, met dezelfde sessievariabelen als bij de andere tabellen. Zonder rechten kan niemand iets; zet ze voor de rol `user` zo:
@@ -237,7 +264,7 @@ Foto's en pdf's bij een notitie gaan naar Nhost Storage (bucket `default`). De n
 | Download (select) | alle | dezelfde `_exists`-check mét `gast = false`, want de hele groep ziet elkaars bijlagen, een gast niet |
 | Delete | — | `uploaded_by_user_id` gelijk aan `X-Hasura-User-Id` |
 
-De `_exists`-check hoort ook hier, en niet alleen bij de notities: aanmelden staat open, dus wie het adres kent, kan een account maken. Zonder die check kan zo'n account bestanden uploaden, ook al ziet het verder niets van de groep. En de `gast = false` hoort erbij, want bijlagen zijn notities. Stel bij de bucket in Storage ook een maximale bestandsgrootte in (20 MB past bij de app); de grens in `app.js` is alleen een controle in de browser.
+De `_exists`-check hoort ook hier, en niet alleen bij de notities: aanmelden staat open, dus wie het adres kent, kan een account maken. Zonder die check kan zo'n account bestanden uploaden, ook al ziet het verder niets van de groep. En de `gast = false` hoort erbij, want bijlagen zijn notities. Stel bij de bucket in Storage ook een maximale bestandsgrootte in (20 MB past bij de app); de grens in `app.js` (`MAX_UPLOAD`) is alleen een controle in de browser. Bijlagen tot 10 MB (`IDB_MAX`) gaan bij het synchroniseren automatisch mee naar de telefoon; een grotere pdf is alleen met verbinding te openen en telt in Notities niet mee als offline beschikbaar.
 
 De app haalt bijlagen op met de token in de header en niet via een deelbare link, en verwijdert ze altijd via Storage (`DELETE /files/{id}`), zodat het bestand zelf ook weggaat en niet alleen de rij.
 
