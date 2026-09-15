@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<!-- Zelfde thema als de app, meteen gezet zodat de pagina niet flitst. -->
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("aus_thema")==="dark"?"dark":"light")}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEF0F4">
+<title>Paklijst</title>
+<link rel="stylesheet" href="app.css">
+<style>
+  /* Paklijst: één los bestand naast de app. Alles staat op deze telefoon (localStorage), er gaat niets
+     naar Nhost. De opmaak komt uit app.css; hieronder alleen wat de lijst zelf nodig heeft. */
+  .acties{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:22px 0 18px}
+  .acties .ruimte{flex:1}
+  .cat.card{padding:0;overflow:hidden}
+  .cathead{display:flex;align-items:center;gap:10px;width:100%;padding:15px 17px;
+    background:none;border:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+  .cathead h3{flex:1;margin:0;font-size:17.5px;font-weight:640;letter-spacing:-.01em}
+  .cathead .teller{font-size:14px;color:var(--text-dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .cat.klaar .teller{color:var(--accent-ink);font-weight:600}
+  .cathead .pijl{flex:none;width:18px;height:18px;color:var(--text-faint);transition:transform .2s ease}
+  .cat.dicht .pijl{transform:rotate(-90deg)}
+  .cat.dicht .items,.cat.dicht .toevoeg,.cat.dicht .leeg{display:none}
+  .items{list-style:none;margin:0;padding:0 8px}
+  .item{display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:14px}
+  .item:active{background:var(--glass-2)}
+  .vink{flex:none;width:30px;height:30px;border-radius:50%;cursor:pointer;display:grid;place-items:center;
+    background:none;border:1.5px solid color-mix(in srgb, var(--text) 32%, transparent);color:transparent}
+  .vink svg{width:16px;height:16px}
+  .item.ok .vink{background:var(--accent);border-color:var(--accent);color:#1a1200}
+  .naam{flex:1;min-width:0;font-size:15.5px;line-height:1.35;cursor:pointer;overflow-wrap:anywhere}
+  .item.ok .naam{color:var(--text-faint);text-decoration:line-through}
+  .aantal{flex:none;display:inline-flex;align-items:center;border-radius:999px;
+    background:var(--glass-2);border:1px solid var(--rim)}
+  .aantal button{font:inherit;font-size:18px;line-height:1;width:32px;height:32px;border:none;background:none;
+    color:var(--text-dim);cursor:pointer;border-radius:999px}
+  .aantal button:disabled{color:var(--text-faint);opacity:.4}
+  .aantal button:active:not(:disabled){opacity:.5}
+  .aantal b{min-width:22px;text-align:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+  .weg{flex:none;width:30px;height:30px;border-radius:10px;border:none;background:none;font:inherit;font-size:19px;
+    line-height:1;color:var(--text-faint);cursor:pointer}
+  .weg:active{opacity:.5}
+  .toevoeg{display:flex;gap:8px;padding:8px 17px 15px}
+  .toevoeg input{flex:1;min-width:0;font:inherit;font-size:15.5px;color:var(--text);
+    padding:10px 14px;border-radius:14px;background:var(--glass-2);border:1px solid var(--rim);
+    -webkit-appearance:none;appearance:none}
+  .toevoeg input::placeholder{color:var(--text-faint)}
+  .toevoeg button,.nieuwcat button{flex:none;width:44px;height:44px;border-radius:14px;cursor:pointer;display:grid;place-items:center;
+    color:var(--text);background:var(--glass-2);border:1px solid var(--rim)}
+  .toevoeg button:active,.nieuwcat button:active{opacity:.6}
+  .leeg{padding:0 17px 14px;font-size:14px;color:var(--text-faint)}
+  .leeg button{font:inherit;font-size:14px;color:var(--text-dim);background:none;border:none;padding:0;text-decoration:underline;cursor:pointer}
+  .klaarregel{padding:4px 17px 12px;font-size:14px;color:var(--text-dim)}
+  .nieuwcat{display:flex;gap:8px;margin:6px 0 0}
+  .nieuwcat input{flex:1;min-width:0;font:inherit;font-size:15.5px;color:var(--text);padding:10px 14px;border-radius:14px;
+    background:var(--glass-2);border:1px solid var(--rim);-webkit-appearance:none;appearance:none}
+  .nieuwcat input::placeholder{color:var(--text-faint)}
+  .voet{margin:30px 0 0;font-size:13.5px;color:var(--text-faint);line-height:1.5}
+  .voet p{margin:0 0 8px}
+  .voet button{font:inherit;font-size:13.5px;color:var(--text-dim);background:none;border:none;padding:0;text-decoration:underline;cursor:pointer}
+  .hero .eyebrow{text-decoration:none}
+  @media (prefers-reduced-motion:reduce){.cathead .pijl,.track i,.toast{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="hero banner" style="background-image:url('banner-praktisch.jpg')">
+  <div class="wrap">
+    <a class="eyebrow" href="index.html">‹ AustralieApp</a>
+    <h1 class="btitel">Paklijst</h1>
+    <p class="bsub" id="sub"></p>
+  </div>
+  <div class="track"><i id="track"></i></div>
+</div>
+
+<main class="wrap">
+  <div class="acties">
+    <button class="chip on" id="fAlles">Alles</button>
+    <button class="chip" id="fNog">Nog in te pakken</button>
+    <span class="ruimte"></span>
+    <button class="chip" id="uitvinken">Alles uitvinken</button>
+    <button class="chip" id="delen">Delen</button>
+  </div>
+  <div id="lijst"></div>
+  <div class="nieuwcat">
+    <input id="nieuwcatnaam" placeholder="Nieuwe categorie…" autocomplete="off" autocapitalize="sentences" enterkeyhint="done">
+    <button id="nieuwcatknop" aria-label="Categorie toevoegen">+</button>
+  </div>
+  <div class="voet">
+    <p>Begonnen met een voorstel voor deze reis: haal weg wat je niet meeneemt en vul aan. Typ een getal vóór de naam ('3 T-shirts') om meteen het aantal te zetten.</p>
+    <p>Bij aankomst in Australië: eten, planten, hout en dierlijke producten altijd aangeven. Ze zijn er streng op.</p>
+    <p><button id="herstel">Startlijst herstellen</button></p>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+// ---------- Startlijst ----------
+// Een voorstel voor 29 dagen Australië in oktober: fris en nat mogelijk in Tasmanië, warm in het
+// Red Centre en Queensland. Alles is weg te halen, aan te vullen en van aantal te veranderen.
+const START=[
+  ['Documenten & geld',[
+    ['Paspoort, nog minstens 6 maanden geldig'],['ETA-visum bevestigd in de Australian ETA-app'],
+    ['Rijbewijs'],['Internationaal rijbewijs'],['Bankpas'],['Creditcard'],['Wat contant geld (AUD)'],
+    ['Polisnummer reisverzekering (staat ook in de app)'],['Vluchttickets en reisprogramma als pdf in de app'],
+    ['Kopieën van paspoort en documenten, digitaal']]],
+  ['Kleding',[
+    ['T-shirts',6],['Overhemd of blouse',2],['Lange broek',2],['Korte broek',2],['Ondergoed',8],['Sokken',7],
+    ['Trui of fleece',2],['Regenjas of windjack'],['Muts of buff, voor Tasmanië'],['Zwemkleding'],['Nette outfit'],
+    ['Pyjama'],['Wandelschoenen'],['Sandalen of slippers'],['Hoed of pet'],['Zonnebril'],['Riem']]],
+  ['Toiletspullen & medicijnen',[
+    ['Tandenborstel en tandpasta'],['Deodorant'],['Shampoo en douchegel, reisformaat'],['Zonnebrand factor 50+',2],
+    ['Aftersun'],['Insectenspray'],['Lippenbalsem met SPF'],['Eigen medicijnen, in de originele verpakking'],
+    ['Engelse medicijnverklaring van de arts'],['Pijnstillers'],['Reisziektetabletten, voor de boot naar het rif'],
+    ['Pleisters en kleine EHBO'],['Handgel'],['Oordopjes'],['Scheerspullen'],['Nagelschaartje, in de ruimbagage']]],
+  ['Elektronica',[
+    ['Telefoon en kabel'],['Reisadapter type I (Australië)',2],['Reisstekkerblok'],['Koptelefoon'],
+    ['Leica Q3'],['Accu\u2019s voor de Leica',2],['Acculader'],['SD-kaarten',2],['Poetsdoekje voor de lens'],
+    ['E-reader'],['Horlogelader']]],
+  ['Handbagage & vliegtuig',[
+    ['Nekkussen'],['Slaapmasker'],['Compressiekousen'],['Lege waterfles, na de controle vullen'],['Snacks'],['Pen'],
+    ['Powerbank en kabel, mag niet in de ruimbagage'],['Tandenborstel reisformaat'],['Schone set kleding'],
+    ['Medicijnen voor de eerste dagen']]],
+  ['Buiten & dieren',[
+    ['Verrekijker'],['Dagrugzak'],['Waterfles'],['Sneldrogende handdoek'],['Regenponcho'],
+    ['Zaklamp of hoofdlamp, voor de sterren in het Red Centre'],['Vliegennet voor het gezicht, Red Centre in oktober'],
+    ['Snorkelset, voor het rif'],['Wandelsokken',2]]],
+  ['Overig',[
+    ['Wasmiddel of wasstrips'],['Waslijn met knijpers'],['Reisslot'],['Packing cubes'],['Plastic zakken of dry bag'],
+    ['Opvouwbare tas, voor souvenirs'],['Naaisetje'],['Boek']]],
+];
+
+// ---------- Opslag ----------
+const SLEUTEL='paklijst';
+const uid=()=>{ try{ if(crypto.randomUUID) return crypto.randomUUID(); }catch(e){} return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,10); };
+const startlijst=()=>({v:1,filter:'alles',cats:START.map(([naam,items])=>({id:uid(),naam,dicht:false,
+  items:items.map(([n,a])=>({id:uid(),naam:n,aantal:a||1,ok:false}))}))});
+let S;
+function laad(){
+  try{ const d=JSON.parse(localStorage.getItem(SLEUTEL)); if(d&&Array.isArray(d.cats)){ S=d; return; } }catch(e){}
+  S=startlijst(); bewaar();
+}
+function bewaar(){
+  try{ localStorage.setItem(SLEUTEL,JSON.stringify(S)); }
+  catch(e){ toast('Bewaren op de telefoon is mislukt. Er is te weinig opslagruimte, of de browser staat het niet toe.'); }
+}
+
+// ---------- Hulpjes ----------
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const VINK='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
+const PIJL='<svg class="pijl" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l5 5 5-5"/></svg>';
+const PLUS='<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3v12M3 9h12"/></svg>';
+let _toastT=null;
+function toast(msg,knop,actie){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  if(knop){ const b=document.createElement('button'); b.textContent=knop; b.onclick=()=>{ actie(); t.classList.remove('on'); }; t.appendChild(b); }
+  t.classList.add('on'); clearTimeout(_toastT); _toastT=setTimeout(()=>t.classList.remove('on'),knop?6000:2600);
+}
+// '3 T-shirts' wordt aantal 3, naam T-shirts. Een los getal blijft gewoon een naam.
+function splits(tekst){
+  const m=tekst.trim().match(/^(\d{1,3})\s*[x×]?\s+(.+)$/);
+  return m?{naam:m[2].trim(),aantal:Math.max(1,+m[1])}:{naam:tekst.trim(),aantal:1};
+}
+const vind=id=>{ for(const c of S.cats){ const i=c.items.findIndex(x=>x.id===id); if(i>=0) return {c,i,it:c.items[i]}; } return null; };
+
+// ---------- Tekenen ----------
+function teken(){
+  const lijst=document.getElementById('lijst');
+  const nog=S.filter==='nog';
+  document.getElementById('fAlles').classList.toggle('on',!nog);
+  document.getElementById('fNog').classList.toggle('on',nog);
+  let totaal=0, klaar=0, catsKlaar=0;
+  lijst.innerHTML=S.cats.map(c=>{
+    const n=c.items.length, k=c.items.filter(x=>x.ok).length;
+    totaal+=n; klaar+=k; if(n&&k===n) catsKlaar++;
+    const zicht=nog?c.items.filter(x=>!x.ok):c.items;
+    const rijen=zicht.map(it=>`<li class="item${it.ok?' ok':''}" data-id="${it.id}">`+
+      `<button class="vink" data-vink aria-label="${it.ok?'Uitvinken':'Afvinken'}" aria-pressed="${it.ok}">${VINK}</button>`+
+      `<span class="naam" data-vink>${esc(it.naam)}</span>`+
+      `<span class="aantal"><button data-min aria-label="Minder" ${it.aantal<=1?'disabled':''}>−</button><b>${it.aantal}</b><button data-plus aria-label="Meer">+</button></span>`+
+      `<button class="weg" data-weg aria-label="Weghalen">×</button></li>`).join('');
+    return `<section class="card cat${c.dicht?' dicht':''}${n&&k===n?' klaar':''}" data-cat="${c.id}">`+
+      `<button class="cathead" data-kop aria-expanded="${!c.dicht}"><h3>${esc(c.naam)}</h3><span class="teller">${n?`${k} van ${n}`:'leeg'}</span>${PIJL}</button>`+
+      `<ul class="items">${rijen}</ul>`+
+      (nog&&n&&!zicht.length?`<div class="klaarregel">Alles ingepakt</div>`:'')+
+      `<div class="toevoeg"><input data-nieuw placeholder="Toevoegen…" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"><button data-nieuwknop aria-label="Toevoegen">${PLUS}</button></div>`+
+      (!n?`<div class="leeg">Nog niets in deze categorie. <button data-catweg>Categorie weghalen</button></div>`:'')+
+      `</section>`;
+  }).join('')||`<div class="card">Geen categorieën. Voeg er hieronder een toe, of herstel de startlijst.</div>`;
+  document.getElementById('sub').textContent=totaal?`${klaar} van ${totaal} ingepakt${catsKlaar?` · ${catsKlaar} ${catsKlaar===1?'categorie':'categorieën'} klaar`:''}`:'Nog geen spullen op de lijst';
+  document.getElementById('track').style.width=(totaal?Math.round(klaar/totaal*100):0)+'%';
+  document.title=totaal?`Paklijst · ${klaar}/${totaal}`:'Paklijst';
+}
+
+// ---------- Handelingen ----------
+document.getElementById('lijst').addEventListener('click',e=>{
+  const sec=e.target.closest('[data-cat]'); if(!sec) return;
+  const c=S.cats.find(x=>x.id===sec.dataset.cat); if(!c) return;
+  const li=e.target.closest('[data-id]');
+  if(e.target.closest('[data-kop]')){ c.dicht=!c.dicht; bewaar(); teken(); return; }
+  if(e.target.closest('[data-nieuwknop]')){ voegToe(c,sec.querySelector('[data-nieuw]')); return; }
+  if(e.target.closest('[data-catweg]')){ const ix=S.cats.indexOf(c); S.cats.splice(ix,1); bewaar(); teken();
+    toast(`Categorie '${c.naam}' weggehaald`,'Ongedaan maken',()=>{ S.cats.splice(Math.min(ix,S.cats.length),0,c); bewaar(); teken(); }); return; }
+  if(!li) return;
+  const v=vind(li.dataset.id); if(!v) return;
+  if(e.target.closest('[data-vink]')){ v.it.ok=!v.it.ok; bewaar(); teken(); return; }
+  if(e.target.closest('[data-plus]')){ v.it.aantal=Math.min(999,v.it.aantal+1); bewaar(); teken(); return; }
+  if(e.target.closest('[data-min]')){ if(v.it.aantal>1){ v.it.aantal--; bewaar(); teken(); } return; }
+  if(e.target.closest('[data-weg]')){
+    v.c.items.splice(v.i,1); bewaar(); teken();
+    toast(`${v.it.naam} weggehaald`,'Ongedaan maken',()=>{ v.c.items.splice(Math.min(v.i,v.c.items.length),0,v.it); bewaar(); teken(); });
+  }
+});
+document.getElementById('lijst').addEventListener('keydown',e=>{
+  if(e.key!=='Enter'||!e.target.matches('[data-nieuw]')) return;
+  e.preventDefault();
+  const sec=e.target.closest('[data-cat]'), c=S.cats.find(x=>x.id===sec.dataset.cat);
+  if(c) voegToe(c,e.target);
+});
+function voegToe(c,input){
+  const t=input.value.trim(); if(!t){ input.focus(); return; }
+  const {naam,aantal}=splits(t);
+  c.items.push({id:uid(),naam,aantal,ok:false});
+  c.dicht=false; bewaar(); teken();
+  // het veld van deze categorie weer klaarzetten voor het volgende item
+  const nieuw=document.querySelector(`[data-cat="${c.id}"] [data-nieuw]`); if(nieuw) nieuw.focus();
+}
+function nieuweCategorie(){
+  const inp=document.getElementById('nieuwcatnaam'), naam=inp.value.trim();
+  if(!naam){ inp.focus(); return; }
+  S.cats.push({id:uid(),naam,dicht:false,items:[]}); inp.value=''; bewaar(); teken();
+  const sec=document.querySelector(`[data-cat="${S.cats[S.cats.length-1].id}"]`);
+  if(sec){ if(sec.scrollIntoView) sec.scrollIntoView({block:'center'}); const n=sec.querySelector('[data-nieuw]'); if(n) n.focus(); }
+}
+document.getElementById('nieuwcatknop').onclick=nieuweCategorie;
+document.getElementById('nieuwcatnaam').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); nieuweCategorie(); } });
+document.getElementById('fAlles').onclick=()=>{ S.filter='alles'; bewaar(); teken(); };
+document.getElementById('fNog').onclick=()=>{ S.filter='nog'; bewaar(); teken(); };
+// Voor het opnieuw inpakken bij de volgende verhuizing: alles uit, de lijst zelf blijft.
+document.getElementById('uitvinken').onclick=()=>{
+  const was=S.cats.map(c=>c.items.filter(x=>x.ok).map(x=>x.id));
+  if(!was.some(a=>a.length)){ toast('Er is nog niets afgevinkt'); return; }
+  if(!confirm('Alle vinkjes weghalen? De lijst zelf blijft staan.')) return;
+  S.cats.forEach(c=>c.items.forEach(x=>x.ok=false)); bewaar(); teken();
+  toast('Alles uitgevinkt','Ongedaan maken',()=>{ S.cats.forEach((c,i)=>c.items.forEach(x=>{ if(was[i]&&was[i].includes(x.id)) x.ok=true; })); bewaar(); teken(); });
+};
+document.getElementById('herstel').onclick=()=>{
+  if(!confirm('De startlijst terugzetten? Je eigen aanpassingen gaan verloren.')) return;
+  const oud=S; S=startlijst(); bewaar(); teken();
+  toast('Startlijst teruggezet','Ongedaan maken',()=>{ S=oud; bewaar(); teken(); });
+};
+// Als tekst, bijvoorbeeld voor een berichtje aan een medereiziger
+document.getElementById('delen').onclick=async()=>{
+  let totaal=0, klaar=0;
+  const regels=S.cats.filter(c=>c.items.length).map(c=>`${c.naam}\n`+c.items.map(it=>{ totaal++; if(it.ok) klaar++;
+    return `${it.ok?'☑':'☐'} ${it.aantal>1?it.aantal+'× ':''}${it.naam}`; }).join('\n'));
+  const tekst=`Paklijst Australië, ${klaar} van ${totaal} ingepakt\n\n`+regels.join('\n\n');
+  try{
+    if(navigator.share){ await navigator.share({title:'Paklijst',text:tekst}); return; }
+    await navigator.clipboard.writeText(tekst); toast('Lijst gekopieerd');
+  }catch(e){ if(e&&e.name==='AbortError') return; try{ await navigator.clipboard.writeText(tekst); toast('Lijst gekopieerd'); }catch(e2){ toast('Delen lukt hier niet'); } }
+};
+// Thema volgt de app als die in een ander tabblad wordt omgezet
+window.addEventListener('storage',e=>{ if(e.key==='aus_thema') document.documentElement.setAttribute('data-theme',e.newValue==='dark'?'dark':'light'); });
+
+laad(); teken();
+</script>
+</body>
+</html>
