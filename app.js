@@ -2242,7 +2242,8 @@ function beoordeelPrijs(p,mijn){
       const min=t=>{ const [h,m]=t.split(':').map(Number); return h*60+m; }, van=min(r.van), tot=min(r.tot);
       const binnen=w=>{ const m=String(w.gezien_op).match(/T(\d\d):(\d\d)/); if(!m) return false; const t=+m[1]*60+ +m[2];
         return van<=tot?(t>=van&&t<tot):(t>=van||t<tot); };
-      const raak=vanSoort.filter(binnen);
+      // Met een dierenlijst telt alleen een dier daaruit: een dagdier dat je 's avonds invoert, is geen nachtwacht.
+      const raak=vanSoort.filter(w=>binnen(w)&&(!r.dieren||r.dieren.includes(w.dier)));
       if(!raak.length) return [];
       if(!herh) return [raak[0].gezien_op];
       // Eén per nacht. Loopt het venster over middernacht, dan hoort wat ná twaalven valt nog bij de
@@ -2671,7 +2672,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-15-218';
+const APP_VERSIE='2026-09-19-219';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

@@ -817,6 +817,9 @@ function zoek(w,fouten,term){
     eis(fouten,gev.some(x=>x.p.k==='tassie'&&x.op===T(8,'21:30')),'Tassie na duivel, wombat en wallaby, verdiend op het moment van de laatste');
     eis(fouten,gev.some(x=>x.p.k==='nachtwacht'&&x.op===T(8,'21:30'))&&!gev.some(x=>x.p.k==='grote-vijf'),'half tien \'s avonds geeft Nachtwacht; twee van de grote vijf geeft niets');
     eis(fouten,!zet([wn('wombat',T(6),{hoe:'gegeten'}),wn('wallaby',T(7)),wn('tasmaanse-duivel',T(8))]).includes('tassie'),'een gegeten wombat telt niet voor Tassie');
+    // tijd: alleen een avond- of nachtdier telt; een dagdier dat je 's avonds invoert niet, en Iets anders gezien ook niet
+    eis(fouten,!zet([wn('pelikaan',T(6,'21:30'))]).includes('nachtwacht')&&!zet([wn('kookaburra',T(6,'21:30'))]).includes('nachtwacht')&&!zet([wn('overig',T(6,'21:30'),{opmerking:'Uil'})]).includes('nachtwacht'),'een dagdier om half tien \'s avonds is geen Nachtwacht');
+    eis(fouten,['possum','vliegende-vos','wombat','dwergpinguin','kangoeroe','kikker'].every(d=>zet([wn(d,T(6,'21:30'))]).includes('nachtwacht')),'een avond- of nachtdier om half tien wel');
     // tijd: de grenzen van Nachtwacht
     eis(fouten,zet([wn('possum',T(6,'18:59'))]).includes('nachtwacht')===false&&zet([wn('possum',T(6,'19:00'))]).includes('nachtwacht')&&zet([wn('possum',T(6,'05:29'))]).includes('nachtwacht')&&!zet([wn('possum',T(6,'05:30'))]).includes('nachtwacht'),'Nachtwacht loopt van 19.00 tot 05.30 uur');
     // keer: één emoe is genoeg, een gegeten emoe niet

@@ -115,7 +115,8 @@ const DIEREN=[
 //            {soort:"soorten",n}                      n verschillende soorten, welke dan ook
 //            {soort:"keer",dier,n}                    één dier n keer genoteerd
 //            {soort:"reeks",n}                        n dagen achter elkaar iets gespot
-//            {soort:"tijd",van,tot}                   iets gespot tussen twee tijdstippen (over middernacht mag)
+//            {soort:"tijd",van,tot,dieren:[…]}        iets gespot tussen twee tijdstippen (over middernacht mag);
+//                                                     met dieren telt alleen een dier uit die lijst
 //            {soort:"regios",n}                       iets gespot in n van de streken van de groepsreis
 //   t      de tekst op de kaart. {rest} wordt het aantal andere prijzen.
 //   herhaal  laat weg en de prijs is eenmalig. true betekent dat je hem vaker kunt winnen: elke volgende
@@ -133,7 +134,12 @@ const DIEREN=[
 const PRIJZEN=[
  {k:"eerste",n:"G'day!",kleur:"#0F6E56",ic:"poot",regel:{soort:"eerste"},
   t:"Je eerste dier staat erin, en daarmee je eerste prijs. Er zijn er nog {rest} te verdienen, maar welke dat zijn, merk je vanzelf."},
- {k:"nachtwacht",n:"Nachtwacht",kleur:"#3B2E7E",ic:"possum",regel:{soort:"tijd",van:"19:00",tot:"05:30"},herhaal:true,
+ // Alleen dieren die 's avonds of 's nachts actief zijn: een pelikaan van overdag die je 's avonds pas
+ // invoert, is geen nachtwacht. Kangoeroe en wallaby staan erbij omdat ze in de schemer grazen.
+ {k:"nachtwacht",n:"Nachtwacht",kleur:"#3B2E7E",ic:"possum",regel:{soort:"tijd",van:"19:00",tot:"05:30",
+   dieren:["possum","suikereekhoorn","vliegende-vos","wombat","tasmaanse-duivel","quoll","bandicoet","quokka","koala",
+     "boomkangoeroe","dingo","vogelbekdier","kangoeroe","wallaby","dwergpinguin","python",
+     "trechterspin","roodrugspin","jachtkrabspin","wielwebspin","kikker","reuzenpad"]},herhaal:true,
   t:"De meeste Australische zoogdieren komen pas na zonsondergang tevoorschijn. Jij was nog wakker.",
   t2:"Alweer laat buiten geweest. Dat zijn er {keer}."},
  {k:"lijstenmaker",n:"Streepjes zetten",kleur:"#0369A1",ic:"turf",regel:{soort:"soorten",n:15},
