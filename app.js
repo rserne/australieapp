@@ -906,7 +906,7 @@ function renderKop(v){
 }
 function switchTo(v){
   view=v;
-  if(v==='dieren') dierenScherm='spotten';
+  if(v==='dieren'){ dierenScherm='spotten'; _gespotAlles=false; }
   document.getElementById('day').style.display=v==='day'?'block':'none';
   document.getElementById('index').style.display=v==='index'?'block':'none';
   document.getElementById('prakt').style.display=v==='prakt'?'block':'none';
@@ -2464,7 +2464,9 @@ function dierRij(dier,{naam,tekst,kans,tel,groep,eet,gegeten}){
 // medailles), dan de stand van reisgenoten en gasten, dan mijn waarnemingen. Alles gaat over één
 // reisdeel: standaard dat van vandaag, met chips om te wisselen als ik aan meer dan één reisdeel meedoe.
 // Puur kijken: noteren en weghalen blijven op het noteerscherm.
-let dierenScherm='spotten', _standDeel=null, _standAlles=false;
+let dierenScherm='spotten', _standDeel=null, _standAlles=false, _gespotAlles=false;
+// Hoeveel waarnemingen de lijsten Gespot (Dieren) en Mijn waarnemingen (Stand) laten zien vóór de knop 'Alle … tonen'
+const LIJST_KORT=10;
 function toonStand(aan){ dierenScherm=aan?'stand':'spotten'; _standAlles=false; renderKop('dieren'); renderDieren(); window.scrollTo(0,0); }
 // De reisdelen waaraan ik meedoe volgens de reizigerslijst, plus die waarin ik toch iets heb genoteerd
 function mijnReisdelen(){
@@ -2524,14 +2526,14 @@ function renderStand(){
   h+=`<div class="dkop solo skop"><h2>Mijn waarnemingen</h2></div>`;
   if(!mijn.length) h+=`<p class="dstatus sleeg">Nog niets genoteerd${meer?' in dit reisdeel':''}.</p>`;
   else{
-    const lijst=_standAlles?mijn:mijn.slice(0,10); let vorige=null;
+    const lijst=_standAlles?mijn:mijn.slice(0,LIJST_KORT); let vorige=null;
     h+=`<ul class="list dlijst">`+lijst.map(w=>{ const dat=String(w.gezien_op||'').slice(0,10); let kop='';
       if(dat!==vorige){ vorige=dat; const dd2=new Date(dat+'T12:00:00'), lang=fmtLong(dd2).replace(/^./,c=>c.toUpperCase());
         const voor=w.dag>=1&&w.dag<=29?`Dag ${w.dag} · `:isBuiten(w.dag)?`${w.dag<0?'Voorreis':'Nareis'} · `:''; kop=`<li class="ddag">${esc(voor+lang)}</li>`; }
       return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}`+
         (isGegeten(w)?`<span class="wvork" title="Gegeten">${IC_VORK}</span>`:'')+`</strong>`+
         (w.pending?`<span class="sub">${w.fout?`versturen mislukt: ${esc(w.fout)}`:wachtTekst(w)}</span>`:'')+`</span></li>`; }).join('')+`</ul>`;
-    if(mijn.length>10&&!_standAlles) h+=`<div class="nrow smeer"><button type="button" class="btn" id="smeer">Alle ${mijn.length} tonen</button></div>`;
+    if(mijn.length>LIJST_KORT&&!_standAlles) h+=`<div class="nrow smeer"><button type="button" class="btn" id="smeer">Alle ${mijn.length} tonen</button></div>`;
   }
   box.innerHTML=h;
   box.querySelectorAll('.sdelen .dchip').forEach(b=>b.onclick=()=>{ _standDeel=b.dataset.deel; _standAlles=false; renderStand(); });
@@ -2642,8 +2644,11 @@ function renderDieren(){
   // de datum van de waarneming zelf en niet op het dagnummer: dan staat er ook een datum boven wat
   // iemand op een dag zonder nummer heeft gezien. De lijst volgt dezelfde filters als het raster: de
   // aangevinkte namen (zit al in alle), Gespot of Gegeten, en de groep.
-  const lijst=alle.filter(w=>(!stand||hoeVan(w)===hoe)&&(!groep||groepVan(w)===groep))
+  // De lijst wordt lang: standaard de laatste tien, met een knop voor de rest. De knop noemt het aantal
+  // binnen de filters die aanstaan, en de lijst blijft open zolang je op Dieren bent (ook na noteren of weghalen).
+  const heleLijst=alle.filter(w=>(!stand||hoeVan(w)===hoe)&&(!groep||groepVan(w)===groep))
     .sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
+  const lijst=_gespotAlles?heleLijst:heleLijst.slice(0,LIJST_KORT);
   h+=`<h2>${stand==='gegeten'?'Gegeten':'Gespot'}</h2>`;
   if(!lijst.length) h+=`<p class="dstatus">${alle.length?'Niets met deze filters.':'Nog niets gespot. De eerste is voor jou.'}</p>`;
   else{
@@ -2660,10 +2665,12 @@ function renderDieren(){
         `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · '+wachtTekst(w)):''}</span></span>`+
         (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
     }).join('')+`</ul>`;
+    if(heleLijst.length>lijst.length) h+=`<div class="nrow smeer"><button type="button" class="btn" id="gmeer">Alle ${heleLijst.length} tonen</button></div>`;
   }
 
   // Tot nu toe en de Prijzenkast staan sinds 220 in Stand, achter de knop in de kop.
   box.innerHTML=h;
+  const gm=box.querySelector('#gmeer'); if(gm) gm.onclick=()=>{ _gespotAlles=true; renderDieren(); };
 
   box.querySelectorAll('.drijwrap').forEach(w=>w.onclick=e=>{
     const eetknop=e.target.closest('.deet');
@@ -2748,7 +2755,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-20-221';
+const APP_VERSIE='2026-09-20-222';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

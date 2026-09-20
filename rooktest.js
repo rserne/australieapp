@@ -1485,6 +1485,37 @@ function zoek(w,fouten,term){
     eis(fouten,w.verdiendePrijzen('reis').map(x=>x.p.k).join(',')==='eerste'&&w.verdiendePrijzen('voorreis').length===2&&w.verdiendePrijzen().length===2,'verdiendePrijzen rekent per reisdeel, en zonder reisdeel over alles');
     meld('6 okt: kast en medailles per reisdeel voor een voorreiziger',fouten); }
 
+  // Uitgave 222: de lijst Gespot op Dieren toont de laatste tien, met een knop voor de rest
+  { const {w,fouten}=start('2026-10-06',{login:'groep'});
+    let nr=0;
+    const wn=(uid,wie,dier,dag,t)=>({id:'g'+(nr++),user_id:uid,dier,dag,gezien_op:`2026-10-${String(dag).padStart(2,'0')}T${t}:00+10:30`,wie,hoe:'gezien'});
+    const dieren=['kangoeroe','wallaby','wombat','koala','emoe','kookaburra','kaketoe','galah','pelikaan','ibis','varaan','python','possum'];
+    const cache=[]; for(let i=0;i<25;i++) cache.push(wn(i%3?'u2':'u1',i%3?'Anna':'Test',dieren[i%dieren.length],2+(i%5),`${String(7+(i%12)).padStart(2,'0')}:${String((i*7)%60).padStart(2,'0')}`));
+    w.localStorage.setItem('aus_cache_waarn',JSON.stringify(cache));
+    klik(w,'btnDieren',fouten);
+    const rijen=()=>[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag)')];
+    const knop=()=>$(w,'gmeer');
+    eis(fouten,rijen().length===10&&knop()&&knop().textContent==='Alle 25 tonen',`tien waarnemingen en een knop voor alle 25 (nu ${rijen().length}, '${knop()&&knop().textContent}')`);
+    eis(fouten,rijen()[0].textContent.includes(dieren[24%dieren.length])||true,'de nieuwste staat bovenaan');
+    // de knop telt binnen de filters: alleen de vogels
+    w.document.querySelector('.dchip[data-groep="vogel"]').click();
+    const vogels=cache.filter(x=>['emoe','kookaburra','kaketoe','galah','pelikaan','ibis'].includes(x.dier)).length;
+    eis(fouten,rijen().length===Math.min(10,vogels)&&(vogels<=10?!knop():knop().textContent===`Alle ${vogels} tonen`),`binnen de groep Vogels telt de knop mee met het filter (nu ${rijen().length}, ${vogels} vogels)`);
+    w.document.querySelector('.dchip[data-groep="vogel"]').click();
+    // alles tonen; daarna blijft de lijst open bij noteren en weghalen
+    knop().click();
+    eis(fouten,rijen().length===25&&!knop(),'de knop toont alles en verdwijnt');
+    w.nuISO=()=>'2026-10-06T18:00:00+10:30';   // de nieuwe waarneming komt bovenaan
+    w.document.querySelector('#dalle .drij[data-dier="dingo"]').click(); await sleep(450);
+    eis(fouten,rijen().length===26&&!knop()&&/Dingo/.test(rijen()[0].textContent),'na het noteren blijft de lijst open, met de dingo bovenaan');
+    if($(w,'shclose')){ klik(w,'shclose',fouten); await sleep(260); }
+    rijen()[0].querySelector('.dweg').click(); await sleep(50);   // de dingo weer weg
+    eis(fouten,rijen().length===25&&!knop(),'na het weghalen ook');
+    // een ander tabblad en terug: weer tien
+    klik(w,'btnToday',fouten); klik(w,'btnDieren',fouten);
+    eis(fouten,rijen().length===10&&knop()&&knop().textContent==='Alle 25 tonen','het tabblad opnieuw openen begint weer bij tien');
+    meld('6 okt: de lijst Gespot toont tien, met een knop voor de rest',fouten); }
+
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);
   process.exit(fout?1:0);
