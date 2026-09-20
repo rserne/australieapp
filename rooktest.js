@@ -691,8 +691,12 @@ function zoek(w,fouten,term){
     eis(fouten,q.length===2&&q[1].hoe==='gezien',`tik op de regel zelf noteert nog steeds 'gezien' (nu: ${q[1]&&q[1].hoe})`);
     const kang3=w.document.querySelector('#dalle .drijwrap [data-dier="kangoeroe"]').closest('.drijwrap');
     eis(fouten,kang3.classList.contains('gespot')&&kang3.querySelector('.dtel').textContent==='1'&&kang3.querySelector('.deet.aan'),'beide tellers staan naast elkaar');
-    eis(fouten,/Op het bord kwamen er 1/.test($(w,'dieren').textContent)&&/1 soort die jullie ook in het wild zagen/.test($(w,'dieren').textContent),
-      `'Tot nu toe' telt gegeten en allebei apart (nu: '${($(w,'dieren').textContent.match(/Jullie hebben[^]*?\./g)||[]).join(' ')}')`);
+    eis(fouten,![...w.document.querySelectorAll('#dieren h2')].some(h=>/Tot nu toe|Prijzenkast/.test(h.textContent)),'Tot nu toe en Prijzenkast staan niet meer op Dieren');
+    // in Stand telt de gegeten kangoeroe niet als dier; de geziene wel
+    w.toonStand(true);
+    const getal=label=>{ const d=[...w.document.querySelectorAll('#dieren .sgetallen > div')].find(x=>x.querySelector('span').textContent.startsWith(label)); return d?d.querySelector('b').firstChild.textContent:''; };
+    eis(fouten,getal('dier')==='1'&&getal('soort')==='1',`Stand telt alleen wat gezien is (nu ${getal('dier')} dieren, ${getal('soort')} soorten)`);
+    w.toonStand(false);
     eis(fouten,w.document.querySelector('#dieren .dlijst .wvork'),'in de lijst Gespot draagt een gegeten dier het bestekje');
     // zoeken en filteren blijven werken nu de rij een omhullende div heeft
     // de chip Gegeten verschijnt zodra er iets gegeten is en filtert op zijn eigen telling
@@ -728,10 +732,8 @@ function zoek(w,fouten,term){
     const rij=()=>w.document.querySelector('#dieren .dwierij');
     const namen=()=>[...w.document.querySelectorAll('#dieren .dchip[data-wie]')].map(c=>c.firstChild.textContent+' '+c.querySelector('span').textContent);
     const zicht=()=>[...w.document.querySelectorAll('#dalle .drijwrap')].filter(r=>!r.hidden).map(r=>r.querySelector('.drij').dataset.dier).join(',');
-    const totNuToe=()=>{ const p=[...w.document.querySelectorAll('#dieren h2')].find(h=>h.textContent==='Tot nu toe'); return p?p.nextElementSibling.textContent:''; };
     const chipGespot=()=>w.document.querySelector('.dchip[data-filter="gespot"]');
     eis(fouten,!rij(),'zonder Gespot of Gegeten staat er geen namenrij');
-    eis(fouten,/^Jullie hebben samen 5 dieren gespot, 4 verschillende soorten en 1 door jou\. Op het bord kwamen er 2, in 2 soorten, waarvan 1 soort die jullie ook in het wild zagen\.$/.test(totNuToe()),`zonder keuze telt de hele groep (nu: '${totNuToe()}')`);
     chipGespot().click();
     eis(fouten,!!rij()&&rij().previousElementSibling.classList.contains('dchips'),'met Gespot aan staat de namenrij onder de filterchips');
     eis(fouten,namen().join(' | ')==='Ik 1 | Anna 2 | Piet 1 | Aad 0 | Bram 1',`Ik voorop, dan de reizigers en de gasten op alfabet, met het aantal gespotte soorten (nu: ${namen().join(' | ')})`);
@@ -741,15 +743,13 @@ function zoek(w,fouten,term){
     eis(fouten,w.document.querySelector('.dchip[data-wie="u2"]').classList.contains('on')&&w.document.querySelector('.dchip[data-wie="u2"] .chipx'),'aangevinkte naam licht op met een kruisje');
     eis(fouten,zicht()==='koala,wombat',`alleen wat Anna zag blijft over (nu ${zicht()||'niets'})`);
     eis(fouten,/Gespot2/.test(chipGespot().textContent)&&/Zoogdieren2\/15/.test(w.document.querySelector('.dchip[data-groep="zoogdier"]').textContent),'de chips tellen alleen Anna');
-    eis(fouten,totNuToe()==='Anna heeft 2 dieren gespot, 2 verschillende soorten.',`Tot nu toe gaat over Anna (nu: '${totNuToe()}')`);
     const log=[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag) strong')].map(x=>x.textContent);
     eis(fouten,log.join(',')==='Wombat,Koala',`de lijst Gespot toont alleen Anna (nu: ${log.join(',')})`);
     w.document.querySelector('.dchip[data-wie="u1"]').click();
     eis(fouten,zicht()==='koala,wombat'&&w.document.querySelector('#dalle .drijwrap [data-dier="koala"]').closest('.drijwrap').querySelector('.dtel').textContent==='2','met Ik erbij telt de koala twee keer');
-    eis(fouten,totNuToe()==='Jij en Anna hebben samen 3 dieren gespot, 2 verschillende soorten en 1 door jou. Op het bord kwamen er 1, in 1 soort.',`Tot nu toe over jou en Anna, in de volgorde van de rij (nu: '${totNuToe()}')`);
     // filter uit: alles terug naar de groep, de keuze blijft bewaard
     chipGespot().click();
-    eis(fouten,!rij()&&zicht().split(',').length>=55&&/Jullie hebben samen 5 dieren/.test(totNuToe()),'Gespot uit: namenrij weg en weer de hele groep');
+    eis(fouten,!rij()&&zicht().split(',').length>=55,'Gespot uit: namenrij weg en weer de hele groep');
     chipGespot().click();
     eis(fouten,[...w.document.querySelectorAll('.dchip[data-wie].on')].map(c=>c.dataset.wie).join(',')==='u1,u2','Gespot weer aan: dezelfde mensen staan nog aangevinkt');
     // Gegeten: dezelfde rij, met het aantal gegeten soorten
@@ -762,7 +762,6 @@ function zoek(w,fouten,term){
     eis(fouten,logKop()&&logKop().textContent==='Gegeten'&&logNamen().join(',')==='Kangoeroe',`de lijst onderaan heet nu Gegeten en toont alleen wat jij en Anna aten (nu: ${logNamen().join(',')})`);
     eis(fouten,w.document.querySelector('.dwierij').dataset.stand==='gegeten','de namenrij weet dat Gegeten aanstaat, voor de oranje rand');
     w.document.querySelector('.dchip[data-wie="u2"]').click();
-    eis(fouten,totNuToe()==='Je hebt 1 dier gespot, 1 soort. Op het bord kreeg je er 1, in 1 soort.',`Tot nu toe over jou alleen (nu: '${totNuToe()}')`);
     // een tik op een dier noteert nog altijd onder je eigen naam
     w.document.querySelector('#dalle .drij[data-dier="kangoeroe"]').click(); await sleep(50);
     const q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
@@ -863,7 +862,7 @@ function zoek(w,fouten,term){
     eis(fouten,keren('bushtucker')===2,'Bushtucker telt door bij de tweede van het bord');
     zet([wn('quoll',T(6)),wn('boomkangoeroe',T(8)),wn('quoll',T(9))]);
     eis(fouten,keren('zeldzaam')===2,'Geluksvogel komt terug bij het andere dier, een tweede quoll telt niet');
-    w.renderDieren(); w.document.querySelector('#dieren .pmed[data-prijs="zeldzaam"]').click(); await sleep(50);
+    w.toonStand(true); w.document.querySelector('#dieren .pmed[data-prijs="zeldzaam"]').click(); await sleep(50);
     eis(fouten,w.document.querySelector('#sheet .psub').textContent==='2 van 2'&&w.document.querySelectorAll('#sheet .pdieren i').length===2,'en de kaart zegt dan 2 van 2, met allebei de dieren erop');
     klik(w,'shclose',fouten); await sleep(260);
     zet(perStreek); eis(fouten,keren('australie')===2,'Kriskras komt terug bij de zevende streek');
@@ -889,15 +888,15 @@ function zoek(w,fouten,term){
     klik(w,'shclose',fouten); await sleep(260);
     // de stille herhaling: geen kaart meer, maar een regel in de melding onderin
     w.nuISO=()=>T(9,'16:42');
-    zet([wn('emoe',T(6))]); w.renderDieren();
+    zet([wn('emoe',T(6))]); w.toonStand(false);   // noteren gebeurt op het noteerscherm
     w.document.querySelector('#dalle .drij[data-dier="emoe"]').click(); await sleep(450);
     eis(fouten,!$(w,'sheet')&&/^Alweer een emoe! Nummer 2, om 16\.42 uur/.test($(w,'toast').textContent)&&$(w,'toast').querySelector('button'),'de tweede emoe geeft geen kaart maar een melding, met Ongedaan maken');
     w.localStorage.setItem('aus_pending','[]');
     // de kast en de kaart
     zet([wn('wombat',T(6)),wn('wallaby',T(7,'09:00')),wn('tasmaanse-duivel',T(8,'21:30'))]);
-    w.renderDieren();
+    w.toonStand(true);
     const medailles=[...w.document.querySelectorAll('#dieren .pmed')];
-    eis(fouten,[...w.document.querySelectorAll('#dieren h2')].some(h=>h.textContent==='Prijzenkast')&&medailles.map(m=>m.dataset.prijs).join(',')==='tassie,nachtwacht,eerste'||medailles.map(m=>m.dataset.prijs).join(',')==='nachtwacht,tassie,eerste',`de kast toont de verdiende prijzen, nieuwste voorop (nu: ${medailles.map(m=>m.dataset.prijs).join(',')})`);
+    eis(fouten,[...w.document.querySelectorAll('#dieren h2')].some(h=>h.textContent==='Mijn kast')&&medailles.map(m=>m.dataset.prijs).join(',')==='tassie,nachtwacht,eerste'||medailles.map(m=>m.dataset.prijs).join(',')==='nachtwacht,tassie,eerste',`de kast toont de verdiende prijzen, nieuwste voorop (nu: ${medailles.map(m=>m.dataset.prijs).join(',')})`);
     eis(fouten,medailles.every(m=>m.querySelector('svg')&&m.querySelector('b').textContent&&!m.querySelector('small')),'elke medaille heeft een tekening en een naam, en geen datum eronder');
     eis(fouten,!$(w,'dieren').textContent.includes('De grote vijf')&&!$(w,'dieren').textContent.includes('nog'),'wat je niet hebt, staat nergens');
     let gedeeld=null; w.navigator.share=async d=>{ gedeeld=d; };
@@ -911,7 +910,7 @@ function zoek(w,fouten,term){
     eis(fouten,!$(w,'sheet'),'de kaart sluit');
     // het verdienmoment: twee prijzen tegelijk komen na elkaar
     w.nuISO=()=>T(9,'20:15');
-    zet([wn('wombat',T(6)),wn('wallaby',T(7,'09:00'))]); w.renderDieren();
+    zet([wn('wombat',T(6)),wn('wallaby',T(7,'09:00'))]); w.toonStand(false);   // terug naar het noteerscherm
     w.document.querySelector('#dalle .drij[data-dier="tasmaanse-duivel"]').click(); await sleep(450);
     let k1=w.document.querySelector('#sheet .sheet.prijs');
     eis(fouten,k1&&k1.dataset.prijs==='nachtwacht','de tik die twee prijzen oplevert toont eerst de kaart die in dieren.js voorop staat');
@@ -919,7 +918,9 @@ function zoek(w,fouten,term){
     let k2=w.document.querySelector('#sheet .sheet.prijs');
     eis(fouten,k2&&k2.dataset.prijs==='tassie','en na het sluiten de tweede');
     klik(w,'shclose',fouten); await sleep(260);
-    eis(fouten,!$(w,'sheet')&&w.document.querySelectorAll('#dieren .pmed').length===3,'daarna staan ze in de kast');
+    w.toonStand(true);
+    eis(fouten,!$(w,'sheet')&&w.document.querySelectorAll('#dieren .pmed').length===3,'daarna staan ze in de kast op Stand');
+    w.toonStand(false);
     w.localStorage.setItem('aus_pending','[]');
     meld('6 okt: prijzen, kast en kaart',fouten); }
   // Boekingscodes per persoon: een regel met alleen een naam begint een blokje. Test (u1) is ingelogd;
@@ -1400,6 +1401,86 @@ function zoek(w,fouten,term){
     eis(fouten,!$(w,'sheet')&&wachtrij(w).length===1&&wachtrij(w)[0].tekst==='Notitie zonder bijlage','een notitie zonder bijlage gaat gewoon in de wachtrij');
     w.localStorage.setItem('aus_pending','[]');
     meld('6 okt: knop Foto of pdf zonder verbinding',fouten); }
+
+  // ============================================================
+  // Uitgave 220: reisdelen op Dieren, en het scherm Stand achter de beker in de kop
+  // ============================================================
+  { const {w,fouten}=start('2026-10-06',{login:'groep',lijst:[...REIZIGERS(false),{user_id:'u4',naam:'Bram',voorreis:false,reis:true,nareis:false,beheer:false,gast:true}]});
+    let nr=0;
+    const wn=(uid,wie,dier,dag,t='10:00',extra={})=>({id:'s'+(nr++),user_id:uid,dier,dag,gezien_op:`2026-10-${String(dag<1?1:dag).padStart(2,'0')}T${t}:00+10:30`,wie,hoe:'gezien',...extra});
+    // voorreis (dag -5) van Anna, en de groepsreis: Anna 9 soorten/21 dieren, Piet 6/12, Bram (gast) 6/9, ik 4/14 plus twee keer een uil
+    const cache=[wn('u2','Anna','koala',-5,'09:00'),wn('u2','Anna','possum',-5,'21:00'),wn('u2','Anna','ibis',-4)];
+    const soorten=['kangoeroe','wallaby','wombat','koala','emoe','kookaburra','kaketoe','galah','pelikaan','ibis','varaan','python'];
+    const vul=(uid,wie,nS,nD)=>{ for(let i=0;i<nD;i++) cache.push(wn(uid,wie,soorten[i%nS],2+(i%5),`${String(8+(i%10)).padStart(2,'0')}:${String(i%60).padStart(2,'0')}`)); };
+    vul('u2','Anna',9,21); vul('u3','Piet',6,12); vul('u4','Bram',6,9); vul('u1','Test',4,14);
+    cache.push(wn('u1','Test','kangoeroe',6,'12:00',{hoe:'gegeten'}));   // gegeten telt niet mee
+    cache.push(wn('u1','Test','overig',6,'12:30',{opmerking:'Uil'}),wn('u1','Test','overig',6,'12:40',{opmerking:'uil'}));   // één soort
+    w.localStorage.setItem('aus_cache_waarn',JSON.stringify(cache));
+    klik(w,'btnDieren',fouten);
+    // 1. Dieren telt alleen het reisdeel van vandaag: de voorreis van Anna zit er niet in
+    const chip=w.document.querySelector('.dchip[data-filter="gespot"]');
+    eis(fouten,chip&&chip.querySelector('span').textContent==='10',`Gespot telt de tien soorten van de groepsreis (negen plus de uil), zonder de voorreis (nu ${chip&&chip.querySelector('span').textContent})`);
+    eis(fouten,![...w.document.querySelectorAll('#dieren .dlijst .ddag')].some(l=>/Voorreis/.test(l.textContent)),'de lijst Gespot toont geen voorreis meer');
+    const possum=w.document.querySelector('#dalle .drij[data-dier="possum"]');
+    eis(fouten,possum&&!possum.closest('.drijwrap').classList.contains('gespot'),'de possum van de voorreis telt op dag 6 als niet gespot');
+    const totaal=new Set([...w.document.querySelectorAll('#dalle .drij[data-dier]')].map(b=>b.dataset.dier).filter(k=>k!=='overig')).size;   // alle soorten in de app
+    // 2. de beker in de kop opent Stand; ‹ Dieren gaat terug; een ander tabblad en terug begint weer op Spotten
+    eis(fouten,!!$(w,'btnStand')&&!$(w,'btnTerugDieren'),'de kop van Dieren heeft de beker');
+    klik(w,'btnStand',fouten);
+    const koppen=()=>[...w.document.querySelectorAll('#dieren h2')].map(h=>h.textContent);
+    eis(fouten,koppen().join(',')==='Mijn kast,Stand,Mijn waarnemingen'&&w.document.querySelector('#hero .btitel').textContent==='Stand'&&!!$(w,'btnTerugDieren')&&!$(w,'btnStand'),`Stand toont mijn kast, de stand en mijn waarnemingen (nu: ${koppen().join(',')})`);
+    eis(fouten,!$(w,'dalle')&&!w.document.querySelector('#dieren .dweg'),'op Stand geen dierenlijst en geen kruisjes');
+    // 3. mijn kast: 16 dieren (gegeten telt niet), 5 soorten (uil één keer), van alle soorten in de app
+    const getal=label=>{ const d=[...w.document.querySelectorAll('#dieren .sgetallen > div')].find(x=>x.querySelector('span').textContent.startsWith(label)); return d?d.querySelector('b').firstChild.textContent:''; };
+    eis(fouten,getal('dier')==='16'&&getal('soort')==='5'&&w.document.querySelector('#dieren .sgetallen small').textContent===`van ${totaal}`,`mijn kast telt 16 dieren en 5 soorten van ${totaal} (nu ${getal('dier')}, ${getal('soort')}, ${w.document.querySelector('#dieren .sgetallen small')?.textContent})`);
+    eis(fouten,!w.document.querySelector('#dieren .sdelen'),'zonder voorreis of nareis staan er geen reisdeelchips');
+    // 4. het podium: op soorten, 2 links, 1 midden, 3 rechts, de gast gewoon erbij; ik op de vierde trede
+    const treden=[...w.document.querySelectorAll('#dieren .ptrede')].map(t=>t.querySelector('.pnaam').textContent+' '+t.querySelector('i b').textContent+' '+t.querySelector('.pdieren').textContent);
+    eis(fouten,treden.join(' | ')==='Piet 6 12 dieren | Anna 9 21 dieren | Bram 6 9 dieren',`podium op soorten, bij gelijk op dieren, met de gast erbij (nu: ${treden.join(' | ')})`);
+    const strede=w.document.querySelector('#dieren .strede');
+    eis(fouten,strede&&strede.querySelector('.sbody span').textContent==='plek 4 · 16 dieren'&&strede.querySelector('i b').textContent==='5',`mijn eigen trede zegt plek 4 (nu: ${strede&&strede.textContent})`);
+    // 5. mijn waarnemingen: alleen de mijne, nieuwste bovenaan, tien met een knop voor de rest
+    const rijen=()=>[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag)')];
+    eis(fouten,rijen().length===10&&$(w,'smeer')&&$(w,'smeer').textContent==='Alle 17 tonen','tien waarnemingen en een knop voor alle 17');
+    klik(w,'smeer',fouten);
+    eis(fouten,rijen().length===17&&!$(w,'smeer')&&!w.document.querySelector('#dieren .dlijst .sub'),'daarna alle 17, zonder namen van anderen');
+    // gelijkspel: dieren geven de doorslag
+    const st=w.standVan('reis');
+    eis(fouten,st.map(x=>x.naam).join(',')==='Anna,Piet,Bram,Ik'&&st[1].soorten===6&&st[2].soorten===6&&st[1].dieren>st[2].dieren&&st[2].gast,`bij gelijke soorten wint wie meer dieren zag (nu: ${st.map(x=>x.naam+' '+x.soorten+'/'+x.dieren).join(', ')})`);
+    // terug
+    klik(w,'btnTerugDieren',fouten);
+    eis(fouten,!!$(w,'dalle')&&!!$(w,'btnStand')&&w.document.querySelector('#hero .btitel').textContent==='Dieren','‹ Dieren brengt je terug naar het noteerscherm');
+    klik(w,'btnStand',fouten); klik(w,'btnToday',fouten); klik(w,'btnDieren',fouten);
+    eis(fouten,!!$(w,'dalle')&&!!$(w,'btnStand'),'een ander tabblad en terug begint weer op het noteerscherm');
+    // 6. alleen in dit reisdeel: geen blok Stand
+    w.localStorage.setItem('aus_cache_waarn',JSON.stringify(cache.filter(x=>x.user_id==='u1')));
+    klik(w,'btnStand',fouten);
+    eis(fouten,koppen().join(',')==='Mijn kast,Mijn waarnemingen','wie alleen is in dit reisdeel, krijgt geen blok Stand');
+    meld('6 okt: Stand achter de beker, reisdeel van vandaag op Dieren',fouten); }
+  // Voorreiziger: medailles en getallen per reisdeel, chips alleen als er iets te kiezen is
+  { const {w,fouten}=start('2026-10-06',{login:'voor'});
+    const T=(d,u='10:00')=>d<0?`2026-09-${String(30+d+1).padStart(2,'0')}T${u}:00+10:00`:`2026-10-${String(d).padStart(2,'0')}T${u}:00+10:30`;
+    let nr=0; const wn=(dier,dag,t,extra={})=>({id:'v'+(nr++),user_id:'u1',dier,dag,gezien_op:T(dag,t),wie:'Test',hoe:'gezien',...extra});
+    w.localStorage.setItem('aus_cache_waarn',JSON.stringify([wn('koala',-5,'14:00'),wn('possum',-5,'21:30'),wn('vliegende-vos',-4,'20:00'),wn('kangoeroe',6,'09:00')]));
+    klik(w,'btnDieren',fouten); klik(w,'btnStand',fouten);
+    const chips=()=>[...w.document.querySelectorAll('#dieren .sdelen .dchip')].map(c=>c.textContent+(c.classList.contains('on')?'*':''));
+    eis(fouten,chips().join(',')==='Voorreis,Groepsreis*',`voorreiziger krijgt de chips, met het reisdeel van vandaag aan (nu: ${chips().join(',')})`);
+    const getal=label=>{ const d=[...w.document.querySelectorAll('#dieren .sgetallen > div')].find(x=>x.querySelector('span').textContent.startsWith(label)); return d?d.querySelector('b').firstChild.textContent:''; };
+    const meds=()=>[...w.document.querySelectorAll('#dieren .pmed')].map(m=>m.dataset.prijs).sort().join(',');
+    eis(fouten,getal('dier')==='1'&&getal('soort')==='1'&&getal('medaille')==='1'&&meds()==='eerste','groepsreis: één kangoeroe, alleen G\'day!, geen nachtwacht van de voorreis');
+    w.document.querySelector('#dieren .sdelen .dchip[data-deel="voorreis"]').click();
+    eis(fouten,chips().join(',')==='Voorreis*,Groepsreis'&&getal('dier')==='3'&&getal('soort')==='3'&&meds()==='eerste,nachtwacht',`voorreis: drie dieren, eigen G'day! en Nachtwacht (nu ${getal('dier')}, ${getal('soort')}, ${meds()})`);
+    eis(fouten,w.document.querySelector('#dieren .pmed[data-prijs="nachtwacht"] .keer').textContent==='\u00d72','de twee nachtdieren van de voorreis tellen als Nachtwacht ×2');
+    eis(fouten,[...w.document.querySelectorAll('#dieren .dlijst .ddag')].every(l=>/Voorreis/.test(l.textContent))&&w.document.querySelectorAll('#dieren .dlijst li:not(.ddag)').length===3,'mijn waarnemingen volgen het gekozen reisdeel');
+    eis(fouten,![...w.document.querySelectorAll('#dieren h2')].some(h=>h.textContent==='Stand'),'in de voorreis was ik alleen: geen blok Stand');
+    // de keuze blijft staan bij hertekenen op de achtergrond, en verdwijnt bij het verlaten van Stand
+    w.hertekenView();
+    eis(fouten,chips().join(',')==='Voorreis*,Groepsreis','hertekenen houdt Stand en het gekozen reisdeel');
+    klik(w,'btnTerugDieren',fouten);
+    eis(fouten,!!$(w,'dalle')&&/Dag 6|Groepsreis/.test(w.document.querySelector('#dieren .dlijst .ddag')?.textContent||'Dag 6'),'terug op Dieren telt weer het reisdeel van vandaag');
+    // de prijskaart na een waarneming rekent met het reisdeel van die waarneming: een nieuwe eerste in de groepsreis
+    eis(fouten,w.verdiendePrijzen('reis').map(x=>x.p.k).join(',')==='eerste'&&w.verdiendePrijzen('voorreis').length===2&&w.verdiendePrijzen().length===2,'verdiendePrijzen rekent per reisdeel, en zonder reisdeel over alles');
+    meld('6 okt: kast en medailles per reisdeel voor een voorreiziger',fouten); }
 
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);

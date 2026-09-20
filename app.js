@@ -876,24 +876,34 @@ const BANNERS={
   // Sydney: de foto van New South Wales, waar de groepsreis begint
   beheer:['reg-nsw.jpg','Reizigers','',TONE.nsw]
 };
+// Beker voor de knop naar Stand, in de kop van Dieren
+const IC_BEKER='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/></svg>';
 function renderKop(v){
   const hero=document.getElementById('hero');
   if(v==='day'){ hero.classList.remove('banner'); hero.innerHTML=HERO_HTML; render(); return; }
-  const [img,titel,sub0,tone]=BANNERS[v];
-  const sub=v==='index'?reisPeriode():sub0;
+  const [img,titel0,sub0,tone]=BANNERS[v];
+  // Stand is het tweede scherm van Dieren: dezelfde banner, eigen titel, en een knop terug in plaats van het daglabel
+  const stand=v==='dieren'&&dierenScherm==='stand';
+  const titel=stand?'Stand':titel0;
+  const sub=v==='index'?reisPeriode():stand?'':sub0;
   hero.style.setProperty('--tone',tone); document.documentElement.style.setProperty('--tone',tone);
   // Bij Dieren staat de dag als label in de kop. De lijst Kans hoeft hem dan niet te herhalen.
   // Vóór vertrek is er geen dag, dan blijft het label weg
-  const label=v==='dieren'&&NH.user&&waarnDag()?dagLabel(waarnDag()):'';
+  const label=v==='dieren'&&!stand&&NH.user&&waarnDag()?dagLabel(waarnDag()):'';
   hero.classList.add('banner'); hero.classList.remove('foto');
   hero.style.backgroundImage=`url(${img})`;
-  hero.innerHTML=`<div class="wrap">${label?`<span class="blabel">${esc(label)}</span>`:''}`+
+  hero.innerHTML=`<div class="wrap">`+
+    (stand?`<button type="button" class="blabel terug" id="btnTerugDieren">‹ Dieren</button>`:label?`<span class="blabel">${esc(label)}</span>`:'')+
     `<p class="btitel">${titel}</p>${sub?`<p class="bsub">${sub}</p>`:''}</div>`+
+    (v==='dieren'&&!stand&&NH.user?`<button type="button" class="kopknop" id="btnStand" aria-label="Stand">${IC_BEKER}</button>`:'')+
     `<div class="track"><i style="width:0"></i></div>`;
+  const bs=document.getElementById('btnStand'); if(bs) bs.onclick=()=>toonStand(true);
+  const bt=document.getElementById('btnTerugDieren'); if(bt) bt.onclick=()=>toonStand(false);
   document.querySelector('meta[name=theme-color]').setAttribute('content','#0E1013');
 }
 function switchTo(v){
   view=v;
+  if(v==='dieren') dierenScherm='spotten';
   document.getElementById('day').style.display=v==='day'?'block':'none';
   document.getElementById('index').style.display=v==='index'?'block':'none';
   document.getElementById('prakt').style.display=v==='prakt'?'block':'none';
@@ -2151,6 +2161,14 @@ const schoon=n=>String(n||'').replace(/\u00AD/g,'');
 const dierNaam=w=>w.dier==='overig'?(w.opmerking||'Onbekend dier'):schoon((dierVan(w.dier)||{n:w.dier}).n);
 // De dag waar een waarneming bij hoort: de dag waarin we zitten, anders de dag die openstaat
 const waarnDag=()=>T.dag!=null?T.dag:(isBuiten(cur)||(cur>=1&&cur<=29)?cur:0);
+// ---- Reisdelen ----
+// Waar een waarneming bij hoort: de voorreis (dag onder 0), de groepsreis (dag 0 tot en met 29) of de
+// nareis (dag boven 29). Dieren telt alleen het reisdeel van vandaag, zodat iedereen op dag 1 bij nul
+// begint en wie de voorreis deed geen voorsprong meeneemt; Stand laat je kiezen. Het reisdeel staat
+// niet bij Nhost: het volgt uit het dagnummer dat al bij elke waarneming staat.
+const reisdeelVan=dag=>dag<0?'voorreis':dag>29?'nareis':'reis';
+const reisdeelVandaag=()=>reisdeelVan(waarnDag());
+const REISDEEL_NAAM={voorreis:'Voorreis',reis:'Groepsreis',nareis:'Nareis'};
 // Hoe een dag heet, voor de kop van het tabblad Dieren en de tussenkoppen in de lijst Gespot
 function dagLabel(n){
   if(n===0) return 'Niet aan een dag';
@@ -2258,8 +2276,10 @@ function beoordeelPrijs(p,mijn){
 }
 // Alle verdiende prijzen, op de volgorde van dieren.js, elk met het aantal keer dat hij binnenkwam,
 // het eerste tijdstip en het laatste (dat is de datum op de kaart en de plek in de kast).
-function verdiendePrijzen(){
-  const mijn=mijnWaarnemingen();
+// Per reisdeel: wie de voorreis deed, krijgt daar een eigen kast en begint op dag 1 net als de rest leeg.
+// Zonder reisdeel over alles (voor wie de hele lijst wil).
+function verdiendePrijzen(deel){
+  const mijn=mijnWaarnemingen().filter(w=>!deel||reisdeelVan(w.dag)===deel);
   return PRIJS_LIJST.map(p=>{ const alle=beoordeelPrijs(p,mijn);
     return {p,alle,keer:alle.length,eersteOp:alle[0]||null,op:alle[alle.length-1]||null}; }).filter(x=>x.keer);
 }
@@ -2342,7 +2362,7 @@ async function registreerWaarneming(dier,opmerking,hoe){
   const naam=dierNaam(rec);
   let id=null, bewaard=true, reden='';
   // Prijzen: hoe vaak je ze vóór deze waarneming al had, om straks te zien wat erbij komt
-  const hadAl=new Map(verdiendePrijzen().map(x=>[x.p.k,x.keer]));
+  const hadAl=new Map(verdiendePrijzen(reisdeelVan(rec.dag)).map(x=>[x.p.k,x.keer]));
   const inWachtrij=extra=>{ const r=pendingAdd({...rec,...extra}); if(!r.ok){ bewaard=false; reden=r.reden; } };
   if(navigator.onLine){
     try{
@@ -2358,7 +2378,7 @@ async function registreerWaarneming(dier,opmerking,hoe){
   renderDieren();
   // Niet bewaard: dan is er ook niets genoteerd, en geen prijs en geen Ongedaan maken. Dat zeggen we.
   if(!bewaard){ toast(`${naam}: niet genoteerd. ${reden}`); return; }
-  const erbij=verdiendePrijzen().filter(x=>x.keer>(hadAl.get(x.p.k)||0));
+  const erbij=verdiendePrijzen(reisdeelVan(rec.dag)).filter(x=>x.keer>(hadAl.get(x.p.k)||0));
   // Een prijs met herhaal:'stil' krijgt na de eerste keer geen kaart meer, maar een regel in de melding
   // onderin: bij de zevende emoe is een schuifpaneel meer werk dan plezier.
   const stil=erbij.find(x=>x.keer>1&&x.p.herhaal==='stil');
@@ -2438,16 +2458,98 @@ function dierRij(dier,{naam,tekst,kans,tel,groep,eet,gegeten}){
       ` aria-label="${esc(schoon(naam))} gegeten">${IC_VORK}${gegeten?`<span>${gegeten}</span>`:''}</button>`:'')+
     (tel?`<span class="dtel">${tel}</span>`:'')+`</div>`;
 }
+// ---- Stand ----
+// Het tweede scherm van het tabblad Dieren, via de beker in de kop. Eerst mijn kast (getallen en
+// medailles), dan de stand van reisgenoten en gasten, dan mijn waarnemingen. Alles gaat over één
+// reisdeel: standaard dat van vandaag, met chips om te wisselen als ik aan meer dan één reisdeel meedoe.
+// Puur kijken: noteren en weghalen blijven op het noteerscherm.
+let dierenScherm='spotten', _standDeel=null, _standAlles=false;
+function toonStand(aan){ dierenScherm=aan?'stand':'spotten'; _standAlles=false; renderKop('dieren'); renderDieren(); window.scrollTo(0,0); }
+// De reisdelen waaraan ik meedoe volgens de reizigerslijst, plus die waarin ik toch iets heb genoteerd
+function mijnReisdelen(){
+  const d=new Set(['reis']); if(voorreiziger()) d.add('voorreis'); if(nareiziger()) d.add('nareis');
+  mijnWaarnemingen().forEach(w=>d.add(reisdeelVan(w.dag)));
+  return ['voorreis','reis','nareis'].filter(r=>d.has(r));
+}
+// De stand van één reisdeel: per persoon het aantal soorten en dieren. Alleen gezien telt, gegeten niet;
+// een ander dier telt per naam. Op soorten, bij gelijk op dieren, daarna wie het eerst zo ver was.
+function standVan(deel){
+  const r=reizigers()||[], per=new Map(), mij=NH.user.id;
+  waarnemingen().filter(w=>w.user_id&&reisdeelVan(w.dag)===deel&&!isGegeten(w))
+    .sort((a,b)=>String(a.gezien_op).localeCompare(String(b.gezien_op)))
+    .forEach(w=>{ const rz=r.find(x=>x.user_id===w.user_id);
+      const x=per.get(w.user_id)||{id:w.user_id,ik:w.user_id===mij,naam:w.user_id===mij?'Ik':(rz&&rz.naam)||w.wie||'Onbekend',
+        gast:!!(rz&&rz.gast),soorten:new Set(),dieren:0,laatsteNieuwe:''};
+      const k=dierSleutel(w); if(!x.soorten.has(k)){ x.soorten.add(k); x.laatsteNieuwe=String(w.gezien_op||''); }
+      x.dieren++; per.set(w.user_id,x); });
+  return [...per.values()].map(x=>({...x,soorten:x.soorten.size}))
+    .sort((a,b)=>(b.soorten-a.soorten)||(b.dieren-a.dieren)||a.laatsteNieuwe.localeCompare(b.laatsteNieuwe));
+}
+function renderStand(){
+  const box=document.getElementById('dieren');
+  const delen=mijnReisdelen();
+  let deel=_standDeel&&delen.includes(_standDeel)?_standDeel:reisdeelVandaag();
+  if(!delen.includes(deel)) deel='reis';
+  const mijn=mijnWaarnemingen().filter(w=>reisdeelVan(w.dag)===deel).sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
+  const gezien=mijn.filter(w=>!isGegeten(w));
+  const soorten=new Set(gezien.map(dierSleutel)).size, totaal=DIER_LIJST.filter(d=>d.k!=='overig').length;
+  const prijzen=verdiendePrijzen(deel).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
+  const meer=delen.length>1;
+  let h='';
+  // Mijn kast: de reisdeelchips (alleen als er iets te kiezen is), drie getallen, mijn medailles
+  h+=`<div class="dkop solo skop"><h2>Mijn kast</h2></div><div class="skast">`+
+    (meer?`<div class="dchips sdelen">`+delen.map(d=>`<button type="button" class="dchip dfilter${d===deel?' on':''}" data-deel="${d}"${d===deel?' aria-pressed="true"':''}>${REISDEEL_NAAM[d]}</button>`).join('')+`</div>`:'')+
+    `<div class="sgetallen"><div><b>${gezien.length}</b><span>${gezien.length===1?'dier':'dieren'}</span></div>`+
+    `<div><b class="geel">${soorten}<small>van ${totaal}</small></b><span>soorten</span></div>`+
+    `<div><b>${prijzen.length}</b><span>${prijzen.length===1?'medaille':'medailles'}</span></div></div>`+
+    (prijzen.length?`<div class="pkast">`+prijzen.map(({p,keer})=>
+      `<button type="button" class="pmed" data-prijs="${esc(p.k)}" style="--pk:${esc(p.kleur)}"><span class="pmunt"><span>${prijsIcoon(p)}</span>${keer>1?`<i class="keer">×${keer}</i>`:''}</span><b>${esc(p.n)}</b></button>`).join('')+`</div>`
+      :`<p class="dstatus">Nog geen medailles${meer?' in dit reisdeel':''}.</p>`)+
+    `</div>`;
+  // Stand: alleen als er in dit reisdeel anderen zijn. Het podium toont de eerste drie (2 links, 1 midden,
+  // 3 rechts); sta ik er niet op, dan mijn eigen trede eronder.
+  const stand=standVan(deel), mijnPlek=stand.findIndex(x=>x.ik);
+  if(stand.some(x=>!x.ik)){
+    const top=stand.slice(0,3), volg=top.length===3?[top[1],top[0],top[2]]:top.length===2?[top[1],top[0]]:top;
+    const wacht=[0.25,0.1,0.4];
+    h+=`<div class="dkop solo skop"><h2>Stand</h2></div><div class="spodium"><div class="ptreden">`+
+      volg.map(x=>{ const rang=stand.indexOf(x)+1;
+        return `<div class="ptrede r${rang}${x.ik?' ik':''}"><b class="pnaam">${esc(x.naam)}</b><span class="pdieren">${x.dieren} ${x.dieren===1?'dier':'dieren'}</span>`+
+          `<i style="animation-delay:${wacht[rang-1]}s"><b>${x.soorten}</b><span>soorten</span></i></div>`; }).join('')+`</div>`+
+      (mijnPlek>=3||mijnPlek<0?`<div class="strede"><span class="sbody"><b>Ik</b><span>${mijnPlek<0?'nog niets gespot':`plek ${mijnPlek+1} · ${gezien.length} ${gezien.length===1?'dier':'dieren'}`}</span></span>`+
+        `<i><b>${soorten}</b><span>soorten</span></i></div>`:'')+`</div>`;
+  }
+  // Mijn waarnemingen, nieuwste bovenaan, met een tussenkop per dag; na tien een knop voor de rest
+  h+=`<div class="dkop solo skop"><h2>Mijn waarnemingen</h2></div>`;
+  if(!mijn.length) h+=`<p class="dstatus">Nog niets genoteerd${meer?' in dit reisdeel':''}.</p>`;
+  else{
+    const lijst=_standAlles?mijn:mijn.slice(0,10); let vorige=null;
+    h+=`<ul class="list dlijst">`+lijst.map(w=>{ const dat=String(w.gezien_op||'').slice(0,10); let kop='';
+      if(dat!==vorige){ vorige=dat; const dd2=new Date(dat+'T12:00:00'), lang=fmtLong(dd2).replace(/^./,c=>c.toUpperCase());
+        const voor=w.dag>=1&&w.dag<=29?`Dag ${w.dag} · `:isBuiten(w.dag)?`${w.dag<0?'Voorreis':'Nareis'} · `:''; kop=`<li class="ddag">${esc(voor+lang)}</li>`; }
+      return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}`+
+        (isGegeten(w)?`<span class="wvork" title="Gegeten">${IC_VORK}</span>`:'')+`</strong>`+
+        (w.pending?`<span class="sub">${w.fout?`versturen mislukt: ${esc(w.fout)}`:wachtTekst(w)}</span>`:'')+`</span></li>`; }).join('')+`</ul>`;
+    if(mijn.length>10&&!_standAlles) h+=`<div class="nrow smeer"><button type="button" class="btn" id="smeer">Alle ${mijn.length} tonen</button></div>`;
+  }
+  box.innerHTML=h;
+  box.querySelectorAll('.sdelen .dchip').forEach(b=>b.onclick=()=>{ _standDeel=b.dataset.deel; _standAlles=false; renderStand(); });
+  box.querySelectorAll('.pmed').forEach(b=>b.onclick=()=>{ const x=verdiendePrijzen(deel).find(y=>y.p.k===b.dataset.prijs); if(x) openPrijsKaart(x); });
+  const sm=box.querySelector('#smeer'); if(sm) sm.onclick=()=>{ _standAlles=true; renderStand(); };
+}
+
 function renderDieren(){
   const box=document.getElementById('dieren');
   if(!NH.user){ box.innerHTML=''; return; }
+  if(dierenScherm==='stand'){ renderStand(); return; }
   // Alle waarnemingen, en daaruit wat meetelt. Staat Gespot of Gegeten aan, dan verschijnt onder de chips
   // een rij namen: Ik en iedereen die iets heeft gespot of gegeten. Wie daar is aangevinkt (meer tegelijk
   // kan), is 'wij': dan tellen alleen hun waarnemingen mee, in de tellers, de chips, Kans vandaag, de
   // lijst Gespot en Tot nu toe. De keuze staat op de telefoon (aus_dwie), zodat 'wij' blijft staan.
   // Iemand die er niet meer bij staat (waarnemingen weggehaald) valt uit de keuze, anders blijft de lijst leeg
   // zonder chip om dat op te heffen. Noteren gebeurt altijd onder je eigen naam, wat er ook aanstaat.
-  const iedereen=waarnemingen(), stand=window._dfilter||'';
+  // Alleen het reisdeel van vandaag: op dag 1 begint iedereen bij nul. Wat eerder is gespot, staat in Stand.
+  const iedereen=waarnemingen().filter(w=>reisdeelVan(w.dag)===reisdeelVandaag()), stand=window._dfilter||'';
   const personen=wieRij(iedereen);
   const wie=stand?(LS.get('aus_dwie')||[]).filter(id=>personen.some(p=>p.id===id)):[];
   const alle=wie.length?iedereen.filter(w=>wie.includes(w.user_id)):iedereen;
@@ -2559,35 +2661,8 @@ function renderDieren(){
     }).join('')+`</ul>`;
   }
 
-  // Tot nu toe. Over de hele groep, of over wie is aangevinkt: 'Jij en Gemma hebben samen…', 'Je hebt…',
-  // 'Gemma heeft…'.
-  const gezien=alle.filter(w=>!isGegeten(w)), gegeten=alle.filter(isGegeten), sleutel=dierSleutel;
-  const soorten=new Set(gezien.map(sleutel)).size;
-  const jij=gezien.filter(w=>w.user_id===NH.user.id).length;
-  // De aardigheid van het bestek: soorten die de groep zowel in het wild zag als op het bord kreeg.
-  const beide=[...new Set(gegeten.map(sleutel))].filter(k=>gezien.some(w=>sleutel(w)===k)).length;
-  if(alle.length){
-    const gekozen=personen.filter(p=>wie.includes(p.id)), ikErbij=gekozen.some(p=>p.ik), alleen=gekozen.length===1;
-    const namen=opsom(gekozen.map(p=>p.ik?'Jij':p.naam));
-    const nDieren=`${gezien.length} ${gezien.length===1?'dier':'dieren'}`, nSoorten=`${soorten} ${soorten===1?'soort':'verschillende soorten'}`;
-    const kop=!gekozen.length?`Jullie hebben samen ${nDieren} gespot, ${nSoorten} en ${jij?jij:'nog geen'} door jou.`
-      :!gezien.length?`${alleen?(ikErbij?'Je hebt':`${namen} heeft`):`${namen} hebben`} nog niets gespot.`
-      :alleen?`${ikErbij?'Je hebt':`${namen} heeft`} ${nDieren} gespot, ${nSoorten}.`
-      :`${namen} hebben samen ${nDieren} gespot, ${nSoorten}${ikErbij?` en ${jij?jij:'nog geen'} door jou`:''}.`;
-    const ookWild=alleen?(ikErbij?'je ook in het wild zag':`${namen} ook in het wild zag`):'jullie ook in het wild zagen';
-    h+=`<h2>Tot nu toe</h2><p class="dstatus">${esc(kop)}`+
-      (gegeten.length?` Op het bord ${gekozen.length&&!ikErbij&&alleen?`kreeg ${esc(namen)}`:gekozen.length&&alleen?'kreeg je':'kwamen'} er ${gegeten.length}, in ${new Set(gegeten.map(sleutel)).size} ${new Set(gegeten.map(sleutel)).size===1?'soort':'soorten'}`+
-        (beide?`, waarvan ${beide} ${beide===1?'soort die':'soorten die'} ${esc(ookWild)}.`:'.'):'')+`</p>`;
-  }
-  // Prijzenkast: alleen wat je hebt, de nieuwste voorop. Zonder prijzen staat het blok er niet, en er
-  // staat nergens wat er nog te winnen valt: dat blijft een verrassing.
-  const prijzen=verdiendePrijzen().sort((a,b)=>String(b.op).localeCompare(String(a.op)));
-  if(prijzen.length){
-    h+=`<h2>Prijzenkast</h2><div class="pkast">`+prijzen.map(({p,keer})=>
-      `<button type="button" class="pmed" data-prijs="${esc(p.k)}" style="--pk:${esc(p.kleur)}"><span class="pmunt"><span>${prijsIcoon(p)}</span>${keer>1?`<i class="keer">×${keer}</i>`:''}</span><b>${esc(p.n)}</b></button>`).join('')+`</div>`;
-  }
+  // Tot nu toe en de Prijzenkast staan sinds 220 in Stand, achter de knop in de kop.
   box.innerHTML=h;
-  box.querySelectorAll('.pmed').forEach(b=>b.onclick=()=>{ const x=verdiendePrijzen().find(y=>y.p.k===b.dataset.prijs); if(x) openPrijsKaart(x); });
 
   box.querySelectorAll('.drijwrap').forEach(w=>w.onclick=e=>{
     const eetknop=e.target.closest('.deet');
@@ -2672,7 +2747,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-19-219';
+const APP_VERSIE='2026-09-20-220';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
