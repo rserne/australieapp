@@ -320,9 +320,10 @@ function zoek(w,fouten,term){
     // verwijderen
     $(w,'beheer').querySelector('.dweg[data-weg="u2"]').click(); await sleep(100);
     eis(fouten,mutaties[mutaties.length-1]==='delete'&&$(w,'beheer').querySelectorAll('.rlijst li').length===3,'verwijderen haalt de rij weg en tekent de lijst opnieuw');
-    // terug
+    // terug: de pil zit in de kop, op dezelfde plek als ‹ Dieren op Stand, en niet meer boven de lijst
+    eis(fouten,$(w,'rterug').closest('#hero')&&$(w,'rterug').classList.contains('terug')&&!$(w,'beheer').querySelector('.terugknop'),'‹ Praktisch staat in de kop');
     $(w,'rterug').click();
-    eis(fouten,$(w,'prakt').style.display==='block'&&$(w,'beheer').style.display==='none','← Praktisch brengt je terug');
+    eis(fouten,$(w,'prakt').style.display==='block'&&$(w,'beheer').style.display==='none','‹ Praktisch brengt je terug');
     meld('5 okt: beheerder wijzigt, voegt toe en verwijdert',fouten); }
   { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
     w.gql=async q=>{ if(/^query/.test(q)) return {reizigers:REIZIGERS(false,true)}; throw new Error('onverwacht'); };
@@ -1456,6 +1457,8 @@ function zoek(w,fouten,term){
     w.localStorage.setItem('aus_cache_waarn',JSON.stringify(cache.filter(x=>x.user_id==='u1')));
     klik(w,'btnStand',fouten);
     eis(fouten,koppen().join(',')==='Mijn kast,Mijn waarnemingen','wie alleen is in dit reisdeel, krijgt geen blok Stand');
+    w.localStorage.setItem('aus_cache_waarn','[]'); w.renderDieren();
+    eis(fouten,!/Nog geen medailles/.test($(w,'dieren').textContent)&&!w.document.querySelector('#dieren .pkast')&&w.document.querySelector('#dieren .dstatus.sleeg'),'zonder medailles geen zin, en de lege regel bij de waarnemingen staat uitgelijnd');
     meld('6 okt: Stand achter de beker, reisdeel van vandaag op Dieren',fouten); }
   // Voorreiziger: medailles en getallen per reisdeel, chips alleen als er iets te kiezen is
   { const {w,fouten}=start('2026-10-06',{login:'voor'});

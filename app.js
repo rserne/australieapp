@@ -892,13 +892,16 @@ function renderKop(v){
   const label=v==='dieren'&&!stand&&NH.user&&waarnDag()?dagLabel(waarnDag()):'';
   hero.classList.add('banner'); hero.classList.remove('foto');
   hero.style.backgroundImage=`url(${img})`;
+  // Terug zit bij Stand en Reizigers op dezelfde plek: een pil links boven in de kop, waar iOS 'terug' zet
+  const terug=stand?['btnTerugDieren','Dieren']:v==='beheer'?['rterug','Praktisch']:null;
   hero.innerHTML=`<div class="wrap">`+
-    (stand?`<button type="button" class="blabel terug" id="btnTerugDieren">‹ Dieren</button>`:label?`<span class="blabel">${esc(label)}</span>`:'')+
+    (terug?`<button type="button" class="blabel terug" id="${terug[0]}">‹ ${terug[1]}</button>`:label?`<span class="blabel">${esc(label)}</span>`:'')+
     `<p class="btitel">${titel}</p>${sub?`<p class="bsub">${sub}</p>`:''}</div>`+
     (v==='dieren'&&!stand&&NH.user?`<button type="button" class="kopknop" id="btnStand" aria-label="Stand">${IC_BEKER}</button>`:'')+
     `<div class="track"><i style="width:0"></i></div>`;
   const bs=document.getElementById('btnStand'); if(bs) bs.onclick=()=>toonStand(true);
   const bt=document.getElementById('btnTerugDieren'); if(bt) bt.onclick=()=>toonStand(false);
+  const rt=document.getElementById('rterug'); if(rt) rt.onclick=()=>switchTo('prakt');
   document.querySelector('meta[name=theme-color]').setAttribute('content','#0E1013');
 }
 function switchTo(v){
@@ -1954,14 +1957,12 @@ function renderBeheer(){
   // fout hier kostte eerder een middag zoeken (kolom niet in de select-permissie).
   const status=!st?'De lijst is op deze telefoon nog niet opgehaald.'
     :st.fout?`Ophalen mislukt ${fmtTijd(st.tijd)}: ${st.fout}`:`Lijst opgehaald ${fmtTijd(st.tijd)}.`;
-  box.innerHTML=`<button type="button" class="terugknop" id="rterug">${IC_PIJL} Praktisch</button>`+
-    `<ul class="list rlijst">${lijst.map(r=>`<li><div class="rkop"><strong>${esc(r.naam)}</strong>`+
+  box.innerHTML=`<ul class="list rlijst">${lijst.map(r=>`<li><div class="rkop"><strong>${esc(r.naam)}</strong>`+
       (r.user_id===mij?`<span class="rjij">jij</span>`:`<button type="button" class="dweg" data-weg="${r.user_id}" aria-label="${esc(r.naam)} verwijderen" title="Verwijderen">×</button>`)+`</div>`+
       `<div class="chips">${DELEN.map(d=>chip(r,d)).join('')}</div></li>`).join('')||
       `<li><span class="sub">Nog niemand in de lijst.</span></li>`}</ul>`+
     `<div class="dagadd"><button class="btn" id="radd">＋ Reiziger toevoegen</button></div>`+
     `<p class="rstatus${st&&st.fout?' fout':''}">${esc(status)}</p>`;
-  box.querySelector('#rterug').onclick=()=>switchTo('prakt');
   const ververs=()=>syncReizigers().then(()=>{ if(view==='beheer') renderBeheer(); });
   box.querySelectorAll('.rlijst .chip').forEach(c=>c.onclick=async()=>{
     const r=lijst.find(x=>x.user_id===c.dataset.id); if(!r) return;
@@ -2504,7 +2505,7 @@ function renderStand(){
     `<div><b>${prijzen.length}</b><span>${prijzen.length===1?'medaille':'medailles'}</span></div></div>`+
     (prijzen.length?`<div class="pkast">`+prijzen.map(({p,keer})=>
       `<button type="button" class="pmed" data-prijs="${esc(p.k)}" style="--pk:${esc(p.kleur)}"><span class="pmunt"><span>${prijsIcoon(p)}</span>${keer>1?`<i class="keer">×${keer}</i>`:''}</span><b>${esc(p.n)}</b></button>`).join('')+`</div>`
-      :`<p class="dstatus">Nog geen medailles${meer?' in dit reisdeel':''}.</p>`)+
+      :'')+
     `</div>`;
   // Stand: alleen als er in dit reisdeel anderen zijn. Het podium toont de eerste drie (2 links, 1 midden,
   // 3 rechts); sta ik er niet op, dan mijn eigen trede eronder.
@@ -2521,7 +2522,7 @@ function renderStand(){
   }
   // Mijn waarnemingen, nieuwste bovenaan, met een tussenkop per dag; na tien een knop voor de rest
   h+=`<div class="dkop solo skop"><h2>Mijn waarnemingen</h2></div>`;
-  if(!mijn.length) h+=`<p class="dstatus">Nog niets genoteerd${meer?' in dit reisdeel':''}.</p>`;
+  if(!mijn.length) h+=`<p class="dstatus sleeg">Nog niets genoteerd${meer?' in dit reisdeel':''}.</p>`;
   else{
     const lijst=_standAlles?mijn:mijn.slice(0,10); let vorige=null;
     h+=`<ul class="list dlijst">`+lijst.map(w=>{ const dat=String(w.gezien_op||'').slice(0,10); let kop='';
@@ -2747,7 +2748,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-20-220';
+const APP_VERSIE='2026-09-20-221';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

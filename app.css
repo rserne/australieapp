@@ -880,7 +880,7 @@
   .sgetallen b small{font-size:13px;font-weight:600;color:var(--text-dim)}
   .sgetallen span{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
   .skast .pkast{margin-top:16px;padding-top:16px;border-top:1px solid var(--rim)}
-  .skast .dstatus{margin-top:14px}
+  .sleeg{padding-left:4px}
   /* het podium: 2 links, 1 midden, 3 rechts; de soorten groot in het blok, naam en dieren erboven */
   .spodium{border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);overflow:hidden}
   .ptreden{display:flex;align-items:flex-end;gap:8px;padding:18px 18px 0}
