@@ -2143,10 +2143,13 @@ function renderAccount(box){
 function toast(msg,knop,actie){
   let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);}
   t.textContent=msg;
+  // Verbergen haalt ook de knop weg: een onzichtbare knop mag geen tik meer kunnen opvangen.
+  const verberg=()=>{ t.classList.remove('on'); t.querySelectorAll('button').forEach(b=>b.remove()); };
+  t._verberg=verberg;
   // Met een knop (Ongedaan maken) blijft de melding langer staan en verdwijnt na de tik meteen.
   if(knop){ const b=document.createElement('button'); b.type='button'; b.textContent=knop;
-    b.onclick=()=>{ t.classList.remove('on'); clearTimeout(t._h); actie(); }; t.appendChild(b); }
-  t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),knop?6000:3200);
+    b.onclick=()=>{ verberg(); clearTimeout(t._h); actie(); }; t.appendChild(b); }
+  t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(verberg,knop?6000:3200);
 }
 
 // ---- Dieren: waarnemingen ----
@@ -2755,7 +2758,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-20-222';
+const APP_VERSIE='2026-09-20-224';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

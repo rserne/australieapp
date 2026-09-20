@@ -439,10 +439,13 @@
   .callout a{color:var(--accent-ink);font-weight:600}
   .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 86px);transform:translate(-50%,20px);
     background:var(--pill);color:var(--pill-text);padding:11px 16px;border-radius:14px;font-size:14.5px;
-    opacity:0;transition:.25s;z-index:70;max-width:90vw;text-align:center;pointer-events:none}
-  .toast.on{opacity:1;transform:translate(-50%,0)}
-  .toast button{margin-left:12px;font:inherit;font-weight:700;color:var(--accent-ink);background:none;border:none;padding:0;cursor:pointer;pointer-events:auto}
-  .toast:has(button){pointer-events:auto}
+    opacity:0;visibility:hidden;transition:opacity .25s,transform .25s,visibility 0s linear .25s;z-index:70;max-width:90vw;text-align:center;pointer-events:none}
+  .toast.on{opacity:1;visibility:visible;transition:opacity .25s,transform .25s,visibility 0s;transform:translate(-50%,0)}
+  .toast button{margin-left:12px;font:inherit;font-weight:700;color:var(--accent-ink);background:none;border:none;padding:0;cursor:pointer}
+  /* Alleen een zichtbare melding mag tikken opvangen. Een verborgen melding met een knop erin lag anders
+     onzichtbaar over de knoppen onderaan de pagina, en een tik daar deed 'Ongedaan maken'. */
+  .toast.on button{pointer-events:auto}
+  .toast.on:has(button){pointer-events:auto}
   /* Dieren: lijst per groep, elke groep in een kleur uit het regiopalet (--g). In donker een lichtere
      variant van die kleur op een diep getinte ondergrond, in licht de kleur zelf op een zachte tint. */
   .dintro{margin:0 0 4px;font-size:15px;line-height:1.5;color:var(--text-dim)}
@@ -903,7 +906,8 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-style:normal}
   .strede i b{font-size:20px;font-weight:800;line-height:1;letter-spacing:-.02em}
   .strede i span{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
-  .smeer{justify-content:center;margin-top:12px}
+  /* ruimte onder de knop: de melding met Ongedaan maken zweeft onderin, en de knop mag daar niet onder liggen */
+  .smeer{justify-content:center;margin:12px 0 40px}
   .smeer .btn{flex:none}
   @keyframes rijs{from{transform:scaleY(0)}to{transform:scaleY(1)}}
   @media (prefers-reduced-motion:reduce){.ptrede i{animation:none}}

@@ -1516,6 +1516,24 @@ function zoek(w,fouten,term){
     eis(fouten,rijen().length===10&&knop()&&knop().textContent==='Alle 25 tonen','het tabblad opnieuw openen begint weer bij tien');
     meld('6 okt: de lijst Gespot toont tien, met een knop voor de rest',fouten); }
 
+  // Uitgave 224: een verborgen melding met Ongedaan maken mag geen tik meer opvangen
+  { const {w,fouten}=start('2026-10-06',{login:'groep'});
+    klik(w,'btnDieren',fouten);
+    w.document.querySelector('#dalle .drij[data-dier="koala"]').click(); await sleep(450);
+    if($(w,'shclose')){ klik(w,'shclose',fouten); await sleep(260); }
+    const t=$(w,'toast');
+    eis(fouten,t&&t.classList.contains('on')&&t.querySelector('button')&&JSON.parse(w.localStorage.getItem('aus_pending')).length===1,'na het noteren staat de melding met Ongedaan maken aan');
+    t._verberg();   // wat na zes seconden gebeurt
+    eis(fouten,!t.classList.contains('on')&&!t.querySelector('button'),'verbergen haalt de knop uit de melding');
+    t.click(); await sleep(50);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')).length===1,'een tik op de plek van de verborgen melding verwijdert niets meer');
+    // de knop zelf werkt nog gewoon zolang de melding aanstaat
+    w.document.querySelector('#dalle .drij[data-dier="wombat"]').click(); await sleep(450);
+    if($(w,'shclose')){ klik(w,'shclose',fouten); await sleep(260); }
+    $(w,'toast').querySelector('button').click(); await sleep(50);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')).length===1&&!$(w,'toast').classList.contains('on'),'Ongedaan maken werkt nog en sluit de melding');
+    meld('6 okt: verborgen melding vangt geen tik meer op',fouten); }
+
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);
   process.exit(fout?1:0);
