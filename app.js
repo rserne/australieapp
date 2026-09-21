@@ -2536,7 +2536,7 @@ function renderStand(){
       return kop+`<li><span class="dtijd">${tijdVan(w.gezien_op)}</span><span class="wbody"><strong>${esc(dierNaam(w))}`+
         (isGegeten(w)?`<span class="wvork" title="Gegeten">${IC_VORK}</span>`:'')+`</strong>`+
         (w.pending?`<span class="sub">${w.fout?`versturen mislukt: ${esc(w.fout)}`:wachtTekst(w)}</span>`:'')+`</span></li>`; }).join('')+`</ul>`;
-    if(mijn.length>LIJST_KORT&&!_standAlles) h+=`<div class="nrow smeer"><button type="button" class="btn" id="smeer">Alle ${mijn.length} tonen</button></div>`;
+    if(mijn.length>LIJST_KORT&&!_standAlles) h+=`<div class="nrow smeer"><button type="button" class="btn" id="smeer">Alles tonen</button></div>`;
   }
   box.innerHTML=h;
   box.querySelectorAll('.sdelen .dchip').forEach(b=>b.onclick=()=>{ _standDeel=b.dataset.deel; _standAlles=false; renderStand(); });
@@ -2668,7 +2668,7 @@ function renderDieren(){
         `<span class="sub">${esc(w.wie||'Onbekend')}${w.pending?(w.fout?` · versturen mislukt: ${esc(w.fout)}`:' · '+wachtTekst(w)):''}</span></span>`+
         (eigen?`<button class="dweg" data-weg="${w.id}" aria-label="Weghalen">×</button>`:'')+`</li>`;
     }).join('')+`</ul>`;
-    if(heleLijst.length>lijst.length) h+=`<div class="nrow smeer"><button type="button" class="btn" id="gmeer">Alle ${heleLijst.length} tonen</button></div>`;
+    if(heleLijst.length>lijst.length) h+=`<div class="nrow smeer"><button type="button" class="btn" id="gmeer">Alles tonen</button></div>`;
   }
 
   // Tot nu toe en de Prijzenkast staan sinds 220 in Stand, achter de knop in de kop.
@@ -2758,7 +2758,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-09-20-224';
+const APP_VERSIE='2026-09-21-225';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

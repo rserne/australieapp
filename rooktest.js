@@ -1442,7 +1442,7 @@ function zoek(w,fouten,term){
     eis(fouten,strede&&strede.querySelector('.sbody span').textContent==='plek 4 · 16 dieren'&&strede.querySelector('i b').textContent==='5',`mijn eigen trede zegt plek 4 (nu: ${strede&&strede.textContent})`);
     // 5. mijn waarnemingen: alleen de mijne, nieuwste bovenaan, tien met een knop voor de rest
     const rijen=()=>[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag)')];
-    eis(fouten,rijen().length===10&&$(w,'smeer')&&$(w,'smeer').textContent==='Alle 17 tonen','tien waarnemingen en een knop voor alle 17');
+    eis(fouten,rijen().length===10&&$(w,'smeer')&&$(w,'smeer').textContent==='Alles tonen','tien waarnemingen en een knop voor de rest');
     klik(w,'smeer',fouten);
     eis(fouten,rijen().length===17&&!$(w,'smeer')&&!w.document.querySelector('#dieren .dlijst .sub'),'daarna alle 17, zonder namen van anderen');
     // gelijkspel: dieren geven de doorslag
@@ -1495,12 +1495,12 @@ function zoek(w,fouten,term){
     klik(w,'btnDieren',fouten);
     const rijen=()=>[...w.document.querySelectorAll('#dieren .dlijst li:not(.ddag)')];
     const knop=()=>$(w,'gmeer');
-    eis(fouten,rijen().length===10&&knop()&&knop().textContent==='Alle 25 tonen',`tien waarnemingen en een knop voor alle 25 (nu ${rijen().length}, '${knop()&&knop().textContent}')`);
+    eis(fouten,rijen().length===10&&knop()&&knop().textContent==='Alles tonen',`tien waarnemingen en een knop voor de rest (nu ${rijen().length}, '${knop()&&knop().textContent}')`);
     eis(fouten,rijen()[0].textContent.includes(dieren[24%dieren.length])||true,'de nieuwste staat bovenaan');
     // de knop telt binnen de filters: alleen de vogels
     w.document.querySelector('.dchip[data-groep="vogel"]').click();
     const vogels=cache.filter(x=>['emoe','kookaburra','kaketoe','galah','pelikaan','ibis'].includes(x.dier)).length;
-    eis(fouten,rijen().length===Math.min(10,vogels)&&(vogels<=10?!knop():knop().textContent===`Alle ${vogels} tonen`),`binnen de groep Vogels telt de knop mee met het filter (nu ${rijen().length}, ${vogels} vogels)`);
+    eis(fouten,rijen().length===Math.min(10,vogels)&&(vogels<=10?!knop():knop().textContent==='Alles tonen'),`binnen de groep Vogels telt de knop mee met het filter (nu ${rijen().length}, ${vogels} vogels)`);
     w.document.querySelector('.dchip[data-groep="vogel"]').click();
     // alles tonen; daarna blijft de lijst open bij noteren en weghalen
     knop().click();
@@ -1513,7 +1513,7 @@ function zoek(w,fouten,term){
     eis(fouten,rijen().length===25&&!knop(),'na het weghalen ook');
     // een ander tabblad en terug: weer tien
     klik(w,'btnToday',fouten); klik(w,'btnDieren',fouten);
-    eis(fouten,rijen().length===10&&knop()&&knop().textContent==='Alle 25 tonen','het tabblad opnieuw openen begint weer bij tien');
+    eis(fouten,rijen().length===10&&knop()&&knop().textContent==='Alles tonen','het tabblad opnieuw openen begint weer bij tien');
     meld('6 okt: de lijst Gespot toont tien, met een knop voor de rest',fouten); }
 
   // Uitgave 224: een verborgen melding met Ongedaan maken mag geen tik meer opvangen
