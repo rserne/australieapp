@@ -1,12 +1,14 @@
 // AustralieApp, service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v225';
+const VERSION='v227';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze bestanden werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
-const CODE=['./','./index.html','./app.css','./reis.js','./voorreis.js','./dieren.js','./dieren-iconen.js','./app.js','./manifest.webmanifest'];
+// De paklijst staat erbij omdat een nieuwe versie de oude cache weggooit. Zonder deze regel is hij daarna
+// pas weer offline te openen als iemand hem eerst met verbinding heeft geopend.
+const CODE=['./','./index.html','./app.css','./reis.js','./voorreis.js','./dieren.js','./dieren-iconen.js','./app.js','./manifest.webmanifest','./paklijst.html'];
 // Beelden: fijn om te hebben, maar een ontbrekende foto mag de installatie niet blokkeren.
-const BEELD=['./icon-512.png','./icon-maskable-512.png',
+const BEELD=['./icon-512.png','./icon-maskable-512.png','./icon-paklijst.png',
   './banner-dagen.jpg','./banner-notities.jpg','./banner-praktisch.jpg','./banner-dieren.jpg',
   './reg-nsw.jpg','./reg-tas.jpg','./reg-sa.jpg','./reg-vic.jpg','./reg-red.jpg','./reg-qld.jpg','./reg-wa.jpg','./reg-reis.jpg','./reg-voorreis.jpg','./reg-nareis.jpg'];
 // Alleen van deze bestanden vergelijken we oud en nieuw om een nieuwe versie te melden.

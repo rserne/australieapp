@@ -27,9 +27,9 @@ const HOTELGEO={
  "Beachfront Bicheno, Tasman Highway":[-41.8743592,148.2998864],
  "Ibis Styles, Macquarie Street":[-42.8860825,147.3255957],
  "The Terrace Hotel, South Terrace":[-34.9351093,138.6042935],
- // Dag 13 en 14 hebben bewust geen h: Sawadee heeft nog niet vastgelegd of het het Blue Lake Motel
- // of het Mountain View Motor Inn wordt (de note op die dagen legt het uit). Zodra het bekend is:
- // h: toevoegen op beide dagen en hier de coördinaten.
+ // Dag 13 (Blue Lake Motel) en dag 14 (Mountain View Motor Inn) staan er nog niet in: de hotels zijn
+ // bekend uit het programma van de reisbegeleider, de coördinaten nog niet. Tot dan zoekt de link op
+ // naam en adres. Winkels bij die twee hotels ontbreken om dezelfde reden.
  "Comfort Inn Western, Kepler Street":[-38.3845355,142.4797355],
  "Desert Palms Resort, Barrett Drive":[-23.7133953,133.8798204],
  "Cairns Plaza Hotel, Esplanade":[-16.9157099,145.7725368],
@@ -92,25 +92,23 @@ const DAYS=[
    ["NOMAD","Foster Street, Surry Hills",4.6,4,12,"Modern Australisch met houtvuur en inheemse ingrediënten. Een van de betere adressen van Sydney en toch te belopen. Duurder dan de rest.","Online via de website van het restaurant. Zaterdag vroeg vol. Reserveren."],
    ["Dae Jang Kum","Goulburn Street, Haymarket",4.7,2,7,"Koreaanse barbecue aan tafel. Levendig, zaterdag tot 02.00 uur open en dichtbij het hotel. De veiligste keuze na een klim die tot kwart voor acht duurt.","Niet nodig, gewoon binnenlopen."]]},
 
-{n:4,r:"nsw",k:"vrij",t:"Kustwandeling Bondi – Coogee",p:"Bondi & Coogee",h:"The Ultimo, Haymarket",tz:11,temp:"14–22°",
+{n:4,r:"nsw",k:"vrij",t:"Kustwandeling Coogee – Bondi",p:"Coogee & Bondi",h:"The Ultimo, Haymarket",tz:11,temp:"14–22°",
  wild:[["Bultrug","De kliffen bij Marks Park en Waverley Cemetery zijn de beste walviskijkplekken van Sydney, en oktober is het seizoen. Zoek naar de spuit. Een verrekijker helpt.",2],
   ["Blauwe groper","In Gordons Bay en Clovelly, een grote felblauwe vis die vlak onder het wateroppervlak zwemt. Vanaf de rotsen te zien, met een snorkel nog beter.",2],
   ["Dolfijn","Voor de kust, vaak in de golven bij Bronte en Coogee. Geen garantie, maar kijk elke keer even als je stilstaat.",1]],
  agenda:[
-  ["09.30","Vertrek uit het hotel","Loop naar Central Station (5 min) en neem de trein T4 naar Bondi Junction (± 10 min). Daar bus 333, 380 of 381 naar Bondi Beach (± 12 min). In totaal ruim een half uur. Tik in en uit met je bankpas. Het zondagse dagmaximum geldt voor alles."],
-  ["10.15","Bondi Beach","Begin aan de zuidkant, bij Bondi Icebergs. Het zeebad is zondag open, dus wil je zwemmen, doe het voordat je gaat lopen. Later op de dag kom je hier niet meer terug."],
-  ["10.45","Start van de wandeling","6 km langs de kust: Tamarama, Bronte, de kliffen van Waverley Cemetery, Clovelly, Gordons Bay, Coogee. Twee tot drie uur, met trappen op en af. Bronte is halverwege en heeft de beste koffie."],
-  ["13.30","Coogee","Lunch aan Coogee Bay Road of op het strand. Het water bij Coogee is rustiger dan bij Bondi."],
-  ["15.00","Terug naar de stad","Bus 373 of 374 vanaf Arden Street in Coogee rijdt rechtstreeks naar Central en Circular Quay, ± 35 tot 40 minuten. Geen overstap nodig."],
-  ["16.00","Terug in het hotel","Rusten, en op tijd eten. Veel zaken in Surry Hills zijn zondag dicht, maar de drie hieronder niet."]],
+  ["Ochtend","Verzamelen in de lobby","Met de reisbegeleider naar de bushalte, en met de expressbus naar Coogee. De precieze tijd volgt nog, omdat de bustijden nog wel eens veranderen."],
+  ["09.00","Start bij Coogee Pavilion","Vijf à zes kilometer langs de kust: Gordons Bay, Clovelly, de kliffen van Waverley Cemetery, Bronte en Tamarama. Zo'n tweeënhalf uur, met trappen op en af. Onderweg kun je zwemmen in de ocean pools."],
+  ["12.00","Bondi Beach","Einde van de wandeling. Lunch aan het strand of in Bondi."],
+  ["Middag","Vrij","Blijf op het strand, zwem in het zeebad van Bondi Icebergs of ga terug naar het hotel. Bus 333 rijdt van Bondi Beach naar Circular Quay. Of neem de bus naar Bondi Junction en daar trein T4 naar Central, vijf minuten lopen van het hotel."]],
  body:[
-  "Vanuit de stad neem je eenvoudig de bus naar het bekende Bondi Beach. Maak zeker tijd vrij om de kustwandeling vanaf Bondi naar het Coogee strand te maken, zes kilometer over de kliffen en langs vijf stranden, in zo’n drie uur te lopen. Plan wel een extra uur in, want het zou zonde zijn om nergens te stoppen.",
-  "Onderweg heb je verschillende uitzichtpunten, zwembaaien en gezellige tentjes voor een bakje koffie. Het is de bekendste wandeling van Sydney en op zondag druk, dus vroeg beginnen loont. Terug in Sydney is het gezellig eten bij de waterkant, waar je uitzicht op de skyline en haven hebt."
+  "Vanochtend loop je met de reisbegeleider de bekendste kustwandeling van Sydney, van Coogee naar Bondi Beach. Het is zo'n zes kilometer over de kliffen en langs vijf stranden, in tweeënhalf uur te lopen. Onderweg kun je zwemmen in de ocean pools, zeebaden die in de rotsen zijn uitgehakt.",
+  "Je komt langs verschillende uitzichtpunten, zwembaaien en gezellige tentjes voor een bakje koffie. Op zondag is het druk, dus vroeg beginnen loont. Rond het middaguur ben je in Bondi en de middag is vrij. Terug in Sydney is het gezellig eten bij de waterkant, waar je uitzicht op de skyline en haven hebt."
  ],
  prac:["Op zondag geldt in New South Wales een laag dagmaximum voor het openbaar vervoer. Je kunt vandaag dus onbeperkt reizen voor een paar dollar.",
-  "Het zeebad van Bondi Icebergs is open voor publiek, behalve op donderdag. Zwemmen kost een paar dollar. Alleen al voor het uitzicht is dat het waard. Neem zwemkleding en een kleine handdoek mee.",
+  "Het zeebad van Bondi Icebergs ligt aan het eind van de wandeling en is open voor publiek, behalve op donderdag. De entree is zo'n tien dollar, en alleen al voor het uitzicht is dat het waard. Neem een legitimatiebewijs, zwemkleding en een kleine handdoek mee.",
   "De zomertijd is vannacht ingegaan. Controleer of je telefoon een uur is opgeschoven. Je horloge doet dat niet vanzelf.",
-  "Loop van Bondi naar Coogee, niet andersom. Dan heb je de zon in de rug en eindig je bij een rustiger strand in plaats van in de drukte. En van Coogee rijdt de bus zonder overstap terug naar Central."],
+  "Neem mee: wandelschoenen, genoeg water, bescherming tegen de zon, je bankpas of creditcard om in en uit te checken, wat geld, en eventueel lunch en strandspullen."],
  rnote:"Zondag zijn veel zaken in Surry Hills gesloten. Deze drie niet.",
  rest:[["NOUR","Crown Street, Surry Hills",4.8,3,22,"Modern Libanees, ruim 3.000 beoordelingen en nog steeds 4,8. Het banketmenu is de manier om het te doen.","Online via de website van het restaurant. Weken vooruit vol. Boek nu."],
    ["White Horse","Crown Street, Surry Hills",4.7,3,20,"Verfijnde deelgerechten in een oud hotelpand. Zondag tot 21.00 uur.","Online, of via de reserveerknop in Google Maps."],
@@ -121,11 +119,19 @@ const DAYS=[
   ["Pennantrosella en koningsparkiet","Karmozijnrode en groene papegaaien in de bomen bij Echo Point. Ze komen op picknicktafels af.",3],
   ["Geelstaartraafkaketoe","Grote zwarte kaketoes met gele staartveren, in groepjes met een klaaglijke roep. Kijk omhoog in de eucalyptussen.",2],
   ["Moeraswallaby","In de schemering aan bosranden. De groep is dan waarschijnlijk al weg, dus alleen met geluk.",1]],
+ agenda:[
+  ["07.50","Verzamelen in de lobby","Vertrek met de bus naar de Blue Mountains, ongeveer twee uur rijden."],
+  ["10.15","Echo Point","Toiletten en koffie. Bij het bezoekerscentrum krijg je informatie en kijk je uit op de Three Sisters: Meehni, Wimlah en Gunnedoo."],
+  ["Overdag","Wandelen of Scenic World","Drie keuzes. Niet wandelen: met de bus naar Scenic World, met de Scenic Railway, de Skyway, de Cableway, een makkelijke boardwalk en de museummijn, all-in A$64. Makkelijk wandelen: de Prince Henry Cliff Walk van Echo Point naar Scenic World, vlak, 75 minuten. Flink wandelen: de Giant Stairway af, 896 treden en 300 meter dalen, rechtsaf naar de Katoomba-watervallen en via de Furber Steps weer omhoog, twee uur. Wie liever niet terugklimt, neemt de Scenic Railway omhoog, maar dan heb je het ticket van A$64 nodig."],
+  ["Middag","Terug naar Sydney","De bus vertrekt vanaf de parkeerplaats van Scenic World."]],
  body:[
-  "Vandaag brengen we een bezoek aan het Blue Mountains Nationaal Park. In ongeveer drie uur rijden we naar de groene en bergachtige omgeving van de Blue Mountains. Het Nationale Park heeft zijn naam te danken aan de blauwe nevel die boven de vele aanwezige eucalyptusbossen hangt. Die ontstaat doordat de bomen olie verdampen.",
+  "Vandaag brengen we een bezoek aan het Blue Mountains Nationaal Park. In ongeveer twee uur rijden we naar de groene en bergachtige omgeving van de Blue Mountains. Het Nationale Park heeft zijn naam te danken aan de blauwe nevel die boven de vele aanwezige eucalyptusbossen hangt. Die ontstaat doordat de bomen olie verdampen.",
   "Er zijn vanaf hier verschillende wandelingen te maken. Bijvoorbeeld naar de lager gelegen Jamison vallei, de Katoomba waterval of naar de legendarische rotsformatie de Three Sisters."
  ],
- prac:["De Three Sisters staan vanaf Echo Point 's ochtends in tegenlicht. In de loop van de middag draait de zon eromheen en maak je veel betere foto's. Jullie komen dus op het goede moment aan.",
+ prac:["Het park is cashless. Je betaalt er alleen met een bankpas of creditcard.",
+  "Neem een lunchpakket mee, of lunch in de bergen. Verder: wandelschoenen, genoeg water, bescherming tegen de zon en iets te lezen of te luisteren voor in de bus.",
+  "Wordt er slecht weer voorspeld, dan kun je ook in Sydney blijven. Overleg het de avond ervoor met de reisbegeleider.",
+  "Neem een kaart van het gebied mee, of een foto ervan. Bij het bezoekerscentrum op Echo Point is hij gratis.",
   "In de bergen is het vaak zes tot acht graden kouder dan in Sydney, en het weer slaat er snel om.",
   "Mobiel bereik valt in de dalen weg. Spreek een verzamelpunt af in plaats van te vertrouwen op appjes."],
  rnote:"Mishy's en White Horse, van de afgelopen twee avonden, zijn maandag gesloten. Deze drie zijn wel open.",
@@ -145,44 +151,59 @@ const DAYS=[
  prac:["Vroege vlucht, om 07.25 uur vanaf terminal 2. Je vertrekt dus rond 05.15 uur uit het hotel. Vraag de reisbegeleider naar het groepsvervoer. Ontbijten in het hotel lukt waarschijnlijk niet meer.",
   "Tasmanië heeft zijn eigen quarantaineregels, ook voor reizigers uit de rest van Australië. Vers fruit en verse groente mogen het eiland niet op. Voor andere levensmiddelen hangt het af van product en verpakking. Eet je appel vóór het inchecken op en geef bij twijfel aan.",
   "Het eiland ligt zuidelijker dan je denkt, op de breedte van Nieuw-Zeeland. Reken op zes tot achttien graden en veel wind, ook als het op het vasteland warm was.",
-  "De uv-index is hier hoog ondanks de kou. Verbranden gebeurt op een bewolkte dag van vijftien graden."],
+  "De uv-index is hier hoog ondanks de kou. Verbranden gebeurt op een bewolkte dag van vijftien graden.",
+  "Je komt vroeg aan, dus de kamers zijn waarschijnlijk nog niet klaar. Laat je bagage achter in het hotel en ga de stad in.",
+  "Het Queen Victoria Museum & Art Gallery is gratis en elke dag open van 10.00 tot 16.00 uur. Er is ook een planetarium, dat tien dollar kost. Over de geschiedenis en de dieren van Tasmanië."],
+ note:"Koop vandaag een picknicklunch voor morgen, want je bent de hele dag in het park. Het kan ook morgenochtend vroeg, bij Banjo's in Brisbane Street. Die bakker opent om 05.00 uur en ligt op zeven minuten lopen van het hotel.",
  food:[["Scallop pie","Hartige taart met sint-jakobsschelpen in kerriesaus. Puur Tasmaans."],["Oesters","Vraag naar Bruny Island. Het koude water levert uitzonderlijke kwaliteit."],["Wallaby","Mager, donker wildvlees. Vaak als ravioli of steak."],["Leatherwood honey","Donkere, aromatische honing van een boom die alleen hier groeit."],["Pinot noir","Het koele klimaat maakt Tasmanië tot Australiës beste streek voor deze druif."],["Curried scallop pie","De kerrieversie van de scallop pie, en volgens Tasmaniërs de enige juiste."]],
  rest:[["Kawan Dining","Charles Street",5.0,2,12,"Aziatische fusion, kleine zaak, vrijwel perfecte score over ruim 500 beoordelingen.","Online of telefonisch. Klein en altijd vol. Boek nu al."],
    ["Tres","Charles Street",4.8,2,11,"Latijns-Amerikaans, bekend om de picanha en de tapas.","Online via de website van het restaurant."],
    ["Mudbar","Seaport Boulevard",4.4,3,15,"Aan het water, zeven dagen open. Verse oesters en vlees van eigen boerderij.","Online, maar zonder reservering kom je er meestal ook binnen."]]},
 
 {n:7,r:"tas",k:"excursie",t:"Cradle Mountain-Lake St Clair",p:"Cradle Mountain",h:"Hotel Grand Chancellor, Cameron Street",tz:11,temp:"1–11°",
- wild:[["Wombat","De vlonderpaden bij Ronny Creek, vlak bij het bezoekerscentrum, in het laatste uur voor zonsondergang. Ze grazen dan in het open veld en laten je tot een paar meter komen. De zekerste wombat van Australië.",3],
+ wild:[["Wombat","De vlonderpaden bij Ronny Creek, waar jullie rond half twee zijn. Ze grazen het liefst in de schemering, maar op koele dagen ook midden op de dag, in het open veld. Ze laten je tot een paar meter komen. De zekerste wombat van Australië.",3],
   ["Pademelon en Bennettwallaby","Rond het bezoekerscentrum en de parkeerplaatsen, ook overdag in de schaduw. Blijf zitten en ze komen dichterbij.",2],
   ["Echidna","In de lente actief langs de paden en wegen, overdag. Een stekelig bolletje dat traag oversteekt. Stop en wacht.",2],
   ["Tasmaanse duivel","In het wild alleen 's nachts en zeldzaam. Devils@Cradle, naast het bezoekerscentrum, heeft rondleidingen overdag waar je ze wel ziet.",1],
   ["Vogelbekdier","In de beekjes rond Dove Lake bij zonsopgang of zonsondergang. Geluk nodig, maar het gebeurt.",1]],
+ agenda:[
+  ["07.30","Vertrek naar Cradle Mountain","Met een lokale gids, ongeveer twee uur rijden. Neem je picknicklunch mee."],
+  ["Ochtend","Wandeling rond Dove Lake","Met de pendelbus naar Dove Lake. Een rondwandeling van zo'n zes kilometer, twee tot drie uur, met steile stukken, trappen en ongelijke paden. Gemiddeld zwaar. Aan het eind eet je je picknicklunch."],
+  ["13.00","Ronny Creek","Rond 13.00 of 13.30 uur met de pendelbus naar Ronny Creek. Hier zie je de wombats."],
+  ["15.00","Terug naar Launceston","Met de pendelbus naar het bezoekerscentrum en vertrek. Rond 18.00 uur ben je terug, de avond is vrij."]],
  body:[
   "Tijd voor actie! Vandaag bezoeken we het oudste en bekendste nationale park van Tasmanië: Cradle Mountain-Lake St Clair National Park, dat niet voor niets op de UNESCO Werelderfgoedlijst staat. Het park staat bekend om zijn ruige landschappen met rivieren, watervallen, diepblauwe gletsjermeren en imposante bergen, zoals Barn Bluff (1559 m), Mount Ossa (1614 m, de hoogste berg van Tasmanië) en natuurlijk de iconische Cradle Mountain (1545 m).",
   "In dit park vind je talloze wandelroutes. Houd onderweg je ogen open, want de kans is groot dat je bijzondere dieren tegenkomt, zoals wombats, wallaby’s, Tasmaanse duivels of misschien zelfs een echidna. Dit indrukwekkende natuurgebied laat je het wilde Tasmanië op zijn best ervaren.",
   "Je slaapt vannacht opnieuw in Launceston, ruim twee uur rijden heen en weer, dus reken op een lange dag."
  ],
  prac:["Naar Dove Lake rijdt een verplichte pendelbus vanaf het bezoekerscentrum, om de tien à vijftien minuten. Mis de laatste terugrit niet, want daarna volgt nog twee uur rijden naar Launceston.",
-  "Wombats zijn het actiefst tegen de avond, maar omdat je terugrijdt naar Launceston is de late middag je kans. De vlonderpaden bij Ronny Creek liggen vlak bij het bezoekerscentrum.",
+  "Wombats zijn het actiefst tegen de avond, maar jullie zijn rond het middaguur bij Ronny Creek. Loop rustig over de vlonderpaden en kijk ook verder het veld in. Op een koele, bewolkte dag grazen ze ook overdag.",
   "Met 1 tot 11 graden is dit de koudste plek van de reis. In oktober kan het hier nog sneeuwen. Neem je warme laag mee in de bus, want je bent de hele dag onderweg.",
   "Er is vrijwel geen mobiel bereik in het park. Download je kaarten voordat je uit Launceston vertrekt."],
- rnote:"Je eet vanavond in Launceston, niet bij Cradle Mountain. Reserveer vóór je vertrekt, want je bent pas laat terug.",
+ rnote:"Je eet vanavond in Launceston, niet bij Cradle Mountain. Je bent rond 18.00 uur terug, dus reserveer vóór je vertrekt.",
  rest:[["Cataract on Paterson","Paterson Street, Launceston",4.6,2,20,"Zeevruchten en steak, 4,6 over ruim 3.000 beoordelingen, zeven dagen open tot 21.00 uur. Ruime kaart en snelle bediening, de beste keuze als je laat terug bent uit het park.","Online of telefonisch: +61 3 6331 4446. Werkt ook zonder reservering."],
    ["Kawan Dining","Charles Street, Launceston",5.0,2,12,"Kreeg je gisteren geen tafel? Woensdag open van 17.30 tot 21.00 uur. Vrijwel perfecte score over ruim 540 beoordelingen.","Telefonisch. Reserveer vóór je naar Cradle Mountain vertrekt. Vol is vol."],
    ["Mudbar","Seaport Boulevard, Launceston",4.4,3,15,"Aan het water, zeven dagen tot middernacht open. De veiligste optie als het later wordt dan gepland.","Online, maar zonder reservering kom je er meestal ook binnen."]]},
 
-{n:8,r:"tas",k:"bus",t:"Via Bicheno naar Bay of Fires",p:"Bicheno",h:"Beachfront Bicheno, Tasman Highway",tz:11,temp:"8–17°",
+{n:8,r:"tas",k:"bus",t:"Via Bay of Fires naar Bicheno",p:"Bicheno",h:"Beachfront Bicheno, Tasman Highway",tz:11,temp:"8–17°",
  wild:[["Dwergpinguïn","De avondexcursie brengt je naar een kolonie die na zonsondergang aan land komt. Oktober is broedseizoen, dus ze komen zeker.",3],
   ["Australische pelsrob","Op de rotsen bij de blowhole en op Governor Island, vlak voor de kust van Bicheno. Kijk vanaf de kustwandeling met een verrekijker.",2],
   ["Witbuikzeearend","Boven de baaien van Bay of Fires en Bicheno. Groot, wit met grijs, vaak op een dode boom bij het water.",2],
   ["Dolfijn","Voor de kust bij Bay of Fires. Vanaf de granietrotsen heb je een goed uitzicht over het water.",1]],
+ agenda:[
+  ["08.00","Vertrek uit Launceston","Naar de oostkust."],
+  ["10.30","Bay of Fires","Oranje granietrotsen, witte stranden en helderblauw water. Tijd voor een strandwandeling."],
+  ["Middag","Lunch in St Helens","Het vissersstadje aan Georges Bay, aan de zuidkant van Bay of Fires."],
+  ["15.30","Aankomst in Bicheno","Inchecken in Beachfront Bicheno."]],
  body:[
-  "Vandaag verkennen we de Oostkust van Tasmanië. We rijden naar een van de meest fotogenieke plaatsen van het eiland, de Bay of Fires. Kenmerkend zijn de bijzondere oranje/rood gekleurde rotsen rond het witte strand en het azuurblauwe water. Die kleur komt van korstmossen op het graniet. Het is een van de meest ongerepte gebieden dat Tasmanië te bieden heeft. We nemen vanmiddag de tijd om hier rond te kijken. Je kunt een mooie strandwandeling maken of je tijd besteden aan een van de pittoreske stranden met helder blauw water.",
+  "Vandaag verkennen we de Oostkust van Tasmanië. We rijden naar een van de meest fotogenieke plaatsen van het eiland, de Bay of Fires. Kenmerkend zijn de bijzondere oranje/rood gekleurde rotsen rond het witte strand en het azuurblauwe water. Die kleur komt van korstmossen op het graniet. Het is een van de meest ongerepte gebieden dat Tasmanië te bieden heeft. We nemen vanochtend de tijd om hier rond te kijken. Je kunt een mooie strandwandeling maken of je tijd besteden aan een van de pittoreske stranden met helder blauw water.",
   "We overnachten vandaag in Bicheno, een charmant vissersdorpje gelegen tussen het Douglas-Apsley National Park en het Freycinet National Park. Het dorp ligt aan de rand van een prachtig natuurgebied aan zee en staat bekend om zijn verse en smaakvolle seafood. Vanaf hier kun je ’s avonds genieten van de rustige kustsfeer en misschien zelfs een wandeling maken langs het strand. Of je kunt meegaan op een optionele excursie, waarbij je een bezoek brengt aan een pinguïnkolonie."
  ],
  prac:["Bij de pinguïns is fotograferen met flits verboden en wit licht verstoort ze.",
   "De pinguïns komen pas twintig tot veertig minuten ná zonsondergang aan land. Je staat dus te wachten in de kou aan zee. Neem een muts mee.",
-  "In Bicheno ligt een blowhole op loopafstand van het hotel, aan de kant van Waub's Bay. Bij aanlandige wind spuit die tot tien meter hoog. Dat kost niets, en de meeste mensen lopen eraan voorbij."],
+  "In Bicheno ligt een blowhole op loopafstand van het hotel, aan de kant van Waub's Bay. Bij aanlandige wind spuit die tot tien meter hoog. Dat kost niets, en de meeste mensen lopen eraan voorbij.",
+  "Het hotel heeft een zwembad, een bar en een restaurant, en een ruimte waar je zelf je kleren kunt wassen."],
+ rnote:"In Bicheno sluiten de meeste keukens om 20.00 uur, en daarna is er weinig meer te doen. Ga je mee met de pinguïns, eet dan vroeg. De reisbegeleider noemt ook het hotelrestaurant, The Long Boat Tavern naast het hotel, en aan Burgess Street The Gulch (fish and chips) en Food and Brew.",
  rest:[["Sealife Restaurant","Tasman Highway",4.4,2,6,"Praktisch naast het hotel, uitzicht op zee. Donderdag 17.00–20.00 uur.","Telefonisch: +61 3 6375 1121. Vraag om een tafel bij het raam."],
    ["Lobster Shack","Waubs Esplanade",4.3,2,15,"Vroeg en informeel, bestellen aan de balie, eten met zicht op zee, om 19.00 uur dicht. Meer een late lunch dan een diner, maar dit ís de lobster roll van Tasmanië.","Niet nodig. Bestellen aan de balie."]]},
 
@@ -190,11 +211,19 @@ const DAYS=[
  wild:[["Bennettwallaby","Op de parkeerplaats van Wineglass Bay. Ze zijn er altijd en komen bedelen. Voeren is verboden en maakt ze ziek.",3],
   ["Witbuikzeearend","Boven Coles Bay en de Hazards. Kijk omhoog vanaf het uitzichtpunt.",2],
   ["Dolfijn en walvis","In Great Oyster Bay, vanaf het uitzichtpunt over Wineglass Bay. In oktober trekken bultruggen langs. Een spuit in de verte is goed mogelijk.",1]],
+ agenda:[
+  ["07.00","Ontbijt","Inbegrepen."],
+  ["07.45","Bagage in de bus","Een kwartier voor vertrek."],
+  ["08.00","Vertrek","Onderweg haal je sandwiches op voor de lunch."],
+  ["09.30","Freycinet National Park","Drie keuzes. Naar het uitzichtpunt over Wineglass Bay, 3 km heen en terug, anderhalf tot twee uur. Door naar het witte strand en via dezelfde weg terug, 6 à 7 km, tweeënhalf tot drie uur. Of niet wandelen en uitrusten op het strandje bij Freycinet Lodge, waar je ook kunt lunchen."],
+  ["16.30","Aankomst in Hobart","De avond is vrij."]],
  body:[
   "Vandaag brengen we een bezoek aan het Freycinet Nationaal Park. Dit nationale park is één van de oudste van Australië. Het park kenmerkt zich door de vele wandelpaden door bossen en langs prachtige stranden en baaien. Je hebt de mogelijkheid om hier een prachtige wandeling van ruim twee uur naar de schilderachtige Wineglass Bay te maken. Deze baai heeft een vorm van een wijnglas en is omringd door rode granieten pieken, eucalyptusbomen, wilde bloemen en ongerepte witte zandstranden. Naar het uitzichtpunt alleen ben je officieel een tot anderhalf uur kwijt. Sawadee rekent ruimer, met pauzes en foto’s.",
   "Aan het eind van de middag arriveren we in Hobart, de hoofdstad van Tasmanië. Het is leuk om een wandeling te maken door het oude centrum. Hier maak je kennis met veel cultureel erfgoed van Australië, je loopt langs mooie historische gebouwen en oude arbeidershuisjes. De komende twee nachten slapen we in een comfortabel hotel, vijf tot twaalf minuten van Salamanca Place. Let op, vandaag is er een maaltijd inbegrepen."
  ],
- prac:["Boek vandaag alvast je MONA-tickets voor morgen. Ze zijn geregeld vooraf uitverkocht en de ferry erheen reserveer je apart."],
+ prac:["Boek vandaag alvast je MONA-tickets voor morgen. Ze zijn geregeld vooraf uitverkocht en de ferry erheen reserveer je apart.",
+  "In het Ibis Styles is het ontbijt niet inbegrepen. Het wordt doordeweeks van 06.30 tot 09.30 uur geserveerd en in het weekend van 07.00 tot 10.00 uur. Op elke kamer staan koffie en thee."],
+ rnote:"De reisbegeleider noemt ook Fish Frenzy aan Elizabeth Street Pier (vis en oesters aan het water, vrijdag tot 20.30 uur), de Drunken Admiral aan Hunter Street (vis, 17.00–22.00 uur) en Jack Greene op Salamanca Place (pub, met een goede zalmburger).",
  rest:[["Syra","Salamanca Square",4.7,2,11,"Midden-Oosters, de hoogste waardering van Salamanca. Kies de 'feed me' en laat de keuken beslissen.","Online. Klein, dus vooraf boeken."],
    ["Peppina","Salamanca Place",4.6,3,6,"Het dichtstbij en uitstekend. Italiaans met Tasmaanse producten. Iets duurder.","Online via de website van het restaurant of de reserveerknop in Google Maps."],
    ["Ball & Chain Grill","Salamanca Place",4.4,2,12,"Klassieke grill in een historisch pakhuis, houtskoolvuur.","Online via de website van het restaurant."]]},
@@ -204,14 +233,19 @@ const DAYS=[
   ["Albatros","Op open zee bij Cape Pillar, met de boottocht. Reuzenalbatrossen met een spanwijdte van drie meter scheren langs.",2],
   ["Bultrug en zuidkaper","Oktober is een goede maand bij Tasman Island. De schipper weet waar ze zitten. Ook vanaf MONA's veerboot heb je soms geluk op de Derwent.",2],
   ["Dolfijn","Bijna standaard bij de boottocht. Soms ook in de haven van Hobart.",2]],
+ agenda:[
+  ["07.15","Tasman Island Cruise","Alleen als je hem hebt geboekt. Inchecken bij de haven om 07.15 uur, vertrek om 07.30 uur, terug rond 18.00 uur."],
+  ["08.30","Salamanca Market","Tot 15.00 uur, op tien minuten lopen van het hotel."]],
  body:[
   "Na Sydney is Hobart de oudste stad van Australië. Een leuk uitje is een bezoek aan het bijzondere Museum Old New Art (MONA). Van Hobart neem je de ferry naar het museum. Deze overtocht is op zichzelf al de moeite waard.",
   "De ruige kustlijn van het zuidoosten van Tasmanië is bekend vanwege de grilligheid en de hoge kliffen. Een echte aanrader is om deel te nemen aan de optionele excursie met een boottocht waarin je dit prachtige gebied verkent. Je vaart langs het geïsoleerde Tasman Island en Cape Pillar, waar we vaak dolfijnen, albatrossen en zelfs walvissen zien."
  ],
  prac:["Salamanca Market is vanochtend, op tien minuten lopen. Hij loopt tot ongeveer 15.00 uur en veel kramen breken eerder af. Ga vroeg.",
   "Op de markt is leatherwood honey de beste souvenir. Hij mag de EU in en je vindt hem nergens anders ter wereld.",
-  "Mount Wellington ligt op twintig minuten rijden en steekt 1.270 meter omhoog. Boven waait het bijna altijd hard en is het tien graden kouder dan in de stad."],
- rest:[["Syra","Salamanca Square",4.7,2,11,"Zaterdag open vanaf 17.00 uur.","Online. Zaterdag het snelst vol."],
+  "Mount Wellington ligt op twintig minuten rijden en steekt 1.270 meter omhoog. Boven waait het bijna altijd hard en is het tien graden kouder dan in de stad. Er is geen kiosk. Met de Mt Wellington Express ga je naar de top, en dan kun je in anderhalf uur 5 km teruglopen naar Huon Road. Bij de Fern Tree Tavern stap je op de bus naar het centrum.",
+  "Ga je mee met de cruise? Dan check je in vóór het hotelontbijt begint, want dat begint op zaterdag om 07.00 uur. Aan boord krijg je koffie of thee met een muffin. Kleed je warm aan, want de boot is een overdekte speedboot en op het water is het koud.",
+  "Bonorong Wildlife Sanctuary, een halfuur rijden van Hobart, vangt inheemse dieren op, waaronder de Tasmaanse duivel. Eerst krijg je een rondleiding van een halfuur, daarna kijk je zelf nog een uur rond. De entree is A$32,50 en het park is open van 9.00 tot 17.00 uur. Deel een taxi."],
+ rest:[["Syra","Salamanca Square",4.7,2,11,"Zaterdag open vanaf 17.00 uur. Ook de reisbegeleider raadt hem aan.","Online. Zaterdag het snelst vol."],
    ["Peppina","Salamanca Place",4.6,3,6,"Zaterdag open vanaf 17.00 uur.","Online via de website van het restaurant."]]},
 
 {n:11,r:"sa",k:"vlucht",t:"Vlucht naar Adelaide",p:"Adelaide",h:"The Terrace Hotel, South Terrace",tz:10.5,temp:"12–22°",
@@ -239,45 +273,60 @@ const DAYS=[
  ],
  prac:["Rundle Mall en de zijstraten eromheen zijn het winkelhart. Haigh's Chocolates heeft er zijn oorspronkelijke winkel op Beehive Corner, uit 1915.",
   "Het South Australian Museum en het Migration Museum vragen geen entree. Het eerste heeft de grootste verzameling Aboriginal-voorwerpen ter wereld.",
-  "De tram naar Glenelg valt buiten de gratis zone. Tik in en uit met je bankpas. Een aparte kaart heb je niet nodig."],
+  "De tram naar Glenelg valt buiten de gratis zone. Tik in en uit met je bankpas. Een aparte kaart heb je niet nodig.",
+  "Gratis door het centrum en langs de oude huizen en kerken in het noorden: de City Loop-bus, lijnen 98A, 98C, 99A en 99C.",
+  "Cleland Wildlife Park op Mount Lofty heeft koala's, kangoeroes en andere inheemse dieren. Het is elke dag open van 9.30 tot 17.00 uur, de entree is A$34,50. Met bus 864 of 823 vanaf King William Street ben je er in een uur."],
  rnote:"Latteria, van gisteravond, is maandag gesloten. Deze drie zijn wel open.",
  rest:[["Part Time Lover","Paul Kelly Lane",4.8,2,22,"Modern Australisch, deelgerechten, in een steegje in het centrum. Zondag gesloten, maandag open, vandaag dus.","Online. Klein en gewild."],
    ["Chianti","Hutt Street",4.5,3,19,"Adelaidse klassieker sinds 1985, Italiaans. Zondag gesloten, maandag open.","Online via de website van het restaurant."],
    ["Sofia","Hutt Street",4.8,2,27,"Ook maandag open.","Online."]]},
 
-{n:13,r:"sa",k:"bus",t:"Mount Gambier en Naracoorte",p:"Mount Gambier",
+{n:13,r:"sa",k:"bus",t:"Mount Gambier en Naracoorte",p:"Mount Gambier",h:"Blue Lake Motel, Kennedy Avenue",
  emoe:[1,"Op de open velden rond Naracoorte, overdag vanuit de bus. Kijk naar rechts en links over de weilanden."],tz:10.5,temp:"8–19°",
  wild:[["Zuidelijke langvleugelvleermuis","Bij Naracoorte huist een kolonie van honderdduizenden in Bat Cave. Het Bat Observation Centre laat ze via infraroodcamera's zien. In oktober keren de vrouwtjes terug om te werpen.",3],
   ["Kangoeroe","In de wijngaarden van Coonawarra tegen de avond, vaak in groepen tussen de rijen.",2],
   ["Emoe","Op de open velden rond Naracoorte, overdag vanuit de bus.",1]],
+ agenda:[
+  ["Ochtend","Vertrek uit Adelaide","De vertrektijd volgt nog van de reisbegeleider."],
+  ["13.00","Naracoorte Caves","Rondleiding door de grotten, inbegrepen."],
+  ["15.00","DiGiorgio Family Wines","Wijnproeverij in Coonawarra, inbegrepen. De lunch betaal je zelf."],
+  ["16.00","Naar het Blue Lake Motel","Inchecken in Mount Gambier."]],
  body:[
-  "We vervolgen vandaag onze route richting Mount Gambier. In de buurt van Mount Gambier ligt een uitgedoofde vulkaan met daarin het prachtige kratermeer Blue Lake. Een bijzondere plek met helderblauw water en fraaie tuinen rondom. Daarna vervolgen we onze weg door de wijnregio Coonawarra, beroemd om haar Cabernet Sauvignon, die zijn faam dankt aan de rode terra rossa-grond. We rijden langs uitgestrekte wijnvelden met prachtige wijnhuizen. De dag eindigt met een bezoek aan het Nationaal Park Naracoorte Caves. Deze grotten staan op de UNESCO Werelderfgoedlijst vanwege hun uitzonderlijke fossielen en de resten van uitgestorven megafauna."
+  "We vervolgen vandaag onze route richting Mount Gambier. Onderweg bezoeken we het Nationaal Park Naracoorte Caves. Deze grotten staan op de UNESCO Werelderfgoedlijst vanwege hun uitzonderlijke fossielen en de resten van uitgestorven megafauna. Daarna rijden we door de wijnregio Coonawarra, beroemd om haar Cabernet Sauvignon, die zijn faam dankt aan de rode terra rossa-grond. Bij DiGiorgio Family Wines proef je hem zelf.",
+  "De dag eindigt in Mount Gambier. Bij de stad ligt een uitgedoofde vulkaan met daarin het prachtige kratermeer Blue Lake. Een bijzondere plek met helderblauw water en fraaie tuinen rondom."
  ],
  prac:["Blue Lake verschiet pas in november van staalgrijs naar kobaltblauw. In oktober zie je hem nog in zijn winterkleur, mooi maar niet de ansichtkaart.",
   "Vraag bij de proeverij in Coonawarra naar de munt- en eucalyptustoon in de cabernet. Dat is de handtekening van deze streek.",
   "In de Naracoorte-grotten is het constant zo'n zeventien graden en vochtig. Een extra laag in de bus laten liggen is hier zonde."],
- note:"Twee onzekerheden vanavond. Ten eerste het hotel. Sawadee heeft voor dag 13 en 14 nog niet vastgelegd of je in het Blue Lake Motel of het Mountain View Motor Inn slaapt. Kijk in je reisbescheiden. Ten tweede het eten. Het Blue Lake Motel ligt op een heuvel buiten het centrum en de twee zaken hieronder liggen 3 en 8 km verderop, dus je hebt vervoer nodig. De hoogst gewaardeerde adressen van Mount Gambier. Elementary, Fat Frog, de Brewery. Zijn dinsdag gesloten.",
+ note:"Je slaapt in het Blue Lake Motel aan Kennedy Avenue, en het ontbijt is inbegrepen. Het motel ligt op een heuvel buiten het centrum en de twee restaurants hieronder liggen 3 en 8 km verderop, dus je hebt vervoer nodig. De reisbegeleider noemt ook The Gates aan Morris Street, met een westerse keuken. De hoogst gewaardeerde adressen van Mount Gambier, Elementary, Fat Frog en de Brewery, zijn op dinsdag gesloten.",
  rest:[["Thyme at the Lakes","Lake Terrace West, Mount Gambier",4.4,2,0,"Modern Australisch met uitzicht over de stad en de kratermeren, dinsdag 18.00–22.00 uur. Beoordelingen lopen uiteen, veel lof voor eten en uitzicht, kritiek op prijs en bediening. Zo'n 3 km van het motel.","Online of telefonisch. Reserveren aanbevolen."],
    ["The Barn Steakhouse","Glenelg River Road, Mount Gambier",4.4,3,0,"Klassiek steakhouse, zeven dagen open van 17.30 tot 22.00 uur. Grote porties, goede wijnkaart, prijzig. Ligt 8 km buiten de stad, dus zeker een taxi.","Online of telefonisch."]]},
 
-{n:14,r:"vic",k:"bus",t:"Naar Grampians Nationaal Park",p:"Halls Gap",
+{n:14,r:"vic",k:"bus",t:"Naar Grampians Nationaal Park",p:"Halls Gap",h:"Mountain View Motor Inn, Ararat-Halls Gap Road",
  emoe:[3,"Ze lopen door het dorp Halls Gap en over het sportveld, en langs de weg naar het motel. Dit wordt hem. Houd afstand. Ze zijn groter en brutaler dan je verwacht."],tz:11,temp:"8–20°",
  wild:[["Kangoeroe","Op het sportveld en de camping van Halls Gap, elke avond vanaf een uur voor zonsondergang. Tientallen, en volkomen gewend aan mensen. Ook op het terrein van je motel.",3],
   ["Emoe","Lopen door het dorp en langs de weg naar het motel. Houd afstand, want ze zijn groter en brutaler dan je verwacht.",3],
   ["Kookaburra","Op takken en hekken langs de weg, en 's ochtends vroeg met hun lachende roep.",3],
   ["Echidna","Langs de wandelpaden, overdag. Lente is de beste tijd.",2],
   ["Wedgestaartarend","Boven de rotswanden bij The Pinnacle en Boroka Lookout.",2]],
+ agenda:[
+  ["07.00","Vertrek uit Mount Gambier","Het ontbijt in het motel is inbegrepen."],
+  ["10.30","Ngamadjidj Shelter","Aboriginal-rotskunst onder een overhangende rots."],
+  ["Daarna","Boroka Lookout","Uitzicht over Halls Gap en de bergen eromheen."],
+  ["Middag","Lunch in Halls Gap","Op eigen gelegenheid. Wie niet wil wandelen, blijft hier en wordt later opgehaald."],
+  ["Daarna","Wonderland Car Park","Vier wandelingen om uit te kiezen. Naar The Pinnacle via de Grand Canyon en Silent Street, middelzwaar, 5,5 km, ongeveer tweeënhalf uur. Volg op de terugweg de bordjes Wonderland Car Park. Iets makkelijker is de Grand Canyon Loop, 1 km met 60 meter hoogteverschil. Makkelijk is het pad naar Splitters Falls en door naar Venus Baths. Ook makkelijk is het bospad naar Turret Falls, drie kwartier tot een uur heen en terug. Dat pad begint achter op de parkeerplaats, aan de linkerkant."],
+  ["Avond","Barbecue bij de lodge","Vooraf besteld. De reisbegeleider betaalt hem uit de pot."]],
  body:[
   "Vandaag reizen we af naar het Grampians Nationaal Park, het grootste Nationale Park van de staat Victoria. Vanwege de unieke landschappen en rijke geschiedenis absoluut een bezoek waard. Sinds de jaren 80 is dit park beschermd als Nationaal Park. In het Djab Wurrung en Jardwadjali heet het gebied Gariwerd. Je vindt er belangrijke Aboriginal-rotskunst.",
-  "In de omgeving zijn verschillende mooie wandelingen te maken. Vraag naar The Pinnacle of de Wonderland Loop. Het park is bedekt met bergbossen met verschillende Eucalyptus-soorten en je vindt er bijna 1000 plantensoorten. We verblijven in een wat verouderde maar charmante accommodatie. Vandaag is er een maaltijd inbegrepen."
+  "In de omgeving zijn verschillende mooie wandelingen te maken. Vraag naar The Pinnacle of de Wonderland Loop. Het park is bedekt met bergbossen met verschillende Eucalyptus-soorten en je vindt er bijna 1000 plantensoorten. We verblijven in een wat verouderde maar charmante accommodatie, waar je soms kangoeroes ziet. 's Avonds eet je met de groep een barbecue bij de lodge."
  ],
  prac:["Bij de grens met Victoria gaat de klok een half uur vooruit. Vergeet dat niet bij het afspreken van vertrektijden met de groep.",
   "Kangoeroes en emoes lopen 's avonds gewoon door het dorp Halls Gap en over het sportveld. Je hoeft er het park niet voor in.",
-  "De rotskunst is beschermd erfgoed van de Djab Wurrung en Jardwadjali. Aanraken is verboden, ook met een vinger langs de rand. De olie van je huid tast de pigmenten aan."],
- note:"Ook vanavond staat het hotel nog niet vast, het wordt het Blue Lake Motel of het Mountain View Motor Inn. Slaap je in het Mountain View, dan lig je 3,7 km buiten Halls Gap, bijna drie kwartier lopen langs een donkere landweg. Te ver om te lopen. Stem met de groep of reisbegeleider af of de bus jullie het dorp in brengt.",
- food:[["Kangoeroe","Mager en ijzerrijk. Eet het rosé. Doorbakken wordt het taai."],["Great Western sparkling shiraz","Mousserende rode wijn uit de streek hiernaast."],["Chicken parmigiana","Het nationale pubgerecht van Victoria. Kortweg 'parma'."]],
- rest:[["Paper Scissors Rock Brew Co","Grampians Road, Halls Gap",4.5,2,null,"10 minuten rijden. Eigen brouwerij, zeven dagen tot 20.00 uur, uitzicht op de bergen.","Niet nodig, maar bel even of ze een grote groep aankunnen."],
-   ["Barney's Bar & Bistro","Pomonal, 12 km",4.6,2,null,"15 minuten rijden. Kangoeroeburger op de kaart, en je zit er tussen de dorpelingen in plaats van tussen de toeristen.","Telefonisch: +61 419 505 025. Woensdag vaak vol."]]},
+  "De rotskunst is beschermd erfgoed van de Djab Wurrung en Jardwadjali. Aanraken is verboden, ook met een vinger langs de rand. De olie van je huid tast de pigmenten aan.",
+  "Neem genoeg water mee en wandel liever niet alleen, maar met minstens één ander.",
+  "In Halls Gap kun je een hoofdnet tegen de vliegen kopen. Dat heb je later in de reis nog nodig, in het Red Centre."],
+ note:"Je slaapt in het Mountain View Motor Inn, 3,7 km buiten Halls Gap. Dat is te ver om 's avonds naar het dorp te lopen. Eten kan alleen bij de barbecue die de reisbegeleider vooraf bestelt. Reken je eten en drankjes dezelfde avond nog af. Er is een zwembad, en wifi alleen in de lobby. Ontbijt zit er niet bij: morgenochtend ga je naar de bakker.",
+ food:[["Kangoeroe","Mager en ijzerrijk. Eet het rosé. Doorbakken wordt het taai."],["Great Western sparkling shiraz","Mousserende rode wijn uit de streek hiernaast."],["Chicken parmigiana","Het nationale pubgerecht van Victoria. Kortweg 'parma'."]]},
 
 {n:15,r:"vic",k:"bus",t:"Warrnambool via Tower Hill",p:"Warrnambool",
  emoe:[3,"Bij Tower Hill scharrelen ze rond het bezoekerscentrum en komen tot bij de bus. Tweede zekere dag op rij."],h:"Comfort Inn Western, Kepler Street",tz:11,temp:"9–18°",
@@ -286,6 +335,11 @@ const DAYS=[
   ["Kangoeroe en wallaby","In het open grasland van de krater, vooral in de ochtend en late middag.",3],
   ["Echidna","Langs de wandelpaden, overdag.",2],
   ["Zuidkaper","Bij Logans Beach in Warrnambool, vanaf het uitkijkplatform. Het seizoen loopt eind oktober af. Dit is de laatste kans.",1]],
+ agenda:[
+  ["08.00","Vertrek","Eerst naar de bakker voor het ontbijt."],
+  ["10.30","Tower Hill Wildlife Reserve","Wandelen in de krater. Kies uit de Lake Edge Walk (een uur), de Lava Tongue Boardwalk (2,6 km, een halfuur tot drie kwartier, makkelijk), de Wagon Bay Loop (een halfuur, makkelijker maar minder mooi), de Journey to the Last Volcano Loop (drie kwartier tot een uur) of de Peak Climb (een halfuur). In het park staat een informatiebord met de routes."],
+  ["Middag","Lunch in Port Fairy","Daarna de wandeling naar de vuurtoren van Port Fairy."],
+  ["Daarna","Naar Warrnambool","Inchecken in het Comfort Inn Western. De avond is vrij."]],
  body:[
   "Onze rondreis vervolgen we door vulkanisch gebied. We rijden naar het Tower Hill reservaat, dat wordt beheerd door de lokale bevolking daar. Hier vind je een vulkanische formatie die meer dan 30.000 jaar geleden is ontstaan. Tijdens een wandeling door dit natuurgebied spot je misschien wel emoes, koala’s, wallaby’s en kangoeroes in hun natuurlijke omgeving. Een prachtige kennismaking met de Australische dierenwereld.",
   "We overnachten in Warrnambool, in een typisch Australische accommodatie op de hoek van Timor en Kepler Street. Alle adressen hieronder liggen binnen zes minuten lopen."
@@ -296,13 +350,19 @@ const DAYS=[
  food:[["Southern rock lobster","Port Fairy en Portland zijn belangrijke aanvoerhavens."],["Zuivel","Deze streek is de melkschuur van Victoria. Kaas, boter en ijs zijn hier uitzonderlijk."]],
  rest:[["Lost Cat","Liebig Street",4.8,2,5,"Klein, houtvuur, wisselende kaart. Lamskoteletten en mosselen met nduja op toast.","Online. Zeer klein. Boek nu al voor donderdagavond."],
    ["Lot 17","Timor Street",4.8,2,5,"Het 'feed me'-menu rond de 60 dollar is uitstekende waar.","Online of telefonisch: +61 434 241 717."],
-   ["Salt","Liebig Street",4.5,2,5,"De barramundi en de sticky date pudding krijgen de meeste lof.","Online via de website van het restaurant."]]},
+   ["Salt","Liebig Street",4.5,2,5,"De barramundi en de sticky date pudding krijgen de meeste lof.","Online via de website van het restaurant."]],
+ rnote:"De reisbegeleider noemt ook de pub van Hotel Warrnambool, op de hoek van Koroit en Kepler Street, twee straten van het hotel, en Mexicaans bij Cactus Jam aan Liebig Street (17.30–21.00 uur)."},
 
 {n:16,r:"vic",k:"bus",t:"Great Ocean Road naar Melbourne",p:"Great Ocean Road",h:"Ibis Melbourne, Therry Street",tz:11,temp:"9–20°",
  wild:[["Koala","Kennett River, tussen Apollo Bay en Lorne, ligt op de route. Langs Grey River Road zitten ze in bijna elke boom, laag en zichtbaar. Vraag of de bus er even stopt.",3],
   ["Koningsparkiet","Ook bij Kennett River. Ze landen op je arm als je stil blijft staan. Niet voeren.",3],
   ["Dwergpinguïn","Onder de kliffen bij de Twelve Apostles broedt een kolonie. Ze komen pas na zonsondergang aan land, als jullie waarschijnlijk al weg zijn.",1],
   ["Bultrug","Vanaf de uitzichtpunten bij de Twelve Apostles en Loch Ard Gorge. Kijk naar de horizon.",1]],
+ agenda:[
+  ["08.00","Vertrek uit Warrnambool","Neem iets te eten en te drinken mee voor onderweg."],
+  ["10.00","Bay of Martyrs","De eerste stop aan de Great Ocean Road. Daarna volgen meer fotostops en korte wandelingen langs de kust, ook bij de Twelve Apostles."],
+  ["Middag","Lunch in Apollo Bay","Daarna komt Kennett River, de beste plek om koala's te zien."],
+  ["17.00","Aankomst in Melbourne","Twee nachten in het Ibis aan Therry Street."]],
  body:[
   "Vandaag staat één van de mooiste routes van Australië op het programma, the Great Ocean Road. De route van vandaag is ongeveer 350 km lang en we rijden inclusief stops ongeveer negen uur. We maken verschillende stops en je hebt geweldige uitzichten over de oceaan. Het bekendste punt zijn de Twelve Apostles bij Port Campbell, al staan er allang geen twaalf meer overeind. De Great Ocean Road eindigt bij Peterborough en daarmee ook het spectaculaire landschap van de westkust.",
   "Via de Great Ocean Road rijden we naar Melbourne. Qua inwoners is Melbourne heel divers. Er woont een mengelmoes van Australiërs en andere nationaliteiten, waaronder een grote populatie uit India en Azië. De combinatie van deze culturen maakt Melbourne tot een sfeervolle, culinaire en enerverende stad. Melbourne heeft verschillende leuke wijken, waar je de invloeden van de verschillende nationaliteiten terugziet. Je verblijft twee nachten in het Ibis aan Therry Street, aan de noordkant van het centrum bij de Queen Victoria Market."
@@ -314,7 +374,8 @@ const DAYS=[
  food:[["Koffie","Melbourne is de koffiehoofdstad van Australië. Ga naar een zijsteegje, niet naar een keten."],["Dim sim","Grove Chinees-Australische dumpling, uitvinding uit Melbourne."],["Souvlaki","Melbourne heeft een van de grootste Griekse gemeenschappen buiten Griekenland."],["Vegemite","Wordt hier gemaakt. Dun smeren op geboterde toast, niet als jam gebruiken."],["Chiko roll","Een dikke gefrituurde rol met schapenvlees en kool, in 1951 bedacht in Bendigo voor het voetbalstadion. Verkrijgbaar bij elke snackbar."],["Lamington","Cakeblokje met chocolade en kokos. Hier vaak met een laag jam ertussen."]],
  rest:[["Pastuso","AC/DC Lane",4.6,3,23,"Peruaans, ceviche en anticuchos, uitstekende pisco sour. Een klein half uur lopen, of vijf minuten met de gratis tram over Elizabeth Street.","Online via de website van het restaurant. Vrijdagavond vroeg vol."],
    ["MoVida Next Door","Flinders Street",4.6,2,22,"Spaanse tapas, kleiner en ontspannener dan het hoofdrestaurant ernaast. Binnen de gratis tramzone.","Online via de website van het restaurant."],
-   ["MoVida","Hosier Lane",4.5,2,22,"In het steegje met de beroemde straatkunst. Bestel de bomba-rijst.","Online via de website van het restaurant. Reserveren aanbevolen."]]},
+   ["MoVida","Hosier Lane",4.5,2,22,"In het steegje met de beroemde straatkunst. Bestel de bomba-rijst.","Online via de website van het restaurant. Reserveren aanbevolen."]],
+ rnote:"Dichter bij het hotel, volgens de reisbegeleider: Captain Melville aan Franklin Street (pubmaaltijden, tot 22.00 uur) en de Griekse restaurants Stalactites en Tsindos aan Lonsdale Street. In Chinatown, aan Little Bourke Street, heb je volop keus."},
 
 {n:17,r:"vic",k:"vrij",t:"Melbourne, vrije dag",p:"Melbourne",h:"Ibis Melbourne, Therry Street",tz:11,temp:"11–20°",
  wild:[["Dwergpinguïn","Bij de pier van St Kilda, twintig minuten met tram 96 vanaf de stad, komt bij zonsondergang een kolonie aan land op de golfbreker. Gratis, met vrijwilligers die je de weg wijzen. De verrassing van Melbourne.",3],
@@ -536,16 +597,19 @@ const PACK=[
  ["Reisstekker type I","Platte schuine pennen, dezelfde in heel Australie.",[1]],
  ["Handdoek en droge kleren in je dagtas","Omkleden kan onderweg alleen bij de kloof zelf.",[20]],
  ["Verrekijker, als je er een hebt","Walvissen voor de kust zie je zonder kijker alleen als spuit. Oktober is trekseizoen aan beide kusten.",[4,10,15,25,26]],
- ["Bonnen boven A$300 bij de hand","Voor de btw-teruggave op het vliegveld.",[27,28]]
+ ["Bonnen boven A$300 bij de hand","Voor de btw-teruggave op het vliegveld.",[27,28]],
+ ["Legitimatiebewijs","Voor het zeebad van Bondi Icebergs, aan het eind van de wandeling.",[4]],
+ ["Picknicklunch","Op dag 6 gekocht in Launceston, of vanochtend vroeg bij Banjo's.",[7]],
+ ["Lunchpakket","Of je luncht in de bergen. Betalen kan daar alleen met een kaart.",[5]]
 ];
 
 const EXC=[
  ["BridgeClimb Summit Twilight",3,"Geboekt · 16.15 uur","Klimmen over de boog van de Harbour Bridge tot 134 meter boven de haven, vastgeklikt aan een rail, met zonsondergang onderweg. Ongeveer drie en een half uur. Fototoestellen mogen niet mee. De gids maakt de foto's."],
  ["Rondleiding Sydney Opera House",3,"Geboekt · 09.00 uur","Rondleiding van een uur door de zalen en foyers. Melden bij het Welcome Centre op de Lower Concourse, een kwartier vooraf."],
- ["Scenic World Blue Mountains",5,"\u00b1 A$60","Combikaart voor drie ritten, de steilste passagiersspoorlijn ter wereld met een helling van 52 graden, een kabelbaan over het Jamison-dal, en een boardwalk door het regenwoud beneden. Onbeperkt op en neer, reken op twee uur."],
+ ["Scenic World Blue Mountains",5,"A$64","Combikaart voor drie ritten, de steilste passagiersspoorlijn ter wereld met een helling van 52 graden, een kabelbaan over het Jamison-dal, en een boardwalk door het regenwoud beneden. Onbeperkt op en neer, reken op twee uur."],
  ["Pingu\u00efntour Bicheno",8,"\u20ac 60 via Sawadee","Avondwandeling met een gids over aangelegde paden naar de enige pingu\u00efnkolonie aan de oostkust van Tasmani\u00eb die je mag bezoeken. De kleine pingu\u00efns komen na zonsondergang aan land. Ongeveer een uur. Sawadee biedt hem vooraf aan; wie hem heeft geboekt, ziet hem op de factuur."],
  ["MONA inclusief ferry",10,"\u00b1 A$65","Veerboot over de Derwent naar het grotendeels ondergrondse museum van David Walsh. Moderne kunst die bewust schuurt, uitgehakt in de zandsteen. Reken op een halve dag. De overtocht duurt een half uur."],
- ["Pennicott Tasman Island, hele dag",10,"\u20ac 210 via Sawadee","Van 07.30 tot 18.00 uur: naar het Tasman National Park en drie uur in een open boot langs de hoogste zeekliffen van het zuidelijk halfrond, met watervallen, rotsbogen en zeegrotten, zeehonden, dolfijnen, zeevogels en in het seizoen walvissen. Koffie onderweg en lunch inbegrepen. De zee staat er vaak ruw, dus niet doen als je snel zeeziek wordt. Niet te combineren met MONA."],
+ ["Pennicott Tasman Island, hele dag",10,"\u20ac 210 via Sawadee","Van 07.30 tot 18.00 uur: naar het Tasman National Park en drie uur in een open boot langs de hoogste zeekliffen van het zuidelijk halfrond, met watervallen, rotsbogen en zeegrotten, zeehonden, dolfijnen, zeevogels en in het seizoen walvissen. Inchecken om 07.15 uur bij de haven. Koffie of thee met een muffin en de lunch zijn inbegrepen. Kleed je warm aan. De zee staat er vaak ruw, dus niet doen als je snel zeeziek wordt. Niet te combineren met MONA."],
  ["Fietstour Melbourne",17,"\u20ac 100 via Sawadee","Ongeveer vier uur fietsen met een lokale gids langs de Yarra River, de Shrine of Remembrance, de Melbourne Cricket Ground, Parliament House en de straatkunst van Hosier Lane, met verhalen over de stad onderweg. Sawadee biedt hem vooraf aan."],
  ["Helikoptervlucht Uluru",18,"A$180\u2013250, zelf boeken","Boven Uluru en Kata Tjuta; alleen vanuit de lucht zie je hoe de rots in het vlakke land ligt. Zelf te boeken via flyuluru.com.au, en door het programma past alleen de sunset flight. Kies je die, dan mis je de zonsondergang bij het uitzichtpunt met de groep."],
  ["Sounds of Silence-diner",18,"\u00b1 A$285","Diner in de openlucht in de duinen. Champagne bij zonsondergang met zicht op Uluru, buffet met inheemse ingredi\u00ebnten, en na het eten gaan de lampen uit voor een sterrenkijksessie met een gids. Ongeveer vier uur."],
@@ -609,8 +673,6 @@ const RDATA={
 "Part Time Lover":{wv:1,k:"Modern Australisch · deelgerechten",c:1999,tel:"+61 488 448 807",sluit:"22.00"},
 "Thyme at the Lakes":{k:"Modern Australisch",c:268,tel:"+61 8 8723 9754",sluit:"22.00"},
 "The Barn Steakhouse":{k:"Steakhouse",c:1231,tel:"+61 8 8726 9999",sluit:"22.00"},
-"Paper Scissors Rock Brew Co":{k:"Brouwerijcafé",c:1241,tel:"+61 3 5311 3709",sluit:"20.00"},
-"Barney's Bar & Bistro":{k:"Bistro · Australisch wild",c:718,tel:"+61 419 505 025",sluit:"22.00"},
 "Lost Cat":{wv:1,k:"Mediterraan · houtvuur",c:142,tel:"+61 3 5561 1952",sluit:"20.30"},
 "Lot 17":{wv:1,k:"Mediterraan · deelgerechten",c:55,tel:"+61 434 241 717",sluit:"20.30"},
 "Salt":{wv:1,k:"Modern Australisch · Franse invloeden",c:134,tel:"+61 3 5562 7728",sluit:"21.00"},
@@ -654,7 +716,8 @@ const WINKELS={
  ["Woolworths Metro","supermarkt","Quay Street",1,"7.00–23.00","Vlak naast het hotel: brood, fruit, yoghurt en broodjes uit het koelvak. Op de vertrekdag naar Launceston (dinsdag, vlucht 07.25 uur) is hij nog dicht als je weggaat, dus maandagavond inslaan. De bakkers in Haymarket openen pas om 9.00 of 10.00 uur."]],
 "Hotel Grand Chancellor, Cameron Street":[
  ["Bread + Butter Bakeshop","bakker","Cimitiere Street",3,"7.00–14.00","Om de hoek. Croissants, focaccia en broodjes. Op zondag dicht, maar jullie zijn er woensdag en donderdag."],
- ["Woolworths","supermarkt","West Tamar Highway",11,"7.00–23.00","De grote supermarkt van het centrum, met eigen bakkerij."]],
+ ["Woolworths","supermarkt","West Tamar Highway",11,"7.00–23.00","De grote supermarkt van het centrum, met eigen bakkerij."],
+ ["Banjo's Bakehouse","bakker","Brisbane Street",7,"vanaf 5.00","Volgens de reisbegeleider de plek voor de picknicklunch van dag 7, als je die op dag 6 nog niet hebt gekocht. Om 05.00 uur al open, ruim voor het vertrek van 07.30 uur."]],
 "Beachfront Bicheno, Tasman Highway":[
  ["Blue Edge Bakery","bakker","Burgess Street",6,"5.00–15.00","Het ontbijtadres van Bicheno: pies, broodjes, koffie en een echt ontbijt, al vanaf vijf uur."],
  ["IGA","supermarkt","Foster Street",5,"8.00–18.00","Kleine supermarkt met brood van de bakker, fruit en zuivel."]],
