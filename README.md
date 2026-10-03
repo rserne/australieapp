@@ -181,7 +181,7 @@ alter table public.waarnemingen add column hoe text not null default 'gezien';
 
 Zet daarna in Hasura bij `waarnemingen` voor de rol `user` de kolom `hoe` aan bij zowel select als insert. Een nieuwe kolom doet niet vanzelf mee, ook niet als "alle kolommen" aanstond.
 
-Waarnemingen staan bij Nhost in een eigen tabel `waarnemingen`, los van de notities. Zonder verbinding gaan ze in dezelfde wachtrij als notities, elk item weet zelf naar welke tabel het moet. Het tijdstip komt uit de kolom `gezien_op` en niet uit `created_at`, want die laatste is het moment van versturen, dat in Kakadu uren later kan zijn.
+Waarnemingen staan bij Nhost in een eigen tabel `waarnemingen`, los van de notities. Zonder verbinding gaan ze in dezelfde wachtrij als notities, elk item weet zelf naar welke tabel het moet. Het tijdstip komt uit de kolom `gezien_op` en niet uit `created_at`, want die laatste is het moment van versturen, dat in Kakadu uren later kan zijn. Nhost bewaart dat tijdstip zonder de tijdzone waarin het is genoteerd en geeft het terug in UTC. Sinds uitgave 228 rekent de app het daarom om naar de tijdzone van de dag van de waarneming (`tz` in `reis.js` of `voorreis.js`; op een vliegdag de tijdzone van de telefoon), en vergelijkt hij tijdstippen als moment en niet als tekst. Daarvoor stond een waarneming van 12.15 uur in Sydney als 02.15 uur in de lijst, soms onder de datum van de dag ervoor, en kon een middagwaarneming de prijs Nachtwacht opleveren.
 
 De tabel maak je eenmalig aan in de Nhost-console (Database, SQL):
 

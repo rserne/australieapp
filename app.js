@@ -2188,7 +2188,29 @@ function nuISO(){
 }
 // Uur en minuut uit de tekst, zonder omrekening naar de tijdzone van de telefoon
 const tijdVan=iso=>{ const m=String(iso||'').match(/T(\d\d):(\d\d)/); return m?`${m[1]}.${m[2]}`:''; };
-const waarnemingen=()=>[...alleWaarnemingen(),...pendingWaarnemingen()];
+// Een tijdstip als moment, om te vergelijken en te sorteren. Nooit als tekst vergelijken: een rij van
+// Nhost staat in UTC (+00:00), een verse of wachtende rij in de tijd van de telefoon (+10:00), en als
+// tekst lijkt 12.15 uur in Sydney dan later dan 02.30 uur UTC. Meer dan drie decimalen achter de
+// seconden haalt hij weg, want daar struikelt Safari over.
+const tijdMs=iso=>Date.parse(String(iso||'').replace(/(\.\d{3})\d+/,'$1'))||0;
+const opTijd=(a,b)=>tijdMs(a.gezien_op)-tijdMs(b.gezien_op);
+// Nhost bewaart een tijdstip zonder de tijdzone waarin het is genoteerd, en geeft het terug in UTC.
+// Daarom zet de app elk tijdstip om naar de plaatselijke tijd van de dag van de waarneming (tz in
+// reis.js of voorreis.js). Zo blijft 12.15 uur in Sydney 12.15 uur, ook voor wie thuis meekijkt, en
+// kloppen de tussenkoppen per datum en de nachtprijs. Zonder tijdzone (een vliegdag) blijft een
+// tijdstip met een eigen tijdverschil staan, en anders geldt de tijdzone van de telefoon.
+function plaatselijk(iso,dag){
+  const ms=tijdMs(iso); if(!ms) return iso;
+  const d=dagData(dag), tz=d&&typeof d.tz==='number'?d.tz:null;
+  const eigen=String(iso).match(/([+-])(\d\d):?(\d\d)$/);
+  let off;
+  if(tz!==null) off=Math.round(tz*60);
+  else if(eigen&&(+eigen[2]||+eigen[3])) return iso;
+  else off=-new Date(ms).getTimezoneOffset();
+  const t=new Date(ms+off*60000), p=n=>String(n).padStart(2,'0'), a=Math.abs(off);
+  return `${t.getUTCFullYear()}-${p(t.getUTCMonth()+1)}-${p(t.getUTCDate())}T${p(t.getUTCHours())}:${p(t.getUTCMinutes())}:${p(t.getUTCSeconds())}${off<0?'-':'+'}${p(Math.floor(a/60))}:${p(a%60)}`;
+}
+const waarnemingen=()=>[...alleWaarnemingen(),...pendingWaarnemingen()].map(w=>({...w,gezien_op:plaatselijk(w.gezien_op,w.dag)}));
 // Een waarneming is 'gezien' (in het wild) of 'gegeten' (van het bord). Rijen van vóór deze versie
 // hebben geen hoe en tellen als gezien.
 const hoeVan=w=>w.hoe==='gegeten'?'gegeten':'gezien';
@@ -2223,7 +2245,7 @@ function wieRij(lijst){
 const PRIJS_LIJST=typeof PRIJZEN!=='undefined'&&Array.isArray(PRIJZEN)?PRIJZEN:[];
 const PRIJS_ICOON=typeof PRIJS_ICONEN==='object'&&PRIJS_ICONEN?PRIJS_ICONEN:{};
 const prijsIcoon=p=>DIER_ICOON[p.ic]||PRIJS_ICOON[p.ic]||PRIJS_ICOON.poot;
-const mijnWaarnemingen=()=>NH.user?waarnemingen().filter(w=>w.user_id===NH.user.id).sort((a,b)=>String(a.gezien_op).localeCompare(String(b.gezien_op))):[];
+const mijnWaarnemingen=()=>NH.user?waarnemingen().filter(w=>w.user_id===NH.user.id).sort(opTijd):[];
 // Streek van een waarneming op een dag van de groepsreis, via dezelfde indeling als de startpagina
 const streekVan=w=>{ if(!(w.dag>=1&&w.dag<=29)) return null; const per=dagenPerRegio(); return Object.keys(per).find(r=>per[r].includes(w.dag))||null; };
 // De tijdstippen waarop een nieuw ding (soort, dier, streek, nacht) voor het eerst voorkomt, op volgorde
@@ -2239,8 +2261,8 @@ function beoordeelPrijs(p,mijn){
   const eerste=k=>vanSoort.find(w=>w.dier===k);
   switch(r.soort){
     case 'eerste': return mijn.length?[mijn[0].gezien_op]:[];
-    case 'set': { const ts=(r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op); return ts.every(Boolean)?[ts.sort().pop()]:[]; }
-    case 'keuze': return vanafDe((r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op).filter(Boolean).sort(),r.n,herh);
+    case 'set': { const ts=(r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op); return ts.every(Boolean)?[ts.sort((a,b)=>tijdMs(a)-tijdMs(b)).pop()]:[]; }
+    case 'keuze': return vanafDe((r.dieren||[]).map(k=>(eerste(k)||{}).gezien_op).filter(Boolean).sort((a,b)=>tijdMs(a)-tijdMs(b)),r.n,herh);
     case 'groep': return vanafDe(nieuwe(vanSoort.filter(w=>groepVan(w)===r.g),dierSleutel),r.n,herh);
     case 'soorten': return vanafDe(nieuwe(vanSoort,dierSleutel),r.n,herh);
     case 'regios': return vanafDe(nieuwe(vanSoort,streekVan),r.n,herh);
@@ -2482,24 +2504,24 @@ function mijnReisdelen(){
 function standVan(deel){
   const r=reizigers()||[], per=new Map(), mij=NH.user.id;
   waarnemingen().filter(w=>w.user_id&&reisdeelVan(w.dag)===deel&&!isGegeten(w))
-    .sort((a,b)=>String(a.gezien_op).localeCompare(String(b.gezien_op)))
+    .sort(opTijd)
     .forEach(w=>{ const rz=r.find(x=>x.user_id===w.user_id);
       const x=per.get(w.user_id)||{id:w.user_id,ik:w.user_id===mij,naam:w.user_id===mij?'Ik':(rz&&rz.naam)||w.wie||'Onbekend',
         gast:!!(rz&&rz.gast),soorten:new Set(),dieren:0,laatsteNieuwe:''};
       const k=dierSleutel(w); if(!x.soorten.has(k)){ x.soorten.add(k); x.laatsteNieuwe=String(w.gezien_op||''); }
       x.dieren++; per.set(w.user_id,x); });
   return [...per.values()].map(x=>({...x,soorten:x.soorten.size}))
-    .sort((a,b)=>(b.soorten-a.soorten)||(b.dieren-a.dieren)||a.laatsteNieuwe.localeCompare(b.laatsteNieuwe));
+    .sort((a,b)=>(b.soorten-a.soorten)||(b.dieren-a.dieren)||(tijdMs(a.laatsteNieuwe)-tijdMs(b.laatsteNieuwe)));
 }
 function renderStand(){
   const box=document.getElementById('dieren');
   const delen=mijnReisdelen();
   let deel=_standDeel&&delen.includes(_standDeel)?_standDeel:reisdeelVandaag();
   if(!delen.includes(deel)) deel='reis';
-  const mijn=mijnWaarnemingen().filter(w=>reisdeelVan(w.dag)===deel).sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
+  const mijn=mijnWaarnemingen().filter(w=>reisdeelVan(w.dag)===deel).sort((a,b)=>opTijd(b,a));
   const gezien=mijn.filter(w=>!isGegeten(w));
   const soorten=new Set(gezien.map(dierSleutel)).size, totaal=DIER_LIJST.filter(d=>d.k!=='overig').length;
-  const prijzen=verdiendePrijzen(deel).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
+  const prijzen=verdiendePrijzen(deel).sort((a,b)=>tijdMs(b.op)-tijdMs(a.op));
   const meer=delen.length>1;
   let h='';
   // Mijn kast: de reisdeelchips (alleen als er iets te kiezen is), drie getallen, mijn medailles
@@ -2650,7 +2672,7 @@ function renderDieren(){
   // De lijst wordt lang: standaard de laatste tien, met een knop voor de rest. De knop noemt het aantal
   // binnen de filters die aanstaan, en de lijst blijft open zolang je op Dieren bent (ook na noteren of weghalen).
   const heleLijst=alle.filter(w=>(!stand||hoeVan(w)===hoe)&&(!groep||groepVan(w)===groep))
-    .sort((a,b)=>String(b.gezien_op).localeCompare(String(a.gezien_op)));
+    .sort((a,b)=>opTijd(b,a));
   const lijst=_gespotAlles?heleLijst:heleLijst.slice(0,LIJST_KORT);
   h+=`<h2>${stand==='gegeten'?'Gegeten':'Gespot'}</h2>`;
   if(!lijst.length) h+=`<p class="dstatus">${alle.length?'Niets met deze filters.':'Nog niets gespot. De eerste is voor jou.'}</p>`;
@@ -2758,7 +2780,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-03-227';
+const APP_VERSIE='2026-10-03-228';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

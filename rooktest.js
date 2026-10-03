@@ -805,11 +805,20 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-10-06',{login:'groep'});
     let nr=0;
     const wn=(dier,t,extra={})=>({id:'p'+(nr++),user_id:'u1',dier,dag:6,gezien_op:t,wie:'Test',hoe:'gezien',...extra});
-    const T=(d,u='10:00')=>`2026-10-${String(d).padStart(2,'0')}T${u}:00+10:30`;
+    // Dag 6 is Tasmanië, UTC+11. De app rekent elk tijdstip om naar de tijdzone van de dag.
+    const T=(d,u='10:00')=>`2026-10-${String(d).padStart(2,'0')}T${u}:00+11:00`;
     const zet=lijst=>{ w.localStorage.setItem('aus_cache_waarn',JSON.stringify(lijst)); return w.verdiendePrijzen().map(x=>x.p.k); };
     klik(w,'btnDieren',fouten);
     eis(fouten,!zet([]).length&&![...w.document.querySelectorAll('#dieren h2')].some(h=>h.textContent==='Prijzenkast'),'zonder waarnemingen geen prijzen en geen kast');
     eis(fouten,zet([{...wn('koala',T(6)),user_id:'u2',wie:'Anna'}]).join()==='','waarnemingen van een ander tellen niet');
+    // Nhost geeft tijdstippen terug in UTC. 02.15 uur UTC is 13.15 uur in Tasmanië: geen nacht, en de
+    // lijst toont de plaatselijke tijd. Vóór uitgave 228 telde zo'n middagwaarneming als Nachtwacht.
+    { const k=zet([wn('possum','2026-10-06T02:15:00+00:00')]), op=(w.verdiendePrijzen().find(x=>x.p.k==='eerste')||{}).op;
+      eis(fouten,!k.includes('nachtwacht')&&op==='2026-10-06T13:15:00+11:00','een tijdstip in UTC van Nhost wordt plaatselijke tijd (nu '+op+')'); }
+    // 02.30 uur UTC is 13.30 uur plaatselijk, dus later dan de emoe van 13.20 uur. Als tekst lijkt hij eerder.
+    { zet([wn('koala','2026-10-06T02:30:00+00:00'),wn('emoe','2026-10-06T13:20:00+11:00')]);
+      const op=(w.verdiendePrijzen().find(x=>x.p.k==='eerste')||{}).op;
+      eis(fouten,op==='2026-10-06T13:20:00+11:00','sorteren op het moment, niet op de tekst (eerste nu '+op+')'); }
     eis(fouten,zet([wn('koala',T(6))]).join()==='eerste','de eerste eigen waarneming geeft G\'day!, en verder niets');
     // set: Tassie, met de datum van het laatste dier; de duivel om half tien geeft ook Nachtwacht
     zet([wn('wombat',T(6)),wn('wallaby',T(7,'09:00')),wn('tasmaanse-duivel',T(8,'21:30'))]);
