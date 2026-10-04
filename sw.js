@@ -1,7 +1,7 @@
 // AustralieApp, service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v231';
+const VERSION='v232';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze bestanden werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
 // De paklijst staat erbij omdat een nieuwe versie de oude cache weggooit. Zonder deze regel is hij daarna

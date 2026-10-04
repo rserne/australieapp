@@ -114,7 +114,7 @@ const DAYS=[
   "Neem een extra laag mee voor op de brug. Daar waait het, en na zonsondergang is het er fris."],
  rnote:"Na de klim ben je rond 20.05 uur klaar. NOUR en White Horse in Surry Hills sluiten op zondag om 21.00 uur, en die haal je dan niet meer. Deze twee liggen bij het hotel en zijn langer open. Vind je dat te laat, eet dan uitgebreid bij de lunch in Bondi.",
  rest:[["Spice World","Sussex Street, Haymarket",4.6,2,6,"Chinese hotpot, spectaculair ingericht, zeven dagen tot 23.00 uur.","Kan online, maar binnenlopen werkt meestal ook."],
-   ["Dae Jang Kum","Goulburn Street, Haymarket",4.7,2,7,"Koreaanse barbecue aan tafel, levendig en tot laat open. Op zaterdag tot 02.00 uur; bel even of dat op zondag ook zo is.","Niet nodig, gewoon binnenlopen."]]},
+   ["Dae Jang Kum","Goulburn Street, Haymarket",4.7,2,7,"Koreaanse barbecue aan tafel, levendig en tot laat open. Op zondag tot middernacht.","Niet nodig, gewoon binnenlopen."]]},
 
 {n:5,r:"nsw",k:"excursie",t:"Bezoek Blue Mountains",p:"Blue Mountains",h:"The Ultimo, Haymarket",tz:11,temp:"tot 19°, bewolkt of zonnig",
  wild:[["Liervogel","Op de bospaden in de dalen, vooral rond de Katoomba-watervallen. Je hoort hem eerder dan je hem ziet. Hij imiteert alles, van andere vogels tot camerasluiters. Vroeg in de dag de meeste kans.",2],
@@ -137,10 +137,10 @@ const DAYS=[
   "Neem een kaart van het gebied mee, of een foto ervan. Bij het bezoekerscentrum op Echo Point is hij gratis.",
   "In de bergen is het vaak zes tot acht graden kouder dan in Sydney, en het weer slaat er snel om.",
   "Mobiel bereik valt in de dalen weg. Spreek een verzamelpunt af in plaats van te vertrouwen op appjes."],
- rnote:"Mishy's en White Horse zijn maandag gesloten. Deze drie zijn wel open.",
- rest:[["Porkfat","Ultimo Road, Haymarket",4.6,2,1,"Thais met een chef's hat, letterlijk om de hoek van het hotel. Prijziger dan een gewone Thai, maar gasten komen terug voor de gefrituurde hele vis en de larb. Maandag 17.00–22.00 uur.","Online of telefonisch. Reserveren nodig. Klein."],
-   ["NOMAD","Foster Street, Surry Hills",4.6,4,12,"Modern Australisch met houtvuur en inheemse ingrediënten. De bijzondere keuze, iets verder en duurder.","Online via de website van het restaurant. Reserveren noodzakelijk."],
-   ["Nanjing Dumpling","Little Hay Street, Haymarket",4.5,2,6,"Goedkoop, snel en goed. Xiao long bao met krab of truffel.","Niet nodig, gewoon binnenlopen."]]},
+ rnote:"Maandag 5 oktober is Labour Day, een feestdag in New South Wales. Veel restaurants rekenen dan een toeslag van zo'n tien tot vijftien procent, en een enkele zaak gaat eerder dicht. Deze drie zijn op maandag gewoon open, liggen vlak bij het hotel en zijn snel. Morgen sta je om 04.50 uur klaar, dus eet op tijd.",
+ rest:[["Temu Kangen","Ultimo Road, Haymarket",4.8,2,1,"Indonesisch, twee deuren van het hotel. Gasten roemen de mie goreng en de saté, en het eten staat snel op tafel. Maandag tot 21.30 uur.","Niet nodig, gewoon binnenlopen."],
+   ["Ho Jiak","Hay Street, Haymarket",4.5,2,5,"Maleisisch, een van de bekendste van Sydney. Maandag tot 22.00 uur.","Online via de website van het restaurant. Zonder reservering reken je op wachten, zeker op een feestdag."],
+   ["Nanjing Dumpling","Little Hay Street, Haymarket",4.5,2,6,"Goedkoop, snel en goed. Xiao long bao met krab of truffel. Maandag tot 21.30 uur.","Niet nodig, gewoon binnenlopen."]]},
 
 {n:6,r:"tas",k:"vlucht",t:"Vlucht naar Launceston",p:"Launceston",h:"Hotel Grand Chancellor, Cameron Street",tz:11,temp:"± 16°, droog",
  wild:[["Vogelbekdier","In het Tamar Island Wetlands-reservaat, tien minuten buiten de stad, bij zonsondergang langs de vlonderpaden. Zeldzaam en schuw. Stil zitten en wachten bij rustig water.",1],
@@ -661,7 +661,7 @@ const RDATA={
 "Snapper Rocks":{k:"Zeevruchten",c:768,tel:"+61 8 8900 6928",sluit:"21.00"},
 "Chef Chen Dumplings":{wv:1,k:"Chinees",c:521,tel:"+61 412 740 664",sluit:"21.30"},
 "Ho Jiak":{wv:1,k:"Maleisisch",c:5884,tel:"+61 2 8040 0252",sluit:"23.00"},
-"Porkfat":{wv:1,k:"Thais",c:987,tel:"+61 478 565 691",sluit:"22.00"},
+"Temu Kangen":{k:"Indonesisch",c:716,tel:"+61 432 520 588",sluit:"21.30"},
 "NOMAD":{wv:1,k:"Modern Australisch",c:2847,tel:"+61 2 9280 3395",sluit:"21.30"},
 "Mishy's":{wv:1,k:"Modern Australisch",c:450,tel:"+61 2 5657 2925",sluit:"22.00"},
 "Dae Jang Kum":{wv:1,k:"Koreaanse barbecue",c:6329,tel:"+61 2 9211 0890",sluit:"02.00"},
@@ -723,7 +723,7 @@ const MIN_SCORE=4.4;
 // ============================================================
 const WINKELS={
 "The Ultimo, Haymarket":[
- ["Woolworths Metro","supermarkt","Quay Street",1,"7.00–23.00","Vlak naast het hotel: brood, fruit, yoghurt en broodjes uit het koelvak. Op de vertrekdag naar Launceston (dinsdag, vlucht 07.25 uur) is hij nog dicht als je weggaat, dus maandagavond inslaan. De bakkers in Haymarket openen pas om 9.00 of 10.00 uur."]],
+ ["Woolworths Metro","supermarkt","Quay Street",1,"7.00–23.00","Vlak naast het hotel: brood, fruit, yoghurt en broodjes uit het koelvak. Op de vertrekdag naar Launceston (dinsdag, vertrek 05.00 uur) is hij nog dicht als je weggaat, dus maandag inslaan. Dat is Labour Day, en op een feestdag kan hij korter open zijn: ga meteen als je om 17.00 uur terug bent uit de Blue Mountains. De bakkers in Haymarket openen pas om 9.00 of 10.00 uur."]],
 "Hotel Grand Chancellor, Cameron Street":[
  ["Bread + Butter Bakeshop","bakker","Cimitiere Street",3,"7.00–14.00","Om de hoek. Croissants, focaccia en broodjes. Op zondag dicht, maar jullie zijn er woensdag en donderdag."],
  ["Woolworths","supermarkt","West Tamar Highway",11,"7.00–23.00","De grote supermarkt van het centrum, met eigen bakkerij."],
