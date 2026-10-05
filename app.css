@@ -288,6 +288,16 @@
   .fcheck:active{opacity:.75}
   .fc1{display:inline-flex;align-items:center;gap:7px;font-size:16px;font-weight:650;letter-spacing:-.01em}
   .fc2{font-size:13px;opacity:.72;font-weight:500}
+  /* Boekingscode onder de incheckknop: tikken kopieert, lang drukken selecteert de hele code */
+  .fkopieer{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+    margin-top:8px;padding:11px 14px;border-radius:14px;font:inherit;font-size:14.5px;cursor:pointer;
+    color:var(--text);background:var(--glass-2);border:1px solid var(--rim);text-align:left}
+  .fkopieer b{font-size:16px;letter-spacing:.06em;font-variant-numeric:tabular-nums;-webkit-user-select:all;user-select:all}
+  .fkopieer .fk2{flex:none;font-size:13px;font-weight:600;color:var(--accent-ink)}
+  .fkopieer:active{opacity:.6}
+  .rkopieer{font:inherit;font-weight:600;letter-spacing:.04em;color:inherit;background:var(--glass-2);
+    border:1px solid var(--rim);border-radius:10px;padding:4px 9px;cursor:pointer;-webkit-user-select:all;user-select:all}
+  .rkopieer:active{opacity:.6}
 
   /* ---------- Tijdschema ---------- */
   .agenda{list-style:none;margin:0;padding:0;border-radius:var(--radius);overflow:hidden;

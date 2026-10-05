@@ -168,9 +168,12 @@ function render(){
       `<div class="fpt"><span class="ft">${esc(arr)}</span><span class="fp">${esc(to)}</span></div></div>`+
       `<div class="finfo">${esc(info)}</div>`+
       (()=>{const k=code.split(' ')[0],c=CHECKIN[k];if(!c)return '';const bc=boekingscode(k);
-        return `<a class="fcheck" href="${c[1]}" target="_blank" rel="noopener">`+
+        // De code staat in een eigen knop, want tekst in een link kun je op een telefoon niet selecteren.
+        // Een tik op Online inchecken kopieert hem ook meteen, zodat je hem bij de maatschappij kunt plakken.
+        return `<a class="fcheck" href="${c[1]}" target="_blank" rel="noopener"${bc?` data-kopieer="${esc(bc)}"`:''}>`+
         `<span class="fc1">Online inchecken${EXTW}</span>`+
-        `<span class="fc2">${bc?`Code ${esc(bc)} · `:''}${esc(c[2])}</span></a>`;})()+
+        `<span class="fc2">${bc?'Kopieert je code · ':''}${esc(c[2])}</span></a>`+
+        (bc?`<button type="button" class="fkopieer" data-kopieer="${esc(bc)}"><span>Boekingscode <b>${esc(bc)}</b></span><span class="fk2">Kopiëren</span></button>`:'');})()+
       `</div>`).join('')+`</div>`;
   }
   if(d.agenda){
@@ -830,7 +833,7 @@ function renderPrakt(){
   // Vluchten per maatschappij, afgeleid uit de dagen zelf: één bron
   const perMij={};
   DAYS.forEach(d=>(d.fl||[]).forEach(f=>{const k=f[0].split(' ')[0];(perMij[k]=perMij[k]||[]).push(f[0]);}));
-  const codeCel=k=>{const bc=boekingscode(k);return bc?`<span class="r">${esc(bc)}</span>`:(NH.user?'':`<span class="r" style="opacity:.5">na inloggen</span>`)};
+  const codeCel=k=>{const bc=boekingscode(k);return bc?`<button type="button" class="r rkopieer" data-kopieer="${esc(bc)}" aria-label="Code ${esc(bc)} kopiëren">${esc(bc)}</button>`:(NH.user?'':`<span class="r" style="opacity:.5">na inloggen</span>`)};
   h+=`<h2>Vluchten en boekingen</h2><ul class="list">`+
    Object.keys(CHECKIN).filter(k=>perMij[k]).map(k=>{const c=CHECKIN[k];
      return `<li><div class="row"><span><strong><a href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])}${EXT}</a></strong>`+
@@ -2140,6 +2143,15 @@ function renderAccount(box){
   });
 }
 
+// Boekingscodes kopiëren: de knop bij een vlucht, de code in Praktisch en de knop Online inchecken.
+// Lukt het klembord niet, dan blijft de code in beeld en selecteert een lange tik hem in zijn geheel.
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-kopieer]'); if(!el) return;
+  const code=el.getAttribute('data-kopieer'), link=el.tagName==='A';
+  const klaar=()=>toast(link?`Code ${code} gekopieerd. Plak hem bij het inchecken.`:`Code ${code} gekopieerd`);
+  const mis=()=>{ if(!link) toast(`Kopiëren lukte niet. Houd de code ingedrukt om hem te selecteren.`); };
+  try{ (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(code):Promise.reject()).then(klaar,mis); }catch(err){ mis(); }
+});
 function toast(msg,knop,actie){
   let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);}
   t.textContent=msg;
@@ -2780,7 +2792,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-04-232';
+const APP_VERSIE='2026-10-06-233';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
