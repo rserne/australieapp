@@ -10,6 +10,7 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 | `reis.js` | Alle inhoud, dus dagen, hotels, restaurants, winkels bij het hotel, excursies, kofferlijst, noodnummers, en de kleuren per regio (`TONE` en `TONE_INK`) | Bij elke inhoudelijke wijziging |
 | `voorreis.js` | Programma van de voorreis, in dezelfde vorm als de dagen in `reis.js`. Leeg als de voorreis alleen uit notities bestaat | Bij een wijziging in het voorreisprogramma |
 | `dieren.js` | De dieren voor de waarnemingen, met naam, groep en synoniemen, en de prijzen | Bij een nieuw dier, een andere naam of een andere prijs |
+| `verhalen.js` | Het verhaal van de dag: per dag van de groepsreis een kort verhaal over de geschiedenis van de plek, met titel, alinea's en bron | Bij een nieuw of beter verhaal |
 | `dieren-iconen.js` | De iconen bij die dieren, per sleutel één svg als tekst | Bij een nieuw of ander icoon |
 | `app.js` | De code | Alleen bij nieuwe functies of bugfixes |
 | `app.css` | De opmaak | Zelden |
@@ -292,3 +293,11 @@ Sinds uitgave 227 staan de hotels erin, uit het programma van de reisbegeleider:
 ## Programma van de reisbegeleider
 
 De dagen 4 tot en met 16 zijn in uitgave 227 bijgewerkt met de hand-out van de reisbegeleider (*Sydney, Tassie, Adelaide, Mt Gambier, Grampians, Melbourne*): tijdschema's, de volgorde van de dag, wat je mee moet nemen en haar eettips. Die tips staan in `rnote` en niet in `rest`, omdat er geen score of looptijd bij hoort. Bij een verschil met Sawadee gaat de hand-out voor. De hand-out zelf staat als pdf in een notitie, achter de login, en niet in deze openbare repository.
+
+## Verhaal van de dag
+
+Sinds uitgave 238 heeft elke dag van de groepsreis een verhaal over de geschiedenis van de plek waar je die dag bent, in `verhalen.js`. Achter elkaar gelezen vormen ze één lijn, van tienduizenden jaren Aboriginal-geschiedenis tot de excuses van 2008 en het referendum van 2023, met een Nederlandse draad erdoorheen: Tasman, de Duyfken, De Vlamingh, de Batavia en de emigranten van na de oorlog. Per verhaal staan er een titel (`t`), de alinea's (`tekst`, samen zo'n 200 tot 300 woorden) en een bron (`bron`). De sleutel is het dagnummer; een voorreis- of nareisdag kan met zijn datum als sleutel, zoals `"2026-09-20"`.
+
+Op de dagpagina staat het verhaal als dichtgeklapte kaart onder het tijdschema en de callouts, met de titel en de leestijd. Een tik klapt hem open. Kan de telefoon Nederlands uitspreken, dan staat er een knop Voorlezen in; bij een andere dag of opnieuw tekenen stopt het voorlezen. Zoeken in Alle dagen vindt ook de verhalen. Een teken in de dagenlijst is er niet, want elke dag heeft er een.
+
+De feiten zijn bij het schrijven gecontroleerd tegen bronnen als de Australian Dictionary of Biography, het National Museum of Australia, museumsites en UNESCO. Overleden Aboriginal-mensen worden alleen bij naam genoemd waar dat in Australië zelf gebruikelijk is. `check.js` controleert of elke dag een verhaal heeft, of titel, tekst en bron er zijn, en waarschuwt bij een verhaal dat veel korter of langer is dan de bedoeling. `verhalen.js` staat in `CODE` van `sw.js`, dus de verhalen zijn ook offline te lezen.

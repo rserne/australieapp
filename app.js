@@ -33,6 +33,10 @@ const isoDatum=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-
 const buitenData=n=>{ if(!isBuiten(n)) return null; const iso=isoDatum(dagDatum(n)); return (n<0?VOORDG:NADG).find(d=>d.datum===iso)||null; };
 // Programma van een dag: uit DAYS, of een voorreis-/nareisdag met programma. Null als er geen is.
 const dagData=n=>isBuiten(n)?buitenData(n):(DAYS[n-1]||null);
+// Verhaal van de dag (verhalen.js): op dagnummer voor de groepsreis, op datum voor een voorreis- of nareisdag.
+// Ontbreekt het bestand, dan is er gewoon geen verhaal.
+const VERHAAL_LIJST=typeof VERHALEN==='object'&&VERHALEN?VERHALEN:{};
+const verhaalVan=n=>(isBuiten(n)?VERHAAL_LIJST[isoDatum(dagDatum(n))]:VERHAAL_LIJST[n])||null;
 // Dagnummer van een verwijzing in EXC of PACK: een nummer (1–29) of de datum van een voorreis- of
 // nareisdag ('2026-09-20'), omgerekend naar het interne nummer (voorreis negatief, nareis 30 en hoger).
 const dagNr=x=>{ if(typeof x!=='string') return x; const d=new Date(x+'T12:00:00');
@@ -114,6 +118,7 @@ function render(){
     if(!magMeekijken(cur<0?'voorreis':'nareis')){ cur=T.before?0:1; render(); return; }
     if(!buitenData(cur)){ renderBuitenDag(); return; }
   }
+  stopVoorlezen();
   const buiten=isBuiten(cur), d=dagData(cur), date=dagDatum(cur);
   // buiten de groepsreis: één vaste foto en kleur (BUITEN in reis.js), geen regio per dag
   const bb=buiten?beeldBuiten(cur<0):{tone:TONE[d.r],foto:`reg-${d.r}.jpg`}, tone=bb.tone;
@@ -188,6 +193,8 @@ function render(){
   if(d.wash) h+=`<div class="callout washing"><span class="ico">${WASH}</span><span><b>Was afgeven</b>${esc(d.wash)}</span></div>`;
   if(d.note) h+=cal(IC_LET,'Let op',d.note);
   if(d.tip)  h+=cal(IC_TIP,'Tip',d.tip);
+  const vh=verhaalVan(cur);
+  if(vh) h+=verhaalBlok(vh);
 
   const exToday=EXC.filter(e=>dagNr(e[1])===cur);
   if(exToday.length){
@@ -281,6 +288,7 @@ function render(){
   // Toevoegen staat onderaan de dag, in de stroom: geen knop die over de tekst zweeft.
   if(magNotities()) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   document.getElementById('day').innerHTML=h;
+  const vl=document.getElementById('vlees'); if(vl) vl.onclick=()=>voorlezen(vh,vl);
   const mt=document.getElementById('meertekst');
   if(mt) mt.onclick=()=>{ const t=document.getElementById('dagtekst');
     const dicht=t.classList.toggle('inkort'); mt.textContent=dicht?'Meer':'Minder'; };
@@ -296,6 +304,39 @@ function render(){
   window.scrollTo(0,0);
 }
 const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span><span><b>${label}</b>${esc(txt)}</span></div>`;
+
+// Verhaal van de dag: dezelfde dichtgeklapte kaart als een restaurant, zodat het de praktische informatie niet
+// wegdrukt. Een tik klapt het open. Met de knop Voorlezen leest de telefoon het voor, als die Nederlands kan.
+const IC_LUISTER='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const IC_STOP='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+const KAN_VOORLEZEN=typeof speechSynthesis!=='undefined'&&typeof SpeechSynthesisUtterance!=='undefined';
+function verhaalBlok(v){
+  const min=Math.max(1,Math.round(v.tekst.join(' ').split(/\s+/).length/120));
+  return `<details class="card rcard verhaal"><summary><span class="rtop"><span class="role">Verhaal van de dag</span>`+
+    `<span class="rname">${esc(v.t)}</span><span class="rkort">${min} minuten lezen</span></span>`+
+    `<span class="rchev">${ICO_CHEV}</span></summary><div class="rbody">`+
+    v.tekst.map(p=>`<p>${esc(p)}</p>`).join('')+
+    (KAN_VOORLEZEN?`<div class="btns"><button type="button" class="btn" id="vlees">${IC_LUISTER}Voorlezen</button></div>`:'')+
+    (v.bron?`<p class="vbron">Bron: ${esc(v.bron)}</p>`:'')+`</div></details>`;
+}
+let _leest=null;
+function stopVoorlezen(){
+  if(!_leest) return;
+  _leest=null;
+  try{ speechSynthesis.cancel(); }catch(e){}
+}
+function voorlezen(v,knop){
+  const rust=()=>{ if(knop.isConnected) knop.innerHTML=`${IC_LUISTER}Voorlezen`; };
+  if(_leest){ stopVoorlezen(); rust(); return; }
+  try{
+    const stem=(speechSynthesis.getVoices()||[]).find(s=>/^nl([-_]|$)/i.test(s.lang||''));
+    const u=new SpeechSynthesisUtterance([v.t,...v.tekst].join('\n\n'));
+    u.lang='nl-NL'; if(stem) u.voice=stem; u.rate=0.95;
+    u.onend=u.onerror=()=>{ if(_leest===u) _leest=null; rust(); };
+    speechSynthesis.cancel(); _leest=u; speechSynthesis.speak(u);
+    knop.innerHTML=`${IC_STOP}Stoppen`;
+  }catch(e){ _leest=null; rust(); toast('Voorlezen lukt niet op deze telefoon.'); }
+}
 
 // Winkels bij het hotel (WINKELS in reis.js, per hotel). Dezelfde dichtgeklapte kaart als een restaurant,
 // maar zonder score, prijsklasse of rol: naam, soort, looptijd en openingstijden zijn genoeg om te kiezen.
@@ -577,6 +618,7 @@ function hooiberg(d,n){
   (d.agenda||[]).forEach(a=>bits.push([a[0]+' '+a[1]+'. '+a[2],'Tijdschema']));
   (d.fl||[]).forEach(f=>bits.push([f[0]+' '+f[1]+' → '+f[2]+', vertrek '+f[3]+', aankomst '+f[4]+'. '+f[5],'Vlucht']));
   d.body.forEach(x=>bits.push([x,'Programma']));
+  const vh=verhaalVan(n); if(vh){ bits.push([vh.t,'Verhaal van de dag']); vh.tekst.forEach(x=>bits.push([x,'Verhaal van de dag'])); }
   (d.prac||[]).forEach(x=>bits.push([x,'Goed om te weten']));
   (d.food||[]).forEach(([a,b])=>bits.push([a+' — '+b,'Specialiteit']));
   (d.rest||[]).forEach(r=>bits.push([r[0]+((RDATA[r[0]]||{}).k?' — '+RDATA[r[0]].k:'')+' — '+r[1]+'. '+r[5]+(r[6]?' Reserveren: '+r[6]:''),'Restaurant']));
@@ -2792,7 +2834,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-07-237';
+const APP_VERSIE='2026-10-08-238';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

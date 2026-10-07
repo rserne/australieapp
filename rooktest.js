@@ -16,7 +16,7 @@ const lees=n=>fs.readFileSync(path.join(__dirname,n),'utf8');
 const html=lees('index.html').replace(/<script[^>]*src="[^"]+"[^>]*><\/script>/g,'');   // scripts laden we zelf
 // De scenario's draaien met het echte voorreis.js. De scenario's 'met programma' vervangen het door
 // een testprogramma, zodat de dagopbouw ook wordt beproefd als het echte bestand leeg is.
-const codeMet=voorreis=>lees('reis.js')+'\n;\n'+(voorreis??lees('voorreis.js'))+'\n;\n'+lees('dieren.js')+'\n;\n'+lees('dieren-iconen.js')+'\n;\n'+lees('app.js');
+const codeMet=voorreis=>lees('reis.js')+'\n;\n'+(voorreis??lees('voorreis.js'))+'\n;\n'+lees('dieren.js')+'\n;\n'+lees('dieren-iconen.js')+'\n;\n'+lees('verhalen.js')+'\n;\n'+lees('app.js');
 const VOORTEST=`const VOORDAGEN=[
 {datum:"2026-09-18",k:"vlucht",t:"Vlucht Amsterdam – Cairns",p:"Schiphol → Cairns",tz:null,
  fl:[["SQ 323","Amsterdam Schiphol","Singapore Changi","10.20","05.30 (19 sep, lokale tijd)","Singapore Airlines · 25 kg"]],
@@ -1542,6 +1542,17 @@ function zoek(w,fouten,term){
     $(w,'toast').querySelector('button').click(); await sleep(50);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')).length===1&&!$(w,'toast').classList.contains('on'),'Ongedaan maken werkt nog en sluit de melding');
     meld('6 okt: verborgen melding vangt geen tik meer op',fouten); }
+
+  // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
+  { const {w,fouten}=start('2026-10-08');
+    const kaart=w.document.querySelector('#day details.verhaal');
+    eis(fouten,kaart&&!kaart.open&&/De vrouw die zwom/.test(kaart.querySelector('.rname').textContent),'dag 8 heeft het verhaal De vrouw die zwom, dichtgeklapt');
+    eis(fouten,kaart&&kaart.querySelectorAll('.rbody p').length>=4&&/Bron:/.test(kaart.querySelector('.vbron').textContent),'het verhaal heeft alinea\'s en een bron');
+    blader(w,fouten);
+    klik(w,'btnIndex',fouten); zoek(w,fouten,'Wauba');
+    const hit=[...w.document.querySelectorAll('#results .hits button')].find(b=>/Verhaal van de dag/.test(b.textContent));
+    eis(fouten,hit&&hit.dataset.n==='8','zoeken op Wauba vindt het verhaal van dag 8');
+    meld('8 okt: verhaal van de dag op de dagpagina en in zoeken',fouten); }
 
   const fout=uitkomst.filter(([,f])=>f.length).length;
   console.log(fout?`\n${fout} van de ${uitkomst.length} scenario's met fouten.`:`\ngeen fouten in ${uitkomst.length} scenario's.`);

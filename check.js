@@ -93,7 +93,7 @@ else{
   let ICONEN={};
   if(!fs.existsSync(__dirname+'/dieren-iconen.js')) fout('dieren-iconen.js ontbreekt');
   else ICONEN=vm.runInNewContext(fs.readFileSync(__dirname+'/dieren-iconen.js','utf8')+';DIER_ICONEN',{});
-  // Tien iconen zijn met een dunnere pen getekend en dragen daarom een stroke-width, waarmee ze even
+  // Vijftien iconen zijn met een dunnere pen getekend en dragen daarom een stroke-width, waarmee ze even
   // zwaar ogen als de rest. Node kan svg's niet tekenen, dus de dikte zelf meten we hier niet. Wel of
   // die verdikking er nog is: bij een nieuwe export van zo'n icoon raak je hem anders ongemerkt kwijt.
   const VERDIKT=['quoll','emoe','boomkangoeroe','bultrug','manta','vogelbekdier','anemoonvis','barramundi','doejong','koraalbaars',
@@ -159,6 +159,24 @@ else{
   console.log(`  info:    ${DIEREN.length} dieren in dieren.js, ${metIcoon} met icoon, ${DIEREN.filter(d=>d.eet).length} eetbaar. ${zonder.size} ${zonder.size===1?'naam uit de dagen heeft':'namen uit de dagen hebben'} geen eigen knop en krijgen het pootje.`);
 }
 
+// Verhaal van de dag (verhalen.js): elke dag van de groepsreis één verhaal, met titel, alinea's en bron.
+// Een sleutel is een dagnummer (1–29) of de datum van een voorreis- of nareisdag.
+if(!fs.existsSync(__dirname+'/verhalen.js')) fout('verhalen.js ontbreekt');
+else{
+  const V=vm.runInNewContext(fs.readFileSync(__dirname+'/verhalen.js','utf8')+';VERHALEN',{});
+  Object.entries(V).forEach(([k,v])=>{
+    const w=`verhalen.js: verhaal ${k}`, n=+k;
+    if(!((Number.isInteger(n)&&n>=1&&n<=29)||voorDatums.includes(k)||naDatums.includes(k))) fout(`${w}: sleutel hoort een dag 1–29 of een voorreis- of nareisdatum te zijn`);
+    if(!v||typeof v.t!=='string'||!v.t) fout(`${w}: titel (t) ontbreekt`);
+    if(!v||!Array.isArray(v.tekst)||!v.tekst.length||!v.tekst.every(x=>typeof x==='string'&&x.trim())) fout(`${w}: tekst moet een lijst met alinea's zijn`);
+    else{ const woorden=v.tekst.join(' ').split(/\s+/).length;
+      if(woorden<120||woorden>350) waarschuw(`${w}: ${woorden} woorden, de bedoeling is zo'n 200 tot 300`); }
+    if(!v||typeof v.bron!=='string'||!v.bron) fout(`${w}: bron ontbreekt`);
+  });
+  DAYS.forEach(d=>{ if(!V[d.n]) waarschuw(`verhalen.js: dag ${d.n} heeft geen verhaal`); });
+  console.log(`  info:    ${Object.keys(V).length} verhalen in verhalen.js.`);
+}
+
 // Losse lijsten
 Object.keys(HOTELGEO).forEach(h=>{ if(!alleDagen.some(d=>d.h===h)) waarschuw(`HOTELGEO: '${h}' wordt op geen enkele dag gebruikt`); });
 // Coördinaten binnen Australië. Vangt vooral verwisselde breedte- en lengtegraad
@@ -194,6 +212,10 @@ if(pnr.length) fout(`Boekingscode in de code gevonden: ${pnr.join(', ')} — die
 // map met alleen de codebestanden, heeft de foto's misschien elders.
 const swBron=fs.readFileSync(__dirname+'/sw.js','utf8'), appBron=fs.readFileSync(__dirname+'/app.js','utf8');
 const html=fs.readFileSync(__dirname+'/index.html','utf8'), manifest=fs.readFileSync(__dirname+'/manifest.webmanifest','utf8');
+// De paklijst is een losse pagina naast de app. Staat hij in de map, dan hoort hij offline beschikbaar te zijn,
+// en telt zijn eigen icoon mee bij de beelden.
+const paklijst=lees('paklijst.html');
+if(paklijst&&!/'\.\/paklijst\.html'/.test(swBron)) fout('sw.js: CODE mist ./paklijst.html');
 // voorreis.js moet worden geladen én offline beschikbaar zijn
 if(!/<script src="voorreis\.js">/.test(html)) fout('index.html laadt voorreis.js niet');
 if(!/'\.\/voorreis\.js'/.test(swBron)) fout('sw.js: CODE mist ./voorreis.js');
@@ -201,13 +223,15 @@ if(!/<script src="dieren\.js">/.test(html)) fout('index.html laadt dieren.js nie
 if(!/'\.\/dieren\.js'/.test(swBron)) fout('sw.js: CODE mist ./dieren.js');
 if(!/<script src="dieren-iconen\.js">/.test(html)) fout('index.html laadt dieren-iconen.js niet');
 if(!/'\.\/dieren-iconen\.js'/.test(swBron)) fout('sw.js: CODE mist ./dieren-iconen.js');
+if(!/<script src="verhalen\.js">/.test(html)) fout('index.html laadt verhalen.js niet');
+if(!/'\.\/verhalen\.js'/.test(swBron)) fout('sw.js: CODE mist ./verhalen.js');
 const beeldBlok=(swBron.match(/const BEELD=\[([\s\S]*?)\];/)||['',''])[1];
 const inBeeld=new Set([...beeldBlok.matchAll(/'\.\/([^']+)'/g)].map(m=>m[1]));
 const verwezen=new Set([
   ...Object.keys(TONE).map(r=>`reg-${r}.jpg`),
   ...Object.values(BUITEN).map(b=>b.foto),
   ...[...appBron.matchAll(/'(banner-[a-z]+\.jpg)'/g)].map(m=>m[1]),
-  ...[...html.matchAll(/href="([^"]+\.png)"/g)].map(m=>m[1]),
+  ...[...(html+paklijst).matchAll(/href="([^"]+\.png)"/g)].map(m=>m[1]),
   ...[...manifest.matchAll(/"src":\s*"([^"]+)"/g)].map(m=>m[1])
 ]);
 verwezen.forEach(b=>{ if(!inBeeld.has(b)) fout(`sw.js BEELD mist '${b}', dat de app wel gebruikt`); });

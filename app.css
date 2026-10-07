@@ -228,6 +228,11 @@
   details.rcard[open]>summary .rchev{transform:rotate(90deg)}
   .rbody{padding:0 15px 16px}
   .rbody .badges{margin-top:0}
+  /* Verhaal van de dag: leestekst in de kaart, met de bron klein eronder */
+  .verhaal .rbody p{margin:0 0 12px;font-size:16px;line-height:1.6}
+  .verhaal .rbody .btns{margin:4px 0 12px}
+  .verhaal .rbody .btn{display:inline-flex;align-items:center;gap:7px}
+  .verhaal .rbody p.vbron{margin:0;font-size:13px;line-height:1.45;color:var(--text-faint)}
   /* Inleidende regel onder het kopje Winkels bij het hotel */
   .wintro{margin:-4px 4px 12px;font-size:14px;line-height:1.45;color:var(--text-dim)}
   /* Lange dagtekst: acht regels zichtbaar, de rest achter dezelfde knop als bij de notities.

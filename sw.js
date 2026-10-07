@@ -1,12 +1,12 @@
 // AustralieApp, service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v237';
+const VERSION='v238';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze bestanden werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
 // De paklijst staat erbij omdat een nieuwe versie de oude cache weggooit. Zonder deze regel is hij daarna
 // pas weer offline te openen als iemand hem eerst met verbinding heeft geopend.
-const CODE=['./','./index.html','./app.css','./reis.js','./voorreis.js','./dieren.js','./dieren-iconen.js','./app.js','./manifest.webmanifest','./paklijst.html'];
+const CODE=['./','./index.html','./app.css','./reis.js','./voorreis.js','./dieren.js','./dieren-iconen.js','./verhalen.js','./app.js','./manifest.webmanifest','./paklijst.html'];
 // Beelden: fijn om te hebben, maar een ontbrekende foto mag de installatie niet blokkeren.
 const BEELD=['./icon-512.png','./icon-maskable-512.png','./icon-paklijst.png',
   './banner-dagen.jpg','./banner-notities.jpg','./banner-praktisch.jpg','./banner-dieren.jpg',
