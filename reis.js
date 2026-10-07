@@ -198,23 +198,28 @@ const DAYS=[
    ["Kawan Dining","Charles Street, Launceston",5.0,2,12,"Kreeg je gisteren geen tafel? Woensdag open van 17.30 tot 21.00 uur. Vrijwel perfecte score over ruim 540 beoordelingen.","Telefonisch. Reserveer vóór je naar Cradle Mountain vertrekt. Vol is vol."],
    ["Mudbar","Seaport Boulevard, Launceston",4.4,3,15,"Aan het water, zeven dagen tot middernacht open. De veiligste optie als het later wordt dan gepland.","Online, maar zonder reservering kom je er meestal ook binnen."]]},
 
-{n:8,r:"tas",k:"bus",t:"Via Bay of Fires naar Bicheno",p:"Bicheno",h:"Wintersun Gardens Motel, Gordon Street",tz:11,temp:"8–17°",
- wild:[["Dwergpinguïn","De pinguïnexcursie is helaas volgeboekt. Zonder gids zie je ze hier zelden: ze komen pas na zonsondergang aan land. Een herkansing volgt in Melbourne op dag 17, bij de pier van St Kilda, gratis en zonder boeken.",1],
+{n:8,r:"tas",k:"bus",t:"Via Bay of Fires naar Bicheno",p:"Bicheno",h:"Wintersun Gardens Motel, Gordon Street",tz:11,temp:"tot 16°, zonnig",
+ wild:[["Dwergpinguïn","Met de pinguïntour van 19.15 uur naar een kolonie die na zonsondergang aan land komt. Oktober is broedseizoen, dus ze komen zeker.",3],
   ["Australische pelsrob","Op de rotsen bij de blowhole en op Governor Island, vlak voor de kust van Bicheno. Kijk vanaf de kustwandeling met een verrekijker.",2],
   ["Witbuikzeearend","Boven de baaien van Bay of Fires en Bicheno. Groot, wit met grijs, vaak op een dode boom bij het water.",2],
   ["Dolfijn","Voor de kust bij Bay of Fires. Vanaf de granietrotsen heb je een goed uitzicht over het water.",1]],
  agenda:[
-  ["08.00","Vertrek uit Launceston","Naar de oostkust."],
-  ["10.30","Bay of Fires","Oranje granietrotsen, witte stranden en helderblauw water. Tijd voor een strandwandeling."],
+  ["08.00","Vertrek uit Launceston","Uitgecheckt en met je bagage klaarstaan bij de receptie. Dan naar de oostkust."],
+  ["10.30","Bay of Fires","Oranje granietrotsen, witte stranden en helderblauw water. Een makkelijke wandeling over de rotsen en het strand."],
   ["Middag","Lunch in St Helens","Het vissersstadje aan Georges Bay, aan de zuidkant van Bay of Fires."],
-  ["15.30","Aankomst in Bicheno","Inchecken in het Wintersun Gardens Motel, aan de noordwestkant van het dorp."]],
+  ["15.30","Aankomst in Bicheno","Inchecken in het Wintersun Gardens Motel, aan de noordwestkant van het dorp."],
+  ["Avond","Naar het centrum","De bus brengt je naar het centrum om op eigen gelegenheid te eten. Terug loop je zelf, ongeveer twintig minuten. Eet vroeg, want de keukens sluiten vroeg en om 19.15 uur begint de pinguïntour."],
+  ["19.15","Pinguïntour","Geboekt via GetYourGuide. Het verzamelpunt staat op je voucher. Ongeveer een uur, en je bent pas na het donker klaar. Kijk op de voucher of je wordt teruggebracht; anders loop je zo'n twintig minuten terug naar het motel.","Eigen boeking"]],
  body:[
   "Vandaag verkennen we de Oostkust van Tasmanië. We rijden naar een van de meest fotogenieke plaatsen van het eiland, de Bay of Fires. Kenmerkend zijn de bijzondere oranje/rood gekleurde rotsen rond het witte strand en het azuurblauwe water. Die kleur komt van korstmossen op het graniet. Het is een van de meest ongerepte gebieden dat Tasmanië te bieden heeft. We nemen vanochtend de tijd om hier rond te kijken. Je kunt een mooie strandwandeling maken of je tijd besteden aan een van de pittoreske stranden met helder blauw water.",
-  "We overnachten vandaag in Bicheno, een charmant vissersdorpje gelegen tussen het Douglas-Apsley National Park en het Freycinet National Park. Het dorp ligt aan de rand van een prachtig natuurgebied aan zee en staat bekend om zijn verse en smaakvolle seafood. Vanaf hier kun je ’s avonds genieten van de rustige kustsfeer en misschien zelfs een wandeling maken langs het strand. De optionele pinguïnexcursie is helaas volgeboekt."
+  "We overnachten vandaag in Bicheno, een charmant vissersdorpje gelegen tussen het Douglas-Apsley National Park en het Freycinet National Park. Het dorp ligt aan de rand van een prachtig natuurgebied aan zee en staat bekend om zijn verse en smaakvolle seafood. Vanaf hier kun je ’s avonds genieten van de rustige kustsfeer en misschien zelfs een wandeling maken langs het strand. Bij jullie staat om 19.15 uur een pinguïntour op het programma, zelf geboekt via GetYourGuide."
  ],
  prac:["Je slaapt in het Wintersun Gardens Motel aan Gordon Street, een rustig motel met een verzorgde tuin aan de noordwestkant van het dorp. Het centrum en de restaurants liggen een kwartier tot twintig minuten lopen verderop. Een restaurant heeft het motel niet.",
+  "Het wordt zonnig, met hoogstens zestien graden. Trek goede wandelschoenen aan voor de rotsen bij Bay of Fires.",
+  "Bij de pinguïns is fotograferen met flits verboden en wit licht verstoort ze. Gebruik alleen een rode lamp, als de gids dat toestaat.",
+  "De pinguïns komen pas twintig tot veertig minuten ná zonsondergang aan land, en de zon gaat rond 19.30 uur onder. Je staat dus een tijd te wachten in de kou aan zee. Neem een muts en een warme jas mee.",
   "In Bicheno ligt een blowhole aan de zuidkant van het dorp, een halfuur lopen van het motel. Bij aanlandige wind spuit die tot tien meter hoog. Dat kost niets, en met een verrekijker zie je soms pelsrobben op het eilandje voor de kust."],
- rnote:"In Bicheno sluiten de meeste keukens om 20.00 uur, en daarna is er weinig meer te doen. Het motel heeft geen restaurant, en alles ligt een kwartier tot een halfuur lopen weg. De reisbegeleider noemt ook The Gulch (fish and chips) en Food and Brew, allebei aan Burgess Street in het centrum.",
+ rnote:"In Bicheno sluiten de meeste keukens om 20.00 uur, Lobster Shack zelfs om 19.00 uur, en daarna is er weinig meer te doen. De bus zet je in het centrum af, terug loop je zo'n twintig minuten. Met de pinguïntour om 19.15 uur eet je dus vroeg: Lobster Shack voor een vroege hap, of Sealife zodra het om 17.00 uur opengaat. Na de tour is het donker langs de weg, dus neem een zaklamp of je telefoon mee. De reisbegeleider noemt ook The Gulch (fish and chips) en Food and Brew, allebei aan Burgess Street in het centrum.",
  rest:[["Sealife Restaurant","Tasman Highway",4.4,2,13,"Het dichtst bij het motel, aan het strand met uitzicht op zee. Donderdag 17.00–20.00 uur.","Telefonisch: +61 3 6375 1121. Vraag om een tafel bij het raam."],
    ["Lobster Shack","Waubs Esplanade",4.3,2,29,"Vroeg en informeel, bestellen aan de balie, eten met zicht op zee, om 19.00 uur dicht. Meer een late lunch dan een diner, maar dit ís de lobster roll van Tasmanië.","Niet nodig. Bestellen aan de balie."]]},
 
@@ -608,6 +613,7 @@ const PACK=[
  ["Handdoek en droge kleren in je dagtas","Omkleden kan onderweg alleen bij de kloof zelf.",[20]],
  ["Verrekijker, als je er een hebt","Walvissen voor de kust zie je zonder kijker alleen als spuit. Oktober is trekseizoen aan beide kusten.",[4,10,15,25,26]],
  ["Bonnen boven A$300 bij de hand","Voor de btw-teruggave op het vliegveld.",[27,28]],
+ ["Muts en warme jas","Voor de pinguïntour: je staat na zonsondergang een tijd stil aan zee.",[8]],
  ["Legitimatiebewijs","Voor het zeebad van Bondi Icebergs, aan het eind van de wandeling.",[4]],
  ["Picknicklunch","Op dag 6 gekocht in Launceston, of vanochtend vroeg bij Banjo's.",[7]],
  ["Lunchpakket","Of je luncht in de bergen. Betalen kan daar alleen met een kaart.",[5]]
@@ -617,7 +623,7 @@ const EXC=[
  ["BridgeClimb",4,"Geboekt · 16.35 uur","Verzet van dag 3 vanwege onweer. Klimmen over de boog van de Harbour Bridge tot 134 meter boven de haven, vastgeklikt aan een rail, met zonsondergang onderweg. Ongeveer drie en een half uur. Fototoestellen mogen niet mee. De gids maakt de foto's."],
  ["Rondleiding Sydney Opera House",3,"Geboekt · 09.00 uur","Rondleiding van een uur door de zalen en foyers. Melden bij het Welcome Centre op de Lower Concourse, een kwartier vooraf."],
  ["Scenic World Blue Mountains",5,"A$64, niet inbegrepen","In het hoogseizoen verplicht bij Scenic World, ook als je er alleen wilt lunchen of winkelen. Alleen met een creditcard of een Visa Debit- of Debit Mastercard-pas. Combikaart voor drie ritten, de steilste passagiersspoorlijn ter wereld met een helling van 52 graden, een kabelbaan over het Jamison-dal, en een boardwalk door het regenwoud beneden. Onbeperkt op en neer, reken op twee uur."],
- ["Pingu\u00efntour Bicheno",8,"Volgeboekt","Helaas waren er voor de groep geen plekken meer. Avondwandeling met een gids over aangelegde paden naar de enige pingu\u00efnkolonie aan de oostkust van Tasmani\u00eb die je mag bezoeken. De kleine pingu\u00efns komen na zonsondergang aan land. Herkansing: de gratis pingu\u00efns bij de pier van St Kilda in Melbourne, dag 17."],
+ ["Pingu\u00efntour Bicheno",8,"Geboekt \u00b7 19.15 uur","Zelf geboekt via GetYourGuide; het verzamelpunt staat op de voucher. Avondwandeling met een gids naar een pingu\u00efnkolonie aan de oostkust van Tasmani\u00eb. De kleine pingu\u00efns komen na zonsondergang aan land. Ongeveer een uur. Flitsen mag niet."],
  ["MONA inclusief ferry",10,"\u00b1 A$65","Veerboot over de Derwent naar het grotendeels ondergrondse museum van David Walsh. Moderne kunst die bewust schuurt, uitgehakt in de zandsteen. Reken op een halve dag. De overtocht duurt een half uur."],
  ["Pennicott Tasman Island, hele dag",10,"\u20ac 210 via Sawadee","Van 07.30 tot 18.00 uur: naar het Tasman National Park en drie uur in een open boot langs de hoogste zeekliffen van het zuidelijk halfrond, met watervallen, rotsbogen en zeegrotten, zeehonden, dolfijnen, zeevogels en in het seizoen walvissen. Inchecken om 07.15 uur bij de haven. Koffie of thee met een muffin en de lunch zijn inbegrepen. Kleed je warm aan. De zee staat er vaak ruw, dus niet doen als je snel zeeziek wordt. Niet te combineren met MONA."],
  ["Fietstour Melbourne",17,"\u20ac 100 via Sawadee","Ongeveer vier uur fietsen met een lokale gids langs de Yarra River, de Shrine of Remembrance, de Melbourne Cricket Ground, Parliament House en de straatkunst van Hosier Lane, met verhalen over de stad onderweg. Sawadee biedt hem vooraf aan."],
