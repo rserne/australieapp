@@ -1548,7 +1548,7 @@ function zoek(w,fouten,term){
     const kaart=w.document.querySelector('#day details.verhaal');
     eis(fouten,kaart&&!kaart.open&&/De vrouw die zwom/.test(kaart.querySelector('.rname').textContent),'dag 8 heeft het verhaal De vrouw die zwom, dichtgeklapt');
     eis(fouten,kaart&&kaart.previousElementSibling&&kaart.previousElementSibling.tagName==='H2'&&/Verhaal van de dag/.test(kaart.previousElementSibling.textContent)&&!kaart.querySelector('.role'),'het verhaal heeft een eigen kopje boven de kaart, net als de andere blokken');
-    eis(fouten,kaart&&kaart.querySelectorAll('.rbody p').length>=4&&/Bron:/.test(kaart.querySelector('.vbron').textContent),'het verhaal heeft alinea\'s en een bron');
+    eis(fouten,kaart&&kaart.querySelectorAll('.rbody p').length>=4&&!kaart.querySelector('button, .vbron')&&!/Bron:/.test(kaart.textContent),'het verhaal heeft alinea\'s, zonder voorleesknop of bronregel');
     blader(w,fouten);
     klik(w,'btnIndex',fouten); zoek(w,fouten,'Wauba');
     const hit=[...w.document.querySelectorAll('#results .hits button')].find(b=>/Verhaal van de dag/.test(b.textContent));

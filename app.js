@@ -118,7 +118,6 @@ function render(){
     if(!magMeekijken(cur<0?'voorreis':'nareis')){ cur=T.before?0:1; render(); return; }
     if(!buitenData(cur)){ renderBuitenDag(); return; }
   }
-  stopVoorlezen();
   const buiten=isBuiten(cur), d=dagData(cur), date=dagDatum(cur);
   // buiten de groepsreis: één vaste foto en kleur (BUITEN in reis.js), geen regio per dag
   const bb=buiten?beeldBuiten(cur<0):{tone:TONE[d.r],foto:`reg-${d.r}.jpg`}, tone=bb.tone;
@@ -288,7 +287,6 @@ function render(){
   // Toevoegen staat onderaan de dag, in de stroom: geen knop die over de tekst zweeft.
   if(magNotities()) h+=`<div class="dagadd"><button class="btn" id="nadd">＋ Notitie toevoegen</button></div>`;
   document.getElementById('day').innerHTML=h;
-  const vl=document.getElementById('vlees'); if(vl) vl.onclick=()=>voorlezen(vh,vl);
   const mt=document.getElementById('meertekst');
   if(mt) mt.onclick=()=>{ const t=document.getElementById('dagtekst');
     const dicht=t.classList.toggle('inkort'); mt.textContent=dicht?'Meer':'Minder'; };
@@ -306,36 +304,13 @@ function render(){
 const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span><span><b>${label}</b>${esc(txt)}</span></div>`;
 
 // Verhaal van de dag: dezelfde dichtgeklapte kaart als een restaurant, zodat het de praktische informatie niet
-// wegdrukt. Een tik klapt het open. Met de knop Voorlezen leest de telefoon het voor, als die Nederlands kan.
-const IC_LUISTER='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
-const IC_STOP='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
-const KAN_VOORLEZEN=typeof speechSynthesis!=='undefined'&&typeof SpeechSynthesisUtterance!=='undefined';
+// wegdrukt. Een tik klapt het open. De bron staat alleen in verhalen.js, niet op het scherm.
 function verhaalBlok(v){
   const min=Math.max(1,Math.round(v.tekst.join(' ').split(/\s+/).length/120));
   return `<h2>Verhaal van de dag</h2><details class="card rcard verhaal"><summary><span class="rtop">`+
     `<span class="rname">${esc(v.t)}</span><span class="rkort">${min} minuten lezen</span></span>`+
     `<span class="rchev">${ICO_CHEV}</span></summary><div class="rbody">`+
-    v.tekst.map(p=>`<p>${esc(p)}</p>`).join('')+
-    (KAN_VOORLEZEN?`<div class="btns"><button type="button" class="btn" id="vlees">${IC_LUISTER}Voorlezen</button></div>`:'')+
-    (v.bron?`<p class="vbron">Bron: ${esc(v.bron)}</p>`:'')+`</div></details>`;
-}
-let _leest=null;
-function stopVoorlezen(){
-  if(!_leest) return;
-  _leest=null;
-  try{ speechSynthesis.cancel(); }catch(e){}
-}
-function voorlezen(v,knop){
-  const rust=()=>{ if(knop.isConnected) knop.innerHTML=`${IC_LUISTER}Voorlezen`; };
-  if(_leest){ stopVoorlezen(); rust(); return; }
-  try{
-    const stem=(speechSynthesis.getVoices()||[]).find(s=>/^nl([-_]|$)/i.test(s.lang||''));
-    const u=new SpeechSynthesisUtterance([v.t,...v.tekst].join('\n\n'));
-    u.lang='nl-NL'; if(stem) u.voice=stem; u.rate=0.95;
-    u.onend=u.onerror=()=>{ if(_leest===u) _leest=null; rust(); };
-    speechSynthesis.cancel(); _leest=u; speechSynthesis.speak(u);
-    knop.innerHTML=`${IC_STOP}Stoppen`;
-  }catch(e){ _leest=null; rust(); toast('Voorlezen lukt niet op deze telefoon.'); }
+    v.tekst.map(p=>`<p>${esc(p)}</p>`).join('')+`</div></details>`;
 }
 
 // Winkels bij het hotel (WINKELS in reis.js, per hotel). Dezelfde dichtgeklapte kaart als een restaurant,
@@ -2834,7 +2809,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-08-239';
+const APP_VERSIE='2026-10-08-240';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
