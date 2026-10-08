@@ -462,7 +462,7 @@ function zoek(w,fouten,term){
     meld('5 okt: Morgen-blok op een gewone reisdag',fouten); }
   // Winkels bij het hotel: uit WINKELS in reis.js, per hotel, onder Eten vanavond. Zonder hotel geen blok.
   { const {w,fouten}=start('2026-10-03');
-    const kaarten=()=>[...w.document.querySelectorAll('#day details.rcard')].filter(c=>!c.querySelector('.role'));
+    const kaarten=()=>[...w.document.querySelectorAll('#day details.rcard')].filter(c=>!c.querySelector('.role')&&!c.classList.contains('verhaal'));
     const kopjes=()=>[...w.document.querySelectorAll('#day h2')].map(h=>h.textContent);
     eis(fouten,kopjes().includes('Winkels')&&kaarten().length===1&&/Woolworths Metro/.test(kaarten()[0].textContent),`dag 3 (Sydney) toont de winkel bij The Ultimo (nu ${kaarten().length} kaarten)`);
     const k=kaarten()[0];
@@ -1547,6 +1547,7 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-10-08');
     const kaart=w.document.querySelector('#day details.verhaal');
     eis(fouten,kaart&&!kaart.open&&/De vrouw die zwom/.test(kaart.querySelector('.rname').textContent),'dag 8 heeft het verhaal De vrouw die zwom, dichtgeklapt');
+    eis(fouten,kaart&&kaart.previousElementSibling&&kaart.previousElementSibling.tagName==='H2'&&/Verhaal van de dag/.test(kaart.previousElementSibling.textContent)&&!kaart.querySelector('.role'),'het verhaal heeft een eigen kopje boven de kaart, net als de andere blokken');
     eis(fouten,kaart&&kaart.querySelectorAll('.rbody p').length>=4&&/Bron:/.test(kaart.querySelector('.vbron').textContent),'het verhaal heeft alinea\'s en een bron');
     blader(w,fouten);
     klik(w,'btnIndex',fouten); zoek(w,fouten,'Wauba');

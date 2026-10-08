@@ -312,7 +312,7 @@ const IC_STOP='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColo
 const KAN_VOORLEZEN=typeof speechSynthesis!=='undefined'&&typeof SpeechSynthesisUtterance!=='undefined';
 function verhaalBlok(v){
   const min=Math.max(1,Math.round(v.tekst.join(' ').split(/\s+/).length/120));
-  return `<details class="card rcard verhaal"><summary><span class="rtop"><span class="role">Verhaal van de dag</span>`+
+  return `<h2>Verhaal van de dag</h2><details class="card rcard verhaal"><summary><span class="rtop">`+
     `<span class="rname">${esc(v.t)}</span><span class="rkort">${min} minuten lezen</span></span>`+
     `<span class="rchev">${ICO_CHEV}</span></summary><div class="rbody">`+
     v.tekst.map(p=>`<p>${esc(p)}</p>`).join('')+
@@ -2834,7 +2834,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-08-238';
+const APP_VERSIE='2026-10-08-239';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
