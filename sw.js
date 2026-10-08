@@ -1,7 +1,7 @@
 // AustralieApp, service worker
 // Bewaart de app op de telefoon zodat hij zonder verbinding opent, en haalt op de
 // achtergrond nieuwe bestanden op. Hoog VERSION op bij elke uitgave (samen met APP_VERSIE in app.js).
-const VERSION='v240';
+const VERSION='v241';
 const CACHE='australieapp-'+VERSION;
 // Code en inhoud: zonder deze bestanden werkt de app niet, dus installeren mislukt als één ervan ontbreekt.
 // De paklijst staat erbij omdat een nieuwe versie de oude cache weggooit. Zonder deze regel is hij daarna
@@ -11,7 +11,8 @@ const CODE=['./','./index.html','./app.css','./reis.js','./voorreis.js','./diere
 const BEELD=['./icon-512.png','./icon-maskable-512.png','./icon-paklijst.png',
   './banner-dagen.jpg','./banner-notities.jpg','./banner-praktisch.jpg','./banner-dieren.jpg',
   './reg-nsw.jpg','./reg-tas.jpg','./reg-sa.jpg','./reg-vic.jpg','./reg-red.jpg','./reg-qld.jpg','./reg-wa.jpg','./reg-reis.jpg','./reg-voorreis.jpg','./reg-nareis.jpg'];
-// Alleen van deze bestanden vergelijken we oud en nieuw om een nieuwe versie te melden.
+// Van deze bestanden vergelijken we oud en nieuw. Is een codebestand (CODE) veranderd, dan volgt een
+// nieuwe versie; een andere pagina naast de app wordt alleen bijgewerkt.
 const TEKST=/(\/|\.html|\.js|\.css|\.webmanifest)$/;
 // De pagina haalt app.js op vóórdat app.js zijn luisteraar heeft. Een melding op dat moment
 // zou verloren gaan. Daarom onthouden we het ook, zodat de pagina er alsnog naar kan vragen.
@@ -29,19 +30,41 @@ self.addEventListener('message',e=>{
 // (tien minuten) een oude index.html in een nieuwe versie van onze cache zetten.
 const vers=u=>new Request(u,{cache:'reload'});
 
-// Eén gewijzigd tekstbestand betekent een nieuwe uitgave. Dan halen we eerst álle codebestanden
-// vers op en melden pas daarna, zodat de pagina na 'Vernieuwen' geen mengsel van oud en nieuw
-// krijgt: GitHub Pages cachet per bestand, dus app.js kan al nieuw zijn terwijl reis.js nog oud is.
-// Dat sluit een mengsel niet helemaal uit (de tussencache kan één bestand nog even vasthouden),
-// maar het venster wordt van 'tot de volgende keer openen' teruggebracht tot één moment.
+// Eén gewijzigd codebestand betekent een nieuwe uitgave. Dan halen we álle codebestanden vers op,
+// in twee stappen. Eerst komt alles binnen en wordt elk bestand helemaal uitgelezen, zonder dat er
+// iets in de cache gaat. Pas als de hele set compleet is, gaat hij in één keer de cache in en volgt
+// de melding. Mislukt er ook maar één bestand (slecht bereik, een fout van de server), dan blijft de
+// cache zoals hij was en probeert de worker het de volgende keer opnieuw. Zo staat er bij half bereik
+// nooit een nieuwe app.js naast een oude reis.js.
+// Wat dit niet oplost: vlak na een push kan de tussencache van GitHub Pages (tien minuten) nog een
+// oud bestand leveren dat wel compleet binnenkomt. De volgende controle trekt dat recht.
+const SLEUTELS=new Set(CODE.map(u=>new URL(u,self.location).href));
 let _vernieuwing=null;
 function vernieuwAlles(c){
   if(!_vernieuwing) _vernieuwing=(async()=>{
-    await Promise.allSettled(CODE.map(async u=>{
-      try{ const r=await fetch(vers(u)); if(r.ok) await c.put(u,r); }catch(err){}
+    // Stap 1: alles ophalen en volledig binnenhalen. Eén mislukking breekt de hele ronde af.
+    const binnen=await Promise.all(CODE.map(async u=>{
+      const r=await fetch(vers(u));
+      if(!r.ok) throw new Error(`${u}: ${r.status}`);
+      return {u,inhoud:await r.blob(),headers:r.headers};
     }));
+    // Is er echt iets veranderd? De tussencache kan ook gewoon de oude versie teruggeven, en dan
+    // hoeft er niets te gebeuren en ook geen melding te komen.
+    let anders=false;
+    for(const b of binnen){
+      const oud=await c.match(b.u,{ignoreVary:true});
+      if(!oud||await oud.text()!==await b.inhoud.text()){ anders=true; break; }
+    }
+    if(!anders) return;
+    // Nooit terug naar een oudere app.js: vlak na een push kan de tussencache er nog een leveren.
+    // Het nummer achter APP_VERSIE loopt bij elke uitgave op, dus een lager nummer is een oude kopie.
+    const nr=t=>+((String(t).match(/APP_VERSIE='[^']*-(\d+)'/)||[])[1]||0);
+    const oudeApp=await c.match('./app.js',{ignoreVary:true}), nieuweApp=binnen.find(b=>b.u==='./app.js');
+    if(oudeApp&&nieuweApp&&nr(await nieuweApp.inhoud.text())<nr(await oudeApp.text())) return;
+    // Stap 2: de hele set in één keer de cache in, en dan pas melden.
+    await Promise.all(binnen.map(b=>c.put(b.u,new Response(b.inhoud,{status:200,headers:b.headers}))));
     await meldNieuw();
-  })().finally(()=>{_vernieuwing=null});
+  })().catch(()=>{}).finally(()=>{_vernieuwing=null});
   return _vernieuwing;
 }
 
@@ -75,11 +98,17 @@ self.addEventListener('fetch',e=>{
     const fresh=fetch(new Request(e.request.url,{cache:'no-cache'})).then(async r=>{
       if(!r||!r.ok) return r;
       const isTekst=TEKST.test(url.pathname);
-      // alleen voor codebestanden lezen we de inhoud. Foto's vergelijken kost alleen maar stroom
-      const oud=(isTekst&&cached)?await cached.clone().text():null;
-      const nieuw=isTekst?await r.clone().text():null;
-      await c.put(sleutel,r.clone());
-      if(isTekst&&oud!==null&&oud!==nieuw) await vernieuwAlles(c);
+      // Foto's gaan gewoon de cache in. Vergelijken kost alleen maar stroom.
+      if(!isTekst||!cached){ await c.put(sleutel,r.clone()); return r; }
+      const oud=await cached.clone().text(), nieuw=await r.clone().text();
+      // Ongewijzigd: niets te doen. Bewust niet opnieuw wegschrijven, want een trage oude kopie
+      // zou dan een net vernieuwde set kunnen overschrijven.
+      if(oud===nieuw) return r;
+      // Gewijzigd. Een codebestand zetten we niet los in de cache, want dan staat het nieuw naast
+      // oude bestanden. Dat doet vernieuwAlles, met de hele set tegelijk. Een losse pagina naast
+      // de app (geen codebestand) mag wel meteen.
+      if(!SLEUTELS.has(sleutel)) await c.put(sleutel,r.clone());
+      await vernieuwAlles(c);
       return r;
     }).catch(()=>null);
     // Bij een cachetreffer gaat het antwoord meteen de deur uit. Zonder deze regel mag de browser

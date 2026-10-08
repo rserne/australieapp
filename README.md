@@ -26,7 +26,7 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 2. `node check.js`, dat moet eindigen met "reis.js is in orde". Een waarschuwing dat de beelden niet in de map staan, mag je negeren als je alleen de codebestanden bij de hand hebt.
 3. Na een wijziging in `app.js` draai je `node rooktest.js`, dat moet eindigen met "geen fouten". Hiervoor is jsdom nodig, eenmalig te installeren met `npm install -g jsdom` (of lokaal in een aparte map met `npm install jsdom` en die map in `NODE_PATH`). De app zelf gebruikt jsdom niet.
 4. Hoog `APP_VERSIE` in `app.js` op (bijv. `2026-09-08-45`) en `VERSION` in `sw.js` (bijv. `v45`). De laatste cijfers horen gelijk te lopen. `check.js` waarschuwt als dat niet zo is.
-5. Commit en push. Binnen een paar minuten ziet iedereen bij het openen van de app de balk "Er is een nieuwe versie". De service worker haalt eerst alle codebestanden vers op en meldt het dan pas, zodat een tik op Vernieuwen geen mengsel van oud en nieuw oplevert.
+5. Commit en push. Binnen een paar minuten ziet iedereen bij het openen van de app de balk "Er is een nieuwe versie". De service worker haalt eerst alle codebestanden vers op en zet ze pas in de cache als ze allemaal compleet binnen zijn. Daarna volgt de melding. Komt er één bestand niet binnen, dan blijft de oude versie staan en probeert de app het later opnieuw (zie Updates onderweg).
 
 ## Boekingscodes
 
@@ -266,7 +266,17 @@ Schrijven naar de wachtrij wordt gecontroleerd. 'Bewaard op de telefoon' verschi
 
 ### Uitgesteld
 
-De uitgaven 216 en 217 zijn bewust klein gehouden (217 voegt aan 216 alleen het slot op verstuurde maar niet opgeruimde items en de uitgeschakelde bijlageknop zonder verbinding toe). Uitgave 220 voegt de reisdelen en het scherm Stand toe (zie Dieren en waarnemingen). De volgende punten uit de bredere review staan nog open en zijn niet aangepakt: beveiliging bij uitloggen en het wisselen van account (de wachtrij van een vorige gebruiker), het samenvoegen van overlappende synchronisatierondes, algemene foutafhandeling van IndexedDB, betrouwbaar opruimen van verwijderde bestanden bij Nhost Storage, en de herbouw van het updatesysteem in `sw.js`. Dat laatste gaat ervan uit dat de appversie tijdens de reis gelijk blijft; nieuwe notities bij Nhost zijn geen code-uitgave, een nieuwe versie onderweg wel, en die vraagt opnieuw aandacht voor het bekende updaterisico.
+De uitgaven 216 en 217 zijn bewust klein gehouden (217 voegt aan 216 alleen het slot op verstuurde maar niet opgeruimde items en de uitgeschakelde bijlageknop zonder verbinding toe). Uitgave 220 voegt de reisdelen en het scherm Stand toe (zie Dieren en waarnemingen). De volgende punten uit de bredere review staan nog open en zijn niet aangepakt: beveiliging bij uitloggen en het wisselen van account (de wachtrij van een vorige gebruiker), het samenvoegen van overlappende synchronisatierondes, algemene foutafhandeling van IndexedDB en betrouwbaar opruimen van verwijderde bestanden bij Nhost Storage. Het updatesysteem in `sw.js` is in uitgave 241 aangepakt (zie hieronder).
+
+### Updates onderweg
+
+Tot uitgave 240 kon een update bij slecht bereik half binnenkomen. Zodra de app een gewijzigd bestand zag, zette de service worker dat meteen in de cache en haalde hij de rest erachteraan. Een bestand dat niet binnenkwam, sloeg hij stil over, en daarna meldde hij toch een nieuwe versie. Zo kon er een nieuwe `app.js` naast een oude `reis.js` komen te staan, en dat bleef zo tot de volgende keer met goed bereik. Verwacht de nieuwe code iets uit de nieuwe inhoud, dan tekent een tabblad of dagpagina niet, ook offline.
+
+Sinds uitgave 241 gaat het in twee stappen. Eerst haalt de worker alle codebestanden (`CODE`) volledig binnen, zonder iets in de cache te zetten. Alleen als ze er allemaal zijn en er echt iets anders is, gaat de hele set in één keer de cache in en volgt de melding. Mislukt er één, dan blijft alles zoals het was en probeert hij het bij de volgende keer openen opnieuw. Een losse pagina naast de app die niet in `CODE` staat, zoals `prijzen.html`, wordt meteen bijgewerkt en geeft geen melding. Daarnaast zet de worker nooit een `app.js` met een lager nummer achter `APP_VERSIE` terug. Dat beschermt tegen de tussencache van GitHub Pages, die vlak na een push nog een oude kopie kan leveren.
+
+Wat nog kan: in die eerste minuten na een push levert de tussencache een oud inhoudsbestand, zoals `reis.js`, dat wel compleet binnenkomt. De volgende controle trekt dat recht. Houd uitgaven onderweg daarom klein, en zorg dat nieuwe code ook werkt met de vorige versie van de inhoudsbestanden.
+
+Uitgave 241 zelf komt nog binnen via de oude worker, met het oude risico. Breng hem uit en open hem bij goed bereik. Vanaf daar geldt de nieuwe werkwijze.
 
 ## Bijlagen
 
