@@ -136,6 +136,28 @@ Wie `beheer = true` heeft, ziet in Praktisch onder het inlogblok de knop **Reizi
 
 Onderaan het scherm staat wanneer de lijst voor het laatst is opgehaald, of waarom dat mislukte. Die melding staat dan ook in het inlogblok. Mislukt het ophalen, dan is de kolomlijst van de select-permissie de eerste verdachte: Hasura neemt een later toegevoegde kolom (zoals `beheer`) niet vanzelf op, ook niet als "alle kolommen" aanstond, en de app kan de kolom dan niet opvragen.
 
+#### Laatst actief
+
+Sinds uitgave 244 staat onder elke naam wanneer die persoon voor het laatst actief was, zoals "Laatst actief vandaag 07:12" of "Laatst actief gisteren 21:40". Wie nog nooit is ingelogd, krijgt "Nog niet actief geweest". De tijd komt uit `last_seen` in `auth.users`. Nhost zet die bij inloggen en bij elk verversen van de sessie, en de app ververst de sessie zodra hij data ophaalt met een token van meer dan een kwartier oud. Het is dus het laatste moment dat iemand de app met verbinding gebruikte. Wie de app offline opent, telt niet mee. De app haalt de tijden op zodra je het scherm opent, hoogstens eens per minuut, en bewaart een kopie voor offline (`aus_cache_actief`). De statusregel onderaan zegt wanneer ze zijn bijgewerkt, of waarom dat mislukte.
+
+Een gewone gebruiker mag `auth.users` niet lezen. Daarom zet een view alleen het tijdstip naast de reizigerslijst, en mag alleen een beheerder die view opvragen. Maak hem eenmalig aan in de Nhost-console (Database, SQL):
+
+```sql
+create or replace view public.reizigers_actief as
+select r.user_id, u.last_seen
+from public.reizigers r
+join auth.users u on u.id = r.user_id;
+```
+
+Track de view daarna in Hasura (Data, schema `public`, `reizigers_actief`, Track). Geef de rol `user` alleen **select**, op de kolommen `user_id` en `last_seen`, met als row-check dat de gebruiker zelf beheerder is:
+
+```json
+{ "_exists": { "_table": { "schema": "public", "name": "reizigers" },
+               "_where": { "user_id": { "_eq": "X-Hasura-User-Id" }, "beheer": { "_eq": true } } } }
+```
+
+Zolang de view of de permissie ontbreekt, werkt het scherm gewoon, maar zonder de regels Laatst actief. De statusregel noemt dan de fout van Hasura.
+
 Daarvoor is nodig:
 
 - Op `reizigers` voor de rol `user` ook **insert**, **update** en **delete**, alle kolommen behalve `created_at` (dus ook `gast`), met als check dat de gebruiker zelf beheerder is:

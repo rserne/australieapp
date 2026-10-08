@@ -228,9 +228,18 @@ function zoek(w,fouten,term){
     eis(fouten,kop(w)==='Dag 12van 29','een tik op een rij opent die dag');
     meld('5 okt: Alle dagen per regio',fouten); }
   { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
+    w.gql=async q=>{ if(/reizigers_actief/.test(q)) throw new Error("field 'reizigers_actief' not found in type: 'query_root'");
+      if(/^query/.test(q)&&/reizigers/.test(q)) return {reizigers:REIZIGERS(false,true)}; throw new Error('onverwachte query'); };
+    klik(w,'btnPrakt',fouten); klik(w,'rbeheer',fouten); await sleep(100);
+    const box=$(w,'beheer');
+    eis(fouten,box.querySelectorAll('.rlijst li').length===3&&!box.querySelector('.ractief'),'zonder view staat de lijst er gewoon, zonder laatst actief');
+    eis(fouten,/Laatst actief ophalen mislukt: field 'reizigers_actief'/.test(box.querySelector('.rstatus').textContent)&&box.querySelector('.rstatus').classList.contains('fout'),'de statusregel noemt waarom laatst actief ontbreekt');
+    meld('5 okt: beheerscherm zonder view reizigers_actief',fouten); }
+  { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,lijst:REIZIGERS(false,true)});
     const mutaties=[], aanmeldingen=[];
     let lijst=REIZIGERS(false,true);
     w.gql=async(q,v)=>{
+      if(/reizigers_actief/.test(q)) return {reizigers_actief:[{user_id:'u2',last_seen:new w.Date(w.Date.now()-2*3600e3).toISOString().replace('Z','123+00:00')},{user_id:'u3',last_seen:null}]};
       if(/^query/.test(q)&&/reizigers/.test(q)) return {reizigers:lijst};
       if(/update_reizigers_by_pk/.test(q)){ mutaties.push('update'); lijst=lijst.map(r=>r.user_id===v.id?{...r,...v.s}:r); return {update_reizigers_by_pk:{user_id:v.id}}; }
       if(/delete_reizigers_by_pk/.test(q)){ mutaties.push('delete'); lijst=lijst.filter(r=>r.user_id!==v.id); return {delete_reizigers_by_pk:{user_id:v.id}}; }
@@ -249,6 +258,11 @@ function zoek(w,fouten,term){
     eis(fouten,chipsPiet.join(',')==='voorreis,reis,nareis,gast,beheer',`per reiziger een chip Gast, vóór Beheer (nu: ${chipsPiet.join(',')})`);
     eis(fouten,!box.querySelector('.dweg[data-weg="u1"]')&&box.querySelector('.chip[data-id="u1"][data-deel="beheer"]').disabled,'jezelf kun je niet verwijderen of je beheer afnemen');
     eis(fouten,/nog niet opgehaald/.test(box.querySelector('.rstatus').textContent),'zonder ophaalstatus meldt het scherm dat de lijst nog niet is opgehaald');
+    await sleep(100);
+    const actief=id=>($(w,'beheer').querySelector(`.dweg[data-weg="${id}"]`)||{}).closest?.('li')?.querySelector('.ractief')?.textContent||'';
+    eis(fouten,/^Laatst actief (vandaag|gisteren) \d\d:\d\d$/.test(actief('u2')),`bij Anna staat wanneer ze laatst actief was (nu: '${actief('u2')}')`);
+    eis(fouten,actief('u3')==='Nog niet actief geweest',`zonder last_seen staat er dat Piet nog niet actief was (nu: '${actief('u3')}')`);
+    eis(fouten,/Laatst actief bijgewerkt/.test($(w,'beheer').querySelector('.rstatus').textContent),'de statusregel noemt wanneer laatst actief is opgehaald');
     // een deel omzetten bij Piet
     box.querySelector('.chip[data-id="u3"][data-deel="voorreis"]').click(); await sleep(100);
     eis(fouten,mutaties.join(',')==='update'&&$(w,'beheer').querySelector('.chip[data-id="u3"][data-deel="voorreis"]').classList.contains('on'),'tik op een chip zet het deel aan en tekent de lijst opnieuw');

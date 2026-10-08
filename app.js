@@ -1240,6 +1240,38 @@ async function syncReizigers(){
   catch(e){ LS.set('aus_reizigers_status',{tijd:new Date().toISOString(),fout:e.message}); }
 }
 
+// Laatst actief, alleen voor de beheerder, op het scherm Reizigers. Komt uit de view reizigers_actief
+// (user_id, last_seen), die last_seen uit auth.users naast de reizigerslijst zet; Hasura geeft hem alleen
+// aan wie beheer=true heeft. Nhost zet last_seen bij inloggen en bij elk verversen van de sessie, en de
+// app ververst die zodra hij data ophaalt met een token van meer dan een kwartier oud. Het is dus het
+// laatste moment dat iemand de app met verbinding gebruikte; offline openen telt niet mee.
+// Bestaat de view nog niet, dan blijft de lijst gewoon werken en noemt de statusregel de reden.
+const Q_ACTIEF=`query{reizigers_actief{user_id last_seen}}`;
+let _actiefT=0;
+async function syncActief(){
+  if(!NH.user||!navigator.onLine||!isBeheerder()) return false;
+  _actiefT=Date.now();
+  const oud=LS.get('aus_cache_actief')||{};
+  try{
+    const d=await gql(Q_ACTIEF), lijst={};
+    (d.reizigers_actief||[]).forEach(x=>{ lijst[x.user_id]=x.last_seen||null; });
+    LS.set('aus_cache_actief',{tijd:new Date().toISOString(),lijst});
+  }catch(e){ LS.set('aus_cache_actief',{...oud,fout:e.message}); }
+  return true;
+}
+// '12 min geleden', 'vandaag 07:12', 'gisteren 21:40' of '6 okt 18:03', in de tijd van deze telefoon
+function fmtActief(iso){
+  const ms=tijdMs(iso); if(!ms) return null;
+  const d=new Date(ms), nu=new Date(), min=Math.floor((nu-d)/60000);
+  if(min<1) return 'zojuist';
+  if(min<60) return `${min} min geleden`;
+  const middernacht=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime();
+  const dagen=Math.round((middernacht(nu)-middernacht(d))/86400000), uur=`${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if(dagen===0) return `vandaag ${uur}`;
+  if(dagen===1) return `gisteren ${uur}`;
+  return fmtTijd(d.toISOString());
+}
+
 // Waarnemingen apart ophalen. Mislukt dit (bijvoorbeeld omdat de tabel nog niet bestaat), dan blijven
 // de notities gewoon werken en onthouden we de reden voor het scherm Dieren.
 async function syncWaarnemingen(){
@@ -1977,12 +2009,22 @@ function renderBeheer(){
   // fout hier kostte eerder een middag zoeken (kolom niet in de select-permissie).
   const status=!st?'De lijst is op deze telefoon nog niet opgehaald.'
     :st.fout?`Ophalen mislukt ${fmtTijd(st.tijd)}: ${st.fout}`:`Lijst opgehaald ${fmtTijd(st.tijd)}.`;
-  box.innerHTML=`<ul class="list rlijst">${lijst.map(r=>`<li><div class="rkop"><strong>${esc(r.naam)}</strong>`+
+  // Laatst actief: bij het openen van het scherm vers ophalen, hoogstens eens per minuut, en dan opnieuw
+  // tekenen. Tot die tijd (en offline) staat de vorige kopie er.
+  if(navigator.onLine&&Date.now()-_actiefT>60000) syncActief().then(ok=>{ if(ok&&view==='beheer') renderBeheer(); });
+  const act=LS.get('aus_cache_actief'), actLijst=(act&&act.lijst)||null;
+  const actRegel=r=>{
+    if(!actLijst) return '';
+    const t=fmtActief(actLijst[r.user_id]);
+    return `<span class="ractief">${t?`Laatst actief ${t}`:'Nog niet actief geweest'}</span>`;
+  };
+  const actStatus=!act?'':act.fout?` Laatst actief ophalen mislukt: ${act.fout}`:act.tijd?` Laatst actief bijgewerkt ${fmtTijd(act.tijd)}.`:'';
+  box.innerHTML=`<ul class="list rlijst">${lijst.map(r=>`<li><div class="rkop"><div class="rpersoon"><strong>${esc(r.naam)}</strong>${actRegel(r)}</div>`+
       (r.user_id===mij?`<span class="rjij">jij</span>`:`<button type="button" class="dweg" data-weg="${r.user_id}" aria-label="${esc(r.naam)} verwijderen" title="Verwijderen">×</button>`)+`</div>`+
       `<div class="chips">${DELEN.map(d=>chip(r,d)).join('')}</div></li>`).join('')||
       `<li><span class="sub">Nog niemand in de lijst.</span></li>`}</ul>`+
     `<div class="dagadd"><button class="btn" id="radd">＋ Reiziger toevoegen</button></div>`+
-    `<p class="rstatus${st&&st.fout?' fout':''}">${esc(status)}</p>`;
+    `<p class="rstatus${(st&&st.fout)||(act&&act.fout)?' fout':''}">${esc(status+actStatus)}</p>`;
   const ververs=()=>syncReizigers().then(()=>{ if(view==='beheer') renderBeheer(); });
   box.querySelectorAll('.rlijst .chip').forEach(c=>c.onclick=async()=>{
     const r=lijst.find(x=>x.user_id===c.dataset.id); if(!r) return;
@@ -2809,7 +2851,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-08-243';
+const APP_VERSIE='2026-10-09-244';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
