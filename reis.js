@@ -219,6 +219,7 @@ const DAYS=[
   "Bij de pinguïns is fotograferen met flits verboden en wit licht verstoort ze. Gebruik alleen een rode lamp, als de gids dat toestaat.",
   "De pinguïns komen pas twintig tot veertig minuten ná zonsondergang aan land, en de zon gaat rond 19.30 uur onder. Je staat dus een tijd te wachten in de kou aan zee. Neem een muts en een warme jas mee.",
   "In Bicheno ligt een blowhole aan de zuidkant van het dorp, een halfuur lopen van het motel. Bij aanlandige wind spuit die tot tien meter hoog. Dat kost niets, en met een verrekijker zie je soms pelsrobben op het eilandje voor de kust."],
+ note:"Morgen vroeg op. Om 06.45 uur sta je uitgecheckt met je bagage bij de bus. Om 07.00 uur ontbijt je in een lokaal café, en daar bestel je ook je lunch als je in Freycinet gaat wandelen.",
  rnote:"In Bicheno sluiten de meeste keukens om 20.00 uur, Lobster Shack zelfs om 19.00 uur, en daarna is er weinig meer te doen. De bus zet je in het centrum af, terug loop je zo'n twintig minuten. Met de pinguïntour om 19.15 uur eet je dus vroeg: Lobster Shack voor een vroege hap, of Sealife zodra het om 17.00 uur opengaat. Na de tour is het donker langs de weg, dus neem een zaklamp of je telefoon mee. De reisbegeleider noemt ook The Gulch (fish and chips) en Food and Brew, allebei aan Burgess Street in het centrum.",
  rest:[["Sealife Restaurant","Tasman Highway",4.4,2,13,"Het dichtst bij het motel, aan het strand met uitzicht op zee. Donderdag 17.00–20.00 uur.","Telefonisch: +61 3 6375 1121. Vraag om een tafel bij het raam."],
    ["Lobster Shack","Waubs Esplanade",4.3,2,29,"Vroeg en informeel, bestellen aan de balie, eten met zicht op zee, om 19.00 uur dicht. Meer een late lunch dan een diner, maar dit ís de lobster roll van Tasmanië.","Niet nodig. Bestellen aan de balie."]]},
@@ -228,16 +229,20 @@ const DAYS=[
   ["Witbuikzeearend","Boven Coles Bay en de Hazards. Kijk omhoog vanaf het uitzichtpunt.",2],
   ["Dolfijn en walvis","In Great Oyster Bay, vanaf het uitzichtpunt over Wineglass Bay. In oktober trekken bultruggen langs. Een spuit in de verte is goed mogelijk.",1]],
  agenda:[
-  ["07.00","Ontbijt","Inbegrepen."],
-  ["07.45","Bagage in de bus","Een kwartier voor vertrek."],
-  ["08.00","Vertrek","Onderweg haal je sandwiches op voor de lunch."],
-  ["09.30","Freycinet National Park","Drie keuzes. Naar het uitzichtpunt over Wineglass Bay, 3 km heen en terug, anderhalf tot twee uur. Door naar het witte strand en via dezelfde weg terug, 6 à 7 km, tweeënhalf tot drie uur. Of niet wandelen en uitrusten op het strandje bij Freycinet Lodge, waar je ook kunt lunchen."],
-  ["16.30","Aankomst in Hobart","De avond is vrij."]],
+  ["06.45","Bagage in de bus","Je staat uitgecheckt met je bagage bij de bus, en dan gaat alles erin."],
+  ["07.00","Ontbijt in een lokaal café","Inbegrepen. Ga je wandelen in Freycinet? Bestel hier dan meteen je lunch. Die is niet inbegrepen."],
+  ["Daarna","Naar Freycinet National Park","Ongeveer een uur rijden."],
+  ["Ochtend","Freycinet National Park","Twee wandelingen, of rust bij de lodge. Naar het uitzichtpunt over Wineglass Bay, 3 km heen en terug, anderhalf tot twee uur. Of door naar het witte strand en via dezelfde weg terug, 6 à 7 km, tweeënhalf tot drie uur. Wandel je niet, dan blijf je bij Freycinet Lodge, waar je ook luncht."],
+  ["Middag","Lunch","Wandelaars eten de lunch die ze bij het ontbijt bestelden, bij het uitzichtpunt of ergens anders langs de route. Wie bij de lodge blijft, luncht daar."],
+  ["Middag","Naar Hobart","Ongeveer drie uur en een kwartier rijden."],
+  ["17.00","Aankomst in Hobart","Inchecken in het Ibis Styles aan Macquarie Street. De avond is vrij."]],
  body:[
   "Vandaag brengen we een bezoek aan het Freycinet Nationaal Park. Dit nationale park is één van de oudste van Australië. Het park kenmerkt zich door de vele wandelpaden door bossen en langs prachtige stranden en baaien. Je hebt de mogelijkheid om hier een prachtige wandeling van ruim twee uur naar de schilderachtige Wineglass Bay te maken. Deze baai heeft een vorm van een wijnglas en is omringd door rode granieten pieken, eucalyptusbomen, wilde bloemen en ongerepte witte zandstranden. Naar het uitzichtpunt alleen ben je officieel een tot anderhalf uur kwijt. Sawadee rekent ruimer, met pauzes en foto’s.",
-  "Aan het eind van de middag arriveren we in Hobart, de hoofdstad van Tasmanië. Het is leuk om een wandeling te maken door het oude centrum. Hier maak je kennis met veel cultureel erfgoed van Australië, je loopt langs mooie historische gebouwen en oude arbeidershuisjes. De komende twee nachten slapen we in een comfortabel hotel, vijf tot twaalf minuten van Salamanca Place. Let op, vandaag is er een maaltijd inbegrepen."
+  "Aan het eind van de middag arriveren we in Hobart, de hoofdstad van Tasmanië. Het is leuk om een wandeling te maken door het oude centrum. Hier maak je kennis met veel cultureel erfgoed van Australië, je loopt langs mooie historische gebouwen en oude arbeidershuisjes. De komende twee nachten slapen we in een comfortabel hotel, vijf tot twaalf minuten van Salamanca Place. Het ontbijt is vandaag inbegrepen, de lunch niet."
  ],
- prac:["Boek vandaag alvast je MONA-tickets voor morgen. Ze zijn geregeld vooraf uitverkocht en de ferry erheen reserveer je apart.",
+ prac:["Ga je wandelen, bestel dan bij het ontbijt je lunch en neem hem mee in je dagrugzak. Je eet hem onderweg, dus neem ook genoeg water mee.",
+  "Je zit vandaag ruim vier uur in de bus, een uur naar Freycinet en ruim drie uur naar Hobart. Houd een trui en iets te eten bij de hand.",
+  "Boek vandaag alvast je MONA-tickets voor morgen. Ze zijn geregeld vooraf uitverkocht en de ferry erheen reserveer je apart.",
   "In het Ibis Styles is het ontbijt niet inbegrepen. Het wordt doordeweeks van 06.30 tot 09.30 uur geserveerd en in het weekend van 07.00 tot 10.00 uur. Op elke kamer staan koffie en thee."],
  rnote:"De reisbegeleider noemt ook Fish Frenzy aan Elizabeth Street Pier (vis en oesters aan het water, vrijdag tot 20.30 uur), de Drunken Admiral aan Hunter Street (vis, 17.00–22.00 uur) en Jack Greene op Salamanca Place (pub, met een goede zalmburger).",
  rest:[["Syra","Salamanca Square",4.7,2,11,"Midden-Oosters, de hoogste waardering van Salamanca. Kies de 'feed me' en laat de keuken beslissen.","Online. Klein, dus vooraf boeken."],
@@ -734,7 +739,7 @@ const WINKELS={
  ["Banjo's Bakehouse","bakker","Brisbane Street",7,"vanaf 5.00","Volgens de reisbegeleider de plek voor de picknicklunch van dag 7, als je die op dag 6 nog niet hebt gekocht. Om 05.00 uur al open, ruim voor het vertrek van 07.30 uur."]],
 "Wintersun Gardens Motel, Gordon Street":[
  ["Blue Edge Bakery","bakker","Burgess Street",22,"5.00–15.00","Het ontbijtadres van Bicheno: pies, broodjes, koffie en een echt ontbijt, al vanaf vijf uur. Ook een goede scallop pie. Het ligt in het centrum, ruim twintig minuten lopen van het motel."],
- ["IGA","supermarkt","Foster Street",21,"8.00–18.00","Supermarkt in het centrum, met brood van de bakker, fruit en zuivel. Sluit om zes uur, dus inslaan voor het avondeten of het ontbijt doe je meteen na aankomst."]],
+ ["IGA","supermarkt","Foster Street",21,"8.00–18.00","Supermarkt in het centrum, met brood van de bakker, fruit en zuivel. Sluit om zes uur. Het ontbijt van dag 9 is inbegrepen, maar wil je iets voor het avondeten of voor onderweg, sla dan meteen na aankomst in."]],
 "Ibis Styles, Macquarie Street":[
  ["Daci & Daci","bakker","Murray Street",7,"7.00–17.00","Bakker met ontbijt, vlak bij de haven. Croissants, danish en broodjes om mee te nemen."],
  ["Woolworths","supermarkt","Argyle Street",10,"7.00–22.00","Grote supermarkt in het centrum, elke dag dezelfde tijden."]],
