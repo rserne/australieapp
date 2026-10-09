@@ -242,30 +242,31 @@ const DAYS=[
  ],
  prac:["Ga je wandelen, bestel dan bij het ontbijt je lunch en neem hem mee in je dagrugzak. Je eet hem onderweg, dus neem ook genoeg water mee.",
   "Je zit vandaag ruim vier uur in de bus, een uur naar Freycinet en ruim drie uur naar Hobart. Houd een trui en iets te eten bij de hand.",
-  "Boek vandaag alvast je MONA-tickets voor morgen. Ze zijn geregeld vooraf uitverkocht en de ferry erheen reserveer je apart.",
   "In het Ibis Styles is het ontbijt niet inbegrepen. Het wordt doordeweeks van 06.30 tot 09.30 uur geserveerd en in het weekend van 07.00 tot 10.00 uur. Op elke kamer staan koffie en thee."],
+ note:"Morgen gaat de hele groep mee met de boottocht naar Tasman Island. Om 06.50 uur verzamel je bij de receptie. Leg vanavond warme kleding in laagjes en je wind- en regenjack klaar, en je zeeziektepillen als je die gebruikt.",
  rnote:"De reisbegeleider noemt ook Fish Frenzy aan Elizabeth Street Pier (vis en oesters aan het water, vrijdag tot 20.30 uur), de Drunken Admiral aan Hunter Street (vis, 17.00–22.00 uur) en Jack Greene op Salamanca Place (pub, met een goede zalmburger).",
  rest:[["Syra","Salamanca Square",4.7,2,11,"Midden-Oosters, de hoogste waardering van Salamanca. Kies de 'feed me' en laat de keuken beslissen.","Online. Klein, dus vooraf boeken."],
    ["Peppina","Salamanca Place",4.6,3,6,"Het dichtstbij en uitstekend. Italiaans met Tasmaanse producten. Iets duurder.","Online via de website van het restaurant of de reserveerknop in Google Maps."],
    ["Ball & Chain Grill","Salamanca Place",4.4,2,12,"Klassieke grill in een historisch pakhuis, houtskoolvuur.","Online via de website van het restaurant."]]},
 
-{n:10,r:"tas",k:"vrij",t:"Hobart",p:"Hobart",h:"Ibis Styles, Macquarie Street",tz:11,temp:"8–17°",
- wild:[["Pelsrob","Tijdens de boottocht bij Tasman Island, kolonies op de rotsen, tot vlak bij de boot. Als je die excursie kiest is dit zeker.",3],
+{n:10,r:"tas",k:"excursie",t:"Boottocht langs Tasman Island",p:"Hobart",h:"Ibis Styles, Macquarie Street",tz:11,temp:"rond 19°, droog, vanaf de middag meer wind",
+ wild:[["Pelsrob","Tijdens de boottocht bij Tasman Island, kolonies op de rotsen, tot vlak bij de boot. Vandaag zie je ze zeker.",3],
   ["Albatros","Op open zee bij Cape Pillar, met de boottocht. Reuzenalbatrossen met een spanwijdte van drie meter scheren langs.",2],
-  ["Bultrug en zuidkaper","Oktober is een goede maand bij Tasman Island. De schipper weet waar ze zitten. Ook vanaf MONA's veerboot heb je soms geluk op de Derwent.",2],
+  ["Bultrug en zuidkaper","Oktober is een goede maand bij Tasman Island. De schipper weet waar ze zitten.",2],
   ["Dolfijn","Bijna standaard bij de boottocht. Soms ook in de haven van Hobart.",2]],
  agenda:[
-  ["07.15","Tasman Island Cruise","Alleen als je hem hebt geboekt. Inchecken bij de haven om 07.15 uur, vertrek om 07.30 uur, terug rond 18.00 uur."],
-  ["08.30","Salamanca Market","Tot 15.00 uur, op tien minuten lopen van het hotel."]],
+  ["06.50","Verzamelen bij de receptie","De reisbegeleider loopt met je mee naar de check-in, een kwartiertje lopen."],
+  ["07.15","Inchecken Tasman Island Cruise","Daarna ga je met de bus naar het Tasman National Park, en daar stap je op de boot. Koffie of thee met iets lekkers en de lunch zijn inbegrepen."],
+  ["18.00","Terug in Hobart","Rond zes uur is de boottocht voorbij. Het programma duurt de hele dag."]],
  body:[
-  "Na Sydney is Hobart de oudste stad van Australië. Een leuk uitje is een bezoek aan het bijzondere Museum Old New Art (MONA). Van Hobart neem je de ferry naar het museum. Deze overtocht is op zichzelf al de moeite waard.",
-  "De ruige kustlijn van het zuidoosten van Tasmanië is bekend vanwege de grilligheid en de hoge kliffen. Een echte aanrader is om deel te nemen aan de optionele excursie met een boottocht waarin je dit prachtige gebied verkent. Je vaart langs het geïsoleerde Tasman Island en Cape Pillar, waar we vaak dolfijnen, albatrossen en zelfs walvissen zien."
+  "Vandaag gaat de hele groep mee met de boottocht. De ruige kust van het zuidoosten van Tasmanië is bekend om zijn grillige rotsen en de hoogste zeekliffen van het zuidelijk halfrond. Met de bus rijd je naar het Tasman National Park, en daar stap je op de boot. Je vaart langs het afgelegen Tasman Island en Cape Pillar, waar vaak dolfijnen, albatrossen en zelfs walvissen te zien zijn.",
+  "Het programma duurt de hele dag. Rond zes uur ben je terug in Hobart, na Sydney de oudste stad van Australië, en de avond is vrij."
  ],
- prac:["Salamanca Market is vanochtend, op tien minuten lopen. Hij loopt tot ongeveer 15.00 uur en veel kramen breken eerder af. Ga vroeg.",
-  "Op de markt is leatherwood honey de beste souvenir. Hij mag de EU in en je vindt hem nergens anders ter wereld.",
-  "Mount Wellington ligt op twintig minuten rijden en steekt 1.270 meter omhoog. Boven waait het bijna altijd hard en is het tien graden kouder dan in de stad. Er is geen kiosk. Met de Mt Wellington Express ga je naar de top, en dan kun je in anderhalf uur 5 km teruglopen naar Huon Road. Bij de Fern Tree Tavern stap je op de bus naar het centrum.",
-  "Ga je mee met de cruise? Dan check je in vóór het hotelontbijt begint, want dat begint op zaterdag om 07.00 uur. Aan boord krijg je koffie of thee met een muffin. Kleed je warm aan, want de boot is een overdekte speedboot en op het water is het koud.",
-  "Bonorong Wildlife Sanctuary, een halfuur rijden van Hobart, vangt inheemse dieren op, waaronder de Tasmaanse duivel. Eerst krijg je een rondleiding van een halfuur, daarna kijk je zelf nog een uur rond. De entree is A$32,50 en het park is open van 9.00 tot 17.00 uur. Deel een taxi."],
+ prac:["Het hotelontbijt begint op zaterdag pas om 07.00 uur, en dan ben je al weg. Onderweg krijg je koffie of thee met iets lekkers, en ook de lunch is inbegrepen.",
+  "Kleed je in laagjes, liever te veel dan te weinig, met een wind- en regenjack erover. Het wordt een graad of negentien en droog, maar op het water is het kouder dan in de stad en vanaf de middag waait het harder.",
+  "Heb je snel last van zeeziekte? Neem je pillen mee en slik ze een uur vóórdat je de boot op gaat. Aan boord is het te laat.",
+  "Neem je camera mee, en houd hem onder je jack als de boot door de golven gaat. Zout water is erger dan regen.",
+  "Leatherwood honey is het beste souvenir van Tasmanië. Hij mag de EU in en je vindt hem nergens anders ter wereld."],
  rest:[["Syra","Salamanca Square",4.7,2,11,"Zaterdag open vanaf 17.00 uur. Ook de reisbegeleider raadt hem aan.","Online. Zaterdag het snelst vol."],
    ["Peppina","Salamanca Place",4.6,3,6,"Zaterdag open vanaf 17.00 uur.","Online via de website van het restaurant."]]},
 
@@ -621,6 +622,8 @@ const PACK=[
  ["Muts en warme jas","Voor de pinguïntour: je staat na zonsondergang een tijd stil aan zee.",[8]],
  ["Legitimatiebewijs","Voor het zeebad van Bondi Icebergs, aan het eind van de wandeling.",[4]],
  ["Picknicklunch","Op dag 6 gekocht in Launceston, of vanochtend vroeg bij Banjo's.",[7]],
+ ["Laagjes en wind- en regenjack","Voor de boottocht. Op het water is het kouder dan in de stad, en vanaf de middag waait het harder. Liever te veel dan te weinig.",[10]],
+ ["Zeeziektepillen, als je ze gebruikt","Voor de boottocht. Slik ze een uur vóórdat je de boot op gaat.",[10]],
  ["Lunchpakket","Of je luncht in de bergen. Betalen kan daar alleen met een kaart.",[5]]
 ];
 
@@ -629,8 +632,7 @@ const EXC=[
  ["Rondleiding Sydney Opera House",3,"Geboekt · 09.00 uur","Rondleiding van een uur door de zalen en foyers. Melden bij het Welcome Centre op de Lower Concourse, een kwartier vooraf."],
  ["Scenic World Blue Mountains",5,"A$64, niet inbegrepen","In het hoogseizoen verplicht bij Scenic World, ook als je er alleen wilt lunchen of winkelen. Alleen met een creditcard of een Visa Debit- of Debit Mastercard-pas. Combikaart voor drie ritten, de steilste passagiersspoorlijn ter wereld met een helling van 52 graden, een kabelbaan over het Jamison-dal, en een boardwalk door het regenwoud beneden. Onbeperkt op en neer, reken op twee uur."],
  ["Pingu\u00efntour Bicheno",8,"Geboekt \u00b7 19.15 uur","Zelf geboekt via GetYourGuide; het verzamelpunt staat op de voucher. Avondwandeling met een gids naar een pingu\u00efnkolonie aan de oostkust van Tasmani\u00eb. De kleine pingu\u00efns komen na zonsondergang aan land. Ongeveer een uur. Flitsen mag niet."],
- ["MONA inclusief ferry",10,"\u00b1 A$65","Veerboot over de Derwent naar het grotendeels ondergrondse museum van David Walsh. Moderne kunst die bewust schuurt, uitgehakt in de zandsteen. Reken op een halve dag. De overtocht duurt een half uur."],
- ["Pennicott Tasman Island, hele dag",10,"\u20ac 210 via Sawadee","Van 07.30 tot 18.00 uur: naar het Tasman National Park en drie uur in een open boot langs de hoogste zeekliffen van het zuidelijk halfrond, met watervallen, rotsbogen en zeegrotten, zeehonden, dolfijnen, zeevogels en in het seizoen walvissen. Inchecken om 07.15 uur bij de haven. Koffie of thee met een muffin en de lunch zijn inbegrepen. Kleed je warm aan. De zee staat er vaak ruw, dus niet doen als je snel zeeziek wordt. Niet te combineren met MONA."],
+ ["Pennicott Tasman Island, hele dag",10,"\u20ac 210 via Sawadee","Van 07.30 tot 18.00 uur: naar het Tasman National Park en drie uur in een open boot langs de hoogste zeekliffen van het zuidelijk halfrond, met watervallen, rotsbogen en zeegrotten, zeehonden, dolfijnen, zeevogels en in het seizoen walvissen. Om 06.50 uur verzamelen bij de receptie, de reisbegeleider loopt mee naar de check-in. Koffie of thee met iets lekkers en de lunch zijn inbegrepen. Kleed je in laagjes, met een wind- en regenjack. De zee staat er vaak ruw, dus neem zeeziektepillen mee als je daar snel last van hebt."],
  ["Fietstour Melbourne",17,"\u20ac 100 via Sawadee","Ongeveer vier uur fietsen met een lokale gids langs de Yarra River, de Shrine of Remembrance, de Melbourne Cricket Ground, Parliament House en de straatkunst van Hosier Lane, met verhalen over de stad onderweg. Sawadee biedt hem vooraf aan."],
  ["Helikoptervlucht Uluru",18,"A$180\u2013250, zelf boeken","Boven Uluru en Kata Tjuta; alleen vanuit de lucht zie je hoe de rots in het vlakke land ligt. Zelf te boeken via flyuluru.com.au, en door het programma past alleen de sunset flight. Kies je die, dan mis je de zonsondergang bij het uitzichtpunt met de groep."],
  ["Sounds of Silence-diner",18,"\u00b1 A$285","Diner in de openlucht in de duinen. Champagne bij zonsondergang met zicht op Uluru, buffet met inheemse ingredi\u00ebnten, en na het eten gaan de lampen uit voor een sterrenkijksessie met een gids. Ongeveer vier uur."],
