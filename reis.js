@@ -308,6 +308,7 @@ const DAYS=[
   "De tram naar Glenelg valt buiten de gratis zone. Tik in en uit met je bankpas. Een aparte kaart heb je niet nodig.",
   "Gratis door het centrum en langs de oude huizen en kerken in het noorden: de City Loop-bus, lijnen 98A, 98C, 99A en 99C.",
   "Cleland Wildlife Park op Mount Lofty heeft koala's, kangoeroes en andere inheemse dieren. Het is elke dag open van 9.30 tot 17.00 uur, de entree is A$34,50. Met bus 864 of 823 vanaf King William Street ben je er in een uur."],
+ note:"Morgen vroeg weg. Ontbijt kan vanaf 06.30 uur, en om 07.15 uur sta je uitgecheckt met je bagage bij de receptie. Onderweg is lunchen improviseren, dus koop vandaag alvast iets voor een lunchpakket.",
  rnote:"Latteria, van gisteravond, is maandag gesloten. Deze drie zijn wel open.",
  rest:[["Part Time Lover","Paul Kelly Lane",4.8,2,22,"Modern Australisch, deelgerechten, in een steegje in het centrum. Zondag gesloten, maandag open, vandaag dus.","Online. Klein en gewild."],
    ["Chianti","Hutt Street",4.5,3,19,"Adelaidse klassieker sinds 1985, Italiaans. Zondag gesloten, maandag open.","Online via de website van het restaurant."],
@@ -319,18 +320,23 @@ const DAYS=[
   ["Kangoeroe","In de wijngaarden van Coonawarra tegen de avond, vaak in groepen tussen de rijen.",2],
   ["Emoe","Op de open velden rond Naracoorte, overdag vanuit de bus.",1]],
  agenda:[
-  ["Ochtend","Vertrek uit Adelaide","De vertrektijd volgt nog van de reisbegeleider."],
-  ["13.00","Naracoorte Caves","Rondleiding door de grotten, inbegrepen."],
-  ["15.00","DiGiorgio Family Wines","Wijnproeverij in Coonawarra, inbegrepen. De lunch betaal je zelf."],
-  ["16.00","Naar het Blue Lake Motel","Inchecken in Mount Gambier."]],
+  ["06.30","Ontbijt in het hotel","Vanaf half zeven."],
+  ["07.15","Vertrek uit Adelaide","Uitgecheckt en met je bagage bij de receptie. De tassen gaan de bus in en dan vertrek je."],
+  ["Onderweg","Lunch","Niet inbegrepen, en het wordt een beetje improviseren. Neem een lunchpakket mee uit Adelaide, of koop iets bij een tankstation onderweg."],
+  ["13.00","Victoria Fossil Cave","Rondleiding van een uur in Naracoorte Caves, inbegrepen. Langs druipsteen naar de fossielenkamer, waar je zo'n half uur zit."],
+  ["15.30","DiGiorgio Family Wines","Wijnproeverij in Coonawarra, inbegrepen. Hier kun je ook een kaasplankje bestellen, al is dat laat voor een lunch."],
+  ["Daarna","Naar het Blue Lake Motel","Inchecken in Mount Gambier, voor één nacht. Het ontbijt van morgen is inbegrepen."]],
  body:[
   "We vervolgen vandaag onze route richting Mount Gambier. Onderweg bezoeken we het Nationaal Park Naracoorte Caves. Deze grotten staan op de UNESCO Werelderfgoedlijst vanwege hun uitzonderlijke fossielen en de resten van uitgestorven megafauna. Daarna rijden we door de wijnregio Coonawarra, beroemd om haar Cabernet Sauvignon, die zijn faam dankt aan de rode terra rossa-grond. Bij DiGiorgio Family Wines proef je hem zelf.",
+  "Deze dag is nieuw in het programma, ook voor de reisbegeleider. Vanaf vandaag rijdt een plaatselijke chauffeur-gids met de groep mee tot Melbourne, en tot Melbourne reist ook een stagiaire mee.",
   "De dag eindigt in Mount Gambier. Bij de stad ligt een uitgedoofde vulkaan met daarin het prachtige kratermeer Blue Lake. Een bijzondere plek met helderblauw water en fraaie tuinen rondom."
  ],
  prac:["Blue Lake verschiet pas in november van staalgrijs naar kobaltblauw. In oktober zie je hem nog in zijn winterkleur, mooi maar niet de ansichtkaart.",
   "Vraag bij de proeverij in Coonawarra naar de munt- en eucalyptustoon in de cabernet. Dat is de handtekening van deze streek.",
-  "In de Naracoorte-grotten is het constant zo'n zeventien graden en vochtig. Een extra laag in de bus laten liggen is hier zonde."],
- note:"Je slaapt in het Blue Lake Motel aan Kennedy Avenue, en het ontbijt is inbegrepen. Het motel ligt op een heuvel buiten het centrum en de twee restaurants hieronder liggen 3 en 8 km verderop, dus je hebt vervoer nodig. De reisbegeleider noemt ook The Gates aan Morris Street, met een westerse keuken. De hoogst gewaardeerde adressen van Mount Gambier, Elementary, Fat Frog en de Brewery, zijn op dinsdag gesloten.",
+  "In de Naracoorte-grotten is het constant zo'n zeventien graden en vochtig. Een extra laag in de bus laten liggen is hier zonde.",
+  "Trek dichte, stevige schoenen aan. In de Victoria Fossil Cave loop je zo'n 400 meter over paden en trappen, met ongeveer vijftig treden naar binnen en een steil hellend pad naar buiten.",
+  "Voor de lunch heb je drie mogelijkheden. Neem een lunchpakket mee uit Adelaide, koop iets bij een tankstation onderweg, of bestel om half vier een kaasplankje bij de wijnproeverij. Dat laatste is wel laat, dus houd iets te eten achter de hand."],
+ note:"Je slaapt één nacht in het Blue Lake Motel aan Kennedy Avenue, en het ontbijt is inbegrepen. Het motel ligt op een heuvel buiten het centrum en de twee restaurants hieronder liggen 3 en 8 km verderop, dus je hebt vervoer nodig. De reisbegeleider noemt ook The Gates aan Morris Street, met een westerse keuken. De hoogst gewaardeerde adressen van Mount Gambier, Elementary, Fat Frog en de Brewery, zijn op dinsdag gesloten.",
  rest:[["Thyme at the Lakes","Lake Terrace West, Mount Gambier",4.4,2,0,"Modern Australisch met uitzicht over de stad en de kratermeren, dinsdag 18.00–22.00 uur. Beoordelingen lopen uiteen, veel lof voor eten en uitzicht, kritiek op prijs en bediening. Zo'n 3 km van het motel.","Online of telefonisch. Reserveren aanbevolen."],
    ["The Barn Steakhouse","Glenelg River Road, Mount Gambier",4.4,3,0,"Klassiek steakhouse, zeven dagen open van 17.30 tot 22.00 uur. Grote porties, goede wijnkaart, prijzig. Ligt 8 km buiten de stad, dus zeker een taxi.","Online of telefonisch."]]},
 
@@ -634,6 +640,8 @@ const PACK=[
  ["Picknicklunch","Op dag 6 gekocht in Launceston, of vanochtend vroeg bij Banjo's.",[7]],
  ["Laagjes en wind- en regenjack","Voor de boottocht. Op het water is het kouder dan in de stad, en vanaf de middag waait het harder. Liever te veel dan te weinig.",[10]],
  ["Zeeziektepillen, als je ze gebruikt","Voor de boottocht. Slik ze een uur vóórdat je de boot op gaat.",[10]],
+ ["Lunch voor onderweg","Voor de rit naar Mount Gambier. De lunch is niet inbegrepen en het wordt improviseren.",[13]],
+ ["Dichte, stevige schoenen","Voor de trappen en paden in de Victoria Fossil Cave.",[13]],
  ["Lunchpakket","Of je luncht in de bergen. Betalen kan daar alleen met een kaart.",[5]]
 ];
 
