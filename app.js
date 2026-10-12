@@ -591,9 +591,7 @@ function tipsKaart(d){
       (open?`<div class="topen">${esc(open)}</div>`:'')+`</li>`;
   }).join('');
   return `<details class="card rcard tcard"><summary>`+
-    `<span class="rtop"><span class="role">Tips van ${esc(tipsVan())}</span>`+
-    `<span class="rname">${lijst.length===1?'1 adres':lijst.length+' adressen'}</span>`+
-    `<span class="rkort">${esc(lijst.map(x=>x[0]).join(' · '))}</span></span><span class="rchev">${ICO_CHEV}</span></summary>`+
+    `<span class="rtop"><span class="role">Tips van ${esc(tipsVan())}</span></span><span class="rchev">${ICO_CHEV}</span></summary>`+
     `<div class="rbody"><ul class="tlijst">${rijen}</ul></div></details>`;
 }
 const IC_KLOK='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
@@ -2872,7 +2870,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-12-252';
+const APP_VERSIE='2026-10-12-253';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

@@ -1562,7 +1562,7 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-10-12');
     const kaart=w.document.querySelector('#day details.tcard');
     eis(fouten,kaart&&!kaart.open&&/Tips van Maarten/.test(kaart.querySelector('.role').textContent),'dag 12 heeft een dichtgeklapte kaart Tips van Maarten');
-    eis(fouten,kaart&&kaart.querySelectorAll('.tlijst .tip').length===10&&/10 adressen/.test(kaart.querySelector('.rname').textContent),'de kaart toont de tien adressen onder elkaar');
+    eis(fouten,kaart&&kaart.querySelectorAll('.tlijst .tip').length===10&&!kaart.querySelector('summary .rname, summary .rkort'),'de kaart toont de tien adressen onder elkaar, met alleen het label in de kop');
     eis(fouten,kaart&&kaart.nextElementSibling&&kaart.nextElementSibling.classList.contains('rcard')&&!kaart.nextElementSibling.classList.contains('tcard'),'de restaurants volgen na de tips');
     const call=w.document.querySelector('#day .callout');
     eis(fouten,!/reisbegeleider noemt/.test(w.document.getElementById('day').textContent),'de tips staan niet meer als lange tekst op de pagina');
