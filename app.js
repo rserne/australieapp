@@ -200,7 +200,7 @@ function render(){
     h+=`<h2>${exToday.some(e=>/^Geboekt/.test(e[2]))?'Geboekt en optioneel vandaag':'Optioneel vandaag'}</h2><ul class="list">`+
       exToday.map(([a,,c,om])=>`<li><div class="row"><span><strong>${esc(a)}</strong></span>`+
         `<span class="r${/^Geboekt/.test(c)?' booked':''}">${esc(c)}</span></div>`+
-        (om?`<span class="sub" style="display:block;margin-top:4px">${esc(om)}</span>`:'')+
+        (om?`<span class="sub" style="display:block;margin-top:4px">${linkify(om)}</span>`:'')+
         `</li>`).join('')+`</ul>`;
   }
   const packToday=PACK.filter(p=>p[2].some(x=>dagNr(x)===cur));
@@ -211,7 +211,7 @@ function render(){
   }
   if(d.prac){
     h+=`<h2>Goed om te weten</h2><ul class="list prac">`+
-      d.prac.map(x=>`<li><span class="b">•</span><span>${esc(x)}</span></li>`).join('')+`</ul>`;
+      d.prac.map(x=>`<li><span class="b">•</span><span>${linkify(x)}</span></li>`).join('')+`</ul>`;
   }
   if(d.wild){
     const dots=k=>`<span class="chance" title="${['','Geluk nodig','Goede kans','Bijna zeker'][k]}">${'●'.repeat(k)}${'○'.repeat(3-k)}</span>`;
@@ -2851,7 +2851,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-12-248';
+const APP_VERSIE='2026-10-12-249';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

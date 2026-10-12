@@ -328,6 +328,8 @@ De dagen 4 tot en met 16 zijn in uitgave 227 bijgewerkt met de hand-out van de r
 
 In uitgave 248 zijn op dezelfde manier de dagen 18 tot en met 26 bijgewerkt met deel 2 van het programma van de reisbegeleider (Uluru, Alice Springs, West MacDonnell Ranges, Cairns en Perth). Erbij kwamen de tijdschema's van dag 18 tot en met 20, het hotel in Alice Springs (keuken, wasmachines, geen restaurant), waar je Aboriginal-kunst koopt, de eettips in `rnote`, de bezienswaardigheden van Alice Springs als excursies op dag 19, de Lagoon, de boardwalk en de nachtmarkt in Cairns, het advies om Green Island over te slaan, Kings Park en de stranden bij Perth, en de veerboot naar Rottnest vanaf de Barrack Street Jetty. Standley Chasm staat niet in het schema van de reisbegeleider, en dat zegt de app ook. Ook deel 2 staat niet in de repository.
 
+Sinds uitgave 249 zijn links, e-mailadressen en telefoonnummers in Goed om te weten en bij de optionele excursies aanklikbaar, net als in de notities. Daar staat bijvoorbeeld de link om de veerboot naar Rottnest te boeken.
+
 ## Verhaal van de dag
 
 Sinds uitgave 238 heeft elke dag van de groepsreis een verhaal over de geschiedenis van de plek waar je die dag bent, in `verhalen.js`. Achter elkaar gelezen vormen ze één lijn, van tienduizenden jaren Aboriginal-geschiedenis tot de excuses van 2008 en het referendum van 2023, met een Nederlandse draad erdoorheen: Tasman, de Duyfken, De Vlamingh, de Batavia en de emigranten van na de oorlog. Per verhaal staan er een titel (`t`), de alinea's (`tekst`, samen zo'n 200 tot 300 woorden) en een bron (`bron`). De sleutel is het dagnummer; een voorreis- of nareisdag kan met zijn datum als sleutel, zoals `"2026-09-20"`.

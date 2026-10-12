@@ -308,7 +308,7 @@ const DAYS=[
   "De tram naar Glenelg valt buiten de gratis zone. Tik in en uit met je bankpas. Een aparte kaart heb je niet nodig.",
   "Gratis door het centrum en langs de oude huizen en kerken in het noorden: de City Loop-bus, lijnen 98A, 98C, 99A en 99C.",
   "Cleland Wildlife Park op Mount Lofty heeft koala's, kangoeroes en andere inheemse dieren. Het is elke dag open van 9.30 tot 17.00 uur, de entree is A$34,50. Met bus 864 of 823 vanaf King William Street ben je er in een uur."],
- note:"Morgen vroeg weg. Ontbijt kan vanaf 06.30 uur, en om 07.15 uur sta je uitgecheckt met je bagage bij de receptie. Onderweg is lunchen improviseren, dus koop vandaag alvast iets voor een lunchpakket.",
+ note:"Morgen vroeg weg. Ontbijt kan vanaf 06.30 uur, en om 07.15 uur sta je uitgecheckt met je bagage bij de receptie. Onderweg is lunchen improviseren, dus koop vandaag alvast iets voor een lunchpakket. Ga je in Perth naar Rottnest Island? Boek dan zo snel mogelijk je veerboot, zie dag 26.",
  rnote:"Latteria, van gisteravond, is maandag gesloten. Deze drie zijn wel open.",
  rest:[["Part Time Lover","Paul Kelly Lane",4.8,2,22,"Modern Australisch, deelgerechten, in een steegje in het centrum. Zondag gesloten, maandag open, vandaag dus.","Online. Klein en gewild."],
    ["Chianti","Hutt Street",4.5,3,19,"Adelaidse klassieker sinds 1985, Italiaans. Zondag gesloten, maandag open.","Online via de website van het restaurant."],
@@ -625,7 +625,8 @@ const DAYS=[
  prac:["Je kunt vanuit Perth of vanuit Fremantle varen. Volgens de reisbegeleider vertrekt de veerboot van SeaLink om 08.30 uur vanaf de Barrack Street Jetty, pier 3, en ben je na een stuk over de Swan River om 10.00 uur op Rottnest. Een retour kost A$50,85 en de laatste boot terug gaat om 19.00 uur. Vanuit Fremantle is de overtocht korter.",
   "Quokka's aanraken en voeren is verboden en er staat een boete op. Ze komen uit zichzelf dichtbij. Ga op je hurken zitten en wacht.",
   "Er is één winkel op het eiland, bij Thomson Bay, en die is duur. Neem je lunch mee vanaf het vasteland.",
-  "Boek de veerboot vooraf, via sealink.com.au of bij Rottnest Express. Een huurfiets boek je bij de veerdienst meteen mee, voor A$37. Op mooie dagen zit de boot vol."],
+  "Boek je veerboot zo snel mogelijk, dat raadt de reisbegeleider aan. Bij SeaLink kan dat via https://www.sealink.com.au/rottnest-island/bookings/ferry. Op mooie dagen zit de boot vol.",
+  "Een huurfiets boek je bij de veerdienst meteen mee, voor A$37. Fietsen hoeft niet, want over het eiland rijdt ook een hop-on-hop-offbus."],
  rnote:"Ugly Baby en The Standard zijn maandag gesloten. Deze twee niet.",
  rest:[["KARLA","Wellington Street",4.9,2,5,"Maandag open vanaf 17.30 uur.","Online via de website van het restaurant."],
    ["Italian Street Kitchen","Raine Square, William Street",4.4,2,3,"Drie minuten lopen, zeven dagen open.","Online, of binnenlopen."]]},
@@ -702,7 +703,7 @@ const EXC=[
  ["Great Barrier Reef Cruise",22,"\u20ac 230 via Sawadee","Van 08.15 tot 17.00 uur: in anderhalf uur vanuit Cairns naar een ponton op Moore Reef, en dan vijf uur op het rif. Snorkelen, een glasbodemboot en het onderwaterobservatorium zijn inbegrepen, net als een buffetlunch. Tegen bijbetaling een snorkeltour met een marien bioloog, een introductieduik of een helikoptervlucht boven het rif. Reken op een aparte rifheffing."],
  ["Kuranda-trein en Skyrail",23,"\u00b1 A$140","Historische trein uit 1891 omhoog door vijftien tunnels en langs de Barron-watervallen naar het bergdorp Kuranda, en met de kabelbaan over het bladerdak terug. Als combinatieticket goedkoper dan los."],
  ["Fremantle Prison",25,"\u00b1 A$25","Rondleiding door de gevangenis die dwangarbeiders in de negentiende eeuw voor zichzelf bouwden en die tot 1991 in gebruik bleef. UNESCO-werelderfgoed. Anderhalf uur. Er is ook een tunneltour door de watergangen eronder."],
- ["Rottnest met veerboot en fiets",26,"\u00b1 A$110","Overtocht vanuit Perth of Fremantle plus een huurfiets voor de dag. Het rondje over het eiland is ongeveer 22 kilometer langs baaien en zoutmeren, met genoeg afslagen om het korter te maken."]
+ ["Rottnest met veerboot en fiets",26,"\u00b1 A$110","Overtocht vanuit Perth of Fremantle plus een huurfiets voor de dag. Boek de veerboot zo snel mogelijk via https://www.sealink.com.au/rottnest-island/bookings/ferry, want hij zit vaak vol. Liever niet fietsen? Er rijdt ook een hop-on-hop-offbus over het eiland. Het rondje over het eiland is ongeveer 22 kilometer langs baaien en zoutmeren, met genoeg afslagen om het korter te maken."]
 ];
 
 // ============================================================
