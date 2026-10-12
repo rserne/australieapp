@@ -439,6 +439,10 @@ const DAYS=[
   ["Zebravink en woestijnparkiet","Zwermen bij elk stukje water, ook de sproeiers van het resort. Woestijnparkieten alleen als het geregend heeft.",3],
   ["Dingo","Rond het resort en langs de wegen, vooral vroeg in de ochtend. Blijf op afstand en laat geen eten liggen.",1]],
  fl:[["JQ 664","Melbourne, terminal 4","Ayers Rock (Connellan)","08.50","10.30 (lokale tijd, klok anderhalf uur terug)","Jetstar · 20 kg"]],
+ agenda:[
+  ["10.30","Aankomst bij Uluru","Je landt op Ayers Rock Airport bij Yulara. Hoe de rest van de dag loopt, hangt af van de vluchttijden."],
+  ["Middag","Optioneel: helikoptervlucht boven Uluru","Volgens de reisbegeleider is de beschikbaarheid zeer beperkt. Wil je mee, regel het dan zo vroeg mogelijk."],
+  ["Avond","Uluru bij zonsondergang","Met de groep naar de rots."]],
  body:[
   "Door beperkte beschikbaarheid op de binnenlandse vluchten is dit deel van de route vanaf 1 oktober 2026 aangepast. Het traject van Alice Springs naar Uluru is omgedraaid. Je vliegt vanochtend van Melbourne naar Uluru, zodat je die middag voldoende tijd hebt om de omgeving te verkennen en de optionele helikoptervlucht kunt maken.",
   "Uluru, ook wel Ayers Rock genoemd, is het spirituele en geografische hart van Australië. Voor de Anangu, de traditionele bewoners, is dit een heilige plaats die met groot respect wordt beschermd. Samen met het omliggende land staat Uluru op de UNESCO Werelderfgoedlijst. Vandaag ervaar je de immense uitgestrektheid en verlatenheid van de Australische woestijn.",
@@ -448,7 +452,11 @@ const DAYS=[
   "Sommige delen van Uluru mag je niet fotograferen. Het gaat om heilige plekken van de Anangu. Er staan borden bij. Dat verbod geldt ook voor foto's die je alleen thuis laat zien.",
   "Er rijdt een gratis pendelbus die elke twintig minuten alle hotels van het resort aandoet.",
   "Het resort is de enige plek om iets te kopen en de prijzen liggen hoog. Sla je snacks in Melbourne in. Water hoef je niet te kopen. Het kraanwater hier en in Alice Springs is grondwater, veilig maar mineraalrijk en wat zouterig van smaak. Wie het je afraadt, wil je een fles verkopen.",
-  "Het is hier overdag ruim tien graden warmer dan in Melbourne. Pak je warme kleren onder in je koffer en leg je zomerkleren bovenop."],
+  "Het is hier overdag ruim tien graden warmer dan in Melbourne. Pak je warme kleren onder in je koffer en leg je zomerkleren bovenop.",
+  "In het resort zijn winkels en een supermarkt. Een geldautomaat staat volgens de reisbegeleider in de lobby van het resort.",
+  "Zijn er veel vliegen, koop dan een vliegennet voor over je hoofd. Ze liggen in de supermarkt en in de boekwinkel van het resort."],
+ note:"Morgen vroeg op voor de zonsopgang bij Uluru. Hoe laat de bus vertrekt, hangt af van het seizoen. De reisbegeleider laat het weten.",
+ rnote:"De reisbegeleider noemt ook het Bough House Restaurant, met een buffetdiner, en de Outback Kiosk voor afhaaleten zoals pizza, burgers, wraps en salades, met picknicktafels buiten.",
  food:[["Kangoeroe","Mager en donker, als steak of in worst."],["Kameel","Australië heeft de grootste wilde kamelenpopulatie ter wereld. Mild en iets zoet."],["Quandong","Inheemse woestijnperzik, zurig, vaak in chutney of dessert."],["Wattleseed","Geroosterd acaciazaad, smaakt naar koffie en hazelnoot."],["Damper","Sodabrood dat oorspronkelijk in de as van het kampvuur werd gebakken. Vaak met golden syrup."],["Bush tomato","Kakadu-pruim en bushtomaat, kleine inheemse vruchten met een scherpe, bijna kaneelachtige smaak, meestal als chutney."]],
  rest:[["Arnguli Grill","Desert Gardens Hotel",4.5,2,8,"Het beste à-la-carterestaurant van het resort. 18.00–20.30 uur. Sounds of Silence staat apart, onder 'Optioneel vandaag'.","Online via de site van Ayers Rock Resort, of aan de receptie. Zonder reservering word je weggestuurd. Boek nu al."],
    ["Ilkari Restaurant","Sails in the Desert",4.3,2,13,"Uitgebreid buffet rond de A$105 p.p., met oesters, krab, kangoeroe en lamskoteletten. Reserve als Arnguli vol zit. Onder je norm van 4,4, maar de keus in Yulara is klein.","Via de site van Ayers Rock Resort of de receptie."],
@@ -460,13 +468,22 @@ const DAYS=[
   ["Wedgestaartarend","Op en boven de weg, bij aangereden dieren. De grootste roofvogel van Australië. Vanuit de bus goed te zien.",3],
   ["Rode reuzenkangoeroe en emoe","In het open land langs de weg, in de vroege ochtend en late middag.",2],
   ["Brumby","Verwilderde paarden in kleine groepen, soms vlak langs de weg.",1]],
+ agenda:[
+  ["Vroeg","Zonsopgang bij Uluru","De vertrektijd hangt af van het seizoen. De reisbegeleider laat hem weten."],
+  ["Daarna","Ontbijt in het hotel","Terug naar het Outback Hotel voor het ontbijt."],
+  ["Daarna","Met de bus naar Alice Springs","Zo'n 450 kilometer door de outback, langs Mount Conner."],
+  ["Aankomst","Desert Palms Alice Springs","Barrett Drive 74, voor twee nachten."]],
  body:[
   "Vandaag reis je door naar Alice Springs, dwars door de outback. Ondanks dat dit de op twee na grootste stad van het Northern Territory is, wonen hier slechts zo’n 30.000 mensen. Alice Springs is de perfecte uitvalsbasis om de bezienswaardigheden in de omgeving te ontdekken en een bijzondere plek om te overnachten midden in de uitgestrekte outback.",
   "Het resort ligt bij de golfbaan en het casino, zo’n twintig minuten lopen ten zuiden van het centrum."
  ],
  prac:["Onderweg zie je Mount Conner, een enorme tafelberg die veel reizigers voor Uluru aanzien. De Australiërs noemen hem 'Fooluru'. Hij ligt op privéland.",
   "De weg terug naar het hotel over Barrett Drive en Gap Road is 's avonds slecht verlicht. Een taxi kost hier weinig en is onder reizigers gebruikelijk.",
-  "Alice Springs heeft strenge regels rond alcoholverkoop. Slijterijen zijn maar een deel van de dag open en je moet je paspoort tonen. In restaurants merk je er niets van."],
+  "Alice Springs heeft strenge regels rond alcoholverkoop. Slijterijen zijn maar een deel van de dag open en je moet je paspoort tonen. In restaurants merk je er niets van.",
+  "Desert Palms heeft kamers met een keuken, gratis wifi, een zwembad, wasmachines en een balie waar je tours boekt. Een restaurant is er niet.",
+  "Wil je Aboriginal-kunst kopen, doe dat dan bij een kunstcentrum dat de gemeenschap zelf runt en niet bij een commerciële galerie. Die centra zijn voor afgelegen gemeenschappen een belangrijke bron van inkomsten. Op desart.com.au staan ze bij elkaar. In Alice Springs zijn dat onder meer Mwerre Anthurre Artists, Tjanpi Desert Weavers, Yarrenyty Arltere Artists en Iltja Ntjarra Many Hands Art Centre aan Wilkinson Street 29. Daar zie je de kunstenaars van maandag tot en met donderdag van 10.00 tot 15.00 uur aan het werk."],
+ wash:"Desert Palms heeft wasmachines voor de gasten. Handig, want je blijft hier twee nachten.",
+ rnote:"De reisbegeleider noemt ook het ontbijtbuffet van het DoubleTree by Hilton naast het hotel, rond de A$35, en daar kun je ook lunchen. In hetzelfde DoubleTree zit Hanuman (Aziatisch). Juicy Rump in Lasseters Casino aan Barrett Drive, links naast het DoubleTree, serveert pubeten. Verder Todd Tavern aan Todd Street 1 en de eetgelegenheden in en rond de Todd Mall in het centrum, een klein halfuur lopen.",
  rest:[["Q Eats","Todd Street / Gap Road",4.7,2,22,"Thais, de hoogste waardering van Alice Springs en het dichtst bij het hotel. De rode eendencurry is het gerecht.","Telefonisch: +61 476 763 067, of binnenlopen."],
    ["Warung Makan","Hartley Street",4.8,2,24,"Indonesisch, buiten eten. Nasi goreng, rendang en beef rib.","Telefonisch: +61 418 391 119. Zonder reservering moet je meestal even wachten."]]},
 
@@ -475,11 +492,19 @@ const DAYS=[
   ["Zebravink en spinifexduif","Bij de waterpoelen van Ellery Creek en Ormiston Gorge, in zwermen.",3],
   ["Perentie","De grootste hagedis van Australië, tot twee meter, zonnend op rotsen langs de paden.",1],
   ["Dingo","Rond de picknickplaatsen. Op afstand blijven.",1]],
+ agenda:[
+  ["07.30","Vertrek","Naar de West MacDonnell Ranges."],
+  ["09.30","Ormiston Gorge","Aankomst en wandeling door de kloof."],
+  ["Daarna","Picknicklunch","Bij Ormiston Gorge."],
+  ["12.30","Naar de Ochre Pits","Een halfuur rijden."],
+  ["Middag","Ellery Creek Big Hole","Vrije tijd, en je kunt er zwemmen."],
+  ["17.00","Terug in het hotel","Rond vijf uur."]],
  body:[
   "We gaan vroeg uit de veren en vertrekken naar de West MacDonnell Ranges, in het Arrernte Tjoritja geheten, een prachtig nationaal park met spectaculaire bergruggen, droge valleien en kloven. Tijdens deze excursie bezoeken we onder andere Ormiston Gorge, een kloof die bekend staat om zijn outbacklandschap met hoge rode kliffen, ruige rotsformaties en een permanente waterpoel. Vanaf diverse uitkijkpunten heb je prachtig uitzicht op het omringende landschap.",
   "Voor het nemen van een verfrissende duik gaan we naar Ellery Creek Big Hole, waar je kunt zwemmen tussen twee hoge rotsen in. Vervolgens bezoeken we de Standley Chasm. Door eeuwen van erosie strekken de wanden van deze kloof zich bijna 100 meter omhoog. Aan het einde van de middag gaan we weer terug naar Alice Springs."
  ],
- prac:["Standley Chasm is in beheer van de Arrernte-gemeenschap en heeft een eigen entree, los van het nationale park. De wanden lichten alleen rond het middaguur oranje op. Een uur eerder of later sta je in de schaduw.",
+ prac:["Neem zwemspullen en een handdoek mee als je bij Ellery Creek wilt zwemmen.",
+  "Standley Chasm, dat Sawadee noemt, staat niet in het schema van de reisbegeleider.",
   "Ellery Creek is dieper dan het lijkt en het water blijft het hele jaar rond de vijftien graden. Laat je er rustig in zakken en spring er niet in.",
   "Ormiston Gorge heeft als enige stop een bezoekerscentrum met toiletten en schaduw. Plan je pauze daar."],
  rest:[["Warung Makan","Hartley Street",4.8,2,24,"Ook dinsdag open. De beste keuken van de stad volgens de beoordelingen.","Telefonisch: +61 418 391 119."],
@@ -496,11 +521,16 @@ const DAYS=[
   "Je hebt ruim de tijd om de omgeving te ontdekken. Cairns leent zich uitstekend als uitvalsbasis voor enkele fantastische dagexcursies. Deze bieden wij ter plaatse optioneel aan. Ga bijvoorbeeld mee naar het Daintree Rainforest en ontdek alles wat het Daintree Rainforest en Cape Tribulation te bieden hebben.",
   "Speur naar krokodillen tijdens een cruise op de Daintree River. Leer meer over de flora, fauna en geschiedenis tijdens een boardwalk-tour met een ervaren gids. Maak een 4WD-tocht door het regenwoud, bezoek Cape Tribulation Beach en geniet van een huisgemaakt Daintree-ijsje op de terugreis."
  ],
- wash:"Tweede waskans, mocht je in Melbourne niet alles hebben meegegeven. Vraag bij de receptie of het hotel een wasservice heeft. Het is een kleiner, zelfstandig hotel, dus reken er niet op. Zelf doen kan bij Cairns Laundromat aan Sheridan Street (4,5 op Google), acht minuten lopen, open van 05.00 tot 23.00 uur, betalen met de pas. Gebruik de droger. Bij deze luchtvochtigheid droogt niets uit zichzelf.",
+ wash:"Nog een waskans, als je in Melbourne of Alice Springs niet alles hebt gewassen. Vraag bij de receptie of het hotel een wasservice heeft. Het is een kleiner, zelfstandig hotel, dus reken er niet op. Zelf doen kan bij Cairns Laundromat aan Sheridan Street (4,5 op Google), acht minuten lopen, open van 05.00 tot 23.00 uur, betalen met de pas. Gebruik de droger. Bij deze luchtvochtigheid droogt niets uit zichzelf.",
  prac:["De klok gaat een half uur vooruit, van het Northern Territory naar Queensland. Queensland kent geen zomertijd, de rest van de oostkust wel.",
-  "Zwemmen in zee is hier niet vanzelfsprekend, ook niet op mooie stranden. Er is een gratis lagune aan de Esplanade waar je wel veilig het water in kunt.",
+  "Je vliegt pas om 12.50 uur, dus misschien heb je de ochtend nog in Alice Springs. Het Desert Park gaat om 7.30 uur open en het Bean Tree Café in de Olive Pink Botanic Garden op woensdag om 8.00 uur. Vraag de reisbegeleider hoe laat de bus naar het vliegveld gaat.",
+  "Het Cairns Plaza Hotel staat aan de Esplanade 145, telefoon +61 7 4051 4688.",
+  "Zwemmen in zee is hier niet vanzelfsprekend, ook niet op mooie stranden. Aan de Esplanade ligt de Lagoon, een gratis zoutwaterzwembad met gras en strand, elke dag open van 6.00 tot 21.00 uur. Op woensdag gaat hij pas om 12.00 uur open.",
+  "Langs de kust loopt een boardwalk van drie kilometer van het centrum naar het noorden. Je ziet er soms pelikanen, lepelaars en vleerhonden.",
+  "De nachtmarkt aan Abbott Street 54–60 is elke dag open van 16.30 tot 22.30 uur, met souvenirs en eten.",
   "Tropische kwallen komen hier het hele jaar voor. Van november tot mei is het risico het grootst, maar in oktober is het niet nul. Volg de aanwijzingen van de bemanning en trek het beschermende pak aan dat je aan boord krijgt. Krokodillen zitten er altijd, dus blijf uit riviermondingen en mangroven."],
  food:[["Mud crab","Grote modderkrab met chili of zwarte bonensaus. Je krijgt er een slabbetje bij, en dat heb je nodig."],["Moreton Bay bugs","Platte kreeftachtigen met zoet, stevig vlees."],["Coral trout","De fijnste rifvis, delicaat en duur."],["Tropisch fruit","Mango, papaja, lychee, passievrucht. Op de markten ook durian."],["Bundaberg ginger beer","Alcoholvrij gemberbier uit Queensland, gebrouwen sinds 1968. Overal verkrijgbaar."],["Barramundi","Hier op zijn best, vaak met mango-salsa."]],
+ rnote:"De reisbegeleider noemt ook Villa Romana Trattoria (goed Italiaans, Esplanade 99 op de hoek met Aplin Street, 6.30–22.00 uur), Perrotta's at the Gallery (Italiaans, Abbott Street 38, 6.30–21.00 uur), Tha Fish (vis met havenzicht in het Pier Shopping Centre, 11.30–15.00 en 17.30–21.00 uur, maandag alleen lunch, dinsdag dicht, liefst reserveren) en Ochre (Australisch met kangoeroe en krokodil, Marlin Parade 1, 11.30–21.30 uur, zondag dicht, reserveren). Voor een drankje buiten zit je goed bij de Salthouse Bar op Marina Point, Pier Point Road, die ook Australisch eten serveert.",
  rest:[["Little Sister","Esplanade",4.6,2,8,"Het dichtstbij en uitstekend. Aziatische fusion, verse zeevruchten, oesters en lobster roll.","Telefonisch: +61 7 4031 5400, of online."],
    ["Dundees on the Waterfront","Marlin Parade",4.6,2,18,"Aan de jachthaven, 4,6 over ruim 5.500 beoordelingen. Het Australische proefplankje met kangoeroe en krokodil is de klassieker.","Online via de website van het restaurant. Reserveren nodig."]]},
 
@@ -516,7 +546,10 @@ const DAYS=[
  ],
  prac:["Op rifexcursies komt vrijwel altijd een aparte rifheffing bovenop de prijs, zo'n acht dollar per persoon per dag. Die zit meestal níét in het geboekte bedrag. Houd contant of pas bij de hand.",
   "Draag het beschermende pak dat de boot aanbiedt, ook als het niet verplicht is. Het beschermt tegen kwallen én zon, en is beter voor het koraal dan zonnebrand.",
-  "Het is anderhalf tot twee uur varen over open zee. Zeeziektepillen werken alleen als je ze een uur vóór vertrek neemt, niet aan boord."],
+  "Het is anderhalf tot twee uur varen over open zee. Zeeziektepillen werken alleen als je ze een uur vóór vertrek neemt, niet aan boord.",
+  "De reisbegeleider raadt de cruises naar Green Island af. Het water is daar altijd wat troebel en er leeft minder dan op het buitenrif.",
+  "Slecht weer, of wil je niet het water in? Het Cairns Aquarium aan Florence Street 5 is dan een goed alternatief. Open van 9.30 tot 15.30 uur, entree A$58."],
+ rnote:"Meer eettips van de reisbegeleider staan bij dag 21.",
  rest:[["Little Sister","Esplanade",4.6,2,8,"Kort lopen na een lange dag op zee.","Telefonisch: +61 7 4031 5400."],
    ["Sails","Esplanade zuid",4.4,2,19,"Klein, Peruaans-Aziatisch, aan het water. Donderdag 16.00–21.00 uur.","Telefonisch: +61 403 441 669. Klein, dus vooraf bellen."]]},
 
@@ -533,7 +566,9 @@ const DAYS=[
  ],
  prac:["In het water bij Cape Tribulation kun je niet zwemmen, hoe uitnodigend het strand ook is. Er leven zoutwaterkrokodillen en de borden staan er niet voor niets.",
   "De Kuranda-trein rijdt maar twee keer per dag omhoog. Trein heen en Skyrail terug is de combinatie die de meeste mensen achteraf aanraden. Vooraf boeken als combinatieticket scheelt geld.",
-  "De Daintree River-cruise op zoek naar krokodillen gaat het beste vroeg in de ochtend of laat in de middag. Midden op de dag liggen de dieren uit het zicht."],
+  "De Daintree River-cruise op zoek naar krokodillen gaat het beste vroeg in de ochtend of laat in de middag. Midden op de dag liggen de dieren uit het zicht.",
+  "Een vierde mogelijkheid is een dagtocht naar de Atherton Tablelands, met watervallen, vogelbekdieren en bijzondere vijgenbomen. Je boekt hem via het hotel, bij een van de reisbureautjes in de stad of online."],
+ rnote:"Meer eettips van de reisbegeleider staan bij dag 21.",
  rest:[["Dundees on the Waterfront","Marlin Parade",4.6,2,18,"Laatste avond in de tropen. Vraag naar de coral trout of de mud crab.","Online via de website van het restaurant."],
    ["Little Sister","Esplanade",4.6,2,8,"Vrijdag tot 21.00 uur.","Telefonisch: +61 7 4031 5400."]]},
 
@@ -551,7 +586,9 @@ const DAYS=[
  prac:["De klok gaat in twee stappen twee uur terug, een half uur bij aankomst in Darwin, nog anderhalf uur bij aankomst in Perth. De overstap in Darwin is twee uur. Je bagage gaat door, dus je hoeft alleen van gate te wisselen.",
   "West-Australië heeft eigen quarantaineregels. Vers fruit en groente, honing, ongebrande noten, zaden en planten zijn beperkt of verboden. Fabrieksmatig verpakt en bewerkt voedsel (geroosterde noten, chocola, koekjes) mag gewoon mee. Bij twijfel, aangeven of in de bak bij de aankomsthal.",
   "In het centrum rijden de gratis CAT-bussen, herkenbaar aan rood, blauw, geel en groen. Je kunt er zonder kaart of pas op.",
-  "Het is hier tien graden koeler dan in Cairns en 's avonds fris aan zee. Je lange broek kun je weer bovenop leggen."],
+  "Het is hier tien graden koeler dan in Cairns en 's avonds fris aan zee. Je lange broek kun je weer bovenop leggen.",
+  "Ibis Perth staat aan Murray Street 334, telefoon +61 8 9214 4320."],
+ rnote:"De reisbegeleider noemt ook Angel Falls Grill (Zuid-Amerikaans, Shafto Lane 16), het Belgian Beer Café (hoek King Street en Murray Street), Simple Italian Cucina & Pizzeria (Murray Street 413) en Miss Mi (Aziatisch, Murray Street 388).",
  food:[["Western rock lobster","De belangrijkste visserij van de staat, en volgens velen de beste kreeft van Australië."],["Marron","Grote zoetwaterkreeft, alleen in het zuidwesten. Zoet en delicaat."],["Chilli mussels","Mosselen in pittige tomatensaus. Een Fremantle-uitvinding."],["Margaret River-wijn","Cabernet en Chardonnay van wereldklasse, drie uur naar het zuiden."],["Little Creatures Pale Ale","Uit de brouwerij aan de haven van Fremantle. Een van de bieren die de Australische ambachtelijke brouwerij op gang bracht."]],
  rest:[["KARLA","Wellington Street",4.9,2,5,"De hoogst gewaardeerde zaak van je hele reis. Moderne vuurkeuken met Aziatische invloeden en inheemse ingrediënten. 'karla' is Noongar voor vuur.","Online via de website van het restaurant. Boek vóór vertrek uit Nederland."],
    ["Ugly Baby","Wellington Street",4.7,2,7,"Mediterraan, deelgerechten, 'feed me'-menu.","Online. Zelfde eigenaar als KARLA."],
@@ -564,11 +601,13 @@ const DAYS=[
   ["Pelikaan","Op de aanlegsteigers bij Fishing Boat Harbour, wachtend op wat overblijft.",3]],
  body:[
   "Vandaag heb je vrije tijd om Perth en omgeving te ontdekken. Een van de hoogtepunten is de havenstad Fremantle, door de locals vaak Freo genoemd. Vanuit het centrum van Perth reis je in een half uur met de trein naar deze bruisende plek. Onderweg kom je langs de mooiste stranden, waaronder het bekende Cottesloe Beach. Dit strand is ideaal voor een ontspannen dag aan zee, of om simpelweg te genieten van de zonsondergang die hier spectaculair is.",
-  "In Fremantle zelf vind je prachtig bewaard gebleven Victoriaanse panden, variërend van kerken en huizen tot gezellige barretjes. Je kunt er een bezoek brengen aan het WA Shipwrecks Museum, met de resten van de Batavia, of aan de historische Fremantle Prison. Als je er in het weekend bent, is de Fremantle Market een aanrader om rond te struinen voor souvenirs en lekkere hapjes. Voor een verfrissende pauze is bierbrouwerij Little Creatures een fijne plek om lokaal bier te proeven. Of zoek de kust weer op bij Bathers Beach, een fijne plek om neer te strijken bij een strandtent voor een hapje of een drankje."
+  "In Fremantle zelf vind je prachtig bewaard gebleven Victoriaanse panden, variërend van kerken en huizen tot gezellige barretjes. Je kunt er een bezoek brengen aan het WA Shipwrecks Museum, met de resten van de Batavia, of aan de historische Fremantle Prison. Als je er in het weekend bent, is de Fremantle Market een aanrader om rond te struinen voor souvenirs en lekkere hapjes. Voor een verfrissende pauze is bierbrouwerij Little Creatures een fijne plek om lokaal bier te proeven. Of zoek de kust weer op bij Bathers Beach, een fijne plek om neer te strijken bij een strandtent voor een hapje of een drankje.",
+  "Blijf je liever in Perth? Begin dan in Kings Park, het grote stadspark op de heuvel boven de stad. Beklim de DNA Tower voor het uitzicht over de skyline en de Swan River, loop over de Lotterywest Federation Walkway, een loopbrug van glas en staal door de boomtoppen, en zoek de baobab Gija Jumulu op. Die is in 2008 over 3.200 kilometer weg uit de Kimberley hierheen gebracht. Daarna kun je met de veerboot over de Swan River, die overdag elk halfuur vaart en rond zonsondergang op zijn mooist is. Of slenter langs Elizabeth Quay, door het levendige Northbridge en het rustigere, artistieke Leederville. In het centrum, in Northbridge en rond William Street zie je veel streetart."
  ],
  prac:["Perth is de enige grote stad van Australië waar de zon ín zee zakt. Overal elders kijk je oostwaarts. Cottesloe Beach is daar de plek voor, op de terugweg uit Fremantle.",
   "In het Shipwrecks Museum staat het originele achterschip van de Batavia, plus de stenen poort die als ballast meevoer en nooit in Batavia is aangekomen. Voor Nederlanders het merkwaardigste museumstuk van de reis.",
-  "De Fremantle Market is alleen vrijdag, zaterdag en zondag open. Vandaag treft het dus goed."],
+  "De Fremantle Market is alleen vrijdag, zaterdag en zondag open. Vandaag treft het dus goed.",
+  "Zin in een stranddag? Neem de bus naar Cottesloe Beach, met wit zand, helderblauw water en strandcafés. Het rustigere Trigg Beach, verder naar het noorden, is de plek van de surfers."],
  tip:"Bestel op de Cappuccino Strip de chilli mussels. Dit is waar het gerecht vandaan komt.",
  rest:[["KARLA","Wellington Street",4.9,2,5,"Zondag vanaf 11.00 uur. Kreeg je gisteren geen plek? Probeer het vandaag opnieuw.","Online via de website van het restaurant."],
    ["Ugly Baby","Wellington Street",4.7,2,7,"Zondag vanaf 12.00 uur.","Online."]]},
@@ -583,10 +622,10 @@ const DAYS=[
   "Vandaag heb je de mogelijkheid om Rottnest Island te bezoeken, dat op slechts een half uur varen ligt vanaf de haven van Fremantle. Tickets kun je het beste vooraf reserveren. Vraag de reisbegeleider voor meer informatie. Het eiland is autovrij en de fiets is hier het populairste vervoermiddel. Bij aankomst kun je een fiets huren en het eiland verkennen langs felblauwe wateren, witte verlaten stranden, rotsachtige baaien en tropische planten. Vergeet je zwemspullen niet, want dit is ook de perfecte plek om te zwemmen, snorkelen en duiken.",
   "Naast de prachtige natuur staat Rottnest Island bekend om de beroemde quokka’s, kleine buideldiertjes die ook wel het gelukkigste dier ter wereld worden genoemd vanwege hun permanente ‘glimlach’ en het gebrek aan natuurlijke vijanden. Aan hen dankt het eiland zijn naam. Willem de Vlamingh zag ze in 1696 voor grote ratten aan en noemde het ’t Eylandt ’t Rottenest. Het is een unieke ervaring om deze vrolijke diertjes van dichtbij te zien terwijl je langs de idyllische kust fietst."
  ],
- prac:["Vaar vanuit Fremantle, niet vanuit Perth of Hillarys. De overtocht is korter en goedkoper. Vanuit de stad ben je bijna twee keer zo lang onderweg.",
+ prac:["Je kunt vanuit Perth of vanuit Fremantle varen. Volgens de reisbegeleider vertrekt de veerboot van SeaLink om 08.30 uur vanaf de Barrack Street Jetty, pier 3, en ben je na een stuk over de Swan River om 10.00 uur op Rottnest. Een retour kost A$50,85 en de laatste boot terug gaat om 19.00 uur. Vanuit Fremantle is de overtocht korter.",
   "Quokka's aanraken en voeren is verboden en er staat een boete op. Ze komen uit zichzelf dichtbij. Ga op je hurken zitten en wacht.",
   "Er is één winkel op het eiland, bij Thomson Bay, en die is duur. Neem je lunch mee vanaf het vasteland.",
-  "Boek de veerboot vooraf bij Rottnest Express of SeaLink. Op mooie dagen zit hij vol."],
+  "Boek de veerboot vooraf, via sealink.com.au of bij Rottnest Express. Een huurfiets boek je bij de veerdienst meteen mee, voor A$37. Op mooie dagen zit de boot vol."],
  rnote:"Ugly Baby en The Standard zijn maandag gesloten. Deze twee niet.",
  rest:[["KARLA","Wellington Street",4.9,2,5,"Maandag open vanaf 17.30 uur.","Online via de website van het restaurant."],
    ["Italian Street Kitchen","Raine Square, William Street",4.4,2,3,"Drie minuten lopen, zeven dagen open.","Online, of binnenlopen."]]},
@@ -640,6 +679,7 @@ const PACK=[
  ["Picknicklunch","Op dag 6 gekocht in Launceston, of vanochtend vroeg bij Banjo's.",[7]],
  ["Laagjes en wind- en regenjack","Voor de boottocht. Op het water is het kouder dan in de stad, en vanaf de middag waait het harder. Liever te veel dan te weinig.",[10]],
  ["Zeeziektepillen, als je ze gebruikt","Voor de boottocht. Slik ze een uur vóórdat je de boot op gaat.",[10]],
+ ["Vliegennet, als je er een hebt","Voor de vliegen in de outback. Anders koop je er een in de supermarkt of de boekwinkel van het resort.",[18]],
  ["Lunch voor onderweg","Voor de rit naar Mount Gambier. De lunch is niet inbegrepen en het wordt improviseren.",[13]],
  ["Dichte, stevige schoenen","Voor de trappen en paden in de Victoria Fossil Cave.",[13]],
  ["Lunchpakket","Of je luncht in de bergen. Betalen kan daar alleen met een kaart.",[5]]
@@ -652,13 +692,17 @@ const EXC=[
  ["Pingu\u00efntour Bicheno",8,"Geboekt \u00b7 19.15 uur","Zelf geboekt via GetYourGuide; het verzamelpunt staat op de voucher. Avondwandeling met een gids naar een pingu\u00efnkolonie aan de oostkust van Tasmani\u00eb. De kleine pingu\u00efns komen na zonsondergang aan land. Ongeveer een uur. Flitsen mag niet."],
  ["Pennicott Tasman Island, hele dag",10,"\u20ac 210 via Sawadee","Van 07.30 tot 18.00 uur: naar het Tasman National Park en drie uur in een open boot langs de hoogste zeekliffen van het zuidelijk halfrond, met watervallen, rotsbogen en zeegrotten, zeehonden, dolfijnen, zeevogels en in het seizoen walvissen. Om 06.50 uur verzamelen bij de receptie, de reisbegeleider loopt mee naar de check-in. Koffie of thee met iets lekkers en de lunch zijn inbegrepen. Kleed je in laagjes, met een wind- en regenjack. De zee staat er vaak ruw, dus neem zeeziektepillen mee als je daar snel last van hebt."],
  ["Fietstour Melbourne",17,"\u20ac 100 via Sawadee","Ongeveer vier uur fietsen met een lokale gids langs de Yarra River, de Shrine of Remembrance, de Melbourne Cricket Ground, Parliament House en de straatkunst van Hosier Lane, met verhalen over de stad onderweg. Sawadee biedt hem vooraf aan."],
- ["Helikoptervlucht Uluru",18,"A$180\u2013250, zelf boeken","Boven Uluru en Kata Tjuta; alleen vanuit de lucht zie je hoe de rots in het vlakke land ligt. Zelf te boeken via flyuluru.com.au, en door het programma past alleen de sunset flight. Kies je die, dan mis je de zonsondergang bij het uitzichtpunt met de groep."],
+ ["Helikoptervlucht Uluru",18,"A$180\u2013250, zelf boeken","Boven Uluru en Kata Tjuta; alleen vanuit de lucht zie je hoe de rots in het vlakke land ligt. Zelf te boeken via flyuluru.com.au. Volgens de reisbegeleider is de beschikbaarheid zeer beperkt, dus boek zo vroeg mogelijk. Kies een vlucht die niet samenvalt met de zonsondergang, want dan ga je met de groep naar de rots."],
  ["Sounds of Silence-diner",18,"\u00b1 A$285","Diner in de openlucht in de duinen. Champagne bij zonsondergang met zicht op Uluru, buffet met inheemse ingredi\u00ebnten, en na het eten gaan de lampen uit voor een sterrenkijksessie met een gids. Ongeveer vier uur."],
+ ["Alice Springs Desert Park",19,"A$42","Ruim opgezet dierenpark met de dieren en planten van de woestijn, aan Larapinta Drive, 2,5 km buiten de stad. Open van 7.30 tot 18.00 uur."],
+ ["Royal Flying Doctor Service",19,"A$22","Museum over de vliegende dokters, aan Stuart Terrace 8–10. Open van 9.30 tot 17.00 uur, op zondag van 13.00 tot 16.00 uur."],
+ ["Alice Springs Reptile Centre",19,"A$23","Hagedissen en slangen uit de woestijn, aan Stuart Terrace 9. Open van 9.30 tot 17.00 uur."],
+ ["Olive Pink Botanic Garden",19,"Gratis, donatie welkom","Botanische tuin met planten uit de woestijn, open van 8.00 tot 18.00 uur. In de tuin zit het Bean Tree Café, een goed adres voor ontbijt of lunch, volgens de reisbegeleider open van woensdag tot en met zondag, 8.00 tot 15.00 uur."],
  ["Daintree en Cape Tribulation",23,"\u20ac 75 via Sawadee","Hele dag met gids: cruise op de Daintree River op zoek naar krokodillen, boardwalk door het oudste regenwoud ter wereld, een 4WD-tocht door het bos en het strand van Cape Tribulation waar het bos de zee raakt, met een Daintree-ijsje op de terugweg. Zwemmen kan er niet."],
  ["Great Barrier Reef Cruise",22,"\u20ac 230 via Sawadee","Van 08.15 tot 17.00 uur: in anderhalf uur vanuit Cairns naar een ponton op Moore Reef, en dan vijf uur op het rif. Snorkelen, een glasbodemboot en het onderwaterobservatorium zijn inbegrepen, net als een buffetlunch. Tegen bijbetaling een snorkeltour met een marien bioloog, een introductieduik of een helikoptervlucht boven het rif. Reken op een aparte rifheffing."],
  ["Kuranda-trein en Skyrail",23,"\u00b1 A$140","Historische trein uit 1891 omhoog door vijftien tunnels en langs de Barron-watervallen naar het bergdorp Kuranda, en met de kabelbaan over het bladerdak terug. Als combinatieticket goedkoper dan los."],
  ["Fremantle Prison",25,"\u00b1 A$25","Rondleiding door de gevangenis die dwangarbeiders in de negentiende eeuw voor zichzelf bouwden en die tot 1991 in gebruik bleef. UNESCO-werelderfgoed. Anderhalf uur. Er is ook een tunneltour door de watergangen eronder."],
- ["Rottnest met veerboot en fiets",26,"\u00b1 A$110","Overtocht vanuit Fremantle plus een huurfiets voor de dag. Het rondje over het eiland is ongeveer 22 kilometer langs baaien en zoutmeren, met genoeg afslagen om het korter te maken."]
+ ["Rottnest met veerboot en fiets",26,"\u00b1 A$110","Overtocht vanuit Perth of Fremantle plus een huurfiets voor de dag. Het rondje over het eiland is ongeveer 22 kilometer langs baaien en zoutmeren, met genoeg afslagen om het korter te maken."]
 ];
 
 // ============================================================
@@ -778,7 +822,7 @@ const WINKELS={
  ["Kulata Academy Cafe","bakker","Town Square, Yulara",10,"7.00–14.00","Broodjes, pies en gebak om mee te nemen, naast de IGA."]],
 "Desert Palms Resort, Barrett Drive":[
  ["Coles","supermarkt","Bath Street",23,"7.00–19.00","In het centrum, dus overdag lopen of een taxi. Sluit al om zeven uur: koop vóór het avondeten."],
- ["Woolworths","supermarkt","Bath Street",25,"7.00–19.00","Even verderop dan Coles, dezelfde tijden. Geen bakker in de buurt van het hotel."]],
+ ["Woolworths","supermarkt","Hartley Street 40",25,"7.00–19.00, maandag vanaf 8.00","Even verderop dan Coles. Op maandag, de aankomstdag, gaat hij volgens de reisbegeleider pas om acht uur open. Geen bakker in de buurt van het hotel."]],
 "Cairns Plaza Hotel, Esplanade":[
  ["Woolworths","supermarkt","Abbott Street",14,"6.00–22.00, weekend vanaf 7.00","Grote supermarkt met bakkerij. Op de vertrekdag naar Perth (zaterdag) vanaf zeven uur open, ruim voor de vlucht van 10.45 uur."],
  ["Palms Supermarket","supermarkt","Aplin Street",8,"6.00–24.00","Dichterbij en lang open, maar fors duurder dan Woolworths."]],
