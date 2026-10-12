@@ -684,6 +684,7 @@ const DAYS=[
   "De Fremantle Market is alleen vrijdag, zaterdag en zondag open. Vandaag treft het dus goed.",
   "Zin in een stranddag? Neem de bus naar Cottesloe Beach, met wit zand, helderblauw water en strandcafés. Het rustigere Trigg Beach, verder naar het noorden, is de plek van de surfers."],
  tip:"Bestel op de Cappuccino Strip de chilli mussels. Dit is waar het gerecht vandaan komt.",
+ note:"Morgen naar Rottnest. De veerboot vertrekt om 09.00 uur vanuit Fremantle, dus neem rond acht uur de trein vanaf Perth Station. Neem water, zonnebrand, een windjack en je zwemspullen mee.",
  tips:TIPS_PERTH,
  rest:[["KARLA","Wellington Street",4.9,2,5,"Zondag vanaf 11.00 uur. Kreeg je gisteren geen plek? Probeer het vandaag opnieuw.","Online via de website van het restaurant."],
    ["Ugly Baby","Wellington Street",4.7,2,7,"Zondag vanaf 12.00 uur.","Online."]]},
@@ -694,6 +695,11 @@ const DAYS=[
   ["Bultrug","Vanaf West End en Cape Vlamingh. Oktober is de beste maand voor walvissen bij Rottnest. Blijf even staan op het uitkijkpunt. Ze laten zich niet meteen zien.",2],
   ["Visarend","Nesten van takken op rotspunten langs de zuidkust, al tientallen jaren in gebruik.",3],
   ["Koningsskink en rifvissen","Skinks in het struikgewas langs de paden. Bij The Basin en Little Salmon Bay zwem je tussen felgekleurde rifvissen.",3]],
+ agenda:[
+  ["08.00","Met de trein naar Fremantle","Vanaf Perth Station met de Fremantle-lijn, ongeveer een halfuur. Zorg dat je ruim voor negenen bij de veerboot in Fremantle bent."],
+  ["09.00","Veerboot naar Rottnest","Van SeaLink, vanuit Fremantle. Je bent er rond half tien.","Eigen boeking"],
+  ["09.30","Fietsen ophalen","De fietsen zijn al gehuurd. Fiets eerst naar het westen, naar Cathedral Rocks en West End, zolang de wind nog rustig is.","Eigen boeking"],
+  ["16.00","Veerboot terug naar Fremantle","Daarna met de trein terug naar Perth.","Eigen boeking"]],
  body:[
   "Vandaag heb je de mogelijkheid om Rottnest Island te bezoeken, dat op slechts een half uur varen ligt vanaf de haven van Fremantle. Tickets kun je het beste vooraf reserveren. Vraag de reisbegeleider voor meer informatie. Het eiland is autovrij en de fiets is hier het populairste vervoermiddel. Bij aankomst kun je een fiets huren en het eiland verkennen langs felblauwe wateren, witte verlaten stranden, rotsachtige baaien en tropische planten. Vergeet je zwemspullen niet, want dit is ook de perfecte plek om te zwemmen, snorkelen en duiken.",
   "Naast de prachtige natuur staat Rottnest Island bekend om de beroemde quokka’s, kleine buideldiertjes die ook wel het gelukkigste dier ter wereld worden genoemd vanwege hun permanente ‘glimlach’ en het gebrek aan natuurlijke vijanden. Aan hen dankt het eiland zijn naam. Willem de Vlamingh zag ze in 1696 voor grote ratten aan en noemde het ’t Eylandt ’t Rottenest. Het is een unieke ervaring om deze vrolijke diertjes van dichtbij te zien terwijl je langs de idyllische kust fietst."
@@ -758,6 +764,7 @@ const PACK=[
  ["Picknicklunch","Op dag 6 gekocht in Launceston, of vanochtend vroeg bij Banjo's.",[7]],
  ["Laagjes en wind- en regenjack","Voor de boottocht. Op het water is het kouder dan in de stad, en vanaf de middag waait het harder. Liever te veel dan te weinig.",[10]],
  ["Zeeziektepillen, als je ze gebruikt","Voor de boottocht. Slik ze een uur vóórdat je de boot op gaat.",[10]],
+ ["Water, zonnebrand en een windjack","Voor de fietstocht op Rottnest. Onderweg zijn alleen een paar kranen, en 's middags waait het vaak hard.",[26]],
  ["Handdoek, hoed, zonnebril en zonnebrand","Voor de dag op het rif. Neem het mee zoals voor een dag aan het strand.",[22]],
  ["Vliegennet, als je er een hebt","Voor de vliegen in de outback. Anders koop je er een in de supermarkt of de boekwinkel van het resort.",[18]],
  ["Lunch voor onderweg","Voor de rit naar Mount Gambier. De lunch is niet inbegrepen en het wordt improviseren.",[13]],
