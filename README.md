@@ -330,6 +330,8 @@ In uitgave 248 zijn op dezelfde manier de dagen 18 tot en met 26 bijgewerkt met 
 
 In uitgave 250 en 251 is deel 1 nog eens nagelopen voor de dagen 12 tot en met 17. Daarbij kwamen de eettips voor Adelaide, Warrnambool en Melbourne, de wandelingen op Mount Lofty, het adres van het Blue Lake Motel, een wandelroute door het centrum van Melbourne en drie excursies op dag 17 (Aboriginal Heritage Walk, Eureka Skydeck en Melbourne Museum). De dagen vóór dag 12 zijn niet opnieuw nagelopen, omdat die al voorbij waren.
 
+Sinds uitgave 252 staan de eettips van de reisbegeleider niet meer als lange tekst in `rnote`, maar als lijst `tips` bij de dag: per adres `[naam, wat, waar, openingstijden]`. De app toont ze bij Eten vanavond in één dichtgeklapte kaart "Tips van Maarten", vóór de eigen restaurantkeuzes, met de adressen onder elkaar en elk adres als link naar de kaart. De naam komt uit `REISBEGELEIDER` in `reis.js`. Voor steden waar je meer nachten blijft, staat de lijst één keer bovenin `reis.js` (`TIPS_HOBART`, `TIPS_ADELAIDE`, `TIPS_MELBOURNE`, `TIPS_ALICE`, `TIPS_CAIRNS`, `TIPS_PERTH`) en hangt hij aan elke dag in die stad. `rnote` is er weer alleen voor korte opmerkingen over openingstijden. `check.js` controleert de vorm van de tips en zoeken in Alle dagen vindt ze ook.
+
 Sinds uitgave 249 zijn links, e-mailadressen en telefoonnummers in Goed om te weten en bij de optionele excursies aanklikbaar, net als in de notities. Daar staat bijvoorbeeld de link om de veerboot naar Rottnest te boeken.
 
 ## Verhaal van de dag

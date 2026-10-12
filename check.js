@@ -2,10 +2,10 @@
 // Controleert reis.js en voorreis.js vóór je een nieuwe versie online zet:  node check.js
 // Sluit af met code 1 als er iets mis is, zodat je het ook in een git pre-commit hook kunt zetten.
 const fs=require('fs'), vm=require('vm');
-const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','TONE_INK','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN','SOS','WINKELS'];
+const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','TONE_INK','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN','SOS','WINKELS','REISBEGELEIDER'];
 // const-declaraties komen niet op het context-object terecht. Daarom halen we ze expliciet terug
 const data=vm.runInNewContext(fs.readFileSync(__dirname+'/reis.js','utf8')+`;({${NAMEN.join(',')}})`,{});
-const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,TONE_INK,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN,SOS,WINKELS}=data;
+const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,TONE_INK,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN,SOS,WINKELS,REISBEGELEIDER}=data;
 
 const fouten=[], waarschuwingen=[];
 const fout=m=>fouten.push(m), waarschuw=m=>waarschuwingen.push(m);
@@ -58,6 +58,9 @@ function controleerDag(d,w,buiten){
     // loopminuten: een getal, 0 = vervoer nodig, -1 = in het hotel zelf
     if(r[4]!==null&&r[4]!==undefined&&(typeof r[4]!=='number'||r[4]<-1)) fout(`${w}: restaurant ${r[0]} heeft loopminuten '${r[4]}'`);
   });
+  // Tips van de reisbegeleider: [naam, wat, waar, openingstijden], alles tekst, naam verplicht
+  if('tips' in d&&!Array.isArray(d.tips)) fout(`${w}: tips moet een lijst zijn`);
+  (Array.isArray(d.tips)?d.tips:[]).forEach(x=>{ if(!Array.isArray(x)||x.length!==4||!x[0]||!x.every(v=>typeof v==='string')) fout(`${w}: tip '${(x||[])[0]}' verwacht [naam, wat, waar, openingstijden] als tekst`); });
   (d.wild||[]).forEach(x=>{ if(x.length!==3||![1,2,3].includes(x[2])) fout(`${w}: dier '${x[0]}' verwacht [naam, tekst, kans 1–3]`); });
   (d.agenda||[]).forEach(a=>{ if(a.length<3||a.length>4) fout(`${w}: agendapunt '${a[1]}' verwacht [tijd, titel, tekst, privé?]`); });
   (d.food||[]).forEach(x=>{ if(x.length!==2) fout(`${w}: gerecht '${x[0]}' verwacht [naam, tekst]`); });
@@ -192,6 +195,7 @@ Object.entries(CHECKIN).forEach(([k,c])=>{ if(c.length!==3||!/^https:\/\//.test(
 BOEKINGEN.forEach(b=>{ if(b.length!==3) fout(`BOEKINGEN '${b[0]}': verwacht [naam, tekst, sleutel]`); });
 NOOD.forEach(n=>{ if(n.length!==2) fout(`NOOD '${n[0]}': verwacht [naam, tekst]`); });
 if(typeof BAGAGE!=='string') fout('BAGAGE ontbreekt');
+if(typeof REISBEGELEIDER!=='string'||!REISBEGELEIDER) fout('REISBEGELEIDER ontbreekt (de naam boven de tips)');
 // Elke regio heeft twee inktkleuren voor tekst en kleine vlakken: licht thema en donker thema.
 // Ontbreekt er een, dan valt de app terug op de diepe TONE en oogt die regio flets.
 [...Object.keys(TONE),'voorreis','nareis'].forEach(k=>{ const p=TONE_INK&&TONE_INK[k];

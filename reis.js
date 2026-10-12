@@ -42,6 +42,57 @@ const HOTELGEO={
 const REGION={reis:"Onderweg",nsw:"New South Wales",tas:"Tasmanië",sa:"Zuid-Australië",
   vic:"Victoria",red:"Northern Territory",qld:"Queensland",wa:"West-Australië"};
 
+// Tips van de reisbegeleider, uit zijn programma: per adres [naam, wat, waar, openingstijden].
+// Op de dagpagina staan ze dichtgeklapt in één kaart bij Eten vanavond. Een lijst voor een stad waar je
+// meer nachten blijft, staat hier één keer en hangt aan elke dag in die stad (tips: in DAYS).
+const REISBEGELEIDER="Maarten";
+const TIPS_HOBART=[
+ ["Fish Frenzy","Vis en oesters aan het water","Elizabeth Street Pier","Vrijdag tot 20.30 uur"],
+ ["The Drunken Admiral","Vis","Hunter Street","17.00–22.00 uur"],
+ ["Jack Greene","Pub, met een goede zalmburger","Salamanca Place",""]];
+const TIPS_ADELAIDE=[
+ ["Sylvia's Cafe","Ontbijt of lunch","Twin Street 22, in de Twin Plaza Arcade","Ma–vr 7.00–15.00, za 8.00–14.00 uur, zondag dicht"],
+ ["Café Brunelli","Italiaans","Rundle Street 187","7.00 tot 20.00 of 21.00 uur, afhankelijk van de dag"],
+ ["Verandah Bar","Bar en restaurant in het Strathmore Hotel","North Terrace 129","Vanaf 11.00 uur"],
+ ["The Austral","In het Austral Hotel","Rundle Street 205","Vanaf 12.00 uur, diner 18.00–21.00 uur"],
+ ["La Boca Bar and Grill","Argentijns","North Terrace 150","Diner 17.00–22.00 uur"],
+ ["Soi 38","Thais","Pirie Street 74","Lunch 11.30–14.30 uur op werkdagen, diner 17.00–21.30 uur, zondag dicht"],
+ ["Mandoo","Koreaanse dumplings, klein en de beste van de stad","Bank Street 26","11.30–14.30 en 17.00–20.30 uur, zondag en maandag dicht"],
+ ["The Greek on Halifax","Grieks, vlak bij het hotel","Halifax Street 75–79","11.30–22.00 uur, zondag en maandag dicht"],
+ ["Central Market","Markt met kramen en een internationale foodcourt","Gouger Street","Zondag en maandag dicht"],
+ ["Sammys on the Marina","Vis, in Glenelg","Holdfast Promenade 1/12, Glenelg","11.30–20.30 uur"]];
+const TIPS_MELBOURNE=[
+ ["Captain Melville","Pubmaaltijden, naast de Aldi","Franklin Street 34","12.00–22.00 uur, zondag vanaf 15.00 uur"],
+ ["Stalactites","Grieks","Lonsdale Street 177–183, hoek Russell Street","11.00–24.00 uur"],
+ ["Tsindos","Grieks, kleiner en iets duurder","Lonsdale Street 197","11.00–22.00 uur"],
+ ["Chinatown","Volop keus","Little Bourke Street",""],
+ ["Pho Bo Ga Mekong","Vietnamees","Swanston Street 241","9.00–22.00 uur"],
+ ["Thai Chin Chin","Thais","Flinders Lane 125","11.00–23.00 uur"],
+ ["Thai Cookie","Thais","Swanston Street 252, eerste verdieping van Curtin House","12.00–24.00 uur"],
+ ["Niku Ou","Japanse barbecue","Bourke Street 108","11.30–14.30 en 17.00–22.00 uur"],
+ ["Roule Galette","Franse crêpes","Flinders Lane 241","Maandag dicht, zondag 9.00–17.00 uur"],
+ ["Gopals","Vegetarisch en niet duur","Swanston Street 139","Zondag dicht"],
+ ["Crossways","Vegetarisch en veganistisch","Swanston Street 147","Zondag dicht"],
+ ["Queen Victoria Market","Markt met een foodcourt, goed voor de lunch","Queen Street, vlak bij het hotel","Tot 16.00 uur, maandag dicht"]];
+const TIPS_ALICE=[
+ ["DoubleTree by Hilton","Goed ontbijtbuffet, rond A$35, en lunch","Barrett Drive, naast het hotel",""],
+ ["Hanuman","Aziatisch","In het DoubleTree by Hilton, naast het hotel",""],
+ ["Juicy Rump","Pubeten","Lasseters Casino, Barrett Drive 93, links naast het DoubleTree",""],
+ ["Todd Tavern","Pub, ook om te eten","Todd Street 1",""],
+ ["Todd Mall","Enkele eetgelegenheden in en naast de winkelstraat","Centrum, een klein halfuur lopen",""],
+ ["Bean Tree Café","Café in de botanische tuin","Olive Pink Botanic Garden","Wo–zo 8.00–15.00 uur"]];
+const TIPS_CAIRNS=[
+ ["Villa Romana Trattoria","Goed Italiaans","Esplanade 99, hoek Aplin Street","6.30–22.00 uur"],
+ ["Perrotta's at the Gallery","Italiaans","Abbott Street 38","6.30–21.00 uur"],
+ ["Tha Fish","Vis met havenzicht, liefst vooraf reserveren","Pier Shopping Centre, Pier Point Road","11.30–15.00 en 17.30–21.00 uur, maandag alleen lunch, dinsdag dicht"],
+ ["Ochre","Australisch, met kangoeroe en krokodil, vooraf reserveren","Marlin Parade 1","11.30–21.30 uur, zondag dicht"],
+ ["Salthouse","Bar aan het water waar je buiten zit, ook Australisch eten","Marina Point, Pier Point Road","11.30–2.00 uur"]];
+const TIPS_PERTH=[
+ ["Angel Falls Grill","Zuid-Amerikaans","Shafto Lane 16",""],
+ ["Belgian Beer Café","Café","Hoek King Street en Murray Street",""],
+ ["Simple Italian Cucina & Pizzeria","Italiaans","Murray Street 413",""],
+ ["Miss Mi","Aziatisch","Murray Street 388",""]];
+
 const DAYS=[
 {n:1,r:"nsw",k:"vlucht",t:"Vlucht Amsterdam – Sydney",p:"Schiphol → Sydney",tz:null,
  fl:[["SQ 323","Amsterdam Schiphol","Singapore Changi","10.20","05.30 (2 okt, lokale tijd)","Singapore Airlines · 25 kg ruim, 7 kg cabine"]],
@@ -220,7 +271,8 @@ const DAYS=[
   "De pinguïns komen pas twintig tot veertig minuten ná zonsondergang aan land, en de zon gaat rond 19.30 uur onder. Je staat dus een tijd te wachten in de kou aan zee. Neem een muts en een warme jas mee.",
   "In Bicheno ligt een blowhole aan de zuidkant van het dorp, een halfuur lopen van het motel. Bij aanlandige wind spuit die tot tien meter hoog. Dat kost niets, en met een verrekijker zie je soms pelsrobben op het eilandje voor de kust."],
  note:"Morgen vroeg op. Om 06.45 uur sta je uitgecheckt met je bagage bij de bus. Om 07.00 uur ontbijt je in een lokaal café, en daar bestel je ook je lunch als je in Freycinet gaat wandelen.",
- rnote:"In Bicheno sluiten de meeste keukens om 20.00 uur, Lobster Shack zelfs om 19.00 uur, en daarna is er weinig meer te doen. De bus zet je in het centrum af, terug loop je zo'n twintig minuten. Met de pinguïntour om 19.15 uur eet je dus vroeg: Lobster Shack voor een vroege hap, of Sealife zodra het om 17.00 uur opengaat. Na de tour is het donker langs de weg, dus neem een zaklamp of je telefoon mee. De reisbegeleider noemt ook The Gulch (fish and chips) en Food and Brew, allebei aan Burgess Street in het centrum.",
+ rnote:"In Bicheno sluiten de meeste keukens om 20.00 uur, Lobster Shack zelfs om 19.00 uur, en daarna is er weinig meer te doen. De bus zet je in het centrum af, terug loop je zo'n twintig minuten. Met de pinguïntour om 19.15 uur eet je dus vroeg: Lobster Shack voor een vroege hap, of Sealife zodra het om 17.00 uur opengaat. Na de tour is het donker langs de weg, dus neem een zaklamp of je telefoon mee.",
+ tips:[["The Gulch","Fish and chips","Burgess Street, in het centrum",""],["Food and Brew","Eten en drinken","Burgess Street, in het centrum",""]],
  rest:[["Sealife Restaurant","Tasman Highway",4.4,2,13,"Het dichtst bij het motel, aan het strand met uitzicht op zee. Donderdag 17.00–20.00 uur.","Telefonisch: +61 3 6375 1121. Vraag om een tafel bij het raam."],
    ["Lobster Shack","Waubs Esplanade",4.3,2,29,"Vroeg en informeel, bestellen aan de balie, eten met zicht op zee, om 19.00 uur dicht. Meer een late lunch dan een diner, maar dit ís de lobster roll van Tasmanië.","Niet nodig. Bestellen aan de balie."]]},
 
@@ -244,7 +296,7 @@ const DAYS=[
   "Je zit vandaag ruim vier uur in de bus, een uur naar Freycinet en ruim drie uur naar Hobart. Houd een trui en iets te eten bij de hand.",
   "In het Ibis Styles is het ontbijt niet inbegrepen. Het wordt doordeweeks van 06.30 tot 09.30 uur geserveerd en in het weekend van 07.00 tot 10.00 uur. Op elke kamer staan koffie en thee."],
  note:"Morgen gaat de hele groep mee met de boottocht naar Tasman Island. Om 06.50 uur verzamel je bij de receptie. Leg vanavond warme kleding in laagjes en je wind- en regenjack klaar, en je zeeziektepillen als je die gebruikt.",
- rnote:"De reisbegeleider noemt ook Fish Frenzy aan Elizabeth Street Pier (vis en oesters aan het water, vrijdag tot 20.30 uur), de Drunken Admiral aan Hunter Street (vis, 17.00–22.00 uur) en Jack Greene op Salamanca Place (pub, met een goede zalmburger).",
+ tips:TIPS_HOBART,
  rest:[["Syra","Salamanca Square",4.7,2,11,"Midden-Oosters, de hoogste waardering van Salamanca. Kies de 'feed me' en laat de keuken beslissen.","Online. Klein, dus vooraf boeken."],
    ["Peppina","Salamanca Place",4.6,3,6,"Het dichtstbij en uitstekend. Italiaans met Tasmaanse producten. Iets duurder.","Online via de website van het restaurant of de reserveerknop in Google Maps."],
    ["Ball & Chain Grill","Salamanca Place",4.4,2,12,"Klassieke grill in een historisch pakhuis, houtskoolvuur.","Online via de website van het restaurant."]]},
@@ -268,6 +320,7 @@ const DAYS=[
   "Neem je camera mee, en houd hem onder je jack als de boot door de golven gaat. Zout water is erger dan regen.",
   "Leatherwood honey is het beste souvenir van Tasmanië. Hij mag de EU in en je vindt hem nergens anders ter wereld."],
  note:"Morgen om 11.00 uur sta je uitgecheckt met je bagage bij de receptie, en daarna gaat de groep naar het vliegveld voor de vlucht van 14.20 uur naar Adelaide. De ochtend is vrij. In Adelaide gaat de klok een half uur terug.",
+ tips:TIPS_HOBART,
  rest:[["Syra","Salamanca Square",4.7,2,11,"Zaterdag open vanaf 17.00 uur. Ook de reisbegeleider raadt hem aan.","Online. Zaterdag het snelst vol."],
    ["Peppina","Salamanca Place",4.6,3,6,"Zaterdag open vanaf 17.00 uur.","Online via de website van het restaurant."]]},
 
@@ -292,6 +345,7 @@ const DAYS=[
   "Zuid-Australië heeft statiegeld op blikjes en flesjes. Tien cent per stuk, in te leveren bij automaten."],
  food:[["King George whiting","De fijnste witvis van Zuid-Australië, delicaat en licht zoet."],["Coonawarra Cabernet","Twee van Australiës beroemdste wijnstreken liggen om de hoek."],["Coopers Ale","Ongefilterd, met bezinksel. Even laten staan voor je schenkt."],["Haigh's","Chocolatier uit 1915, nog altijd familiebedrijf."],["Pie floater","Een meat pie omgekeerd in een bord erwtensoep. Meer folklore dan gastronomie, maar één keer moet je het gezien hebben."],["Frog cake","Groen marsepeinen kikkerkopje met slagroom, sinds 1922 het symbool van Adelaide."]],
  rnote:"Veel Adelaidse restaurants zijn zondag gesloten. Deze drie niet.",
+ tips:TIPS_ADELAIDE,
  rest:[["Sofia","Hutt Street",4.8,2,27,"Grieks-mediterraan, de hoogste waardering in de buurt. Zeven dagen open. Let op, in maart 2026 was het tijdelijk gesloten na een brand, inmiddels weer open. Controleer kort vóór vertrek of dat zo blijft.","Online. Populair, dus vooraf boeken."],
    ["The Logical Indian","Hutt Street",4.7,2,17,"Zuid-Indiaas, al zeven jaar consistent goed, en dichter bij het hotel.","Online of telefonisch."],
    ["Latteria","Hutt Street",4.5,2,17,"Modern Italiaans met een Milanese sfeer. Gasten noemen vooral de tagliarini met kreeft en de octopus.","Online via de website van het restaurant."]]},
@@ -312,7 +366,8 @@ const DAYS=[
   "Op Mount Lofty, waar ook Cleland ligt, beginnen mooie wandelingen. De Waterfall Gully Track is 8 km en duurt zo'n tweeënhalf uur, de Mount Lofty Botanic Garden Loop is 7 km en duurt ongeveer twee uur. Het Summit Visitor Centre boven op de berg heeft de routes.",
   "Cleland Wildlife Park op Mount Lofty heeft koala's, kangoeroes en andere inheemse dieren. Het is elke dag open van 9.30 tot 17.00 uur, de entree is A$34,50. Met bus 864 of 823 vanaf King William Street ben je er in een uur."],
  note:"Morgen vroeg weg. Ontbijt kan vanaf 06.30 uur, en om 07.15 uur sta je uitgecheckt met je bagage bij de receptie. Onderweg is lunchen improviseren, dus koop vandaag alvast iets voor een lunchpakket. Ga je in Perth naar Rottnest Island? Boek dan zo snel mogelijk je veerboot, zie dag 26.",
- rnote:"Latteria, van gisteravond, is maandag gesloten. Deze drie zijn wel open. De reisbegeleider noemt ook Sylvia's Cafe voor ontbijt of lunch (Twin Street 22, in de Twin Plaza Arcade, maandag tot en met vrijdag 7.00–15.00 uur), Café Brunelli (Italiaans, Rundle Street 187, 7.00 tot 20.00 of 21.00 uur), de Verandah Bar in het Strathmore Hotel (North Terrace 129, vanaf 11.00 uur), The Austral in het Austral Hotel (Rundle Street 205, diner 18.00–21.00 uur), La Boca Bar and Grill (Argentijns, North Terrace 150, diner 17.00–22.00 uur) en Soi 38 (Thais, Pirie Street 74, op maandag 11.30–14.30 en 17.00–21.30 uur). Mandoo (Koreaanse dumplings, Bank Street) en The Greek on Halifax, vlak bij het hotel, zijn zondag en maandag dicht, net als de Central Market. In Glenelg staat Sammys on the Marina op de lijst, een visrestaurant aan Holdfast Promenade, open 11.30–20.30 uur.",
+ rnote:"Latteria, van gisteravond, is maandag gesloten. Deze drie zijn wel open.",
+ tips:TIPS_ADELAIDE,
  rest:[["Part Time Lover","Paul Kelly Lane",4.8,2,22,"Modern Australisch, deelgerechten, in een steegje in het centrum. Zondag gesloten, maandag open, vandaag dus.","Online. Klein en gewild."],
    ["Chianti","Hutt Street",4.5,3,19,"Adelaidse klassieker sinds 1985, Italiaans. Zondag gesloten, maandag open.","Online via de website van het restaurant."],
    ["Sofia","Hutt Street",4.8,2,27,"Ook maandag open.","Online."]]},
@@ -340,7 +395,8 @@ const DAYS=[
   "Trek dichte, stevige schoenen aan. In de Victoria Fossil Cave loop je zo'n 400 meter over paden en trappen, met ongeveer vijftig treden naar binnen en een steil hellend pad naar buiten.",
   "Het Blue Lake Motel staat aan Kennedy Avenue 1, telefoon +61 8 8725 5211.",
   "Voor de lunch heb je drie mogelijkheden. Neem een lunchpakket mee uit Adelaide, koop iets bij een tankstation onderweg, of bestel om half vier een kaasplankje bij de wijnproeverij. Dat laatste is wel laat, dus houd iets te eten achter de hand."],
- note:"Je slaapt één nacht in het Blue Lake Motel aan Kennedy Avenue, en het ontbijt is inbegrepen. Het motel ligt op een heuvel buiten het centrum en de twee restaurants hieronder liggen 3 en 8 km verderop, dus je hebt vervoer nodig. De reisbegeleider noemt ook The Gates aan Morris Street, met een westerse keuken. De hoogst gewaardeerde adressen van Mount Gambier, Elementary, Fat Frog en de Brewery, zijn op dinsdag gesloten.",
+ note:"Je slaapt één nacht in het Blue Lake Motel aan Kennedy Avenue, en het ontbijt is inbegrepen. Het motel ligt op een heuvel buiten het centrum en de twee restaurants hieronder liggen 3 en 8 km verderop, dus je hebt vervoer nodig. De hoogst gewaardeerde adressen van Mount Gambier, Elementary, Fat Frog en de Brewery, zijn op dinsdag gesloten.",
+ tips:[["The Gates","Westerse keuken","Morris Street, Mount Gambier",""]],
  rest:[["Thyme at the Lakes","Lake Terrace West, Mount Gambier",4.4,2,0,"Modern Australisch met uitzicht over de stad en de kratermeren, dinsdag 18.00–22.00 uur. Beoordelingen lopen uiteen, veel lof voor eten en uitzicht, kritiek op prijs en bediening. Zo'n 3 km van het motel.","Online of telefonisch. Reserveren aanbevolen."],
    ["The Barn Steakhouse","Glenelg River Road, Mount Gambier",4.4,3,0,"Klassiek steakhouse, zeven dagen open van 17.30 tot 22.00 uur. Grote porties, goede wijnkaart, prijzig. Ligt 8 km buiten de stad, dus zeker een taxi.","Online of telefonisch."]]},
 
@@ -393,7 +449,10 @@ const DAYS=[
  rest:[["Lost Cat","Liebig Street",4.8,2,5,"Klein, houtvuur, wisselende kaart. Lamskoteletten en mosselen met nduja op toast.","Online. Zeer klein. Boek nu al voor donderdagavond."],
    ["Lot 17","Timor Street",4.8,2,5,"Het 'feed me'-menu rond de 60 dollar is uitstekende waar.","Online of telefonisch: +61 434 241 717."],
    ["Salt","Liebig Street",4.5,2,5,"De barramundi en de sticky date pudding krijgen de meeste lof.","Online via de website van het restaurant."]],
- rnote:"De reisbegeleider noemt ook de pub van Hotel Warrnambool, op de hoek van Koroit en Kepler Street, twee straten van het hotel, en Mexicaans bij Cactus Jam aan Liebig Street (17.30–21.00 uur) of Zambrero aan Liebig Street 71 (11.00–20.30 uur). Voor een vroeg ontbijt is er McDonald's aan Raglan Parade 569, open vanaf 5.00 uur."},
+ tips:[["Hotel Warrnambool","Pub, twee straten van het hotel","Hoek Koroit Street en Kepler Street",""],
+  ["Cactus Jam","Mexicaans","Liebig Street 50","17.30–21.00 uur, dinsdag dicht"],
+  ["Zambrero","Mexicaans","Liebig Street 71","11.00–20.30 uur"],
+  ["McDonald's","Ook voor een vroeg ontbijt","Raglan Parade 569","5.00–22.00 uur"]]},
 
 {n:16,r:"vic",k:"bus",t:"Great Ocean Road naar Melbourne",p:"Great Ocean Road",h:"Ibis Melbourne, Therry Street",tz:11,temp:"9–20°",
  wild:[["Koala","Kennett River, tussen Apollo Bay en Lorne, ligt op de route. Langs Grey River Road zitten ze in bijna elke boom, laag en zichtbaar. Vraag of de bus er even stopt.",3],
@@ -417,7 +476,7 @@ const DAYS=[
  rest:[["Pastuso","AC/DC Lane",4.6,3,23,"Peruaans, ceviche en anticuchos, uitstekende pisco sour. Een klein half uur lopen, of vijf minuten met de gratis tram over Elizabeth Street.","Online via de website van het restaurant. Vrijdagavond vroeg vol."],
    ["MoVida Next Door","Flinders Street",4.6,2,22,"Spaanse tapas, kleiner en ontspannener dan het hoofdrestaurant ernaast. Binnen de gratis tramzone.","Online via de website van het restaurant."],
    ["MoVida","Hosier Lane",4.5,2,22,"In het steegje met de beroemde straatkunst. Bestel de bomba-rijst.","Online via de website van het restaurant. Reserveren aanbevolen."]],
- rnote:"Dichter bij het hotel, volgens de reisbegeleider: Captain Melville aan Franklin Street (pubmaaltijden, tot 22.00 uur) en de Griekse restaurants Stalactites en Tsindos aan Lonsdale Street. In Chinatown, aan Little Bourke Street, heb je volop keus."},
+ tips:TIPS_MELBOURNE},
 
 {n:17,r:"vic",k:"vrij",t:"Melbourne, vrije dag",p:"Melbourne",h:"Ibis Melbourne, Therry Street",tz:11,temp:"11–20°",
  wild:[["Dwergpinguïn","Bij de pier van St Kilda, twintig minuten met tram 96 vanaf de stad, komt bij zonsondergang een kolonie aan land op de golfbreker. Gratis, met vrijwilligers die je de weg wijzen. De verrassing van Melbourne.",3],
@@ -435,7 +494,7 @@ const DAYS=[
   "Een mooie wandeling door het centrum begint bij Flinders Street Station. Loop via Flinders Street naar Degraves Street, langs de arcades en de kunst in de steegjes, dan naar Collins Street met de Block Arcade, en via Elizabeth Street naar Little Bourke Street. De Royal Arcade aan Bourke Street is ook de moeite waard.",
   "Ook mooi om te lopen zijn de Riverside Walk langs de Yarra en de autovrije Southbank Promenade aan de overkant, of de boulevard van St Kilda aan zee. Naar St Kilda gaan tram 3 en 16 vanaf Federation Square en tram 12 vanaf Collins Street, met een Myki-kaart van zo'n A$6 plus tegoed. Het paviljoen op het eind van de pier is op zondag dicht.",
   "Het Visitor Information Centre zit in het stadhuis, de Melbourne Town Hall, open van 9.00 tot 18.00 uur. Daar liggen brochures met wandelroutes en de Melbourne Guide met kortingsbonnen."],
- rnote:"De reisbegeleider noemt ook Pho Bo Ga Mekong (Vietnamees, Swanston Street 241, 9.00–22.00 uur), Thai Chin Chin (Flinders Lane 125, 11.00–23.00 uur), Thai Cookie (eerste verdieping van Curtin House, Swanston Street 252, 12.00–24.00 uur), Niku Ou (Japanse barbecue, Bourke Street 108, 11.30–14.30 en 17.00–22.00 uur), Roule Galette (Franse crêpes, Flinders Lane 241) en de goedkope vegetarische restaurants Gopals en Crossways, naast elkaar aan Swanston Street 139 en 147. Voor de lunch is de foodcourt van de Queen Victoria Market een goede plek.",
+ tips:TIPS_MELBOURNE,
  rest:[["Ca De Vin","Postal Lane, bij het oude GPO",4.5,2,14,"Italiaans-mediterraan, lichtjes in het steegje. Van de drie het dichtst bij het hotel.","Online, of gewoon binnenlopen."],
    ["MoVida Next Door","Flinders Street",4.6,2,22,"Zaterdag vanaf 12.00 uur.","Online via de website van het restaurant."],
    ["Pastuso","AC/DC Lane",4.6,3,23,"Zaterdag tot 22.30 uur.","Online via de website van het restaurant."]]},
@@ -464,7 +523,7 @@ const DAYS=[
   "In het resort zijn winkels en een supermarkt. Een geldautomaat staat volgens de reisbegeleider in de lobby van het resort.",
   "Zijn er veel vliegen, koop dan een vliegennet voor over je hoofd. Ze liggen in de supermarkt en in de boekwinkel van het resort."],
  note:"Morgen vroeg op voor de zonsopgang bij Uluru. Hoe laat de bus vertrekt, hangt af van het seizoen. De reisbegeleider laat het weten.",
- rnote:"De reisbegeleider noemt ook het Bough House Restaurant, met een buffetdiner, en de Outback Kiosk voor afhaaleten zoals pizza, burgers, wraps en salades, met picknicktafels buiten.",
+ tips:[["Bough House Restaurant","Buffetdiner","Ayers Rock Resort",""],["Outback Kiosk","Afhaaleten, zoals pizza, burgers, wraps en salades, met picknicktafels buiten","Ayers Rock Resort",""]],
  food:[["Kangoeroe","Mager en donker, als steak of in worst."],["Kameel","Australië heeft de grootste wilde kamelenpopulatie ter wereld. Mild en iets zoet."],["Quandong","Inheemse woestijnperzik, zurig, vaak in chutney of dessert."],["Wattleseed","Geroosterd acaciazaad, smaakt naar koffie en hazelnoot."],["Damper","Sodabrood dat oorspronkelijk in de as van het kampvuur werd gebakken. Vaak met golden syrup."],["Bush tomato","Kakadu-pruim en bushtomaat, kleine inheemse vruchten met een scherpe, bijna kaneelachtige smaak, meestal als chutney."]],
  rest:[["Arnguli Grill","Desert Gardens Hotel",4.5,2,8,"Het beste à-la-carterestaurant van het resort. 18.00–20.30 uur. Sounds of Silence staat apart, onder 'Optioneel vandaag'.","Online via de site van Ayers Rock Resort, of aan de receptie. Zonder reservering word je weggestuurd. Boek nu al."],
    ["Ilkari Restaurant","Sails in the Desert",4.3,2,13,"Uitgebreid buffet rond de A$105 p.p., met oesters, krab, kangoeroe en lamskoteletten. Reserve als Arnguli vol zit. Onder je norm van 4,4, maar de keus in Yulara is klein.","Via de site van Ayers Rock Resort of de receptie."],
@@ -491,7 +550,7 @@ const DAYS=[
   "Desert Palms heeft kamers met een keuken, gratis wifi, een zwembad, wasmachines en een balie waar je tours boekt. Een restaurant is er niet.",
   "Wil je Aboriginal-kunst kopen, doe dat dan bij een kunstcentrum dat de gemeenschap zelf runt en niet bij een commerciële galerie. Die centra zijn voor afgelegen gemeenschappen een belangrijke bron van inkomsten. Op desart.com.au staan ze bij elkaar. In Alice Springs zijn dat onder meer Mwerre Anthurre Artists, Tjanpi Desert Weavers, Yarrenyty Arltere Artists en Iltja Ntjarra Many Hands Art Centre aan Wilkinson Street 29. Daar zie je de kunstenaars van maandag tot en met donderdag van 10.00 tot 15.00 uur aan het werk."],
  wash:"Desert Palms heeft wasmachines voor de gasten. Handig, want je blijft hier twee nachten.",
- rnote:"De reisbegeleider noemt ook het ontbijtbuffet van het DoubleTree by Hilton naast het hotel, rond de A$35, en daar kun je ook lunchen. In hetzelfde DoubleTree zit Hanuman (Aziatisch). Juicy Rump in Lasseters Casino aan Barrett Drive, links naast het DoubleTree, serveert pubeten. Verder Todd Tavern aan Todd Street 1 en de eetgelegenheden in en rond de Todd Mall in het centrum, een klein halfuur lopen.",
+ tips:TIPS_ALICE,
  rest:[["Q Eats","Todd Street / Gap Road",4.7,2,22,"Thais, de hoogste waardering van Alice Springs en het dichtst bij het hotel. De rode eendencurry is het gerecht.","Telefonisch: +61 476 763 067, of binnenlopen."],
    ["Warung Makan","Hartley Street",4.8,2,24,"Indonesisch, buiten eten. Nasi goreng, rendang en beef rib.","Telefonisch: +61 418 391 119. Zonder reservering moet je meestal even wachten."]]},
 
@@ -515,6 +574,7 @@ const DAYS=[
   "Standley Chasm, dat Sawadee noemt, staat niet in het schema van de reisbegeleider.",
   "Ellery Creek is dieper dan het lijkt en het water blijft het hele jaar rond de vijftien graden. Laat je er rustig in zakken en spring er niet in.",
   "Ormiston Gorge heeft als enige stop een bezoekerscentrum met toiletten en schaduw. Plan je pauze daar."],
+ tips:TIPS_ALICE,
  rest:[["Warung Makan","Hartley Street",4.8,2,24,"Ook dinsdag open. De beste keuken van de stad volgens de beoordelingen.","Telefonisch: +61 418 391 119."],
    ["Q Eats","Todd Street / Gap Road",4.7,2,22,"Ook dinsdag open, en het dichtst bij het hotel.","Telefonisch: +61 476 763 067."]]},
 
@@ -538,7 +598,7 @@ const DAYS=[
   "De nachtmarkt aan Abbott Street 54–60 is elke dag open van 16.30 tot 22.30 uur, met souvenirs en eten.",
   "Tropische kwallen komen hier het hele jaar voor. Van november tot mei is het risico het grootst, maar in oktober is het niet nul. Volg de aanwijzingen van de bemanning en trek het beschermende pak aan dat je aan boord krijgt. Krokodillen zitten er altijd, dus blijf uit riviermondingen en mangroven."],
  food:[["Mud crab","Grote modderkrab met chili of zwarte bonensaus. Je krijgt er een slabbetje bij, en dat heb je nodig."],["Moreton Bay bugs","Platte kreeftachtigen met zoet, stevig vlees."],["Coral trout","De fijnste rifvis, delicaat en duur."],["Tropisch fruit","Mango, papaja, lychee, passievrucht. Op de markten ook durian."],["Bundaberg ginger beer","Alcoholvrij gemberbier uit Queensland, gebrouwen sinds 1968. Overal verkrijgbaar."],["Barramundi","Hier op zijn best, vaak met mango-salsa."]],
- rnote:"De reisbegeleider noemt ook Villa Romana Trattoria (goed Italiaans, Esplanade 99 op de hoek met Aplin Street, 6.30–22.00 uur), Perrotta's at the Gallery (Italiaans, Abbott Street 38, 6.30–21.00 uur), Tha Fish (vis met havenzicht in het Pier Shopping Centre, 11.30–15.00 en 17.30–21.00 uur, maandag alleen lunch, dinsdag dicht, liefst reserveren) en Ochre (Australisch met kangoeroe en krokodil, Marlin Parade 1, 11.30–21.30 uur, zondag dicht, reserveren). Voor een drankje buiten zit je goed bij de Salthouse Bar op Marina Point, Pier Point Road, die ook Australisch eten serveert.",
+ tips:TIPS_CAIRNS,
  rest:[["Little Sister","Esplanade",4.6,2,8,"Het dichtstbij en uitstekend. Aziatische fusion, verse zeevruchten, oesters en lobster roll.","Telefonisch: +61 7 4031 5400, of online."],
    ["Dundees on the Waterfront","Marlin Parade",4.6,2,18,"Aan de jachthaven, 4,6 over ruim 5.500 beoordelingen. Het Australische proefplankje met kangoeroe en krokodil is de klassieker.","Online via de website van het restaurant. Reserveren nodig."]]},
 
@@ -557,7 +617,7 @@ const DAYS=[
   "Het is anderhalf tot twee uur varen over open zee. Zeeziektepillen werken alleen als je ze een uur vóór vertrek neemt, niet aan boord.",
   "De reisbegeleider raadt de cruises naar Green Island af. Het water is daar altijd wat troebel en er leeft minder dan op het buitenrif.",
   "Slecht weer, of wil je niet het water in? Het Cairns Aquarium aan Florence Street 5 is dan een goed alternatief. Open van 9.30 tot 15.30 uur, entree A$58."],
- rnote:"Meer eettips van de reisbegeleider staan bij dag 21.",
+ tips:TIPS_CAIRNS,
  rest:[["Little Sister","Esplanade",4.6,2,8,"Kort lopen na een lange dag op zee.","Telefonisch: +61 7 4031 5400."],
    ["Sails","Esplanade zuid",4.4,2,19,"Klein, Peruaans-Aziatisch, aan het water. Donderdag 16.00–21.00 uur.","Telefonisch: +61 403 441 669. Klein, dus vooraf bellen."]]},
 
@@ -576,7 +636,7 @@ const DAYS=[
   "De Kuranda-trein rijdt maar twee keer per dag omhoog. Trein heen en Skyrail terug is de combinatie die de meeste mensen achteraf aanraden. Vooraf boeken als combinatieticket scheelt geld.",
   "De Daintree River-cruise op zoek naar krokodillen gaat het beste vroeg in de ochtend of laat in de middag. Midden op de dag liggen de dieren uit het zicht.",
   "Een vierde mogelijkheid is een dagtocht naar de Atherton Tablelands, met watervallen, vogelbekdieren en bijzondere vijgenbomen. Je boekt hem via het hotel, bij een van de reisbureautjes in de stad of online."],
- rnote:"Meer eettips van de reisbegeleider staan bij dag 21.",
+ tips:TIPS_CAIRNS,
  rest:[["Dundees on the Waterfront","Marlin Parade",4.6,2,18,"Laatste avond in de tropen. Vraag naar de coral trout of de mud crab.","Online via de website van het restaurant."],
    ["Little Sister","Esplanade",4.6,2,8,"Vrijdag tot 21.00 uur.","Telefonisch: +61 7 4031 5400."]]},
 
@@ -596,7 +656,7 @@ const DAYS=[
   "In het centrum rijden de gratis CAT-bussen, herkenbaar aan rood, blauw, geel en groen. Je kunt er zonder kaart of pas op.",
   "Het is hier tien graden koeler dan in Cairns en 's avonds fris aan zee. Je lange broek kun je weer bovenop leggen.",
   "Ibis Perth staat aan Murray Street 334, telefoon +61 8 9214 4320."],
- rnote:"De reisbegeleider noemt ook Angel Falls Grill (Zuid-Amerikaans, Shafto Lane 16), het Belgian Beer Café (hoek King Street en Murray Street), Simple Italian Cucina & Pizzeria (Murray Street 413) en Miss Mi (Aziatisch, Murray Street 388).",
+ tips:TIPS_PERTH,
  food:[["Western rock lobster","De belangrijkste visserij van de staat, en volgens velen de beste kreeft van Australië."],["Marron","Grote zoetwaterkreeft, alleen in het zuidwesten. Zoet en delicaat."],["Chilli mussels","Mosselen in pittige tomatensaus. Een Fremantle-uitvinding."],["Margaret River-wijn","Cabernet en Chardonnay van wereldklasse, drie uur naar het zuiden."],["Little Creatures Pale Ale","Uit de brouwerij aan de haven van Fremantle. Een van de bieren die de Australische ambachtelijke brouwerij op gang bracht."]],
  rest:[["KARLA","Wellington Street",4.9,2,5,"De hoogst gewaardeerde zaak van je hele reis. Moderne vuurkeuken met Aziatische invloeden en inheemse ingrediënten. 'karla' is Noongar voor vuur.","Online via de website van het restaurant. Boek vóór vertrek uit Nederland."],
    ["Ugly Baby","Wellington Street",4.7,2,7,"Mediterraan, deelgerechten, 'feed me'-menu.","Online. Zelfde eigenaar als KARLA."],
@@ -617,6 +677,7 @@ const DAYS=[
   "De Fremantle Market is alleen vrijdag, zaterdag en zondag open. Vandaag treft het dus goed.",
   "Zin in een stranddag? Neem de bus naar Cottesloe Beach, met wit zand, helderblauw water en strandcafés. Het rustigere Trigg Beach, verder naar het noorden, is de plek van de surfers."],
  tip:"Bestel op de Cappuccino Strip de chilli mussels. Dit is waar het gerecht vandaan komt.",
+ tips:TIPS_PERTH,
  rest:[["KARLA","Wellington Street",4.9,2,5,"Zondag vanaf 11.00 uur. Kreeg je gisteren geen plek? Probeer het vandaag opnieuw.","Online via de website van het restaurant."],
    ["Ugly Baby","Wellington Street",4.7,2,7,"Zondag vanaf 12.00 uur.","Online."]]},
 
@@ -635,6 +696,7 @@ const DAYS=[
   "Er is één winkel op het eiland, bij Thomson Bay, en die is duur. Neem je lunch mee vanaf het vasteland.",
   "Boek je veerboot zo snel mogelijk, dat raadt de reisbegeleider aan. Bij SeaLink kan dat via https://www.sealink.com.au/rottnest-island/bookings/ferry. Op mooie dagen zit de boot vol.",
   "Een huurfiets boek je bij de veerdienst meteen mee, voor A$37. Fietsen hoeft niet, want over het eiland rijdt ook een hop-on-hop-offbus."],
+ tips:TIPS_PERTH,
  rnote:"Ugly Baby en The Standard zijn maandag gesloten. Deze twee niet.",
  rest:[["KARLA","Wellington Street",4.9,2,5,"Maandag open vanaf 17.30 uur.","Online via de website van het restaurant."],
    ["Italian Street Kitchen","Raine Square, William Street",4.4,2,3,"Drie minuten lopen, zeven dagen open.","Online, of binnenlopen."]]},
@@ -651,6 +713,7 @@ const DAYS=[
  ],
  prac:["De Discovery Drive door de Pinnacles is eenrichtingsverkeer, maar te voet mag je overal tussen de pilaren door lopen. Dat levert veel betere foto's op dan vanuit de bus.",
   "Stopt de groep in Cervantes? Daar zit de Lobster Shack, een kreeftverwerkingsbedrijf met restaurant. De western rock lobster is er vers en relatief betaalbaar."],
+ tips:TIPS_PERTH,
  rest:[["KARLA","Wellington Street",4.9,2,5,"Dinsdag vanaf 17.30 uur. Een passende laatste avond, inheemse ingrediënten uit heel Australië op één kaart.","Online via de website van het restaurant."],
    ["Italian Street Kitchen","Raine Square",4.4,2,3,"Ook dinsdag open.","Online."]]},
 

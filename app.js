@@ -236,11 +236,12 @@ function render(){
   if(magNotities()) h+=`<div id="notes-rest" class="notes"></div>`;
   const morgen=volgende(cur);
   if(morgen!=null&&morgen!==EINDE) h+=`<h2>Morgen</h2>`+dagKnop(morgen,true,!buiten);
-  if(d.rest){
+  if(d.rest||d.tips){
     // Suggesties, geen voorschrift: alles staat dicht, je klapt zelf uit wat je wilt lezen.
     h+=`<h2>Eten vanavond</h2>`+
       (d.rnote?`<div class="callout" style="margin:0 0 14px"><span class="ico">${IC_KLOK}</span><span><b>Openingstijden</b>${esc(d.rnote)}</span></div>`:'')+
-      d.rest.map(([nm,wh,rt,pr,wk,no,bk],ix)=>{
+      tipsKaart(d)+
+      (d.rest||[]).map(([nm,wh,rt,pr,wk,no,bk],ix)=>{
       const meta=RDATA[nm]||{};
       let b='';
       if(rt){
@@ -576,6 +577,25 @@ function renderBuitenDag(){
 
 const IC_LET='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4.5M12 17.2h.01"/></svg>';
 const IC_TIP='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>';
+// Tips van de reisbegeleider (tips in reis.js): één dichtgeklapte kaart bij Eten vanavond, met de adressen
+// onder elkaar. Geen score of looptijd, die zijn er niet bij; wel de soort keuken, het adres als link naar
+// de kaart en de openingstijden zoals de reisbegeleider ze opgaf.
+const tipsVan=()=>typeof REISBEGELEIDER==='string'&&REISBEGELEIDER?REISBEGELEIDER:'de reisbegeleider';
+function tipsKaart(d){
+  const lijst=d.tips||[]; if(!lijst.length) return '';
+  const plaats=d.p&&!/→/.test(d.p)?d.p:'';
+  const rijen=lijst.map(([nm,wat,waar,open])=>{
+    const q=encodeURIComponent([nm,waar,plaats,'Australia'].filter(Boolean).join(', '));
+    return `<li class="tip"><div class="tkop"><strong>${esc(nm)}</strong>${wat?`<span class="twat">${esc(wat)}</span>`:''}</div>`+
+      (waar?`<a class="where" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">${PIN}${esc(waar)}</a>`:'')+
+      (open?`<div class="topen">${esc(open)}</div>`:'')+`</li>`;
+  }).join('');
+  return `<details class="card rcard tcard"><summary>`+
+    `<span class="rtop"><span class="role">Tips van ${esc(tipsVan())}</span>`+
+    `<span class="rname">${lijst.length===1?'1 adres':lijst.length+' adressen'}</span>`+
+    `<span class="rkort">${esc(lijst.map(x=>x[0]).join(' · '))}</span></span><span class="rchev">${ICO_CHEV}</span></summary>`+
+    `<div class="rbody"><ul class="tlijst">${rijen}</ul></div></details>`;
+}
 const IC_KLOK='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
 const IC_SLOT='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>';
 const IC_KOFFER='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="13" rx="2.5"/><path d="M8.5 7.5V5a1.5 1.5 0 0 1 1.5-1.5h4A1.5 1.5 0 0 1 15.5 5v2.5"/><path d="M3 12.5h18"/></svg>';
@@ -600,6 +620,7 @@ function hooiberg(d,n){
   ((d.h&&WINKELLIJST[d.h])||[]).forEach(w=>bits.push([w[0]+' — '+w[1]+' — '+w[2]+', open '+w[4]+'. '+w[5],'Winkel']));
   if(d.note) bits.push([d.note,'Let op']);
   if(d.rnote) bits.push([d.rnote,'Openingstijden']);
+  (d.tips||[]).forEach(([nm,wat,waar,open])=>bits.push([[nm,wat,waar,open].filter(Boolean).join(' — '),'Tip van '+tipsVan()]));
   EXC.filter(e=>dagNr(e[1])===n).forEach(e=>bits.push([e[0]+' — '+e[3]+' Richtprijs '+e[2]+'.','Optionele excursie']));
   if(d.tip) bits.push([d.tip,'Tip']);
   if(d.wash) bits.push([d.wash,'Was afgeven']);
@@ -2851,7 +2872,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-12-251';
+const APP_VERSIE='2026-10-12-252';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

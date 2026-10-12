@@ -1557,6 +1557,21 @@ function zoek(w,fouten,term){
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')).length===1&&!$(w,'toast').classList.contains('on'),'Ongedaan maken werkt nog en sluit de melding');
     meld('6 okt: verborgen melding vangt geen tik meer op',fouten); }
 
+  // Tips van de reisbegeleider: één dichtgeklapte kaart bij Eten vanavond, met de adressen onder elkaar,
+  // vóór de restaurants. Geen lange tekst meer in het blok Openingstijden. Zoeken vindt ook de tips.
+  { const {w,fouten}=start('2026-10-12');
+    const kaart=w.document.querySelector('#day details.tcard');
+    eis(fouten,kaart&&!kaart.open&&/Tips van Maarten/.test(kaart.querySelector('.role').textContent),'dag 12 heeft een dichtgeklapte kaart Tips van Maarten');
+    eis(fouten,kaart&&kaart.querySelectorAll('.tlijst .tip').length===10&&/10 adressen/.test(kaart.querySelector('.rname').textContent),'de kaart toont de tien adressen onder elkaar');
+    eis(fouten,kaart&&kaart.nextElementSibling&&kaart.nextElementSibling.classList.contains('rcard')&&!kaart.nextElementSibling.classList.contains('tcard'),'de restaurants volgen na de tips');
+    const call=w.document.querySelector('#day .callout');
+    eis(fouten,!/reisbegeleider noemt/.test(w.document.getElementById('day').textContent),'de tips staan niet meer als lange tekst op de pagina');
+    eis(fouten,kaart&&kaart.querySelector('.tip a.where[href*="google.com/maps"]'),'een adres opent de kaart');
+    klik(w,'btnIndex',fouten); zoek(w,fouten,'Mandoo');
+    const hit=[...w.document.querySelectorAll('#results .hits button')].find(b=>/Tip van Maarten/.test(b.textContent));
+    eis(fouten,!!hit,'zoeken op Mandoo vindt de tip');
+    meld('12 okt: tips van de reisbegeleider in één kaart',fouten); }
+
   // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
   { const {w,fouten}=start('2026-10-08');
     const kaart=w.document.querySelector('#day details.verhaal');
