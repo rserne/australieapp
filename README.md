@@ -328,6 +328,8 @@ De dagen 4 tot en met 16 zijn in uitgave 227 bijgewerkt met de hand-out van de r
 
 In uitgave 248 zijn op dezelfde manier de dagen 18 tot en met 26 bijgewerkt met deel 2 van het programma van de reisbegeleider (Uluru, Alice Springs, West MacDonnell Ranges, Cairns en Perth). Erbij kwamen de tijdschema's van dag 18 tot en met 20, het hotel in Alice Springs (keuken, wasmachines, geen restaurant), waar je Aboriginal-kunst koopt, de eettips in `rnote`, de bezienswaardigheden van Alice Springs als excursies op dag 19, de Lagoon, de boardwalk en de nachtmarkt in Cairns, het advies om Green Island over te slaan, Kings Park en de stranden bij Perth, en de veerboot naar Rottnest vanaf de Barrack Street Jetty. Standley Chasm staat niet in het schema van de reisbegeleider, en dat zegt de app ook. Ook deel 2 staat niet in de repository.
 
+In uitgave 250 en 251 is deel 1 nog eens nagelopen voor de dagen 12 tot en met 17. Daarbij kwamen de eettips voor Adelaide, Warrnambool en Melbourne, de wandelingen op Mount Lofty, het adres van het Blue Lake Motel, een wandelroute door het centrum van Melbourne en drie excursies op dag 17 (Aboriginal Heritage Walk, Eureka Skydeck en Melbourne Museum). De dagen vóór dag 12 zijn niet opnieuw nagelopen, omdat die al voorbij waren.
+
 Sinds uitgave 249 zijn links, e-mailadressen en telefoonnummers in Goed om te weten en bij de optionele excursies aanklikbaar, net als in de notities. Daar staat bijvoorbeeld de link om de veerboot naar Rottnest te boeken.
 
 ## Verhaal van de dag
