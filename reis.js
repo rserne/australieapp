@@ -589,6 +589,7 @@ const DAYS=[
   "Je hebt ruim de tijd om de omgeving te ontdekken. Cairns leent zich uitstekend als uitvalsbasis voor enkele fantastische dagexcursies. Deze bieden wij ter plaatse optioneel aan. Ga bijvoorbeeld mee naar het Daintree Rainforest en ontdek alles wat het Daintree Rainforest en Cape Tribulation te bieden hebben.",
   "Speur naar krokodillen tijdens een cruise op de Daintree River. Leer meer over de flora, fauna en geschiedenis tijdens een boardwalk-tour met een ervaren gids. Maak een 4WD-tocht door het regenwoud, bezoek Cape Tribulation Beach en geniet van een huisgemaakt Daintree-ijsje op de terugreis."
  ],
+ note:"Morgen vroeg naar het rif. Wie met Passions of Paradise gaat, checkt om 07.00 uur in bij de Reef Fleet Terminal aan Spence Street, want om 07.45 uur sluit het instappen. Leg vanavond je zwemkleding, handdoek, hoed, zonnebril en zonnebrand klaar.",
  wash:"Nog een waskans, als je in Melbourne of Alice Springs niet alles hebt gewassen. Vraag bij de receptie of het hotel een wasservice heeft. Het is een kleiner, zelfstandig hotel, dus reken er niet op. Zelf doen kan bij Cairns Laundromat aan Sheridan Street (4,5 op Google), acht minuten lopen, open van 05.00 tot 23.00 uur, betalen met de pas. Gebruik de droger. Bij deze luchtvochtigheid droogt niets uit zichzelf.",
  prac:["De klok gaat een half uur vooruit, van het Northern Territory naar Queensland. Queensland kent geen zomertijd, de rest van de oostkust wel.",
   "Je vliegt pas om 12.50 uur, dus misschien heb je de ochtend nog in Alice Springs. Het Desert Park gaat om 7.30 uur open en het Bean Tree Café in de Olive Pink Botanic Garden op woensdag om 8.00 uur. Vraag de reisbegeleider hoe laat de bus naar het vliegveld gaat.",
@@ -608,6 +609,10 @@ const DAYS=[
   ["Anemoonvis en reuzendoopvont","Clownvissen in hun anemoon en reuzenschelpen van een meter breed. Beide op ondiepe plekken bij het platform.",3],
   ["Napoleonvis","Een grote, nieuwsgierige lipvis die bij veel boten een vaste bezoeker is en dicht bij snorkelaars komt.",2],
   ["Rog","Op de zandvlaktes tussen het koraal, vaak half ingegraven.",2]],
+ agenda:[
+  ["07.00","Inchecken bij Passions of Paradise","Bij de balie van Passions of Paradise in de Reef Fleet Terminal, Spence Street 1. Het instappen sluit om 07.45 uur.","Eigen boeking"],
+  ["08.00","Met de catamaran naar het buitenrif","Stipt om acht uur naar twee plekken op het buitenrif. Snorkelspullen met pak, een snorkeltocht met een gids, koffie of thee 's ochtends en 's middags, een tropisch lunchbuffet en een presentatie over het zeeleven zijn inbegrepen.","Eigen boeking"],
+  ["08.15","Great Barrier Reef Cruise","De excursie via Sawadee, naar een ponton op Moore Reef. Terug rond 17.00 uur.","Via Sawadee"]],
  body:[
   "Kies er vandaag voor om mee te gaan naar het grootste koraalrif ter wereld, het populaire Great Barrier Reef, waar we gaan snorkelen. Keer in de avond terug naar de boulevard, want hier zijn genoeg mogelijkheden om heerlijk te eten.",
   "Met een catamaran ga je naar een uniek koraalrif, waar je kunt snorkelen tussen de schildpadden, kleurrijke vissen en verschillende soorten koraal. Om het kwetsbare koraal te beschermen werkt de organisatie samen met wetenschappers en het Coral Nurturing Program. Gezamenlijk hebben zij zes coral nurseries gebouwd. Dankzij nieuwe technologie worden kwetsbare stukjes koraal gered en krijgen ze een nieuw thuis, zodat het rif de ruimte krijgt om gezond uit te groeien. De reisbegeleider kan helpen met het boeken."
@@ -615,6 +620,8 @@ const DAYS=[
  prac:["Op rifexcursies komt vrijwel altijd een aparte rifheffing bovenop de prijs, zo'n acht dollar per persoon per dag. Die zit meestal níét in het geboekte bedrag. Houd contant of pas bij de hand.",
   "Draag het beschermende pak dat de boot aanbiedt, ook als het niet verplicht is. Het beschermt tegen kwallen én zon, en is beter voor het koraal dan zonnebrand.",
   "Het is anderhalf tot twee uur varen over open zee. Zeeziektepillen werken alleen als je ze een uur vóór vertrek neemt, niet aan boord.",
+  "De Reef Fleet Terminal ligt aan Spence Street 1, aan de zuidkant van de Esplanade. Vanaf het hotel is dat zo'n halfuur lopen, of een paar minuten met de taxi. Reken op tijd voor het inchecken.",
+  "Aan boord van Passions of Paradise is een bar met snacks, drankjes en souvenirs. Betalen kan contant of met de kaart.",
   "De reisbegeleider raadt de cruises naar Green Island af. Het water is daar altijd wat troebel en er leeft minder dan op het buitenrif.",
   "Slecht weer, of wil je niet het water in? Het Cairns Aquarium aan Florence Street 5 is dan een goed alternatief. Open van 9.30 tot 15.30 uur, entree A$58."],
  tips:TIPS_CAIRNS,
@@ -751,6 +758,7 @@ const PACK=[
  ["Picknicklunch","Op dag 6 gekocht in Launceston, of vanochtend vroeg bij Banjo's.",[7]],
  ["Laagjes en wind- en regenjack","Voor de boottocht. Op het water is het kouder dan in de stad, en vanaf de middag waait het harder. Liever te veel dan te weinig.",[10]],
  ["Zeeziektepillen, als je ze gebruikt","Voor de boottocht. Slik ze een uur vóórdat je de boot op gaat.",[10]],
+ ["Handdoek, hoed, zonnebril en zonnebrand","Voor de dag op het rif. Neem het mee zoals voor een dag aan het strand.",[22]],
  ["Vliegennet, als je er een hebt","Voor de vliegen in de outback. Anders koop je er een in de supermarkt of de boekwinkel van het resort.",[18]],
  ["Lunch voor onderweg","Voor de rit naar Mount Gambier. De lunch is niet inbegrepen en het wordt improviseren.",[13]],
  ["Dichte, stevige schoenen","Voor de trappen en paden in de Victoria Fossil Cave.",[13]],
