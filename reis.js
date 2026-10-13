@@ -396,7 +396,7 @@ const DAYS=[
   "Trek dichte, stevige schoenen aan. In de Victoria Fossil Cave loop je zo'n 400 meter over paden en trappen, met ongeveer vijftig treden naar binnen en een steil hellend pad naar buiten.",
   "Het Blue Lake Motel staat aan Kennedy Avenue 1, telefoon +61 8 8725 5211.",
   "Voor de lunch heb je drie mogelijkheden. Neem een lunchpakket mee uit Adelaide, koop iets bij een tankstation onderweg, of bestel om half vier een kaasplankje bij de wijnproeverij. Dat laatste is wel laat, dus houd iets te eten achter de hand."],
- note:"Je slaapt één nacht in het Blue Lake Motel aan Kennedy Avenue, en het ontbijt is inbegrepen. Het motel ligt op een heuvel buiten het centrum en de twee restaurants hieronder liggen 3 en 8 km verderop, dus je hebt vervoer nodig. De hoogst gewaardeerde adressen van Mount Gambier, Elementary, Fat Frog en de Brewery, zijn op dinsdag gesloten.",
+ note:"Morgen om 06.45 uur sta je met je bagage bij de bus op de parkeerplaats. Doe je sleutel vooraf in de bus bij de receptie. Je slaapt één nacht in het Blue Lake Motel aan Kennedy Avenue, en het ontbijt is inbegrepen. Het motel ligt op een heuvel buiten het centrum en de twee restaurants hieronder liggen 3 en 8 km verderop, dus je hebt vervoer nodig. De hoogst gewaardeerde adressen van Mount Gambier, Elementary, Fat Frog en de Brewery, zijn op dinsdag gesloten.",
  tips:[["The Gates","Westerse keuken","Morris Street, Mount Gambier",""]],
  rest:[["Thyme at the Lakes","Lake Terrace West, Mount Gambier",4.4,2,0,"Modern Australisch met uitzicht over de stad en de kratermeren, dinsdag 18.00–22.00 uur. Beoordelingen lopen uiteen, veel lof voor eten en uitzicht, kritiek op prijs en bediening. Zo'n 3 km van het motel.","Online of telefonisch. Reserveren aanbevolen."],
    ["The Barn Steakhouse","Glenelg River Road, Mount Gambier",4.4,3,0,"Klassiek steakhouse, zeven dagen open van 17.30 tot 22.00 uur. Grote porties, goede wijnkaart, prijzig. Ligt 8 km buiten de stad, dus zeker een taxi.","Online of telefonisch."]]},
@@ -409,12 +409,14 @@ const DAYS=[
   ["Echidna","Langs de wandelpaden, overdag. Lente is de beste tijd.",2],
   ["Wedgestaartarend","Boven de rotswanden bij The Pinnacle en Boroka Lookout.",2]],
  agenda:[
-  ["07.00","Vertrek uit Mount Gambier","Het ontbijt in het motel is inbegrepen."],
-  ["10.30","Ngamadjidj Shelter","Aboriginal-rotskunst onder een overhangende rots."],
+  ["06.45","Bagage bij de bus","Met je bagage verzamelen bij de bus op de parkeerplaats, en dan gaat alles erin. Doe je sleutel vooraf in de bus bij de receptie en laat hem niet op je kamer liggen."],
+  ["Daarna","Naar Ngamadjidj Shelter","Ongeveer drie uur rijden. Daar bekijk je een halfuur de Aboriginal-rotskunst onder een overhangende rots."],
   ["Daarna","Boroka Lookout","Uitzicht over Halls Gap en de bergen eromheen."],
-  ["Middag","Lunch in Halls Gap","Op eigen gelegenheid. Wie niet wil wandelen, blijft hier en wordt later opgehaald."],
-  ["Daarna","Wonderland Car Park","Vier wandelingen om uit te kiezen. Naar The Pinnacle via de Grand Canyon en Silent Street, middelzwaar, 5,5 km, ongeveer tweeënhalf uur. Volg op de terugweg de bordjes Wonderland Car Park. Iets makkelijker is de Grand Canyon Loop, 1 km met 60 meter hoogteverschil. Makkelijk is het pad naar Splitters Falls en door naar Venus Baths. Ook makkelijk is het bospad naar Turret Falls, drie kwartier tot een uur heen en terug. Dat pad begint achter op de parkeerplaats, aan de linkerkant."],
-  ["Avond","Barbecue bij de lodge","Vooraf besteld. De reisbegeleider betaalt hem uit de pot."]],
+  ["12.30","Lunch in Halls Gap","Er is een bakker met lekkere belegde broodjes en koffie, en er staan picknicktafels. Let op de kaketoes, want die pikken je eten. Wil je niet wandelen, of liever niet op de parkeerplaats in het park op de rest wachten, dan kun je in Halls Gap blijven."],
+  ["Middag","Wandelen vanaf Wonderland Car Park","Met de bus naar de parkeerplaats waar de wandelingen beginnen. Vier wandelingen om uit te kiezen. Naar The Pinnacle via de Grand Canyon en Silent Street, middelzwaar, 5,5 km, ongeveer tweeënhalf uur. Volg op de terugweg de bordjes Wonderland Car Park. Iets makkelijker is de Grand Canyon Loop, 1 km met 60 meter hoogteverschil. Makkelijk is het pad naar Splitters Falls en door naar Venus Baths. Ook makkelijk is het bospad naar Turret Falls, drie kwartier tot een uur heen en terug. Dat pad begint achter op de parkeerplaats, aan de linkerkant."],
+  ["Daarna","Terug naar Halls Gap","De bus haalt de achterblijvers op."],
+  ["Daarna","Naar de lodge","Inchecken in het Mountain View Motor Inn, voor één nacht."],
+  ["Avond","Barbecue bij de lodge","Samen met de groep. De reisbegeleider betaalt de barbecue uit de pot. Drankjes zijn te koop, op eigen kosten."]],
  body:[
   "Vandaag reizen we af naar het Grampians Nationaal Park, het grootste Nationale Park van de staat Victoria. Vanwege de unieke landschappen en rijke geschiedenis absoluut een bezoek waard. Sinds de jaren 80 is dit park beschermd als Nationaal Park. In het Djab Wurrung en Jardwadjali heet het gebied Gariwerd. Je vindt er belangrijke Aboriginal-rotskunst.",
   "In de omgeving zijn verschillende mooie wandelingen te maken. Vraag naar The Pinnacle of de Wonderland Loop. Het park is bedekt met bergbossen met verschillende Eucalyptus-soorten en je vindt er bijna 1000 plantensoorten. We verblijven in een wat verouderde maar charmante accommodatie, waar je soms kangoeroes ziet. 's Avonds eet je met de groep een barbecue bij de lodge."
@@ -425,7 +427,7 @@ const DAYS=[
   "Neem genoeg water mee en wandel liever niet alleen, maar met minstens één ander.",
   "In het hart van het park liggen de MacKenzie Falls, een waterval van zo'n 25 meter hoog en 20 meter breed. Ze staan niet in het schema van vandaag, maar zijn wel de bekendste plek van de Grampians.",
   "In Halls Gap kun je een hoofdnet tegen de vliegen kopen. Dat heb je later in de reis nog nodig, in het Red Centre."],
- note:"Je slaapt in het Mountain View Motor Inn, 3,7 km buiten Halls Gap. Dat is te ver om 's avonds naar het dorp te lopen. Eten kan alleen bij de barbecue die de reisbegeleider vooraf bestelt. Reken je eten en drankjes dezelfde avond nog af. Er is een zwembad, en wifi alleen in de lobby. Ontbijt zit er niet bij: morgenochtend ga je naar de bakker.",
+ note:"Je slaapt in het Mountain View Motor Inn, 3,7 km buiten Halls Gap. Dat is te ver om 's avonds naar het dorp te lopen. Eten kan alleen bij de barbecue, die de reisbegeleider uit de pot betaalt. Je drankjes reken je dezelfde avond nog af. Er is een zwembad, en wifi alleen in de lobby. Ontbijt zit er niet bij: morgenochtend ga je naar de bakker.",
  food:[["Kangoeroe","Mager en ijzerrijk. Eet het rosé. Doorbakken wordt het taai."],["Great Western sparkling shiraz","Mousserende rode wijn uit de streek hiernaast."],["Chicken parmigiana","Het nationale pubgerecht van Victoria. Kortweg 'parma'."]]},
 
 {n:15,r:"vic",k:"bus",t:"Warrnambool via Tower Hill",p:"Warrnambool",
