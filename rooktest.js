@@ -476,7 +476,9 @@ function zoek(w,fouten,term){
     meld('5 okt: Morgen-blok op een gewone reisdag',fouten); }
   // Winkels bij het hotel: uit WINKELS in reis.js, per hotel, onder Eten vanavond. Zonder hotel geen blok.
   { const {w,fouten}=start('2026-10-03');
-    const kaarten=()=>[...w.document.querySelectorAll('#day details.rcard')].filter(c=>!c.querySelector('.role')&&!c.classList.contains('verhaal'));
+    // Eén paneel met een regel per winkel, net als Eten vanavond
+    const kaarten=()=>[...w.document.querySelectorAll('#day .wpanel>details.rrij')];
+    eis(fouten,w.document.querySelectorAll('#day .wpanel').length===1&&!w.document.querySelector('#day .wpanel .card'),'de winkels staan in één paneel, zonder losse kaarten erin');
     const kopjes=()=>[...w.document.querySelectorAll('#day h2')].map(h=>h.textContent);
     eis(fouten,kopjes().includes('Winkels')&&kaarten().length===1&&/Woolworths Metro/.test(kaarten()[0].textContent),`dag 3 (Sydney) toont de winkel bij The Ultimo (nu ${kaarten().length} kaarten)`);
     const k=kaarten()[0];
@@ -1565,7 +1567,7 @@ function zoek(w,fouten,term){
     eis(fouten,kaart&&kaart.querySelectorAll('.tlijst .tip').length===10&&!kaart.querySelector('summary .rname, summary .rkort'),'de kaart toont de tien adressen onder elkaar, met alleen het label in de kop');
     eis(fouten,kaart&&kaart.nextElementSibling&&kaart.nextElementSibling.matches('details.rrij')&&!kaart.nextElementSibling.classList.contains('tcard'),'de restaurants volgen na de tips');
     // Eén paneel, net als Goed om te weten: tips, restaurants en de kaartlink zijn regels in dezelfde kaart.
-    const paneel=w.document.querySelectorAll('#day .rpanel');
+    const paneel=w.document.querySelectorAll('#day .rpanel:not(.wpanel)');
     eis(fouten,paneel.length===1&&paneel[0].firstElementChild===kaart&&paneel[0].lastElementChild.matches('a.rmore'),`Eten vanavond is één paneel met de tips bovenaan en de kaartlink onderaan (nu ${paneel.length} panelen)`);
     eis(fouten,paneel.length===1&&paneel[0].querySelectorAll(':scope>details.rrij:not(.tcard)').length>=2&&!paneel[0].querySelector('.card'),'elke tip- en restaurantregel staat in het paneel, zonder losse kaarten erin');
     const regel=paneel[0]&&paneel[0].querySelector(':scope>details.rrij:not(.tcard)');

@@ -348,7 +348,8 @@ function winkelsBlok(d){
   if(!lijst||!lijst.length) return '';
   const g=HOTELGEO[d.h];
   const origin=g?`${g[0]},${g[1]}`:encodeURIComponent(d.h+', '+d.p+', Australia');
-  return `<h2>Winkels</h2>`+
+  // Eén paneel, net als Eten vanavond: elke winkel is een regel die apart openklapt.
+  return `<h2>Winkels</h2><div class="card rpanel wpanel">`+
     lijst.map(([nm,soort,wh,wk,open,no])=>{
       const q=encodeURIComponent(nm+', '+wh+', '+d.p+', Australia');
       const url='https://www.google.com/maps/search/?api=1&query='+q;
@@ -358,7 +359,7 @@ function winkelsBlok(d){
       if(wk>=15) b+=`<span class="badge">≈ ${Math.max(5,Math.round(wk/4)+2)} min taxi</span>`;
       if(wk&&d.shuttle) b+=`<span class="badge">${esc(d.shuttle)}</span>`;
       b+=`<span class="badge">Open ${esc(open)}</span>`;
-      return `<details class="card rcard"><summary>`+
+      return `<details class="rrij"><summary>`+
         `<span class="rtop"><span class="rname">${esc(nm)}</span><span class="rkort">${esc(kort)}</span></span>`+
         `<span class="rchev">${ICO_CHEV}</span></summary>`+
         `<div class="rbody"><div class="badges">${b}</div>`+
@@ -366,7 +367,7 @@ function winkelsBlok(d){
         `<div class="btns"><a class="btn" href="${dir}" target="_blank" rel="noopener">Route</a>`+
         `<a class="btn" href="${url}" target="_blank" rel="noopener">Op de kaart</a></div>`+
         `</div></details>`;
-    }).join('');
+    }).join('')+`</div>`;
 }
 
 // ---- Buiten de groepsreis: startpagina, voorreis- en nareisdagen, afsluitpagina ----
@@ -2901,7 +2902,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-264';
+const APP_VERSIE='2026-10-14-265';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
