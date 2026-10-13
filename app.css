@@ -384,17 +384,14 @@
   /* ---------- Notities en tickets ---------- */
   .privtag{display:inline-block;margin-top:4px;padding:2px 8px;border-radius:8px;font-size:13px;
     background:color-mix(in srgb, var(--accent) 22%, transparent);color:var(--accent-ink);font-weight:600}
-  .notes .nlist{background:none;border:none;box-shadow:none;border-radius:0;overflow:visible}
-  .notes .nlist li.nitem{display:flex;flex-direction:column;gap:9px;align-items:stretch;
-    margin-bottom:12px;padding:15px 17px;border-radius:var(--radius);
-    background:var(--glass);border:1px solid var(--rim);
-    box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
-  .notes .nlist li.nitem:last-child{margin-bottom:0}
+  /* Eén paneel per lijst, net als Goed om te weten: de notities staan onder elkaar met een dun
+     lijntje ertussen, niet meer elk in een eigen kaart. Het paneel zelf komt van .list. */
+  .notes .nlist li.nitem{display:flex;flex-direction:column;gap:9px;align-items:stretch;padding:15px 17px}
   .nhead{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:34px}
   .notes .nbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
   .notes .ntext{white-space:pre-wrap;word-wrap:break-word;font-size:15.5px;line-height:1.5;display:block}
   .notes .ncap{font-size:15px;color:var(--text-dim)}
-  .notes .nacts{display:flex;gap:6px;flex:none}
+  .notes .nacts{display:flex;gap:6px;flex:none;margin-left:auto}
   .nbtn{font:inherit;font-size:15px;width:34px;height:34px;border-radius:10px;cursor:pointer;
     background:var(--glass-2);border:1px solid var(--rim);color:var(--text-dim)}
   .nbtn.ndel:active,.nbtn:active{opacity:.6}

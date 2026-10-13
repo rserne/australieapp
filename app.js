@@ -1537,7 +1537,8 @@ function noteCard(it,kop,{zonderNaam=false}={}){
   const uid=it.pending?` data-uid="${esc(it.uid||'')}"`:'';
   const acts=mine?`<span class="nacts"><button class="nbtn" data-edit="${esc(it.id||'')}"${uid} aria-label="Bewerken">✎</button>`+
     `<button class="nbtn ndel" data-del="${esc(it.id||'')}"${uid}${it.file_id?` data-file="${esc(it.file_id)}"`:''} aria-label="Verwijderen">×</button></span>`:'';
-  const head=`<div class="nhead">${kop}${acts}</div>`;
+  // Zonder label en zonder knoppen (een notitie van een ander onder het kopje Notities) geen lege kopregel.
+  const head=kop||acts?`<div class="nhead">${kop}${acts}</div>`:'';
   const wanneer=it.pending?(it.fout?`versturen mislukt: ${esc(it.fout)}`:wachtTekst(it)):fmtWhen(it.created_at);
   const bewerkt=(!it.pending&&it.updated_at&&it.updated_at!==it.created_at)?' · bewerkt':'';
   if(it.soort==='bestand'){
@@ -1600,13 +1601,15 @@ async function renderNotes(dag){
   const all=[...items,...pend.map(p=>({...p,id:'wacht'+p.uid,soort:'notitie',pending:true,user_id:NH.user.id}))]
     .sort((a,b)=>typeRank(a.type)-typeRank(b.type)||String(a.created_at||'').localeCompare(String(b.created_at||'')));
   const tag=it=>`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
+  // Onder het kopje Notities is het label Notitie dubbel. Een foto, link of ander soort houdt zijn label.
+  const tagRest=it=>(it.type||'notitie')==='notitie'?'':tag(it);
   // Tickets en reserveringen heb je op een moment nodig. De rest is naslag.
   const nodig=top?all.filter(it=>it.type==='ticket'||it.type==='reservering'):[];
   const overig=all.filter(it=>!nodig.includes(it));
-  const lijst=(kop,rij)=>rij.length?`<h2>${kop}</h2><ul class="list nlist">`+rij.map(it=>noteCard(it,tag(it))).join('')+`</ul>`:'';
+  const lijst=(kop,rij,lbl=tag)=>rij.length?`<h2>${kop}</h2><ul class="list nlist">`+rij.map(it=>noteCard(it,lbl(it))).join('')+`</ul>`:'';
   // Zonder notities blijft het blok helemaal weg: geen lege kop op een dag zonder items.
   if(top) top.innerHTML=lijst(dag===T.dag?'Vandaag nodig':'Nodig op deze dag',nodig);
-  if(rest) rest.innerHTML=lijst('Notities',overig)+
+  if(rest) rest.innerHTML=lijst('Notities',overig,tagRest)+
     (overig.length||nodig.length?`<div class="nstatus">${esc(status)}</div>`:'');
   [top,rest].forEach(box=>{
     if(!box||!box.innerHTML) return;
@@ -2898,7 +2901,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-262';
+const APP_VERSIE='2026-10-14-263';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

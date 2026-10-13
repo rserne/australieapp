@@ -1621,6 +1621,21 @@ function zoek(w,fouten,term){
     eis(fouten,!w.document.querySelector('#day .pklok'),'de dag naar huis heeft geen klokregel');
     meld('14 okt: Goed om te weten met klok, Let op en Was afgeven bovenaan',fouten); }
 
+  // Notities bij de dag: één paneel per lijst, zonder het dubbele label Notitie onder het kopje Notities.
+  { const {w,fouten}=start('2026-10-09',{login:'groep'});
+    await sleep(30);
+    const top=$(w,'notes-top'), rest=$(w,'notes-rest');
+    eis(fouten,top&&top.querySelectorAll('ul.nlist').length===1&&top.querySelector('.nitem .ntype.ticket'),'Vandaag nodig is één lijst, met het label Ticket');
+    w.localStorage.setItem('aus_cache_9',JSON.stringify([...JSON.parse(w.localStorage.getItem('aus_cache_9')),
+      {id:'x',user_id:'u2',dag:9,soort:'notitie',type:'notitie',tekst:'Weetje over MONA',wie:'Anna',created_at:'2026-09-05T10:00:00Z',updated_at:'2026-09-05T10:00:00Z'},
+      {id:'y',user_id:'u1',dag:9,soort:'notitie',type:'notitie',tekst:'Eigen weetje',wie:'Test',created_at:'2026-09-06T10:00:00Z',updated_at:'2026-09-06T10:00:00Z'}]));
+    w.ga(8); w.ga(9); await sleep(30);
+    const r=$(w,'notes-rest'), items=r?[...r.querySelectorAll('.nitem')]:[];
+    eis(fouten,r&&r.querySelectorAll('ul.nlist').length===1&&items.length===2,`de notities staan in één lijst (nu ${items.length})`);
+    eis(fouten,items.length===2&&!r.querySelector('.ntype'),'onder het kopje Notities geen label Notitie');
+    eis(fouten,items[0]&&!items[0].querySelector('.nhead')&&items[1]&&items[1].querySelector('.nhead .nacts [data-edit]'),'een notitie van een ander heeft geen lege kopregel, een eigen notitie houdt zijn knoppen');
+    meld('9 okt: notities als één paneel',fouten); }
+
   // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
   { const {w,fouten}=start('2026-10-08');
     const kaart=w.document.querySelector('#day details.verhaal');
