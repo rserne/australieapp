@@ -336,6 +336,8 @@ Sinds uitgave 259 is Eten vanavond één paneel, net als Goed om te weten. De ti
 
 Sinds uitgave 260 is de emoe-alert (`emoe` bij de dag) de bovenste regel van de lijst Dieren spotten, in de accentkleur, en geen losse kaart meer erboven. Heeft een dag een emoe-alert, dan laat de app een regel met precies de naam Emoe uit `wild` weg (`wildRijen` in `app.js`), op de dagpagina, bij zoeken en bij Kans vandaag. Regels als Rode reuzenkangoeroe en emoe blijven staan. Een dag met alleen een emoe-alert en geen `wild` krijgt nu ook het blok Dieren spotten.
 
+Sinds uitgave 261 staat Goed om te weten direct onder het programma, vóór het verhaal van de dag. Let op (`note`) en Tip (`tip`) zijn geen losse kaarten meer, maar gekleurde regels bovenaan dat paneel. Daarboven staat de klok. Een regel in `prac` met het woord klok of zomertijd gaat naar boven, met de sprong in het label (Klok vandaag een half uur vooruit, of Klok vannacht een uur vooruit voor de avond vóór de zomertijd). De sprong rekent `klokSprong` in `app.js` uit het verschil in `tz` met de dag ervoor, zodat hij altijd klopt met de klok op Praktisch. Verspringt de klok zonder eigen regel, dan maakt de app er zelf een. Het blok Morgen noemt de sprong ook. De vertrekdag en de dag naar huis hebben geen `tz` en dus geen klokregel.
+
 Sinds uitgave 249 zijn links, e-mailadressen en telefoonnummers in Goed om te weten en bij de optionele excursies aanklikbaar, net als in de notities. Daar staat bijvoorbeeld de link om de veerboot naar Rottnest te boeken.
 
 ## Verhaal van de dag

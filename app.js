@@ -190,8 +190,9 @@ function render(){
   }
   if(magNotities()) h+=`<div id="notes-top" class="notes"></div>`;
   if(d.wash) h+=`<div class="callout washing"><span class="ico">${WASH}</span><span><b>Was afgeven</b>${esc(d.wash)}</span></div>`;
-  if(d.note) h+=cal(IC_LET,'Let op',d.note);
-  if(d.tip)  h+=cal(IC_TIP,'Tip',d.tip);
+  // Goed om te weten staat direct onder het programma, vóór het verhaal. Bovenaan staan de klok en
+  // Let op als gekleurde regels in hetzelfde paneel, niet meer als losse kaarten.
+  h+=goedOmTeWeten(d,cur);
   const vh=verhaalVan(cur);
   if(vh) h+=verhaalBlok(vh);
 
@@ -208,10 +209,6 @@ function render(){
     h+=`<h2>Uit je koffer vandaag</h2><ul class="list prac">`+
       packToday.map(([a,b])=>`<li><span class="b">✓</span><span><strong>${esc(a)}</strong>`+
         `<span class="sub">${esc(b)}</span></span></li>`).join('')+`</ul>`;
-  }
-  if(d.prac){
-    h+=`<h2>Goed om te weten</h2><ul class="list prac">`+
-      d.prac.map(x=>`<li><span class="b">•</span><span>${linkify(x)}</span></li>`).join('')+`</ul>`;
   }
   if(d.wild||d.emoe){
     const dots=k=>`<span class="chance" title="${['','Geluk nodig','Goede kans','Bijna zeker'][k]}">${'●'.repeat(k)}${'○'.repeat(3-k)}</span>`;
@@ -302,6 +299,32 @@ function render(){
   koppelGaNaar();
   zetPijlen();
   window.scrollTo(0,0);
+}
+// Tijdverschil. De sprong volgt uit tz van deze dag en de dag ervoor, zodat hij altijd klopt met de
+// klok bovenin. Alleen reisdagen met een tijdzone; de vertrekdag en de dag thuis hebben er geen.
+const KLOKMAAT={0.5:'een half uur',1:'een uur',1.5:'anderhalf uur',2:'twee uur',2.5:'tweeënhalf uur',3:'drie uur'};
+function klokSprong(n){
+  if(typeof n!=='number'||isBuiten(n)||isBuiten(n-1)) return null;
+  const d=dagData(n), v=dagData(n-1);
+  if(!d||!v||typeof d.tz!=='number'||typeof v.tz!=='number'||d.tz===v.tz) return null;
+  const x=d.tz-v.tz;
+  return (KLOKMAAT[Math.abs(x)]||String(Math.abs(x)).replace('.',',')+' uur')+' '+(x>0?'vooruit':'terug');
+}
+// Een regel uit prac over de klok gaat naar boven, met de sprong in het label. Gaat de klok vandaag
+// om zonder zo'n regel, dan maakt de app er zelf een.
+const isKlokRegel=x=>/\bklok\b|zomertijd/i.test(x);
+function goedOmTeWeten(d,n){
+  const prac=d.prac||[];
+  const vandaag=klokSprong(n), vannacht=klokSprong(n+1);
+  const label=vandaag?`Klok vandaag ${vandaag}`:(vannacht?`Klok vannacht ${vannacht}`:'Klok');
+  let klok=prac.filter(isKlokRegel);
+  if(!klok.length&&vandaag) klok=['Je telefoon past de tijd vanzelf aan. Een horloge of camera zet je zelf goed.'];
+  const rij=(cls,ico,lbl,txt)=>`<li class="${cls}"><span class="b">${ico}</span><span><b class="plabel">${lbl}</b>${linkify(txt)}</span></li>`;
+  const rijen=klok.map(x=>rij('pklok',IC_KLOK,label,x)).join('')+
+    (d.note?rij('plet',IC_LET,'Let op',d.note):'')+
+    (d.tip?rij('ptip',IC_TIP,'Tip',d.tip):'')+
+    prac.filter(x=>!isKlokRegel(x)).map(x=>`<li><span class="b">•</span><span>${linkify(x)}</span></li>`).join('');
+  return rijen?`<h2>Goed om te weten</h2><ul class="list prac">${rijen}</ul>`:'';
 }
 const cal=(ico,label,txt)=>`<div class="callout"><span class="ico">${ico}</span><span><b>${label}</b>${esc(txt)}</span></div>`;
 
@@ -419,7 +442,8 @@ function zetPijlen(){
 }
 
 // Knop naar een dag. Werkt voor reisdagen en voor voorreis- en nareisdagen, met of zonder programma.
-// Als blok 'Morgen' (morgen=true) staat eronder of er een emoe-alert of wasdag aankomt, anders de plaats.
+// Als blok 'Morgen' (morgen=true) staat eronder of de klok verspringt en of er een emoe-alert of wasdag
+// aankomt, anders de plaats.
 // koffer=false laat weg wat je vanavond moet klaarleggen. Dat hoort bij de groepsreis, dus wie op de
 // laatste voorreisdag naar dag 1 kijkt, krijgt niet de paklijst van de vertrekdag uit Amsterdam.
 function dagKnop(n,morgen,koffer){
@@ -429,7 +453,7 @@ function dagKnop(n,morgen,koffer){
   if(d){
     const k=KIND[d.k];
     tt=esc(d.t);
-    sub=morgen?[k?k[1]+k[0]:'',d.emoe?'emoe-alert':'',d.wash?'was afgeven':''].filter(Boolean).join(' · ')
+    sub=morgen?[k?k[1]+k[0]:'',klokSprong(n)?'klok '+klokSprong(n):'',d.emoe?'emoe-alert':'',d.wash?'was afgeven':''].filter(Boolean).join(' · ')
               :[k?k[1]+k[0]:'',esc(d.p)].filter(Boolean).join(' · ');
   }else{
     tt=notitiesTekst(alleNotities().filter(it=>it.dag===n).length);
@@ -2874,7 +2898,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-260';
+const APP_VERSIE='2026-10-14-261';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

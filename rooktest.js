@@ -1593,6 +1593,31 @@ function zoek(w,fouten,term){
     eis(fouten,/kasuaris/i.test((w.document.querySelector('#day ul.wild .emoerij')||{}).textContent||''),'dag 23 toont de alert ook zonder andere dieren');
     meld('13 okt: emoe-alert in de dierenlijst, zonder dubbeling',fouten); }
 
+  // Goed om te weten: direct onder het programma, met de klok en Let op als gekleurde regels bovenaan.
+  { const {w,fouten}=start('2026-10-14');
+    const kopjes=()=>[...w.document.querySelectorAll('#day h2')].map(h=>h.textContent);
+    const lijst=()=>{ const h=[...w.document.querySelectorAll('#day h2')].find(x=>x.textContent==='Goed om te weten'); return h&&h.nextElementSibling; };
+    const k=kopjes();
+    eis(fouten,k.indexOf('Goed om te weten')>k.indexOf('Tijdschema')&&k.indexOf('Goed om te weten')<k.indexOf('Verhaal van de dag'),`Goed om te weten staat tussen het programma en het verhaal (nu: ${k.join(' | ')})`);
+    eis(fouten,![...w.document.querySelectorAll('#day .callout')].some(c=>/Let op|Tip/i.test(c.querySelector('b').textContent)),'Let op en Tip zijn geen losse kaarten meer');
+    let r=[...lijst().children];
+    eis(fouten,r[0].classList.contains('pklok')&&/Klok vandaag een half uur vooruit/i.test(r[0].querySelector('.plabel').textContent)&&/grens met Victoria/.test(r[0].textContent),`de klok is de bovenste regel, met de sprong erbij (nu: '${r[0].textContent.slice(0,60)}')`);
+    eis(fouten,r[1].classList.contains('plet')&&/Mountain View/.test(r[1].textContent),'daarna Let op');
+    eis(fouten,r.filter(x=>/grens met Victoria/.test(x.textContent)).length===1&&!/Kangoeroes en emoes lopen/.test(lijst().textContent),'geen dubbele regels');
+    w.ga(13);
+    eis(fouten,/klok een half uur vooruit/.test(w.document.querySelector('#day .tomorrow').textContent),'het blok Morgen op dag 13 meldt de klok');
+    w.ga(4); r=[...lijst().children];
+    eis(fouten,r[0].classList.contains('pklok')&&/Klok vandaag een uur vooruit/i.test(r[0].textContent),'dag 4 krijgt een klokregel zonder eigen tekst');
+    w.ga(3); r=[...lijst().children];
+    eis(fouten,r[0].classList.contains('pklok')&&/Klok vannacht een uur vooruit/i.test(r[0].textContent),'dag 3 meldt de zomertijd van vannacht');
+    w.ga(24); r=[...lijst().children];
+    eis(fouten,/Klok vandaag twee uur terug/i.test(r[0].textContent),'dag 24 noemt twee uur terug');
+    w.ga(7);
+    eis(fouten,!w.document.querySelector('#day .pklok'),'een dag zonder sprong heeft geen klokregel');
+    w.ga(29);
+    eis(fouten,!w.document.querySelector('#day .pklok'),'de dag naar huis heeft geen klokregel');
+    meld('14 okt: Goed om te weten met klok en Let op bovenaan',fouten); }
+
   // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
   { const {w,fouten}=start('2026-10-08');
     const kaart=w.document.querySelector('#day details.verhaal');

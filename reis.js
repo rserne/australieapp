@@ -422,12 +422,11 @@ const DAYS=[
   "In de omgeving zijn verschillende mooie wandelingen te maken. Vraag naar The Pinnacle of de Wonderland Loop. Het park is bedekt met bergbossen met verschillende Eucalyptus-soorten en je vindt er bijna 1000 plantensoorten. We verblijven in een wat verouderde maar charmante accommodatie, waar je soms kangoeroes ziet. 's Avonds eet je met de groep een barbecue bij de lodge."
  ],
  prac:["Bij de grens met Victoria gaat de klok een half uur vooruit. Vergeet dat niet bij het afspreken van vertrektijden met de groep.",
-  "Kangoeroes en emoes lopen 's avonds gewoon door het dorp Halls Gap en over het sportveld. Je hoeft er het park niet voor in.",
   "De rotskunst is beschermd erfgoed van de Djab Wurrung en Jardwadjali. Aanraken is verboden, ook met een vinger langs de rand. De olie van je huid tast de pigmenten aan.",
   "Neem genoeg water mee en wandel liever niet alleen, maar met minstens één ander.",
   "In het hart van het park liggen de MacKenzie Falls, een waterval van zo'n 25 meter hoog en 20 meter breed. Ze staan niet in het schema van vandaag, maar zijn wel de bekendste plek van de Grampians.",
   "In Halls Gap kun je een hoofdnet tegen de vliegen kopen. Dat heb je later in de reis nog nodig, in het Red Centre."],
- note:"Je slaapt in het Mountain View Motor Inn, 3,7 km buiten Halls Gap. Dat is te ver om 's avonds naar het dorp te lopen. Eten kan alleen bij de barbecue, die de reisbegeleider uit de pot betaalt. Je drankjes reken je dezelfde avond nog af. Er is een zwembad, en wifi alleen in de lobby. Ontbijt zit er niet bij: morgenochtend ga je naar de bakker.",
+ note:"Je slaapt in het Mountain View Motor Inn, 3,7 km buiten Halls Gap. Dat is te ver om 's avonds naar het dorp te lopen, dus je eet mee bij de barbecue. Je drankjes reken je dezelfde avond nog af. Er is een zwembad, en wifi alleen in de lobby. Ontbijt zit er niet bij, morgenochtend ga je naar de bakker.",
  food:[["Kangoeroe","Mager en ijzerrijk. Eet het rosé. Doorbakken wordt het taai."],["Great Western sparkling shiraz","Mousserende rode wijn uit de streek hiernaast."],["Chicken parmigiana","Het nationale pubgerecht van Victoria. Kortweg 'parma'."]]},
 
 {n:15,r:"vic",k:"bus",t:"Warrnambool via Tower Hill",p:"Warrnambool",

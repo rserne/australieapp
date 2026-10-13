@@ -201,6 +201,16 @@
   .list strong a:active{opacity:.6}
   .prac li{display:flex;gap:11px;align-items:flex-start;color:var(--text);font-size:15.5px;line-height:1.5}
   .prac .b{color:var(--accent-ink);flex:none;font-size:15px;line-height:1.5}
+  /* Goed om te weten: de klok en Let op als gekleurde regels bovenaan, in hetzelfde paneel */
+  .prac li>.b>svg{display:block;width:19px;height:19px;margin-top:2px}
+  .prac .plabel{display:block;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;margin-bottom:2px}
+  .prac li.pklok{background:color-mix(in srgb, var(--accent) 24%, transparent)}
+  .prac li.pklok .b,.prac li.pklok .plabel{color:var(--accent-ink)}
+  .prac li.plet{background:var(--glass-2)}
+  .prac li.plet .b{color:var(--alert)}
+  .prac li.plet .plabel{color:var(--text-dim)}
+  .prac li.ptip .b{color:var(--text-faint)}
+  .prac li.ptip .plabel{color:var(--text-dim)}
   .row{display:flex;justify-content:space-between;gap:14px;align-items:baseline}
   .row .r{color:var(--text-dim);font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}
 
