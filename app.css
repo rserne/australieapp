@@ -11,6 +11,9 @@
     --glass-2:rgba(255,255,255,.11);
     --glass-3:rgba(255,255,255,.16);
     --rim:rgba(255,255,255,.13);
+    /* Scheidingslijn tussen regels in een paneel. Los van --rim, want de rand van een glaspaneel is in het
+       lichte thema wit, en een witte lijn op een bijna wit paneel zie je niet. */
+    --lijn:rgba(255,255,255,.16);
     --rim-hi:rgba(255,255,255,.22);
     --shadow:0 10px 30px rgba(0,0,0,.35);
     --shadow-soft:0 2px 10px rgba(0,0,0,.25);
@@ -42,6 +45,7 @@
     --glass-2:rgba(255,255,255,.78);
     --glass-3:rgba(255,255,255,.92);
     --rim:rgba(255,255,255,.90);
+    --lijn:rgba(20,30,45,.18);
     --rim-hi:rgba(255,255,255,1);
     --shadow:0 10px 30px rgba(30,40,55,.10);
     --shadow-soft:0 2px 10px rgba(30,40,55,.08);
@@ -193,7 +197,7 @@
   .list{list-style:none;margin:0;padding:0;overflow:hidden;
     border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
-  .list li{padding:13px 16px;border-bottom:1px solid var(--rim);font-size:16px}
+  .list li{padding:13px 16px;border-bottom:1px solid var(--lijn);font-size:16px}
   .list li:last-child{border-bottom:none}
   .list strong{display:block;font-weight:600;margin-bottom:1px}
   .list span.sub{color:var(--text-dim);font-size:15px}
@@ -231,7 +235,7 @@
   details.rcard{padding:0;overflow:hidden}
   /* Eten vanavond: één paneel met regels die elk apart openklappen, gescheiden door een dun lijntje */
   .rpanel{padding:0;overflow:hidden}
-  .rpanel>.rrij+.rrij{border-top:1px solid var(--rim)}
+  .rpanel>.rrij+.rrij{border-top:1px solid var(--lijn)}
   details.rcard>summary,details.rrij>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;
     padding:13px 15px;-webkit-tap-highlight-color:transparent}
   details.rcard>summary::-webkit-details-marker,details.rrij>summary::-webkit-details-marker{display:none}
@@ -245,7 +249,7 @@
   /* Tips van de reisbegeleider: één kaart, de adressen onder elkaar met een dun lijntje ertussen */
   .tcard .role{font-size:13px}
   .tlijst{list-style:none;margin:0;padding:0}
-  .tlijst .tip{padding:11px 0;border-top:1px solid var(--rim)}
+  .tlijst .tip{padding:11px 0;border-top:1px solid var(--lijn)}
   .tlijst .tip:first-child{border-top:none;padding-top:2px}
   .tlijst .tip:last-child{padding-bottom:0}
   .tkop{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;margin-bottom:4px}
@@ -291,7 +295,7 @@
   .card .checked{margin-top:10px;font-size:12.5px;color:var(--text-faint);line-height:1.45}
   .card .where{color:var(--text-faint);font-size:14px;margin:0 0 8px;display:flex;align-items:center;gap:6px}
   .card p{margin:0;font-size:15.5px;color:var(--text-dim);line-height:1.5}
-  .card .book{margin-top:12px;padding-top:11px;border-top:1px solid var(--rim);
+  .card .book{margin-top:12px;padding-top:11px;border-top:1px solid var(--lijn);
     font-size:15px;color:var(--text-dim);line-height:1.5}
   .card .book b{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:var(--text-faint);margin-bottom:3px}
@@ -307,7 +311,7 @@
   .ft{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums}
   .fp{font-size:14px;color:var(--text-dim);margin-top:2px;line-height:1.35}
   .farr{color:var(--text-faint);font-size:20px;line-height:1.25;flex:none;padding-top:1px}
-  .finfo{margin-top:9px;padding-top:9px;border-top:1px solid var(--rim);font-size:13.5px;color:var(--text-dim)}
+  .finfo{margin-top:9px;padding-top:9px;border-top:1px solid var(--lijn);font-size:13.5px;color:var(--text-dim)}
   .fcheck{display:flex;flex-direction:column;align-items:center;gap:2px;
     margin-top:12px;padding:12px;border-radius:14px;text-align:center;text-decoration:none;
     background:var(--pill);color:var(--pill-text);border:none;
@@ -329,7 +333,7 @@
   /* ---------- Tijdschema ---------- */
   .agenda{list-style:none;margin:0;padding:0;border-radius:var(--radius);overflow:hidden;
     background:var(--glass);border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
-  .agenda li{display:flex;gap:14px;padding:13px 16px;border-bottom:1px solid var(--rim)}
+  .agenda li{display:flex;gap:14px;padding:13px 16px;border-bottom:1px solid var(--lijn)}
   .agenda li:last-child{border-bottom:none}
   .atime{flex:none;width:3.4em;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent-ink);font-size:16px;line-height:1.45;overflow-wrap:break-word}
   /* Lijsten met dagdelen ('Ochtend') in plaats van kloktijden: bredere kolom, kleinere letter. */
@@ -529,7 +533,7 @@
     box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
   /* De regel noteert 'gezien', het bestekje ernaast 'gegeten'. Twee knoppen naast elkaar in één rij,
      want een knop in een knop mag niet. De omhullende div draagt de tint en de scheidingslijn. */
-  .drijwrap{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--rim);padding-right:12px}
+  .drijwrap{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--lijn);padding-right:12px}
   .drijwrap:last-child{border-bottom:none}
   .drijwrap[hidden]{display:none}
   .drij{display:flex;align-items:center;gap:12px;flex:1;min-width:0;min-height:58px;text-align:left;font:inherit;color:var(--text);
@@ -763,7 +767,7 @@
   #index,#prakt,#alles{display:none}
   .idx{list-style:none;margin:0;padding:0;overflow:hidden;border-radius:var(--radius);
     background:var(--glass);border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
-  .idx li+li{border-top:1px solid var(--rim)}
+  .idx li+li{border-top:1px solid var(--lijn)}
   .idx button{width:100%;background:none;border:none;font:inherit;color:var(--text);
     display:flex;align-items:center;gap:11px;padding:13px 16px;cursor:pointer;text-align:left}
   /* Kop per regio, in de kleur van die regio. Net als bij de dieren heeft elke regio twee kleuren:
@@ -819,7 +823,7 @@
     font-variant-numeric:tabular-nums;margin:10px 0 2px}
   .clock .sub{font-size:14px;color:var(--text-dim);line-height:1.35;
     overflow:hidden;text-overflow:ellipsis}
-  .clock .diff{margin-top:9px;padding-top:9px;border-top:1px solid var(--rim);
+  .clock .diff{margin-top:9px;padding-top:9px;border-top:1px solid var(--lijn);
     font-size:12.5px;color:var(--text-faint)}
   .sos{padding:16px 17px;margin-bottom:12px;border-radius:var(--radius);
     background:color-mix(in srgb, var(--alert) 14%, var(--glass));
@@ -881,7 +885,7 @@
   .tabbar button.on{background:var(--pill);color:var(--pill-text);
     box-shadow:inset 0 1px 0 var(--pill-hi), 0 2px 8px rgba(0,0,0,.22)}
 
-  footer{margin:36px 0 0;padding-top:18px;border-top:1px solid var(--rim);
+  footer{margin:36px 0 0;padding-top:18px;border-top:1px solid var(--lijn);
     font-size:13.5px;color:var(--text-faint);line-height:1.5}
 
   .callout code{font:inherit;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;
@@ -914,7 +918,7 @@
   .sgetallen b.geel{color:var(--accent-ink)}
   .sgetallen b small{font-size:13px;font-weight:600;color:var(--text-dim)}
   .sgetallen span{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
-  .skast .pkast{margin-top:16px;padding-top:16px;border-top:1px solid var(--rim)}
+  .skast .pkast{margin-top:16px;padding-top:16px;border-top:1px solid var(--lijn)}
   .sleeg{padding-left:4px}
   /* het podium: 2 links, 1 midden, 3 rechts; de soorten groot in het blok, naam en dieren erboven */
   .spodium{border-radius:var(--radius);background:var(--glass);border:1px solid var(--rim);overflow:hidden}
@@ -930,7 +934,7 @@
   .ptrede.r2 i{height:76px;background:#C9CDD6;color:#151821}
   .ptrede.r3 i{height:58px;background:#C67C3B;color:#1A1200}
   /* mijn eigen trede, als ik niet op het podium sta: dezelfde opbouw, zonder medaillekleur */
-  .strede{display:flex;align-items:center;gap:14px;padding:12px 18px 14px;border-top:1px solid var(--rim)}
+  .strede{display:flex;align-items:center;gap:14px;padding:12px 18px 14px;border-top:1px solid var(--lijn)}
   .strede .sbody{flex:1;display:flex;flex-direction:column;gap:2px}
   .strede .sbody b{font-size:15px;font-weight:700}
   .strede .sbody span{font-size:12.5px;color:var(--text-dim)}

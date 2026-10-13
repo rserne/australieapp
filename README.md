@@ -340,6 +340,8 @@ Sinds uitgave 261 staat Goed om te weten direct onder het programma, vóór het 
 
 Sinds uitgave 263 staan notities en bijlagen in één paneel per lijst, met een dun lijntje ertussen, en niet meer elk in een eigen kaart. Dat geldt bij de dag (Vandaag nodig en Notities), in het tabblad Notities (per soort) en bij Verzekeringen. Onder het kopje Notities bij de dag laat de app het label Notitie weg, want dat zegt het kopje al. Andere soorten houden hun label. Heeft een regel geen label en geen knoppen (een notitie van een ander), dan valt de lege kopregel weg.
 
+Sinds uitgave 264 hebben de scheidingslijnen tussen regels een eigen kleur, `--lijn` in `app.css`. Eerst gebruikten ze `--rim`, de rand van een glaspaneel, en die is in het lichte thema wit. Een witte lijn op een bijna wit paneel was nauwelijks te zien. In het lichte thema is `--lijn` nu een zacht grijs, in het donkere thema iets lichter dan de rand.
+
 Sinds uitgave 249 zijn links, e-mailadressen en telefoonnummers in Goed om te weten en bij de optionele excursies aanklikbaar, net als in de notities. Daar staat bijvoorbeeld de link om de veerboot naar Rottnest te boeken.
 
 ## Verhaal van de dag
