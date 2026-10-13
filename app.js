@@ -213,15 +213,13 @@ function render(){
     h+=`<h2>Goed om te weten</h2><ul class="list prac">`+
       d.prac.map(x=>`<li><span class="b">•</span><span>${linkify(x)}</span></li>`).join('')+`</ul>`;
   }
-  if(d.wild){
+  if(d.wild||d.emoe){
     const dots=k=>`<span class="chance" title="${['','Geluk nodig','Goede kans','Bijna zeker'][k]}">${'●'.repeat(k)}${'○'.repeat(3-k)}</span>`;
-    h+=`<h2>Dieren spotten</h2>`;
-    if(d.emoe){
-      const k=d.emoe[0];
-      h+=`<div class="emoealert">${EMU}<span><b>Emoe-alert <span class="chance">${'●'.repeat(k)}${'○'.repeat(3-k)}</span></b>${esc(d.emoe[1])}</span></div>`;
-    }
-    h+=`<ul class="list wild">`+
-      d.wild.map(([a,b,k])=>`<li>${PAW}<span class="wbody"><span class="wtop"><strong>${esc(a)}</strong>${dots(k)}</span><span class="sub">${esc(b)}</span></span></li>`).join('')+
+    // Eén lijst: de emoe-alert is de bovenste regel, met een eigen kleur. Een losse regel Emoe
+    // valt dan weg, want die zei hetzelfde nog een keer (zie wildRijen).
+    h+=`<h2>Dieren spotten</h2><ul class="list wild">`+
+      (d.emoe?`<li class="emoerij">${EMU}<span class="wbody"><span class="wtop"><strong>Emoe-alert</strong>${dots(d.emoe[0])}</span><span class="sub">${esc(d.emoe[1])}</span></span></li>`:'')+
+      wildRijen(d).map(([a,b,k])=>`<li>${PAW}<span class="wbody"><span class="wtop"><strong>${esc(a)}</strong>${dots(k)}</span><span class="sub">${esc(b)}</span></span></li>`).join('')+
       `</ul><div class="legend">`+
       // dezelfde bolletjes als in de lijst, zodat de afstanden overeenkomen
       [[3,'bijna zeker'],[2,'goede kans'],[1,'geluk nodig']]
@@ -583,6 +581,9 @@ const IC_TIP='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke
 // Tips van de reisbegeleider (tips in reis.js): de eerste dichtgeklapte regel in het paneel Eten vanavond, met de adressen
 // onder elkaar. Geen score of looptijd, die zijn er niet bij; wel de soort keuken, het adres als link naar
 // de kaart en de openingstijden zoals de reisbegeleider ze opgaf.
+// De dieren van een dag zonder de regel Emoe als de dag al een emoe-alert heeft: anders staat de emoe er
+// twee keer, op de dagpagina, bij zoeken en bij Kans vandaag. Regels als 'Rode reuzenkangoeroe en emoe' blijven.
+const wildRijen=d=>((d&&d.wild)||[]).filter(([a])=>!(d.emoe&&/^emoe$/i.test(String(a).trim())));
 const tipsVan=()=>typeof REISBEGELEIDER==='string'&&REISBEGELEIDER?REISBEGELEIDER:'de reisbegeleider';
 function tipsKaart(d){
   const lijst=d.tips||[]; if(!lijst.length) return '';
@@ -610,7 +611,7 @@ function hooiberg(d,n){
   if(REGION[d.r]) bits.push([REGION[d.r],'Regio']);
   if(d.h) bits.push([d.h,'Hotel']);
   if(d.emoe) bits.push(['Emoe-alert: '+d.emoe[1],'Emoe-alert']);
-  (d.wild||[]).forEach(w=>bits.push([w[0]+' — '+w[1],'Dieren spotten']));
+  wildRijen(d).forEach(w=>bits.push([w[0]+' — '+w[1],'Dieren spotten']));
   (d.agenda||[]).forEach(a=>bits.push([a[0]+' '+a[1]+'. '+a[2],'Tijdschema']));
   (d.fl||[]).forEach(f=>bits.push([f[0]+' '+f[1]+' → '+f[2]+', vertrek '+f[3]+', aankomst '+f[4]+'. '+f[5],'Vlucht']));
   d.body.forEach(x=>bits.push([x,'Programma']));
@@ -2691,7 +2692,7 @@ function renderDieren(){
   const dag=waarnDag(), dd=dagData(dag), vandaag=dag===T.dag;
   const kansen=[];
   if(dd&&dd.emoe) kansen.push({dier:dierVan('emoe'),naam:'Emoe',tekst:dd.emoe[1],kans:dd.emoe[0]});
-  ((dd&&dd.wild)||[]).forEach(([a,b,k])=>kansen.push({dier:dierBijNaam(a),naam:a,tekst:b,kans:k}));
+  wildRijen(dd).forEach(([a,b,k])=>kansen.push({dier:dierBijNaam(a),naam:a,tekst:b,kans:k}));
   // Een dier uit de dagtekst zonder eigen knop hoort bij geen enkele groep, dus krijgt het de
   // neutrale kleur van Overig, waar de waarneming straks ook terechtkomt.
   if(kansen.length){
@@ -2873,7 +2874,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-259';
+const APP_VERSIE='2026-10-14-260';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

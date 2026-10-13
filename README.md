@@ -334,6 +334,8 @@ Sinds uitgave 252 staan de eettips van de reisbegeleider niet meer als lange tek
 
 Sinds uitgave 259 is Eten vanavond één paneel, net als Goed om te weten. De tips, elk restaurant en de link Meer restaurants in de buurt zijn regels in dezelfde kaart, met een dun lijntje ertussen (`.rpanel` met `.rrij`). Elke regel klapt apart open. Een eventuele opmerking over openingstijden (`rnote`) staat er als callout boven. Het blok Winkels houdt voorlopig losse kaarten.
 
+Sinds uitgave 260 is de emoe-alert (`emoe` bij de dag) de bovenste regel van de lijst Dieren spotten, in de accentkleur, en geen losse kaart meer erboven. Heeft een dag een emoe-alert, dan laat de app een regel met precies de naam Emoe uit `wild` weg (`wildRijen` in `app.js`), op de dagpagina, bij zoeken en bij Kans vandaag. Regels als Rode reuzenkangoeroe en emoe blijven staan. Een dag met alleen een emoe-alert en geen `wild` krijgt nu ook het blok Dieren spotten.
+
 Sinds uitgave 249 zijn links, e-mailadressen en telefoonnummers in Goed om te weten en bij de optionele excursies aanklikbaar, net als in de notities. Daar staat bijvoorbeeld de link om de veerboot naar Rottnest te boeken.
 
 ## Verhaal van de dag

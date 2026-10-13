@@ -331,16 +331,11 @@
   .flag.emoe{background:color-mix(in srgb, var(--accent) 45%, rgba(255,255,255,.15));
     border-color:color-mix(in srgb, var(--accent) 80%, transparent);margin-right:8px}
   .flag.emoe svg{width:16px;height:16px}
-  .emoealert{display:flex;gap:12px;align-items:flex-start;margin:0 0 12px;padding:14px 16px;
-    border-radius:var(--radius);font-size:15.5px;line-height:1.5;
-    background:color-mix(in srgb, var(--accent) 24%, var(--glass));
-    border:1px solid color-mix(in srgb, var(--accent) 55%, var(--rim));
-    box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
-  .emoealert svg{flex:none;margin-top:2px;color:var(--accent-ink);width:22px;height:22px}
-  .emoealert>span{flex:1;min-width:0}
-  .emoealert b{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:12.5px;
-    letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink);font-weight:700;margin-bottom:3px}
-  .emoealert b .chance{font-size:11px;letter-spacing:2px;font-weight:400;color:var(--accent-ink)}
+  /* Bovenste regel in de lijst Dieren spotten, in de kleur van de oude losse kaart */
+  .wild li.emoerij{background:color-mix(in srgb, var(--accent) 24%, transparent)}
+  .wild .emoerij svg{flex:none;margin-top:1px;color:var(--accent-ink);width:22px;height:22px}
+  .wild .emoerij strong{font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink);font-weight:700}
+  .wild .emoerij .sub{color:var(--text)}
 
   /* ---------- Dieren ---------- */
   .wild li{display:flex;gap:11px;align-items:flex-start;font-size:15.5px}

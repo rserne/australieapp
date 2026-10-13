@@ -1578,6 +1578,21 @@ function zoek(w,fouten,term){
     eis(fouten,!!hit,'zoeken op Mandoo vindt de tip');
     meld('12 okt: tips en restaurants in één paneel',fouten); }
 
+  // Emoe-alert: de bovenste regel van de lijst Dieren spotten, niet meer een losse kaart erboven.
+  // Een regel Emoe in wild valt dan weg; een regel als 'Rode reuzenkangoeroe en emoe' blijft.
+  { const {w,fouten}=start('2026-10-13');
+    const lijsten=w.document.querySelectorAll('#day ul.wild');
+    const rijen=lijsten[0]?[...lijsten[0].children]:[];
+    eis(fouten,lijsten.length===1&&!w.document.querySelector('#day .emoealert'),'dag 13 heeft één dierenlijst en geen losse emoekaart');
+    eis(fouten,rijen[0]&&rijen[0].classList.contains('emoerij')&&/Emoe-alert/.test(rijen[0].textContent)&&/weilanden/.test(rijen[0].textContent),'de emoe-alert is de bovenste regel');
+    eis(fouten,!rijen.slice(1).some(r=>r.querySelector('strong').textContent.trim()==='Emoe'),'de dubbele regel Emoe staat er niet meer');
+    w.ga(19);
+    const r19=[...w.document.querySelectorAll('#day ul.wild li')].map(r=>r.querySelector('strong').textContent);
+    eis(fouten,r19[0]==='Emoe-alert'&&r19.includes('Rode reuzenkangoeroe en emoe'),`dag 19 houdt de regel met kangoeroe en emoe (nu: ${r19.join(' | ')})`);
+    w.ga(23);
+    eis(fouten,/kasuaris/i.test((w.document.querySelector('#day ul.wild .emoerij')||{}).textContent||''),'dag 23 toont de alert ook zonder andere dieren');
+    meld('13 okt: emoe-alert in de dierenlijst, zonder dubbeling',fouten); }
+
   // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
   { const {w,fouten}=start('2026-10-08');
     const kaart=w.document.querySelector('#day details.verhaal');
