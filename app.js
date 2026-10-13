@@ -189,9 +189,8 @@ function render(){
       `<li><span class="atime">${esc(tm)}</span><span class="abody"><strong>${esc(ti)}</strong><span class="sub">${esc(tx)}${pv&&NH.user?` <span class="privtag">${esc(pv)}</span>`:''}</span></span></li>`).join('')+`</ol>`;
   }
   if(magNotities()) h+=`<div id="notes-top" class="notes"></div>`;
-  if(d.wash) h+=`<div class="callout washing"><span class="ico">${WASH}</span><span><b>Was afgeven</b>${esc(d.wash)}</span></div>`;
-  // Goed om te weten staat direct onder het programma, vóór het verhaal. Bovenaan staan de klok en
-  // Let op als gekleurde regels in hetzelfde paneel, niet meer als losse kaarten.
+  // Goed om te weten staat direct onder het programma, vóór het verhaal. Bovenaan staan de klok, Let op
+  // en Was afgeven als gekleurde regels in hetzelfde paneel, niet meer als losse kaarten.
   h+=goedOmTeWeten(d,cur);
   const vh=verhaalVan(cur);
   if(vh) h+=verhaalBlok(vh);
@@ -322,6 +321,7 @@ function goedOmTeWeten(d,n){
   const rij=(cls,ico,lbl,txt)=>`<li class="${cls}"><span class="b">${ico}</span><span><b class="plabel">${lbl}</b>${linkify(txt)}</span></li>`;
   const rijen=klok.map(x=>rij('pklok',IC_KLOK,label,x)).join('')+
     (d.note?rij('plet',IC_LET,'Let op',d.note):'')+
+    (d.wash?rij('pwas',WASH,'Was afgeven',d.wash):'')+
     (d.tip?rij('ptip',IC_TIP,'Tip',d.tip):'')+
     prac.filter(x=>!isKlokRegel(x)).map(x=>`<li><span class="b">•</span><span>${linkify(x)}</span></li>`).join('');
   return rijen?`<h2>Goed om te weten</h2><ul class="list prac">${rijen}</ul>`:'';
@@ -2898,7 +2898,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-261';
+const APP_VERSIE='2026-10-14-262';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

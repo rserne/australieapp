@@ -209,6 +209,8 @@
   .prac li.plet{background:var(--glass-2)}
   .prac li.plet .b{color:var(--alert)}
   .prac li.plet .plabel{color:var(--text-dim)}
+  .prac li.pwas{background:color-mix(in srgb, var(--wash) 13%, transparent)}
+  .prac li.pwas .b,.prac li.pwas .plabel{color:var(--wash)}
   .prac li.ptip .b{color:var(--text-faint)}
   .prac li.ptip .plabel{color:var(--text-dim)}
   .row{display:flex;justify-content:space-between;gap:14px;align-items:baseline}

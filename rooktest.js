@@ -1612,11 +1612,14 @@ function zoek(w,fouten,term){
     eis(fouten,r[0].classList.contains('pklok')&&/Klok vannacht een uur vooruit/i.test(r[0].textContent),'dag 3 meldt de zomertijd van vannacht');
     w.ga(24); r=[...lijst().children];
     eis(fouten,/Klok vandaag twee uur terug/i.test(r[0].textContent),'dag 24 noemt twee uur terug');
+    w.ga(16); r=[...lijst().children];
+    eis(fouten,!w.document.querySelector('#day .callout.washing')&&r.some(x=>x.classList.contains('pwas')&&/waszak/.test(x.textContent)),'Was afgeven is een regel in Goed om te weten, geen losse kaart');
+    eis(fouten,r.findIndex(x=>x.classList.contains('pwas'))<r.findIndex(x=>!x.className),'Was afgeven staat boven de gewone regels');
     w.ga(7);
     eis(fouten,!w.document.querySelector('#day .pklok'),'een dag zonder sprong heeft geen klokregel');
     w.ga(29);
     eis(fouten,!w.document.querySelector('#day .pklok'),'de dag naar huis heeft geen klokregel');
-    meld('14 okt: Goed om te weten met klok en Let op bovenaan',fouten); }
+    meld('14 okt: Goed om te weten met klok, Let op en Was afgeven bovenaan',fouten); }
 
   // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
   { const {w,fouten}=start('2026-10-08');
