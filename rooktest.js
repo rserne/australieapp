@@ -1638,6 +1638,16 @@ function zoek(w,fouten,term){
     eis(fouten,items[0]&&!items[0].querySelector('.nhead')&&items[1]&&items[1].querySelector('.nhead .nacts [data-edit]'),'een notitie van een ander heeft geen lege kopregel, een eigen notitie houdt zijn knoppen');
     meld('9 okt: notities als één paneel',fouten); }
 
+  // Vluchten van een overstapdag in één paneel; bij Praktisch staan Bagage en de uitleg over codes in de lijst.
+  { const {w,fouten}=start('2026-10-24',{login:'groep'});
+    const fl=w.document.querySelectorAll('#day .flights');
+    eis(fouten,fl.length===1&&fl[0].querySelectorAll(':scope>.flight').length===2,`dag 24 heeft één vluchtenpaneel met twee vluchten (nu ${fl.length} panelen)`);
+    klik(w,'btnPrakt',fouten);
+    const p=$(w,'prakt'), h=[...p.querySelectorAll('h2')].find(x=>x.textContent==='Vluchten en boekingen'), ul=h&&h.nextElementSibling;
+    eis(fouten,ul&&ul.matches('ul.list')&&ul.lastElementChild.matches('li.irij')&&/Bagage/.test(ul.lastElementChild.textContent),'Bagage is de laatste regel van de lijst');
+    eis(fouten,![...p.querySelectorAll('.callout')].some(c=>/Bagage|Boekingscodes toevoegen/.test(c.textContent)),'geen losse kaarten meer voor Bagage en de boekingscodes');
+    meld('24 okt: vluchten en boekingen als één paneel',fouten); }
+
   // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
   { const {w,fouten}=start('2026-10-08');
     const kaart=w.document.querySelector('#day details.verhaal');

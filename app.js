@@ -904,10 +904,11 @@ function renderPrakt(){
      return `<li><div class="row"><span><strong><a href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])}${EXT}</a></strong>`+
        `<span class="sub">${[...new Set(perMij[k])].map(esc).join(' · ')} — inchecken ${esc(c[2])}</span></span>${codeCel(k)}</div></li>`;}).join('')+
    BOEKINGEN.map(([a,b,k])=>`<li><div class="row"><span><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></span>${codeCel(k)}</div></li>`).join('')+
-   `</ul>`+
+   // Uitleg over de codes en de bagageregels als regels onderaan hetzelfde paneel, niet als losse kaarten
    (magNotities()&&!Object.keys(CHECKIN).some(boekingscode)
-     ?`<div class="callout" style="margin-top:12px"><span class="ico">${IC_SLOT}</span><span><b>Boekingscodes toevoegen</b>Maak in Notities één notitie van het type Ticket, met per regel een maatschappij en de code, bijvoorbeeld <code>SQ: ABC123</code>. Verschillen de codes per persoon, zet dan boven elk blokje een regel met alleen de naam. De codes verschijnen dan hier en bij de vluchten. Ze staan zo veilig achter de login en niet in de openbare app.</span></div>`:'')+
-   `<div class="callout" style="margin-top:12px"><span class="ico">${IC_KOFFER}</span><span><b>Bagage</b>${esc(BAGAGE)}</span></div>`;
+     ?`<li class="irij icodes"><span class="b">${IC_SLOT}</span><span><b class="plabel">Boekingscodes toevoegen</b>Maak in Notities één notitie van het type Ticket, met per regel een maatschappij en de code, bijvoorbeeld <code>SQ: ABC123</code>. Verschillen de codes per persoon, zet dan boven elk blokje een regel met alleen de naam. De codes verschijnen dan hier en bij de vluchten. Ze staan zo veilig achter de login en niet in de openbare app.</span></li>`:'')+
+   `<li class="irij"><span class="b">${IC_KOFFER}</span><span><b class="plabel">Bagage</b>${esc(BAGAGE)}</span></li>`+
+   `</ul>`;
 
   h+=`<h2>Weergave</h2><div class="chips" id="themekeuze">`+
      THEMES.map(([k,l,ico])=>`<button type="button" class="chip" data-th="${k}">${ico}${l}</button>`).join('')+`</div>`;
@@ -2902,7 +2903,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-265';
+const APP_VERSIE='2026-10-14-266';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
