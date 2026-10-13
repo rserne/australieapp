@@ -1563,14 +1563,20 @@ function zoek(w,fouten,term){
     const kaart=w.document.querySelector('#day details.tcard');
     eis(fouten,kaart&&!kaart.open&&/Tips van Maarten/.test(kaart.querySelector('.role').textContent),'dag 12 heeft een dichtgeklapte kaart Tips van Maarten');
     eis(fouten,kaart&&kaart.querySelectorAll('.tlijst .tip').length===10&&!kaart.querySelector('summary .rname, summary .rkort'),'de kaart toont de tien adressen onder elkaar, met alleen het label in de kop');
-    eis(fouten,kaart&&kaart.nextElementSibling&&kaart.nextElementSibling.classList.contains('rcard')&&!kaart.nextElementSibling.classList.contains('tcard'),'de restaurants volgen na de tips');
+    eis(fouten,kaart&&kaart.nextElementSibling&&kaart.nextElementSibling.matches('details.rrij')&&!kaart.nextElementSibling.classList.contains('tcard'),'de restaurants volgen na de tips');
+    // Eén paneel, net als Goed om te weten: tips, restaurants en de kaartlink zijn regels in dezelfde kaart.
+    const paneel=w.document.querySelectorAll('#day .rpanel');
+    eis(fouten,paneel.length===1&&paneel[0].firstElementChild===kaart&&paneel[0].lastElementChild.matches('a.rmore'),`Eten vanavond is één paneel met de tips bovenaan en de kaartlink onderaan (nu ${paneel.length} panelen)`);
+    eis(fouten,paneel.length===1&&paneel[0].querySelectorAll(':scope>details.rrij:not(.tcard)').length>=2&&!paneel[0].querySelector('.card'),'elke tip- en restaurantregel staat in het paneel, zonder losse kaarten erin');
+    const regel=paneel[0]&&paneel[0].querySelector(':scope>details.rrij:not(.tcard)');
+    if(regel){ regel.querySelector('summary').click(); eis(fouten,regel.open&&!kaart.open&&regel.querySelector('.btns a'),'een restaurantregel klapt apart open, met de knoppen'); }
     const call=w.document.querySelector('#day .callout');
     eis(fouten,!/reisbegeleider noemt/.test(w.document.getElementById('day').textContent),'de tips staan niet meer als lange tekst op de pagina');
     eis(fouten,kaart&&kaart.querySelector('.tip a.where[href*="google.com/maps"]'),'een adres opent de kaart');
     klik(w,'btnIndex',fouten); zoek(w,fouten,'Mandoo');
     const hit=[...w.document.querySelectorAll('#results .hits button')].find(b=>/Tip van Maarten/.test(b.textContent));
     eis(fouten,!!hit,'zoeken op Mandoo vindt de tip');
-    meld('12 okt: tips van de reisbegeleider in één kaart',fouten); }
+    meld('12 okt: tips en restaurants in één paneel',fouten); }
 
   // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
   { const {w,fouten}=start('2026-10-08');

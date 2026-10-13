@@ -240,6 +240,8 @@ function render(){
     // Suggesties, geen voorschrift: alles staat dicht, je klapt zelf uit wat je wilt lezen.
     h+=`<h2>Eten vanavond</h2>`+
       (d.rnote?`<div class="callout" style="margin:0 0 14px"><span class="ico">${IC_KLOK}</span><span><b>Openingstijden</b>${esc(d.rnote)}</span></div>`:'')+
+      // Eén paneel, net als Goed om te weten: elke regel klapt apart open, met een lijntje ertussen.
+      `<div class="card rpanel">`+
       tipsKaart(d)+
       (d.rest||[]).map(([nm,wh,rt,pr,wk,no,bk],ix)=>{
       const meta=RDATA[nm]||{};
@@ -268,7 +270,7 @@ function render(){
       // Samenvatting op één regel: genoeg om te kiezen zonder open te klappen.
       const kort=[meta.k||'', rt?rt.toFixed(1).replace('.',',')+'/5':'', '€'.repeat(pr||1),
         wk===-1?'in je eigen hotel':(wk===0?'vervoer nodig':(wk?wk+' min lopen':''))].filter(Boolean).join(' · ');
-      return `<details class="card rcard"><summary>`+
+      return `<details class="rrij"><summary>`+
              `<span class="rtop"><span class="role">${ROLE[Math.min(ix,2)]}</span>`+
              `<span class="rname">${esc(nm)}</span>`+
              `<span class="rkort">${kort}</span></span><span class="rchev">${ICO_CHEV}</span></summary>`+
@@ -281,8 +283,9 @@ function render(){
     }).join('')+
     // De app geeft hints. Ter plekke kijk je vaak toch even rond op de kaart.
     (()=>{const bij=encodeURIComponent('restaurants '+(d.h?d.h+', ':'')+d.p+', Australia');
-      return `<a class="rmore" href="https://www.google.com/maps/search/?api=1&query=${bij}" target="_blank" rel="noopener">`+
-        `<span>${PIN} Meer restaurants in de buurt${d.h?' van het hotel':''}</span><span class="rchev">${ICO_CHEV}</span></a>`;})();
+      return `<a class="rrij rmore" href="https://www.google.com/maps/search/?api=1&query=${bij}" target="_blank" rel="noopener">`+
+        `<span>${PIN} Meer restaurants in de buurt${d.h?' van het hotel':''}</span><span class="rchev">${ICO_CHEV}</span></a>`;})()+
+      `</div>`;
   }
   h+=winkelsBlok(d);
   // Toevoegen staat onderaan de dag, in de stroom: geen knop die over de tekst zweeft.
@@ -577,7 +580,7 @@ function renderBuitenDag(){
 
 const IC_LET='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4.5M12 17.2h.01"/></svg>';
 const IC_TIP='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>';
-// Tips van de reisbegeleider (tips in reis.js): één dichtgeklapte kaart bij Eten vanavond, met de adressen
+// Tips van de reisbegeleider (tips in reis.js): de eerste dichtgeklapte regel in het paneel Eten vanavond, met de adressen
 // onder elkaar. Geen score of looptijd, die zijn er niet bij; wel de soort keuken, het adres als link naar
 // de kaart en de openingstijden zoals de reisbegeleider ze opgaf.
 const tipsVan=()=>typeof REISBEGELEIDER==='string'&&REISBEGELEIDER?REISBEGELEIDER:'de reisbegeleider';
@@ -590,7 +593,7 @@ function tipsKaart(d){
       (waar?`<a class="where" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">${PIN}${esc(waar)}</a>`:'')+
       (open?`<div class="topen">${esc(open)}</div>`:'')+`</li>`;
   }).join('');
-  return `<details class="card rcard tcard"><summary>`+
+  return `<details class="rrij tcard"><summary>`+
     `<span class="rtop"><span class="role">Tips van ${esc(tipsVan())}</span></span><span class="rchev">${ICO_CHEV}</span></summary>`+
     `<div class="rbody"><ul class="tlijst">${rijen}</ul></div></details>`;
 }
@@ -2870,7 +2873,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-13-258';
+const APP_VERSIE='2026-10-14-259';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

@@ -217,15 +217,18 @@
   .badge.low{color:var(--alert);border-color:color-mix(in srgb, var(--alert) 40%, var(--rim));font-weight:600}
   /* Restaurantkaart: dicht is hij één regel, open toont hij het hele verhaal. */
   details.rcard{padding:0;overflow:hidden}
-  details.rcard>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;
+  /* Eten vanavond: één paneel met regels die elk apart openklappen, gescheiden door een dun lijntje */
+  .rpanel{padding:0;overflow:hidden}
+  .rpanel>.rrij+.rrij{border-top:1px solid var(--rim)}
+  details.rcard>summary,details.rrij>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;
     padding:13px 15px;-webkit-tap-highlight-color:transparent}
-  details.rcard>summary::-webkit-details-marker{display:none}
-  details.rcard>summary:active{opacity:.7}
+  details.rcard>summary::-webkit-details-marker,details.rrij>summary::-webkit-details-marker{display:none}
+  details.rcard>summary:active,details.rrij>summary:active{opacity:.7}
   .rtop{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
   .rname{font-size:17px;font-weight:640;letter-spacing:-.01em;line-height:1.25}
   .rkort{font-size:13.5px;color:var(--text-faint);font-variant-numeric:tabular-nums}
   .rchev{flex:none;color:var(--text-faint);display:grid;place-items:center;transition:transform .2s}
-  details.rcard[open]>summary .rchev{transform:rotate(90deg)}
+  details.rcard[open]>summary .rchev,details.rrij[open]>summary .rchev{transform:rotate(90deg)}
   .rbody{padding:0 15px 16px}
   /* Tips van de reisbegeleider: één kaart, de adressen onder elkaar met een dun lijntje ertussen */
   .tcard .role{font-size:13px}
@@ -255,9 +258,7 @@
     border-radius:999px;padding:5px 12px;cursor:pointer}
   .meerknop:active{opacity:.6}
   .rmore{display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:13px 15px;border-radius:var(--radius);text-decoration:none;color:var(--text-dim);
-    font-size:15px;background:var(--glass);border:1px solid var(--rim);
-    box-shadow:inset 0 1px 0 var(--rim-hi), var(--shadow-soft)}
+    padding:13px 15px;text-decoration:none;color:var(--text-dim);font-size:15px}
   .rmore span:first-child{display:inline-flex;align-items:center;gap:8px}
   .rmore:active{opacity:.7}
   /* Knop onderaan de dag: in de bladerstroom, niet zwevend over de tekst. */

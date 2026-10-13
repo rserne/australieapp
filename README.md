@@ -332,6 +332,8 @@ In uitgave 250 en 251 is deel 1 nog eens nagelopen voor de dagen 12 tot en met 1
 
 Sinds uitgave 252 staan de eettips van de reisbegeleider niet meer als lange tekst in `rnote`, maar als lijst `tips` bij de dag: per adres `[naam, wat, waar, openingstijden]`. De app toont ze bij Eten vanavond in één dichtgeklapte kaart "Tips van Maarten", vóór de eigen restaurantkeuzes. De kop toont alleen dat label; uitgeklapt staan de adressen onder elkaar en elk adres als link naar de kaart. De naam komt uit `REISBEGELEIDER` in `reis.js`. Voor steden waar je meer nachten blijft, staat de lijst één keer bovenin `reis.js` (`TIPS_HOBART`, `TIPS_ADELAIDE`, `TIPS_MELBOURNE`, `TIPS_ALICE`, `TIPS_CAIRNS`, `TIPS_PERTH`) en hangt hij aan elke dag in die stad. `rnote` is er weer alleen voor korte opmerkingen over openingstijden. `check.js` controleert de vorm van de tips en zoeken in Alle dagen vindt ze ook.
 
+Sinds uitgave 259 is Eten vanavond één paneel, net als Goed om te weten. De tips, elk restaurant en de link Meer restaurants in de buurt zijn regels in dezelfde kaart, met een dun lijntje ertussen (`.rpanel` met `.rrij`). Elke regel klapt apart open. Een eventuele opmerking over openingstijden (`rnote`) staat er als callout boven. Het blok Winkels houdt voorlopig losse kaarten.
+
 Sinds uitgave 249 zijn links, e-mailadressen en telefoonnummers in Goed om te weten en bij de optionele excursies aanklikbaar, net als in de notities. Daar staat bijvoorbeeld de link om de veerboot naar Rottnest te boeken.
 
 ## Verhaal van de dag
