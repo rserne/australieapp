@@ -682,12 +682,18 @@ function zoek(w,fouten,term){
     w.syncAlles=echteSync;
     eis(fouten,!/kon niet worden verstuurd/.test($(w,'dieren').textContent),'statusregel verdwijnt van het scherm');
     eis(fouten,w.verstuurdTekst()==='Je notitie en je waarneming zijn verstuurd',`melding na versturen (nu '${w.verstuurdTekst()}')`);
-    // met verbinding gaat een waarneming direct naar Nhost en komt in de kopie
-    w.document.querySelector('#dalle .drij[data-dier="quokka"]').click(); await sleep(50);
-    const kopie=JSON.parse(w.localStorage.getItem('aus_cache_waarn')||'[]');
-    eis(fouten,kopie.length===1&&kopie[0].id==='w1'&&kopie[0].dier==='quokka','waarneming met verbinding staat meteen in de kopie op de telefoon');
-    $(w,'toast').querySelector('button').click(); await sleep(50);
-    eis(fouten,JSON.parse(w.localStorage.getItem('aus_cache_waarn')||'[]').length===0&&mutaties[mutaties.length-1]==='delete_waarnemingen_by_pk','Ongedaan maken verwijdert bij Nhost');
+    // Met verbinding reageert een tik meteen: de waarneming staat in de wachtrij met 'wordt zo verstuurd'
+    // en gaat pas na de tijd voor Ongedaan maken naar Nhost. Zo hangt een tik nooit op het bereik.
+    w.STRAKS_MS=80;
+    const voor=mutaties.length;
+    w.document.querySelector('#dalle .drij[data-dier="quokka"]').click(); await sleep(10);
+    let q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
+    eis(fouten,q.length===1&&q[0].dier==='quokka'&&mutaties.length===voor&&/Quokka gespot/.test($(w,'toast').textContent),'de tik noteert meteen, zonder op Nhost te wachten');
+    eis(fouten,/wordt zo verstuurd/.test($(w,'dieren').textContent)&&!/wacht op verbinding/.test($(w,'dieren').textContent),'binnen de wachttijd staat er wordt zo verstuurd, niet wacht op verbinding');
+    $(w,'toast').querySelector('button').click(); await sleep(150);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0&&mutaties.length===voor,'Ongedaan maken binnen de wachttijd haalt hem weg zonder iets naar Nhost te sturen');
+    w.document.querySelector('#dalle .drij[data-dier="quokka"]').click(); await sleep(250);
+    eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0&&mutaties[mutaties.length-1]==='insert_waarnemingen_one'&&opgehaald===3,`na de wachttijd gaat hij naar Nhost en wordt de kopie ververst (nu ${mutaties.slice(voor).join(',')}, ${opgehaald} keer opgehaald)`);
     meld('6 okt: wachtrij en waarnemingen met verbinding',fouten); }
   // Gegeten: het bestekje naast de teller
   { const {w,fouten}=start('2026-10-06',{login:'groep'});

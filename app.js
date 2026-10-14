@@ -1419,6 +1419,10 @@ const isOnderweg=uid=>_onderweg.has(uid);
 // bewerking hier zou bij het opruimen verdwijnen terwijl de server de oude tekst houdt, en weghalen hier
 // zou de notitie niet weghalen. Na een herstart weet de app dit niet meer: dan kan zo'n item nog een keer
 // worden verstuurd. Dat restrisico noemt de README.
+// Net getikte waarnemingen die nog binnen de tijd voor Ongedaan maken vallen. De wachtrij slaat ze over
+// tot die tijd voorbij is; daarna verstuurt registreerWaarneming ze zelf.
+const _straks=new Set();
+var STRAKS_MS=6500;   // iets langer dan de melding met Ongedaan maken (6 seconden); var, zodat de rooktest hem kan inkorten
 const _verzonden=new Set();
 const isVerzonden=uid=>_verzonden.has(uid);
 const soortNaam=p=>tabelVan(p)==='waarnemingen'?'waarneming':'notitie';
@@ -1427,7 +1431,7 @@ const VERZONDEN=p=>`Deze ${soortNaam(p)} is al verstuurd, maar kon nog niet uit 
 // De reden waarom een wachtend item nu niet te bewerken of weg te halen is, of '' als dat wel kan.
 const slotReden=p=>_verzonden.has(p.uid)?VERZONDEN(p):_onderweg.has(p.uid)?ONDERWEG(p):'';
 // Wat er op de kaart staat in plaats van 'wacht op verbinding'
-const wachtTekst=p=>_verzonden.has(p.uid)?'verstuurd, wachtrij nog niet bijgewerkt':_onderweg.has(p.uid)?'wordt verstuurd…':'wacht op verbinding';
+const wachtTekst=p=>_verzonden.has(p.uid)?'verstuurd, wachtrij nog niet bijgewerkt':_onderweg.has(p.uid)?'wordt verstuurd…':_straks.has(p.uid)?'wordt zo verstuurd':'wacht op verbinding';
 const OPSLAG_MISLUKT='Bewaren op de telefoon is mislukt. Er is te weinig opslagruimte, of de browser staat het niet toe.';
 // De drie bewerkingen geven {ok, reden} terug; reden is een melding voor op het scherm.
 function pendingAdd(rec){
@@ -1459,7 +1463,7 @@ function flushPending(){
 }
 async function verstuurWachtrij(){
   if(!navigator.onLine) return 0;
-  if(!pending().length) return 0;
+  if(!pending().some(p=>!_straks.has(p.uid))&&!_verzonden.size) return 0;
   if(_pendingOnbewaard) return 0;   // uid's staan nog niet op de telefoon: dan kunnen we niet opruimen
   LAATST_VERSTUURD.notities=0; LAATST_VERSTUURD.waarnemingen=0; LAATST_VERSTUURD.opruimFout=0;
   let verstuurd=0, waarn=0;
@@ -1469,7 +1473,7 @@ async function verstuurWachtrij(){
   // Wat er tijdens de ronde bij komt, wachten we niet af: het krijgt een vervolgronde (hoogstens drie in
   // totaal, tegen eindeloos doorgaan). Blijft er dan nog iets over, dan wacht dat op de volgende keer.
   for(let ronde=0;ronde<3;ronde++){
-    const te=pending().filter(p=>!geprobeerd.has(p.uid));
+    const te=pending().filter(p=>!geprobeerd.has(p.uid)&&!_straks.has(p.uid));
     if(!te.length) break;
     for(const oud of te){
       const uid=oud.uid; geprobeerd.add(uid);
@@ -2509,21 +2513,19 @@ async function registreerWaarneming(dier,opmerking,hoe){
   // ook als er intussen andere waarnemingen bij of af zijn gegaan.
   const rec={tabel:'waarnemingen',uid:maakUid(),dier,dag:waarnDag(),gezien_op:nuISO(),wie,opmerking:opmerking||null,hoe:hoe==='gegeten'?'gegeten':'gezien'};
   const naam=dierNaam(rec);
-  let id=null, bewaard=true, reden='';
+  let bewaard=true, reden='';
   // Prijzen: hoe vaak je ze vóór deze waarneming al had, om straks te zien wat erbij komt
   const hadAl=new Map(verdiendePrijzen(reisdeelVan(rec.dag)).map(x=>[x.p.k,x.keer]));
-  const inWachtrij=extra=>{ const r=pendingAdd({...rec,...extra}); if(!r.ok){ bewaard=false; reden=r.reden; } };
-  if(navigator.onLine){
-    try{
-      const d=await gql(M_INS_WAARN,{o:{dier:rec.dier,dag:rec.dag,gezien_op:rec.gezien_op,wie:rec.wie,opmerking:rec.opmerking,hoe:rec.hoe}});
-      id=d.insert_waarnemingen_one.id;
-      LS.set('aus_cache_waarn',[...alleWaarnemingen(),{dier:rec.dier,dag:rec.dag,gezien_op:rec.gezien_op,wie:rec.wie,opmerking:rec.opmerking,hoe:rec.hoe,id,user_id:NH.user.id,created_at:rec.gezien_op}]);
-    }catch(e){
-      // Tijdelijk: in de wachtrij. Blijvend (tabel ontbreekt, rechten): ook in de wachtrij, met de reden
-      // erbij, net als bij een notitie. De waarneming mag niet verloren gaan.
-      if(e.tijdelijk) inWachtrij(); else inWachtrij({fout:e.message});
-    }
-  } else inWachtrij();
+  // Een tik reageert meteen, ook bij slecht bereik. De waarneming gaat eerst in de wachtrij op de
+  // telefoon. Pas als de tijd voor Ongedaan maken voorbij is, gaat hij naar Nhost. Vroeger wachtte de app
+  // eerst op Nhost, en in de bush kon dat (sessie vernieuwen plus versturen) zo lang duren dat het leek
+  // alsof de tik niet aankwam. Ongedaan maken haalt hem zo gewoon uit de wachtrij, zonder netwerk.
+  const r=pendingAdd(rec); if(!r.ok){ bewaard=false; reden=r.reden; }
+  // Zonder verbinding is er geen wachttijd: dan wacht hij gewoon op het bereik, zoals altijd.
+  if(bewaard&&navigator.onLine){
+    _straks.add(rec.uid);
+    setTimeout(()=>{ _straks.delete(rec.uid); if(navigator.onLine) flushPending().catch(()=>{}); },STRAKS_MS);
+  }
   renderDieren();
   // Niet bewaard: dan is er ook niets genoteerd, en geen prijs en geen Ongedaan maken. Dat zeggen we.
   if(!bewaard){ toast(`${naam}: niet genoteerd. ${reden}`); return; }
@@ -2535,16 +2537,12 @@ async function registreerWaarneming(dier,opmerking,hoe){
   const melding=stil?`${String(stil.p.t2||'').replace('{keer}',String(stil.keer))}, om ${tijdVan(rec.gezien_op)} uur`
                     :`${naam} ${isGegeten(rec)?'gegeten':'gespot'} om ${tijdVan(rec.gezien_op)} uur`;
   toast(melding,'Ongedaan maken',async()=>{
-    if(id){
-      try{ await gql(M_DEL_WAARN,{id}); }catch(e){ toast('Weghalen lukte niet. Probeer het straks opnieuw.'); return; }
-      LS.set('aus_cache_waarn',alleWaarnemingen().filter(w=>w.id!==id));
-    }else{
-      // Intussen verstuurd (de verbinding kwam net terug)? Dan staat hij bij Nhost en is hij in de lijst
-      // Gespot weg te halen; hier zonder id kunnen we hem niet meer terugtrekken.
-      if(!pending().some(q=>q.uid===rec.uid)){ toast(`${naam} is intussen verstuurd. Haal hem zo nodig weg in de lijst Gespot.`); return; }
-      const r=pendingDelete(rec.uid);
-      if(!r.ok){ toast(r.reden); return; }
-    }
+    _straks.delete(rec.uid);
+    // Intussen verstuurd (na de wachttijd, of door een andere ronde)? Dan staat hij bij Nhost en is hij
+    // in de lijst Gespot weg te halen; hier zonder id kunnen we hem niet meer terugtrekken.
+    if(!pending().some(q=>q.uid===rec.uid)){ toast(`${naam} is intussen verstuurd. Haal hem zo nodig weg in de lijst Gespot.`); return; }
+    const r=pendingDelete(rec.uid);
+    if(!r.ok){ toast(r.reden); return; }
     renderDieren();
   });
 }
@@ -2711,7 +2709,7 @@ function renderDieren(){
   const telAnder=(naam,hoe)=>alle.filter(w=>w.dier==='overig'&&hoeVan(w)===(hoe||'gezien')&&(w.opmerking||'').toLowerCase()===naam.toLowerCase());
   let h='';
   // Statusregel in dezelfde vorm als die in Notities
-  const fout=mislukt('waarnemingen'), wacht=pendingWaarnemingen().length-fout, st=[];
+  const fout=mislukt('waarnemingen'), wacht=pendingWaarnemingen().filter(p=>!_straks.has(p.uid)).length-fout, st=[];
   if(wacht) st.push(`${wacht} ${wacht===1?'waarneming wacht':'waarnemingen wachten'} op verbinding`);
   if(fout) st.push(`${fout} ${fout===1?'waarneming kon':'waarnemingen konden'} niet worden verstuurd`);
   if(st.length) h+=`<p class="dstatus">${st.join(' · ')}</p>`;
@@ -2903,7 +2901,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-266';
+const APP_VERSIE='2026-10-14-267';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
