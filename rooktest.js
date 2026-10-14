@@ -157,13 +157,26 @@ function zoek(w,fouten,term){
   { const {w,fouten}=start('2026-09-25',{login:'groep',lijst:REIZIGERS(false).map(r=>({...r,voorreis:false}))});
     eis(fouten,!w.document.querySelector('.regio[data-go^="-"]'),'zonder voorreizigers staat er geen kaart Voorreis');
     klik(w,'btnIndex',fouten);
-    eis(fouten,![...w.document.querySelectorAll('#results .idxkop h3')].some(h=>h.textContent==='Voorreis'),'zonder voorreizigers geen kop Voorreis in Alle dagen');
+    eis(fouten,![...w.document.querySelectorAll('#results .idxkop .lbl')].some(h=>h.textContent==='Voorreis'),'zonder voorreizigers geen kop Voorreis in Alle dagen');
     eis(fouten,!w.document.querySelector('#results .idxdeel'),'en dan ook geen kop Groepsreis: er valt niets te scheiden');
     klik(w,'btnToday',fouten); klik(w,'next',fouten);
     eis(fouten,kop(w)==='Dag 1van 29','zonder voorreizigers gaat de pijl van de startpagina naar dag 1');
     klik(w,'prev',fouten);
     eis(fouten,kop(w)==='Rondreis Australië','en terug vanaf dag 1 naar de startpagina, niet naar de voorreis');
     meld('25 sep: niemand doet de voorreis',fouten); }
+  { const {w,fouten}=start('2026-10-15',{login:'voor'});
+    klik(w,'btnIndex',fouten);
+    const sec=lbl=>[...w.document.querySelectorAll('#results .idxsec')].find(x=>x.querySelector('.lbl').textContent===lbl);
+    const v=sec('Voorreis'), nsw=sec('New South Wales'), vic=sec('Victoria');
+    eis(fouten,v&&v.classList.contains('dicht'),'op 15 okt is de voorreis voorbij en dichtgeklapt');
+    eis(fouten,nsw&&nsw.classList.contains('dicht'),'New South Wales is voorbij en dichtgeklapt');
+    eis(fouten,vic&&!vic.classList.contains('dicht'),'Victoria, waar je vandaag bent, staat open');
+    eis(fouten,!w.document.querySelector('#results .idxstart').closest('.idxsec'),'het reisoverzicht klapt niet in');
+    try{ nsw.querySelector('.idxkop').click(); }catch(e){ fouten.push('klik op kop: '+e.stack); }
+    eis(fouten,!sec('New South Wales').classList.contains('dicht'),'een tik op de kop klapt het blok open');
+    klik(w,'btnToday',fouten); klik(w,'btnIndex',fouten);
+    eis(fouten,!sec('New South Wales').classList.contains('dicht'),'en zo blijft het na terugkomen in Alle dagen');
+    meld('15 okt: blokken die voorbij zijn, staan dicht in Alle dagen',fouten); }
   { const {w,fouten}=start('2026-10-05',{login:'groep',lijst:REIZIGERS(false).filter(r=>r.user_id!=='u1')});
     klik(w,'btnPrakt',fouten);
     const c=$(w,'acct').querySelector('.callout');
@@ -204,7 +217,7 @@ function zoek(w,fouten,term){
   // Alle dagen: de groepsreis staat per regio, met een kop in de kleur van die regio
   { const {w,fouten}=start('2026-10-05',{login:'groep'});
     klik(w,'btnIndex',fouten);
-    const koppen=[...w.document.querySelectorAll('#results .idxkop h3')].map(h=>h.textContent);
+    const koppen=[...w.document.querySelectorAll('#results .idxkop .lbl')].map(h=>h.textContent);
     eis(fouten,koppen.join(',')==='Voorreis,New South Wales,Tasmanië,Zuid-Australië,Victoria,Northern Territory,Queensland,West-Australië',
       `koppen per regio, op volgorde van de reis (nu: ${koppen.join(' | ')})`);
     const lijsten=[...w.document.querySelectorAll('#results .idx:not(.idxstart)')];
@@ -215,7 +228,7 @@ function zoek(w,fouten,term){
       `bovenaan de regel Reisoverzicht (nu: '${eerste&&eerste.textContent.trim().slice(0,30)}')`);
     eis(fouten,!w.document.querySelector('#results .bar'),'het streepje aan de rand is weg');
     const deel=w.document.querySelector('#results .idxdeel');
-    eis(fouten,deel&&deel.textContent==='Groepsreis'&&deel.nextElementSibling.querySelector('h3').textContent==='New South Wales',
+    eis(fouten,deel&&deel.textContent==='Groepsreis'&&deel.nextElementSibling.querySelector('.lbl').textContent==='New South Wales',
       'een kop Groepsreis scheidt de voorreis van de eerste regio');
     const nsw=lijsten[1], nrs=[...nsw.querySelectorAll('button')].map(b=>b.dataset.n);
     eis(fouten,nrs.join(',')==='1,2,3,4,5',`New South Wales bevat dag 1 tot en met 5, inclusief de vliegdag (nu ${nrs.join(',')})`);
@@ -1014,7 +1027,7 @@ function zoek(w,fouten,term){
     w.ga(-11);
     eis(fouten,kop(w)==='Rondreis Australië',`een voorreisdag rechtstreeks openen valt terug op de startpagina (nu: '${kop(w)}')`);
     klik(w,'btnIndex',fouten);
-    eis(fouten,![...w.document.querySelectorAll('#results .idxkop h3')].some(h=>h.textContent==='Voorreis')&&!w.document.querySelector('#results .idxdeel'),'geen kop Voorreis en geen kop Groepsreis in Alle dagen');
+    eis(fouten,![...w.document.querySelectorAll('#results .idxkop .lbl')].some(h=>h.textContent==='Voorreis')&&!w.document.querySelector('#results .idxdeel'),'geen kop Voorreis en geen kop Groepsreis in Alle dagen');
     eis(fouten,/^1 t\/m 29 oktober/.test(w.document.querySelector('#hero .bsub').textContent),`de periode boven Alle dagen begint op 1 oktober (nu: '${w.document.querySelector('#hero .bsub').textContent}')`);
     zoek(w,fouten,'wombat');
     eis(fouten,![...w.document.querySelectorAll('#results .dn')].some(x=>x.textContent==='Voorreis'),'zoeken vindt het voorreisprogramma niet');

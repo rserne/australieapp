@@ -728,19 +728,27 @@ function drawResults(term){
     // Kop boven een blok, in de kleur van de regio (of van de voorreis), met het datumbereik ernaast.
     // De kleur zat vroeger in de kop van de dagpagina zelf; die draagt nu een foto, dus hier komt hij terug.
     const bereikTxt=(a,b)=>`${fmtShort(a)} – ${fmtShort(b)}`;
-    const idxKop=(label,sleutel,bereik)=>`<div class="idxkop" style="${inktVan(sleutel)}"><h3>${esc(label)}</h3><span>${bereik}</span></div>`;
+    // Elk blok klapt in en uit met een tik op de kop. Een blok dat voorbij is, staat dicht; wat je
+    // zelf open- of dichttikt, blijft zo tot de app opnieuw start (window._idxOpen). laatsteRaw is
+    // het nummer van de laatste dag op de schaal van T.raw, dus een voorreisdag n telt als n+1.
+    const IDXOPEN=window._idxOpen||(window._idxOpen={});
+    const blokOpen=(sleutel,laatsteRaw)=>sleutel in IDXOPEN?IDXOPEN[sleutel]:!(T.raw>laatsteRaw);
+    const idxKop=(label,sleutel,bereik,open)=>`<button type="button" class="idxkop" data-sec="${sleutel}" aria-expanded="${open}" style="${inktVan(sleutel)}">`+
+      `<span class="lbl">${esc(label)}</span><span class="bereik">${bereik}<span class="rchev">${ICO_CHEV}</span></span></button>`;
+    const blok=(sleutel,laatsteRaw,kop,lijst)=>{ const open=blokOpen(sleutel,laatsteRaw);
+      return `<div class="idxsec${open?'':' dicht'}">${kop(open)}${lijst}</div>`; };
     const buitenRegel=(b,eerste,laatste)=>{
       const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29), k=b==='voor'?'voorreis':'nareis';
-      return idxKop(b==='voor'?'Voorreis':'Nareis',k,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+
+      return blok(k,b==='voor'?0:laatste,open=>idxKop(b==='voor'?'Voorreis':'Nareis',k,bereikTxt(dagDatum(eerste),dagDatum(laatste)),open),
         `<ul class="idx" style="${inktVan(k)}"><li${vandaag?' class="now"':''}><button data-n="${vandaag?T.dag:eerste}">`+
         `<span class="t">${notitiesTekst(n)}</span>`+
-        `<span class="d">${vandaag?'vandaag':''}</span></button></li></ul>`;
+        `<span class="d">${vandaag?'vandaag':''}</span></button></li></ul>`);
     };
     // Zodra er programma is, staat elke dag apart, net als bij de groepsreis. Een dag zonder
     // programma toont dan het aantal notities.
     const buitenLijst=(eerste,laatste)=>{
       const k=eerste<0?'voorreis':'nareis';
-      let s=idxKop(eerste<0?'Voorreis':'Nareis',k,bereikTxt(dagDatum(eerste),dagDatum(laatste)))+`<ul class="idx" style="${inktVan(k)}">`;
+      let s=`<ul class="idx" style="${inktVan(k)}">`;
       for(let n=eerste;n<=laatste;n++){
         const d=buitenData(n), aantal=alleNotities().filter(it=>it.dag===n).length, nu=T.dag===n;
         s+=`<li${nu?' class="now"':''}><button data-n="${n}">`+
@@ -751,7 +759,7 @@ function drawResults(term){
           (d&&d.wash?`<span class="w">${WASH}</span>`:'')+
           `<span class="d">${nu?'vandaag':fmtShort(dagDatum(n))}</span></button></li>`;
       }
-      return s+`</ul>`;
+      return blok(k,eerste<0?0:laatste,open=>idxKop(eerste<0?'Voorreis':'Nareis',k,bereikTxt(dagDatum(eerste),dagDatum(laatste)),open),s+`</ul>`);
     };
     const heeftV=heeftVoor(), heeftN=heeftNa();
     // Bovenaan een regel naar het reisoverzicht: vóór dag één, zoals de dagen erna. Vandaag blijft zo
@@ -767,17 +775,17 @@ function drawResults(term){
     if(heeftV||heeftN) h+=`<h2 class="idxdeel">Groepsreis</h2>`;
     Object.entries(dagenPerRegio()).forEach(([r,dg])=>{
       const a=Math.min(...dg), b=Math.max(...dg);
-      h+=idxKop(REGION[r],r,bereikTxt(dateFor(a),dateFor(b)))+`<ul class="idx" style="${inktVan(r)}">`;
+      let s=`<ul class="idx" style="${inktVan(r)}">`;
       dg.forEach(n=>{
         const d=DAYS[n-1], nu=!T.before&&!T.after&&n===T.n;
-        h+=`<li${nu?' class="now"':''}><button data-n="${n}">`+
+        s+=`<li${nu?' class="now"':''}><button data-n="${n}">`+
            `<span class="n">${n}</span><span class="t">${esc(d.t)}</span>`+
            (KIND[d.k]?`<span class="k" title="${KIND[d.k][0]}">${KIND[d.k][1]}</span>`:'')+
            (d.emoe?`<span class="e" title="Emoe-alert">${EMU}</span>`:'')+
            (d.wash?`<span class="w">${WASH}</span>`:'')+
            `<span class="d">${nu?'vandaag':fmtShort(dateFor(n))}</span></button></li>`;
       });
-      h+=`</ul>`;
+      h+=blok(r,b,open=>idxKop(REGION[r],r,bereikTxt(dateFor(a),dateFor(b)),open),s+`</ul>`);
     });
     if(heeftN) h+=NADG.length?buitenLijst(30,29+NA):buitenRegel('na',30,29+NA);
     box.innerHTML=h;
@@ -827,6 +835,9 @@ function drawResults(term){
     box.innerHTML=hits?`<ul class="hits">${h}</ul>`
       :`<div class="empty">Niets gevonden voor “${esc(term)}”.</div>`;
   }
+  box.querySelectorAll('.idxkop[data-sec]').forEach(k=>k.addEventListener('click',()=>{
+    const sec=k.parentElement, open=sec.classList.toggle('dicht')===false;
+    k.setAttribute('aria-expanded',open); window._idxOpen[k.dataset.sec]=open; }));
   box.querySelectorAll('button[data-n]').forEach(b=>
     b.addEventListener('click',()=>{const n=b.dataset.n;
       // 'prakt' is het tabblad Praktisch, 'verz' het blok Verzekeringen daarin, 0 is een algemene
@@ -2900,7 +2911,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-270';
+const APP_VERSIE='2026-10-15-271';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
