@@ -887,9 +887,8 @@ function renderPrakt(){
   h+=`<h2>Wisselkoers</h2><div id="koers"></div>`;
 
   h+=`<h2>Noodgevallen</h2>
-   <div class="sos"><div class="big">${esc(SOS[0])}</div>
-   <p>${esc(SOS[1])}</p></div>
-   <ul class="list">`+NOOD.map(([a,b])=>`<li><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></li>`).join('')+`</ul>`;
+   <ul class="list"><li class="sos"><div class="big">${esc(SOS[0])}</div>
+   <p>${esc(SOS[1])}</p></li>`+NOOD.map(([a,b])=>`<li><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></li>`).join('')+`</ul>`;
   // Verzekeringsgegevens: notities van het type Verzekering, voor iedereen zichtbaar, door de
   // schrijver te wijzigen. Ze staan hier omdat je ze in een noodgeval als eerste zoekt.
   // Zonder login bestaat het blok niet, net als het tabblad Notities. Voor een gast ook niet.
@@ -2901,7 +2900,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-14-268';
+const APP_VERSIE='2026-10-14-269';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
