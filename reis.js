@@ -437,10 +437,12 @@ const DAYS=[
   ["Echidna","Langs de wandelpaden, overdag.",2],
   ["Zuidkaper","Bij Logans Beach in Warrnambool, vanaf het uitkijkplatform. Het seizoen loopt eind oktober af. Dit is de laatste kans.",1]],
  agenda:[
-  ["08.00","Vertrek","Eerst naar de bakker voor het ontbijt."],
-  ["10.30","Tower Hill Wildlife Reserve","Wandelen in de krater. Kies uit de Lake Edge Walk (een uur), de Lava Tongue Boardwalk (2,6 km, een halfuur tot drie kwartier, makkelijk), de Wagon Bay Loop (een halfuur, makkelijker maar minder mooi), de Journey to the Last Volcano Loop (drie kwartier tot een uur) of de Peak Climb (een halfuur). In het park staat een informatiebord met de routes."],
-  ["Middag","Lunch in Port Fairy","Daarna de wandeling naar de vuurtoren van Port Fairy."],
-  ["Daarna","Naar Warrnambool","Inchecken in het Comfort Inn Western. De avond is vrij."]],
+  ["07.45","Bagage laden","De reisbegeleider haalt de sleutels op en levert ze in."],
+  ["08.00","Vertrek","Eerst naar de bakker in Halls Gap voor het ontbijt. Dat zit niet bij de reis in."],
+  ["10.30","Tower Hill Wildlife Reserve","Na zo'n twee uur rijden. Een heel mooi natuurgebied met veel dieren, dus duim voor de koala's. De wandelingen lopen van kort en makkelijk tot wat langer. Kies uit de Lake Edge Walk (een uur), de Lava Tongue Boardwalk (2,6 km, een halfuur tot drie kwartier, makkelijk), de Wagon Bay Loop (een halfuur, makkelijker maar minder mooi), de Journey to the Last Volcano Loop (drie kwartier tot een uur) of de Peak Climb (een halfuur). In het park staat een informatiebord met de routes."],
+  ["Middag","Lunch in Port Fairy","Ongeveer drie kwartier rijden. Je luncht op eigen kosten, er zijn verschillende cafeetjes."],
+  ["Daarna","Wandeling naar de vuurtoren","Kort of iets langer, en allebei makkelijk. De vuurtoren staat op Griffiths Island, dat je via een dam vanaf het stadje bereikt."],
+  ["Daarna","Naar Warrnambool","Aan het eind van de middag inchecken in het Comfort Inn Western, voor één nacht. De avond is vrij."]],
  body:[
   "Onze rondreis vervolgen we door vulkanisch gebied. We rijden naar het Tower Hill reservaat, dat wordt beheerd door de lokale bevolking daar. Hier vind je een vulkanische formatie die meer dan 30.000 jaar geleden is ontstaan. Tijdens een wandeling door dit natuurgebied spot je misschien wel emoes, koala’s, wallaby’s en kangoeroes in hun natuurlijke omgeving. Een prachtige kennismaking met de Australische dierenwereld.",
   "We overnachten in Warrnambool, in een typisch Australische accommodatie op de hoek van Timor en Kepler Street. Alle adressen hieronder liggen binnen zes minuten lopen."
