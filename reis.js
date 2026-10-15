@@ -465,10 +465,12 @@ const DAYS=[
   ["Dwergpinguïn","Onder de kliffen bij de Twelve Apostles broedt een kolonie. Ze komen pas na zonsondergang aan land, als jullie waarschijnlijk al weg zijn.",1],
   ["Bultrug","Vanaf de uitzichtpunten bij de Twelve Apostles en Loch Ard Gorge. Kijk naar de horizon.",1]],
  agenda:[
-  ["08.00","Vertrek uit Warrnambool","Neem iets te eten en te drinken mee voor onderweg."],
+  ["07.45","Tassen laden","Doe je sleutelkaart in het sleutelkastje bij de receptie."],
+  ["08.00","Vertrek naar de Great Ocean Road","Neem iets te eten en te drinken mee voor onderweg."],
   ["10.00","Bay of Martyrs","De eerste stop aan de Great Ocean Road. Daarna volgen meer fotostops en korte wandelingen langs de kust, ook bij de Twelve Apostles."],
-  ["Middag","Lunch in Apollo Bay","Daarna komt Kennett River, de beste plek om koala's te zien."],
-  ["17.00","Aankomst in Melbourne","Twee nachten in het Ibis aan Therry Street."]],
+  ["Middag","Lunch in Apollo Bay","Er zijn verschillende restaurantjes en cafés. Daarna komt Kennett River, de beste plek om koala's te zien."],
+  ["Daarna","Naar Melbourne","Onderweg neem je afscheid van de chauffeur-gids en de stagiaire, die sinds Mount Gambier meereizen."],
+  ["Avond","Aankomst in Melbourne","Aan het eind van de dag. Twee nachten in het Ibis aan Therry Street."]],
  body:[
   "Vandaag staat één van de mooiste routes van Australië op het programma, the Great Ocean Road. De route van vandaag is ongeveer 350 km lang en we rijden inclusief stops ongeveer negen uur. We maken verschillende stops en je hebt geweldige uitzichten over de oceaan. Het bekendste punt zijn de Twelve Apostles bij Port Campbell, al staan er allang geen twaalf meer overeind. De Great Ocean Road eindigt bij Peterborough en daarmee ook het spectaculaire landschap van de westkust.",
   "Via de Great Ocean Road rijden we naar Melbourne. Qua inwoners is Melbourne heel divers. Er woont een mengelmoes van Australiërs en andere nationaliteiten, waaronder een grote populatie uit India en Azië. De combinatie van deze culturen maakt Melbourne tot een sfeervolle, culinaire en enerverende stad. Melbourne heeft verschillende leuke wijken, waar je de invloeden van de verschillende nationaliteiten terugziet. Je verblijft twee nachten in het Ibis aan Therry Street, aan de noordkant van het centrum bij de Queen Victoria Market."
