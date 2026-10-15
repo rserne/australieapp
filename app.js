@@ -735,8 +735,8 @@ function drawResults(term){
     const blokOpen=(sleutel,laatsteRaw)=>sleutel in IDXOPEN?IDXOPEN[sleutel]:!(T.raw>laatsteRaw);
     const idxKop=(label,sleutel,bereik,open)=>`<button type="button" class="idxkop" data-sec="${sleutel}" aria-expanded="${open}" style="${inktVan(sleutel)}">`+
       `<span class="lbl">${esc(label)}</span><span class="bereik">${bereik}<span class="rchev">${ICO_CHEV}</span></span></button>`;
-    const blok=(sleutel,laatsteRaw,kop,lijst)=>{ const open=blokOpen(sleutel,laatsteRaw);
-      return `<div class="idxsec${open?'':' dicht'}">${kop(open)}${lijst}</div>`; };
+    const blok=(sleutel,laatsteRaw,kop,lijst)=>{ const open=blokOpen(sleutel,laatsteRaw), voorbij=T.raw>laatsteRaw;
+      return `<div class="idxsec${open?'':' dicht'}${voorbij?' voorbij':''}">${kop(open)}${lijst}</div>`; };
     const buitenRegel=(b,eerste,laatste)=>{
       const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29), k=b==='voor'?'voorreis':'nareis';
       return blok(k,b==='voor'?0:laatste,open=>idxKop(b==='voor'?'Voorreis':'Nareis',k,bereikTxt(dagDatum(eerste),dagDatum(laatste)),open),
@@ -2911,7 +2911,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-15-271';
+const APP_VERSIE='2026-10-15-272';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
