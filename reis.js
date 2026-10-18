@@ -520,7 +520,7 @@ const DAYS=[
   ["08.50","Vlucht naar Uluru","Ongeveer drie uur vliegen."],
   ["10.30","Aankomst bij Uluru","Je landt op Ayers Rock Airport bij Yulara en gaat naar het hotel, voor één nacht. De kamers zijn dan nog niet klaar."],
   ["Middag","Lunch in het resort","Op eigen kosten."],
-  ["Namiddag","Zonsondergang of helikopter","Met de bus naar Uluru voor de zonsondergang, of de helikoptervlucht als je die hebt geboekt. Allebei kan niet."],
+  ["17.50","Bus naar de zonsondergang","Vertrek naar het uitkijkpunt bij Uluru, met hapjes en drankjes. De bus staat ongeveer op de plek waar jullie zijn afgezet. Wie de helikoptervlucht heeft geboekt, gaat niet mee, want allebei kan niet."],
   ["Avond","Diner in het hotel","Op eigen kosten."]],
  body:[
   "Door beperkte beschikbaarheid op de binnenlandse vluchten is dit deel van de route vanaf 1 oktober 2026 aangepast. Het traject van Alice Springs naar Uluru is omgedraaid. Je vliegt vanochtend van Melbourne naar Uluru, zodat je die middag voldoende tijd hebt om de omgeving te verkennen en de optionele helikoptervlucht kunt maken.",
