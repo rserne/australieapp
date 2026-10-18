@@ -549,8 +549,9 @@ const DAYS=[
   ["Brumby","Verwilderde paarden in kleine groepen, soms vlak langs de weg.",1]],
  agenda:[
   ["05.10","Bus naar de zonsopgang","Naar het uitkijkpunt bij Uluru."],
-  ["Daarna","Ontbijtbuffet in het hotel","Terug naar het Outback Hotel. Het ontbijt is inbegrepen."],
-  ["09.00","Vertrek naar Alice Springs","Tassen in de bus en op weg, rond negen uur. Hoe laat precies, hangt af van hoe de ochtend verloopt. Zo'n 450 kilometer door de outback, langs Mount Conner."],
+  ["Daarna","Ontbijtbuffet in het hotel","In het Bough House-restaurant bij het zwembad. Het ontbijt is inbegrepen."],
+  ["08.30","Bagage laden","De bus staat bij de kamers. De reisbegeleider verzamelt de sleutelkaartjes en geeft ze af bij de receptie, dus je houdt je kamer tot het vertrek."],
+  ["09.00","Vertrek naar Alice Springs","Op weg, rond negen uur. Hoe laat precies, hangt af van hoe de ochtend verloopt. Zo'n 450 kilometer door de outback, langs Mount Conner."],
   ["Onderweg","Lunchstop","Onderweg stopt de bus voor de lunch, en zo nodig nog een keer voor het toilet."],
   ["16.00","Aankomst in Alice Springs","Rond vier uur. De bus stopt eerst bij de supermarkt. Koop daar je ontbijt en lunch voor morgen, want het hotel heeft geen restaurant en morgen eet je een picknicklunch."],
   ["Daarna","Desert Palms Alice Springs","Barrett Drive 74, voor twee nachten."],
