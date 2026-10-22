@@ -678,6 +678,7 @@ const DAYS=[
   "De Kuranda-trein rijdt maar twee keer per dag omhoog. Trein heen en Skyrail terug is de combinatie die de meeste mensen achteraf aanraden. Vooraf boeken als combinatieticket scheelt geld.",
   "De Daintree River-cruise op zoek naar krokodillen gaat het beste vroeg in de ochtend of laat in de middag. Midden op de dag liggen de dieren uit het zicht.",
   "Een vierde mogelijkheid is een dagtocht naar de Atherton Tablelands, met watervallen, vogelbekdieren en bijzondere vijgenbomen. Je boekt hem via het hotel, bij een van de reisbureautjes in de stad of online."],
+ note:"Morgen om 08.30 uur sta je uitgecheckt met je bagage bij de receptie. Het wordt een lange reisdag met twee vluchten. Maak vanavond je bagage vliegklaar.",
  tips:TIPS_CAIRNS,
  rest:[["Dundees on the Waterfront","Marlin Parade",4.6,2,18,"Laatste avond in de tropen. Vraag naar de coral trout of de mud crab.","Online via de website van het restaurant."],
    ["Little Sister","Esplanade",4.6,2,8,"Vrijdag tot 21.00 uur.","Telefonisch: +61 7 4031 5400."]]},
@@ -688,6 +689,12 @@ const DAYS=[
   ["Quenda","Een kleine buideldas die in de schemering door het struikgewas van Kings Park ritselt.",1]],
  fl:[["QF 1980","Cairns, terminal 2","Darwin","10.45","12.55 (Darwin-tijd)","Qantas, uitgevoerd door Alliance Airlines · 1 koffer"],
      ["QF 1741","Darwin","Perth, terminal 4","14.55","17.20 (Perth-tijd)","Qantas, uitgevoerd door Network Aviation · 1 koffer"]],
+ agenda:[
+  ["08.30","Uitchecken","Met je bagage bij de receptie. Daarna gaat de bagage in de bus en vertrekt de groep naar het vliegveld van Cairns."],
+  ["10.45","Vlucht naar Darwin","De eerste vlucht van de dag."],
+  ["12.55","Overstap in Darwin","Twee uur, Darwin-tijd. Hier kun je lunchen."],
+  ["14.55","Vlucht naar Perth","De tweede vlucht, dwars over het continent."],
+  ["17.20","Aankomst in Perth","Perth-tijd. Daarna met de transfer naar het hotel."]],
  body:[
   "Vandaag vliegen we naar Perth, de hoofdstad van West-Australië. Dit is de langste reisdag van de rondreis, dwars over het continent, met een overstap van twee uur in Darwin. Perth is een van de meest afgelegen grote steden ter wereld. Jakarta ligt er dichterbij dan Sydney. Deze levendige stad ligt ingeklemd tussen de Indische Oceaan en de uitgestrekte outback en staat bekend om haar prachtige stranden en relaxte sfeer.",
   "Afhankelijk van het vluchtschema heb je vandaag nog tijd om Perth te verkennen. Maak bijvoorbeeld een wandeling door Kings Park, de botanische tuin waar je een indrukwekkende verzameling inheemse plantensoorten vindt en geniet van het panoramische uitzicht over de stad. Liever naar de kust? Met het openbaar vervoer ben je zo op Scarborough Beach, een van de bekendste stranden van Perth. Hier kun je heerlijk ontspannen of juist de levendige sfeer opsnuiven tijdens de avondmarkt (op donderdag in de zomer en op zaterdag in de winter) met muziek, kraampjes en een prachtige zonsondergang boven de oceaan.",
