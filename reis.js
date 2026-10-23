@@ -683,7 +683,7 @@ const DAYS=[
  rest:[["Dundees on the Waterfront","Marlin Parade",4.6,2,18,"Laatste avond in de tropen. Vraag naar de coral trout of de mud crab.","Online via de website van het restaurant."],
    ["Little Sister","Esplanade",4.6,2,8,"Vrijdag tot 21.00 uur.","Telefonisch: +61 7 4031 5400."]]},
 
-{n:24,r:"wa",k:"vlucht",t:"Vlucht naar Perth",p:"Perth",h:"Ibis Perth, Murray Street",tz:8,temp:"12–24°",
+{n:24,r:"wa",k:"vlucht",t:"Vlucht naar Perth",p:"Perth",h:"Ibis Perth, Murray Street",tz:8,temp:"19–26°",
  wild:[["Carnabys raafkaketoe","Grote zwarte kaketoes met witte staartvlekken, bedreigd en alleen in het zuidwesten van Australië. In Kings Park, in groepen en luid.",2],
   ["Bobtail","Een dikke, korte skink met een blauwe tong, in de lente actief op paden in Kings Park. Ongevaarlijk.",2],
   ["Quenda","Een kleine buideldas die in de schemering door het struikgewas van Kings Park ritselt.",1]],
@@ -703,7 +703,10 @@ const DAYS=[
  prac:["De klok gaat in twee stappen twee uur terug, een half uur bij aankomst in Darwin, nog anderhalf uur bij aankomst in Perth. De overstap in Darwin is twee uur. Je bagage gaat door, dus je hoeft alleen van gate te wisselen.",
   "West-Australië heeft eigen quarantaineregels. Vers fruit en groente, honing, ongebrande noten, zaden en planten zijn beperkt of verboden. Fabrieksmatig verpakt en bewerkt voedsel (geroosterde noten, chocola, koekjes) mag gewoon mee. Bij twijfel, aangeven of in de bak bij de aankomsthal.",
   "In het centrum rijden de gratis CAT-bussen, herkenbaar aan rood, blauw, geel en groen. Je kunt er zonder kaart of pas op.",
-  "Het is hier tien graden koeler dan in Cairns en 's avonds fris aan zee. Je lange broek kun je weer bovenop leggen.",
+  "Maak je bagage vliegklaar en houd je paspoort bij de hand.",
+  "Eet in Darwin een stevige lunch. Je landt om 17.20 uur Perth-tijd, maar voor je lichaam is het dan 19.20 uur. Aan boord krijg je op beide vluchten een hapje en een drankje.",
+  "In Perth slaap je vier nachten. De eerste twee dagen zijn vrij, en op de derde dag staat de excursie naar de Pinnacles op het programma.",
+  "In Perth schijnt de komende dagen elke dag de zon, met temperaturen tussen 19 en 26 graden. Dat is koeler dan in Cairns, en 's avonds is het fris aan zee.",
   "Ibis Perth staat aan Murray Street 334, telefoon +61 8 9214 4320."],
  tips:TIPS_PERTH,
  food:[["Western rock lobster","De belangrijkste visserij van de staat, en volgens velen de beste kreeft van Australië."],["Marron","Grote zoetwaterkreeft, alleen in het zuidwesten. Zoet en delicaat."],["Chilli mussels","Mosselen in pittige tomatensaus. Een Fremantle-uitvinding."],["Margaret River-wijn","Cabernet en Chardonnay van wereldklasse, drie uur naar het zuiden."],["Little Creatures Pale Ale","Uit de brouwerij aan de haven van Fremantle. Een van de bieren die de Australische ambachtelijke brouwerij op gang bracht."]],
@@ -711,7 +714,7 @@ const DAYS=[
    ["Ugly Baby","Wellington Street",4.7,2,7,"Mediterraan, deelgerechten, 'feed me'-menu.","Online. Zelfde eigenaar als KARLA."],
    ["The Standard","Roe Street, Northbridge",4.4,2,8,"Rooftop met mooie zonsondergang.","Online via de website van het restaurant."]]},
 
-{n:25,r:"wa",k:"vrij",t:"Perth, vrije dag",p:"Fremantle",h:"Ibis Perth, Murray Street",tz:8,temp:"12–24°",
+{n:25,r:"wa",k:"vrij",t:"Perth, vrije dag",p:"Fremantle",h:"Ibis Perth, Murray Street",tz:8,temp:"19–26°",
  wild:[["Tuimelaar","In de haven van Fremantle en op de Swan River bij de veerboten. Ze zwemmen mee met bootjes en jagen bij de kademuren.",2],
   ["Bultrug","Voor de kust van Cottesloe, in oktober met kalveren op weg naar het zuiden. Vanaf het strand met een verrekijker, of vanaf het terras bij zonsondergang.",1],
   ["Visarend","Nestelt op palen en masten in de haven van Fremantle. Kijk omhoog op de kades.",2],
@@ -732,7 +735,7 @@ const DAYS=[
  rest:[["KARLA","Wellington Street",4.9,2,5,"Zondag vanaf 11.00 uur. Kreeg je gisteren geen plek? Probeer het vandaag opnieuw.","Online via de website van het restaurant."],
    ["Ugly Baby","Wellington Street",4.7,2,7,"Zondag vanaf 12.00 uur.","Online."]]},
 
-{n:26,r:"wa",k:"vrij",t:"Perth, vrije dag",p:"Rottnest Island",h:"Ibis Perth, Murray Street",tz:8,temp:"13–23°",
+{n:26,r:"wa",k:"vrij",t:"Perth, vrije dag",p:"Rottnest Island",h:"Ibis Perth, Murray Street",tz:8,temp:"19–26°",
  wild:[["Quokka","Overal, vooral rond Thomson Bay en de nederzetting. Ze komen uit zichzelf op je af. Niet aanraken, niet voeren.",3],
   ["Nieuw-Zeelandse zeebeer","Bij Cathedral Rocks aan het westelijke uiteinde, op de rotsen en in het water. Het uitkijkplatform ligt aan de fietsroute.",3],
   ["Bultrug","Vanaf West End en Cape Vlamingh. Oktober is de beste maand voor walvissen bij Rottnest. Blijf even staan op het uitkijkpunt. Ze laten zich niet meteen zien.",2],
