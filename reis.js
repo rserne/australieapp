@@ -776,7 +776,7 @@ const DAYS=[
  ],
  prac:["De Discovery Drive door de Pinnacles is eenrichtingsverkeer, maar te voet mag je overal tussen de pilaren door lopen. Dat levert veel betere foto's op dan vanuit de bus.",
   "Stopt de groep in Cervantes? Daar zit de Lobster Shack, een kreeftverwerkingsbedrijf met restaurant. De western rock lobster is er vers en relatief betaalbaar."],
- note:"Morgen vlieg je naar huis. Uitchecken kan tot 11.00 uur, en daarna kun je je bagage bij de receptie laten staan. Om 13.35 uur sta je met je bagage bij de receptie voor het vertrek naar het vliegveld.",
+ note:"Morgen vlieg je naar huis. Uitchecken kan tot 11.00 uur, en daarna kun je je bagage bij de receptie laten staan. Om 13.35 uur sta je met je bagage bij de receptie voor het vertrek naar het vliegveld. Laad vanavond je koptelefoon en powerbank op voor de vlucht.",
  tips:TIPS_PERTH,
  rest:[["KARLA","Wellington Street",4.9,2,5,"Dinsdag vanaf 17.30 uur. Een passende laatste avond, inheemse ingrediënten uit heel Australië op één kaart.","Online via de website van het restaurant."],
    ["Italian Street Kitchen","Raine Square",4.4,2,3,"Ook dinsdag open.","Online."]]},
@@ -791,7 +791,8 @@ const DAYS=[
  body:[
   "De rondreis zit er alweer op en waarschijnlijk is de tijd voorbij gevlogen! We vertrekken met het vliegtuig naar Amsterdam, waar je afscheid neemt van de groep. Je vliegt pas om 17.05 uur, dus de ochtend in Perth is nog vrij. Overstap in Singapore van 1 uur en 45 minuten, aankomst op Schiphol de volgende ochtend om 06.55 uur."
  ],
- prac:["Uitchecken kan tot 11.00 uur. Laat daarna je bagage bij de receptie staan en gebruik de ochtend voor Kings Park of een laatste wandeling langs de Swan River.",
+ prac:["Laad je koptelefoon en powerbank op voor de vlucht. De powerbank gaat in je handbagage, niet in je koffer.",
+  "Uitchecken kan tot 11.00 uur. Laat daarna je bagage bij de receptie staan en gebruik de ochtend voor Kings Park of een laatste wandeling langs de Swan River.",
   "Vraag de GST terug via het Tourist Refund Scheme. Voorwaarden: minimaal A$300 inclusief GST bij één leverancier (zelfde ABN-nummer, mag over meerdere bonnen), gekocht binnen zestig dagen vóór vertrek, met een geldige tax invoice. Boven A$1.000 moet je naam op de bon staan. Het artikel moet je kunnen tonen. Dus in je handbagage.",
   "De TRS-balie zit ná de paspoortcontrole en er staat vaak een rij. Wees er ruim op tijd. Grote of ingecheckte artikelen moet je vóór het inchecken laten zien bij de balie van de Australian Border Force in de vertrekhal, anders vervalt de teruggave.",
   "Honing mag de EU in, vlees en zuivel van buiten de EU niet. Tim Tams, macadamianoten en een fles Margaret River-wijn zijn de veilige souvenirs."]},
