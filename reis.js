@@ -755,6 +755,7 @@ const DAYS=[
   "Er is één winkel op het eiland, bij Thomson Bay, en die is duur. Neem je lunch mee vanaf het vasteland.",
   "Boek je veerboot zo snel mogelijk, dat raadt de reisbegeleider aan. Bij SeaLink kan dat via https://www.sealink.com.au/rottnest-island/bookings/ferry. Op mooie dagen zit de boot vol.",
   "Een huurfiets boek je bij de veerdienst meteen mee, voor A$37. Fietsen hoeft niet, want over het eiland rijdt ook een hop-on-hop-offbus."],
+ note:"Morgen om 09.00 uur vertrek je vanaf de receptie naar de Pinnacles. Sta er wat eerder klaar. 's Avonds om 18.30 uur is de afscheidsborrel in de bar van het hotel.",
  tips:TIPS_PERTH,
  rnote:"Ugly Baby en The Standard zijn maandag gesloten. Deze twee niet.",
  rest:[["KARLA","Wellington Street",4.9,2,5,"Maandag open vanaf 17.30 uur.","Online via de website van het restaurant."],
@@ -766,6 +767,9 @@ const DAYS=[
   ["Bobtail","De dikke blauwtongskink zont in de lente op de zandpaden van de Pinnacles.",2],
   ["Stromatolieten","Geen dier maar het oudste leven op aarde, levende kolonies bacteriën in Lake Thetis, vlak bij Cervantes, met een wandelpad eromheen. Vraag of de bus er langsgaat.",3],
   ["Wildflowers","Oktober is het hoogtepunt van de wildflowerbloei in West-Australië. Langs de Indian Ocean Drive kleurt de berm geel, roze en paars.",3]],
+ agenda:[
+  ["09.00","Vertrek naar de Pinnacles","Vanaf de receptie. Sta er wat eerder klaar."],
+  ["18.30","Afscheidsborrel","In de bar van het hotel. De reisbegeleider heeft plekken gereserveerd."]],
  body:[
   "Vandaag rijden we ten noorden van Perth naar Nambung National Park, waar we de beroemde Pinnacles Woestijn bezoeken. Deze bijzondere plek staat bekend om de duizenden kalkstenen pilaren die uit het gouden zand oprijzen en een surrealistisch landschap creëren. Ze zijn ontstaan uit fossiele schelpresten die tot kalksteen verhardden, waarna de wind het losse zand eromheen wegblies.",
   "Je kunt hier een korte wandeling maken tussen de Pinnacles door of gewoon genieten van het uitzicht vanaf de aangewezen paden. Vergeet je camera niet, want dit is een perfecte plek voor indrukwekkende foto’s en een unieke ervaring in de Australische natuur. De rit gaat langs de Indian Ocean Drive. Aan het einde van de dag rijden we weer terug naar Perth, waar je kunt ontspannen en de ervaringen van vandaag kunt laten bezinken."
