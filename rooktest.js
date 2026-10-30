@@ -58,7 +58,9 @@ const REIZIGERS=(voor,beheer=false,gast=false)=>[
 // online: navigator.onLine. Het netwerk zelf faalt altijd, zodat ook de herhaalpogingen doorlopen.
 // voorreis: JavaScript dat voorreis.js vervangt (VOORTEST), anders het echte bestand.
 // lijst: de kopie van de reizigerslijst. 'std' volgt login, null is geen kopie (terugval op de notities).
-function start(datum,{login=null,online=false,voorreis=null,lijst='std'}={}){
+// sess: eigen inhoud voor aus_sess (anders een sessie met alleen een refresh token). fetch: een eigen
+// nagebootste server, anders faalt elk verzoek.
+function start(datum,{login=null,online=false,voorreis=null,lijst='std',sess=null,fetch=null}={}){
   const code=codeMet(voorreis);
   const fouten=[];
   const vc=new VirtualConsole();
@@ -66,7 +68,7 @@ function start(datum,{login=null,online=false,voorreis=null,lijst='std'}={}){
   const dom=new JSDOM(html,{url:`https://rserne.github.io/australieapp/?datum=${datum}`,runScripts:'outside-only',
     pretendToBeVisual:true,virtualConsole:vc});
   const w=dom.window;
-  w.fetch=()=>Promise.reject(new TypeError('Failed to fetch'));
+  w.fetch=fetch?((...a)=>fetch(w,...a)):(()=>Promise.reject(new TypeError('Failed to fetch')));
   Object.defineProperty(w.navigator,'onLine',{value:online,configurable:true});
   w.indexedDB=undefined; w.confirm=()=>true; w.scrollTo=()=>{};
   w.requestAnimationFrame=cb=>setTimeout(cb,0);
@@ -74,7 +76,7 @@ function start(datum,{login=null,online=false,voorreis=null,lijst='std'}={}){
   if(!w.Element.prototype.scrollIntoView) w.Element.prototype.scrollIntoView=()=>{};   // jsdom kent het niet
   if(login){
     const notities=login==='voor'?NOTITIES:NOTITIES.filter(n=>n.dag>=0);
-    w.localStorage.setItem('aus_sess',JSON.stringify({refreshToken:'x',tijd:Date.now(),user:{id:'u1',displayName:'Test',email:'test@example.org'}}));
+    w.localStorage.setItem('aus_sess',JSON.stringify(sess||{refreshToken:'x',tijd:Date.now(),user:{id:'u1',displayName:'Test',email:'test@example.org'}}));
     w.localStorage.setItem('aus_cache_all',JSON.stringify(notities));
     notities.forEach(n=>{ const k='aus_cache_'+n.dag, l=JSON.parse(w.localStorage.getItem(k)||'[]'); l.push(n); w.localStorage.setItem(k,JSON.stringify(l)); });
     // Een gast krijgt de notities toch in de kopie: de app hoort ze te negeren en bij het synchroniseren weg te halen.
@@ -439,6 +441,47 @@ function zoek(w,fouten,term){
     eis(fouten,$(w,'btnAlles').hidden===false,'na mislukte vernieuwing blijft de sessie uit de kopie staan');
     meld('5 okt: online zonder werkend netwerk, herhaalpogingen',fouten); }
 
+  // De sessie: niet onnodig vernieuwen, een token van een ander venster overnemen, Vernieuwen laten wachten
+  { const GEBRUIKER={id:'u1',displayName:'Test',email:'test@example.org'};
+    const sessie=(extra)=>({refreshToken:'oud',tijd:Date.now(),user:GEBRUIKER,...extra});
+    const nieuweSessie=rt=>({accessToken:'A-'+rt,refreshToken:rt,accessTokenExpiresIn:900,user:GEBRUIKER});
+    const leesSess=w=>JSON.parse(w.localStorage.getItem('aus_sess')||'null');
+    { let tokens=0;
+      const {w,fouten}=start('2026-10-05',{login:'groep',online:true,sess:sessie({access:'A-oud',exp:Date.now()+10*60000}),
+        fetch:(w,url)=>{ if(/\/token$/.test(url)) tokens++; return Promise.reject(new TypeError('Failed to fetch')); }});
+      await sleep(100);
+      eis(fouten,tokens===0,`met een geldige toegangssleutel op de telefoon vernieuwt de app niet bij het openen (nu ${tokens} keer)`);
+      eis(fouten,$(w,'btnAlles').hidden===false&&leesSess(w)?.access==='A-oud','en blijft de sessie zoals hij was');
+      meld('sessie: geen vernieuwing bij openen binnen een kwartier',fouten); }
+    { let tokens=0;
+      const {w,fouten}=start('2026-10-05',{login:'groep',online:true,sess:sessie(),
+        fetch:async(w,url,opt)=>{ if(!/\/token$/.test(url)) throw new TypeError('Failed to fetch'); tokens++;
+          const rt=JSON.parse(opt.body).refreshToken;
+          if(rt==='oud'){ // intussen heeft een ander venster de sessie vernieuwd
+            w.localStorage.setItem('aus_sess',JSON.stringify(sessie({refreshToken:'nieuw',access:'A-nieuw',exp:Date.now()+14*60000})));
+            return {ok:false,status:401,json:async()=>({})}; }
+          return {ok:true,status:200,json:async()=>nieuweSessie('nog-nieuwer')}; }});
+      await sleep(150);
+      eis(fouten,leesSess(w)&&leesSess(w).refreshToken==='nieuw'&&tokens===1,`na een 401 neemt de app de token van het andere venster over, zonder hem opnieuw in te wisselen (nu ${tokens} keer gevraagd)`);
+      eis(fouten,$(w,'btnAlles').hidden===false,'en blijft hij ingelogd');
+      meld('sessie: 401 terwijl een ander venster al vernieuwde',fouten); }
+    { const {w,fouten}=start('2026-10-05',{login:'groep',online:true,sess:sessie(),
+        fetch:async(w,url)=>{ if(/\/token$/.test(url)) return {ok:false,status:401,json:async()=>({})}; throw new TypeError('Failed to fetch'); }});
+      await sleep(150);
+      eis(fouten,!leesSess(w)&&$(w,'btnAlles').hidden===true,'een echte 401 zonder nieuwere token logt nog steeds uit');
+      meld('sessie: echt verlopen logt uit',fouten); }
+    { let los;
+      const {w,fouten}=start('2026-10-05',{login:'groep',online:true,sess:sessie(),
+        fetch:(w,url)=>/\/token$/.test(url)?new Promise(r=>{ los=()=>r({ok:true,status:200,json:async()=>nieuweSessie('vers')}); }):Promise.reject(new TypeError('Failed to fetch'))});
+      await sleep(30);
+      let klaar=false; w.vernieuwingKlaar().then(()=>{ klaar=true; });
+      await sleep(50);
+      eis(fouten,!klaar,'Vernieuwen wacht zolang de sessie nog wordt vernieuwd');
+      los(); await sleep(50);
+      eis(fouten,klaar&&leesSess(w)?.refreshToken==='vers','en gaat pas door als de nieuwe token is opgeslagen');
+      meld('sessie: Vernieuwen wacht op een lopende vernieuwing',fouten); }
+  }
+
   // Voorreis met programma
   const koppen=w=>[...w.document.querySelectorAll('#day h2')].map(x=>x.textContent);
   { const {w,fouten}=start('2026-09-20',{login:'voor',voorreis:VOORTEST});
@@ -713,7 +756,9 @@ function zoek(w,fouten,term){
     eis(fouten,w.verstuurdTekst()==='Je notitie en je waarneming zijn verstuurd',`melding na versturen (nu '${w.verstuurdTekst()}')`);
     // Met verbinding reageert een tik meteen: de waarneming staat in de wachtrij met 'wordt zo verstuurd'
     // en gaat pas na de tijd voor Ongedaan maken naar Nhost. Zo hangt een tik nooit op het bereik.
-    w.STRAKS_MS=80;
+    // Ruim genoeg om tussendoor te kunnen controleren, ook als de computer druk is. Met 80 ms viel de
+    // test af en toe om: dan was de waarneming al verstuurd voordat de test op Ongedaan maken tikte.
+    w.STRAKS_MS=2000;
     const voor=mutaties.length;
     w.document.querySelector('#dalle .drij[data-dier="quokka"]').click(); await sleep(10);
     let q=JSON.parse(w.localStorage.getItem('aus_pending')||'[]');
@@ -721,7 +766,10 @@ function zoek(w,fouten,term){
     eis(fouten,/wordt zo verstuurd/.test($(w,'dieren').textContent)&&!/wacht op verbinding/.test($(w,'dieren').textContent),'binnen de wachttijd staat er wordt zo verstuurd, niet wacht op verbinding');
     $(w,'toast').querySelector('button').click(); await sleep(150);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0&&mutaties.length===voor,'Ongedaan maken binnen de wachttijd haalt hem weg zonder iets naar Nhost te sturen');
-    w.document.querySelector('#dalle .drij[data-dier="quokka"]').click(); await sleep(250);
+    // Nu kort, en wachten tot hij echt verstuurd is in plaats van een vaste pauze.
+    w.STRAKS_MS=50;
+    w.document.querySelector('#dalle .drij[data-dier="quokka"]').click();
+    for(let i=0;i<60&&!(JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0&&opgehaald===3);i++) await sleep(50);
     eis(fouten,JSON.parse(w.localStorage.getItem('aus_pending')||'[]').length===0&&mutaties[mutaties.length-1]==='insert_waarnemingen_one'&&opgehaald===3,`na de wachttijd gaat hij naar Nhost en wordt de kopie ververst (nu ${mutaties.slice(voor).join(',')}, ${opgehaald} keer opgehaald)`);
     meld('6 okt: wachtrij en waarnemingen met verbinding',fouten); }
   // Gegeten: het bestekje naast de teller

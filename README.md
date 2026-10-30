@@ -18,7 +18,7 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 | `sw.js` | Service worker met offline-cache en updatemelding | `VERSION` ophogen en een nieuwe foto ook aan `BEELD` toevoegen |
 | `paklijst.html` | Losse paklijst naast de app, met eigen icoon (`icon-paklijst.png`). Alles staat op de telefoon, er gaat niets naar Nhost | Bij een andere startlijst. Staat in `CODE` en `BEELD` van `sw.js`, zodat hij ook na een update offline opent |
 | `check.js` | Controleert `reis.js`, `voorreis.js`, de beelden (ook die van de paklijst) en de versienummers | Draaien vóór elke uitgave |
-| `rooktest.js` | Start de app in een kale browser (jsdom) op een reeks datums, meldt elke JavaScript-fout en beproeft de wachtrij met nagebootste Nhost-antwoorden | Draaien na een wijziging in `app.js` |
+| `rooktest.js` | Start de app in een kale browser (jsdom) op een reeks datums, meldt elke JavaScript-fout en beproeft de wachtrij en de sessie met nagebootste Nhost-antwoorden. Sinds uitgave 298 zonder de tijdgevoelige test die af en toe omviel als de computer druk was | Draaien na een wijziging in `app.js` |
 
 ## Een nieuwe versie uitbrengen
 
@@ -282,6 +282,15 @@ Onder de chips voor dag en soort staat een rij met namen, net als bij Dieren: Ik
 Een notitie die je zonder verbinding schrijft, blijft op de telefoon staan en wordt verstuurd zodra er weer verbinding is. Dat geldt ook als de server even niet antwoordt. Weigert Nhost de notitie om een andere reden (rechten, ongeldige invoer), dan blijft hij ook staan, maar met de reden erbij, zodat je hem kunt aanpassen of weggooien. De statusregel in Notities telt beide soorten apart.
 
 Bij het openen herstelt de app de sessie eerst uit de kopie op de telefoon, zodat de notities er direct staan, en vernieuwt hij pas daarna bij Nhost. Alleen een afwijzing van de server (401) logt uit. Geen verbinding doet dat nooit.
+
+Sinds uitgave 298 is dat robuuster. Tijdens de reis moest je af en toe opnieuw inloggen, ook met goed bereik. Bij elke vernieuwing geeft Nhost een nieuwe refresh token uit en vervalt de oude. Werd zo'n vernieuwing onderbroken, meestal door direct na het openen op Vernieuwen in de updatebalk te tikken, dan ging de nieuwe token verloren en gaf de oude een 401. Nu:
+
+- bewaart de app ook de toegangssleutel en tot wanneer die geldt (`aus_sess`). Wie de app binnen een kwartier opnieuw opent, hoeft niets in te wisselen (`sessieKlaar`), en dan kan er ook niets misgaan;
+- gebruikt hij bij het vernieuwen altijd de token van de telefoon en niet die in het geheugen, zodat een tweede venster van de app geen verouderde token inwisselt;
+- kijkt hij na een 401 eerst of er intussen een andere token op de telefoon staat, van een ander venster. Die neemt hij over in plaats van uit te loggen;
+- wacht de knop Vernieuwen tot een lopende vernieuwing klaar is, hoogstens vijf seconden (`vernieuwingKlaar`).
+
+Helemaal uitsluiten kan het niet: valt de verbinding weg precies nadat Nhost de nieuwe token heeft uitgegeven en voordat het antwoord binnen is, dan is die token weg. Dat venster is nu wel veel kleiner.
 
 ### Notities meteen uit de kopie
 

@@ -1112,18 +1112,26 @@ const LS={
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
+// De sessie staat ook op de telefoon, met de toegangssleutel en tot wanneer die geldt. Wie de app binnen
+// een kwartier opnieuw opent, hoeft dan niets bij Nhost in te wisselen. Dat scheelt, want bij elke
+// vernieuwing geeft Nhost een nieuwe refresh token uit en vervalt de oude. Werd zo'n vernieuwing
+// onderbroken (de app herladen met Vernieuwen, of weggeveegd), dan bleef de oude token achter en
+// moest je opnieuw inloggen. Sinds uitgave 298.
 function setSession(sess){
   if(!sess){NH.user=null;NH.access=null;NH.refresh=null;NH.exp=0;LS.del('aus_sess');return;}
   NH.user=sess.user;NH.access=sess.accessToken;NH.refresh=sess.refreshToken;
   NH.exp=Date.now()+((sess.accessTokenExpiresIn||900)-60)*1000;
-  LS.set('aus_sess',{refreshToken:NH.refresh,tijd:Date.now(),user:{id:NH.user.id,displayName:NH.user.displayName,email:NH.user.email}});
+  LS.set('aus_sess',{refreshToken:NH.refresh,access:NH.access,exp:NH.exp,tijd:Date.now(),user:{id:NH.user.id,displayName:NH.user.displayName,email:NH.user.email}});
 }
 // Alleen een 401 van de server betekent dat de sessie echt is verlopen. Bij elke andere storing,
 // zoals vliegtuigmodus, wegvallend bereik of een radio die net weer opstart, mag je niet uitloggen.
 function herstelUitKopie(saved,rt){
   const MAX=30*24*3600*1000;   // een maand: langer dan de reis duurt
   if(saved&&saved.user&&saved.tijd&&Date.now()-saved.tijd<MAX){
-    NH.user=saved.user; NH.refresh=rt; return true;
+    NH.user=saved.user; NH.refresh=rt;
+    // een toegangssleutel die nog geldt, gewoon weer gebruiken
+    if(saved.access&&saved.exp>Date.now()&&!(NH.access&&NH.exp>saved.exp)){ NH.access=saved.access; NH.exp=saved.exp; }
+    return true;
   }
   return false;
 }
@@ -1135,13 +1143,26 @@ function nhRefresh(){
   if(!_refresh) _refresh=vernieuwSessie().finally(()=>{_refresh=null});
   return _refresh;
 }
+// Alleen vernieuwen als het moet: is de toegangssleutel nog geldig, dan is de sessie in orde.
+const sessieKlaar=()=>(NH.access&&Date.now()<NH.exp)?Promise.resolve(true):nhRefresh();
+// Wacht tot een lopende vernieuwing klaar is, hoogstens een paar seconden. Voor de knop Vernieuwen:
+// herladen midden in een vernieuwing gooit de nieuwe refresh token weg.
+function vernieuwingKlaar(ms=5000){ return _refresh?Promise.race([_refresh.catch(()=>{}),new Promise(r=>setTimeout(r,ms))]):Promise.resolve(); }
 async function vernieuwSessie(pogingen){
-  const saved=LS.get('aus_sess'); const rt=NH.refresh||(saved&&saved.refreshToken);
+  // De token van de telefoon gaat voor die in het geheugen: een ander venster van de app (het
+  // startscherm naast een browsertabblad) kan hem intussen hebben ingewisseld.
+  const saved=LS.get('aus_sess'); const rt=(saved&&saved.refreshToken)||NH.refresh;
   if(!rt) return false;
   if(!navigator.onLine){ herstelUitKopie(saved,rt); return false; }   // niets te proberen: kopie gebruiken
   try{
     const r=await fetch(NH_AUTH+'/token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refreshToken:rt})});
-    if(r.status===401){ setSession(null); return false; }        // sessie echt verlopen
+    if(r.status===401){
+      // Staat er intussen een andere token op de telefoon, dan heeft een ander venster de sessie al
+      // vernieuwd. Die gebruiken we, in plaats van uit te loggen.
+      const nu=LS.get('aus_sess');
+      if(nu&&nu.refreshToken&&nu.refreshToken!==rt){ herstelUitKopie(nu,nu.refreshToken); return !!(NH.access&&Date.now()<NH.exp)||vernieuwSessie(); }
+      setSession(null); return false;                               // sessie echt verlopen
+    }
     if(!r.ok){ herstelUitKopie(saved,rt); return false; }          // server hapert: ingelogd laten
     const j=await r.json(); setSession(j); return true;
   }catch(e){
@@ -2968,7 +2989,7 @@ function renderDieren(){
   if(cur===0||cur===EINDE) cur=vandaagPagina();   // voorreiziger of nareiziger: eigen dag
   render();
   const wasIngelogd=!!NH.user;
-  nhRefresh().then(()=>{
+  sessieKlaar().then(()=>{
     if(!!NH.user!==wasIngelogd){   // sessie bleek verlopen (of bestond nog niet): opnieuw tekenen
       toonTabs();
       if(view==='day'){ if(cur===0||isBuiten(cur)) cur=vandaagPagina(); render(); }
@@ -2985,7 +3006,7 @@ function renderDieren(){
 window.addEventListener('online',()=>{
   if(!NH.user) return;
   // even wachten tot de verbinding echt staat, dan pas vernieuwen en synchroniseren
-  setTimeout(()=>{ nhRefresh().then(()=>flushPending()).then(aantal=>{
+  setTimeout(()=>{ sessieKlaar().then(()=>flushPending()).then(aantal=>{
     const fn=mislukt('dagitems'), fw=mislukt('waarnemingen');
     if(fn) toast(fn===1?'Eén notitie kon niet worden verstuurd. Kijk in Notities.':`${fn} notities konden niet worden verstuurd. Kijk in Notities.`);
     else if(fw) toast(fw===1?'Eén waarneming kon niet worden verstuurd. Kijk bij Dieren.':`${fw} waarnemingen konden niet worden verstuurd. Kijk bij Dieren.`);
@@ -2999,7 +3020,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-297';
+const APP_VERSIE='2026-10-30-298';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
@@ -3007,7 +3028,8 @@ function toonUpdateBalk(){
   b.innerHTML='<span>Er is een nieuwe versie van de app.</span><button>Vernieuwen</button>';
   // De nieuwe worker heeft de nieuwe bestanden al in zijn cache gezet en is al actief:
   // gewoon herladen is genoeg, en veiliger dan eerst alle caches wissen.
-  b.querySelector('button').onclick=()=>location.reload();
+  // Eerst een lopende vernieuwing van de sessie afmaken: herladen midden daarin logde je uit.
+  b.querySelector('button').onclick=async e=>{ e.currentTarget.disabled=true; await vernieuwingKlaar(); location.reload(); };
   document.body.appendChild(b);
 }
 let swReg=null;
