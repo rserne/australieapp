@@ -1894,7 +1894,9 @@ function tekenLijst(){
   const rij=box?.querySelector('#filterrij'), lijst=box?.querySelector('#nlijst');
   if(!rij||!lijst) return;
   const items=alleItems, wie=alleWie;
-  const dagLabel=d=>d===0?'Algemeen':isBuiten(d)?buitenLabel(d):`Dag ${d} · ${fmtLong(dateFor(d))}`;
+  // Kort, zoals bij de voorreis ('Za 17 okt'): met de volle datum liep het label op een smal scherm over
+  // twee regels en schoof het soort eronder. Zoeken gebruikt de volle datum (dagTekst), dus 'zaterdag' vindt hem nog.
+  const dagLabel=d=>d===0?'Algemeen':isBuiten(d)?buitenLabel(d):`Dag ${d} · ${fmtKort(dateFor(d))}`;
   // Het soort staat als label naast de dag. De lijst is niet meer per soort ingedeeld.
   const soortTag=it=>isVerz(it)?'':`<span class="ntype ${esc(it.type||'notitie')}">${typeLabel(it.type)}</span>`;
   const kaart=it=>noteCard(it,`<span class="nkopl">`+(isVerz(it)
@@ -2994,7 +2996,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-294';
+const APP_VERSIE='2026-10-30-295';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

@@ -1189,6 +1189,8 @@ function zoek(w,fouten,term){
     eis(fouten,(blokVan('Algemeen')||[]).join()==='n7,n2,n1',`Algemeen toont alleen notities zonder dag, nieuwste eerst (nu: ${blokVan('Algemeen')})`);
     eis(fouten,dagKop()&&dagKop().getAttribute('aria-expanded')==='false'&&blokVan('Bij een dag')===null,'Bij een dag staat dicht');
     eis(fouten,/Ticket/.test(box.querySelector('.nitem[data-id="n1"] .ntype')?.textContent||''),'het soort staat als label op de kaart');
+    const lbl=box.querySelector('.nrecent .nitem[data-id="n4"] .ndag')?.textContent||'';
+    eis(fouten,lbl==='Dag 8 · Do 8 okt',`het daglabel op de kaart is kort (nu: '${lbl}')`);
     const meta=id=>box.querySelector(`.nrecent .nitem[data-id="${id}"] .nmeta`)?.textContent||'';
     eis(fouten,/bewerkt (woensdag 28 oktober|wo 28 okt)/.test(meta('n8'))&&!/1 okt/.test(meta('n8')),`een gewijzigde notitie toont alleen het moment van de wijziging (nu: '${meta('n8')}')`);
     eis(fouten,!/bewerkt/.test(meta('n7')),`een niet gewijzigde notitie zegt niets over bewerken (nu: '${meta('n7')}')`);
