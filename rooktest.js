@@ -184,6 +184,8 @@ function zoek(w,fouten,term){
     const tekst=$(w,'day').textContent;
     eis(fouten,/dagen Australië/.test(tekst)&&!/Nog \d/.test(tekst)&&!/Dag \d+van/.test(tekst),`geen aftellen en geen voortgang meer (nu: '${tekst.slice(0,60)}')`);
     eis(fouten,!w.document.querySelector('.regio.gehad'),'na de reis is geen enkele regio gedempt');
+    const per=w.document.querySelector('#day .aftel .asub')?.textContent||'';
+    eis(fouten,per===(login==='voor'?'18 september t/m 29 oktober':'1 t/m 29 oktober'),`de periode zonder weekdagen, de maand één keer als die gelijk is (nu: '${per}')`);
     klik(w,'btnIndex',fouten);
     eis(fouten,!w.document.querySelector('#results .idxsec.dicht'),'in Alle dagen staat na de reis elk blok open');
     eis(fouten,!w.document.querySelector('#results .idxsec.voorbij'),'en is geen enkele kop gedempt');

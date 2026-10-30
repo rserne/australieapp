@@ -15,6 +15,9 @@ const VOOR=typeof VOORREIS==='number'?VOORREIS:0, NA=typeof NAREIS==='number'?NA
 const dagDatum=d=>dateFor(d<0?d+1:d);
 const isBuiten=d=>d<0||d>29;
 const buitenDagen=()=>[...Array.from({length:VOOR},(_,i)=>-VOOR+i),...Array.from({length:NA},(_,i)=>30+i)];
+// Een periode zonder weekdagen: '1 t/m 29 oktober', of '18 september t/m 29 oktober' als de maanden
+// verschillen. Voor het reisoverzicht na de reis.
+const periode=(a,b)=>`${a.getDate()}${a.getMonth()===b.getMonth()?'':' '+MN[a.getMonth()]} t/m ${b.getDate()} ${MN[b.getMonth()]}`;
 const fmtKort=d=>WD[d.getDay()].slice(0,2).replace(/^./,c=>c.toUpperCase())+' '+fmtShort(d);
 const buitenLabel=d=>`${fmtKort(dagDatum(d))} · ${d<0?'voorreis':'nareis'}`;
 const EINDE=100;   // positie van de afsluitpagina bij het bladeren
@@ -543,7 +546,7 @@ function renderBuiten(){
       // Thuis: geen aftellen en geen voortgang meer, maar hoe lang de reis duurde en wanneer.
       const van=span.eerste<0?dagDatum(span.eerste):dateFor(1), tot=span.laatste>29?dagDatum(span.laatste):dateFor(29);
       h+=`<div class="aftel"><div class="anum">${span.totaal}<small>dagen Australië</small></div>`+
-        `<div class="asub">${fmtLong(van)} tot en met ${fmtLong(tot)}</div></div>`;
+        `<div class="asub">${periode(van,tot)}</div></div>`;
     }else if(onderweg){
       const rest=span.totaal-gedaan;
       h+=`<div class="aftel"><div class="anum">Dag ${gedaan}<small>van ${span.totaal}</small></div>`+
@@ -2996,7 +2999,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-296';
+const APP_VERSIE='2026-10-30-297';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
