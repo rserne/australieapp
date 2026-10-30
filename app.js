@@ -1577,11 +1577,11 @@ function noteCard(it,kop,{zonderNaam=false}={}){
     `<button class="nbtn ndel" data-del="${esc(it.id||'')}"${uid}${it.file_id?` data-file="${esc(it.file_id)}"`:''} aria-label="Verwijderen">×</button></span>`:'';
   // Zonder label en zonder knoppen (een notitie van een ander onder het kopje Notities) geen lege kopregel.
   const head=kop||acts?`<div class="nhead">${kop}${acts}</div>`:'';
-  const wanneer=it.pending?(it.fout?`versturen mislukt: ${esc(it.fout)}`:wachtTekst(it)):fmtWhen(it.created_at);
-  // Bij een gewijzigde notitie ook wanneer: daarop sorteert Recent in het tabblad Notities, en zonder
-  // tijdstip leek die volgorde willekeurig. Een paar seconden verschil telt niet als wijziging.
+  // Eén moment op de kaart: het meest recente. Bij een gewijzigde notitie is dat de wijziging, met
+  // 'bewerkt' ervoor. Daarop sorteert ook het blok Laatst toegevoegd of gewijzigd in Notities. Een paar
+  // seconden verschil met het aanmaken telt niet als wijziging.
   const gewijzigd=!it.pending&&it.updated_at&&tijdMs(it.updated_at)-tijdMs(it.created_at)>60000;
-  const bewerkt=gewijzigd?` · bewerkt ${fmtWhen(it.updated_at)}`:'';
+  const wanneer=it.pending?(it.fout?`versturen mislukt: ${esc(it.fout)}`:wachtTekst(it)):gewijzigd?`bewerkt ${fmtWhen(it.updated_at)}`:fmtWhen(it.created_at);
   if(it.soort==='bestand'){
     const isImg=/^image\//.test(it.mime||'');
     const soort=isImg?'Afbeelding':(/pdf/.test(it.mime||'')?'PDF':'Bestand');
@@ -1594,10 +1594,10 @@ function noteCard(it,kop,{zonderNaam=false}={}){
       `<span class="nsize">${soort}${it.grootte?' · '+fmtSize(it.grootte):''}</span></span>`+
       `<span class="nopen">${ICO_CHEV}</span></a>`+
       (txt?`<span class="nbody">${txt}</span>`:'')+
-      `<span class="sub nmeta">${zonderNaam?'':esc(wie)+' · '}${wanneer}${bewerkt}</span></li>`;
+      `<span class="sub nmeta">${zonderNaam?'':esc(wie)+' · '}${wanneer}</span></li>`;
   }
   return `<li class="nitem" data-id="${esc(it.id||'')}">${head}<span class="nbody">${txt}</span>`+
-    `<span class="sub nmeta">${zonderNaam?'':esc(wie)+' · '}${wanneer}${bewerkt}</span></li>`;
+    `<span class="sub nmeta">${zonderNaam?'':esc(wie)+' · '}${wanneer}</span></li>`;
 }
 // Object-URL's voor miniaturen: één per bestand voor de hele sessie, in plaats van een nieuwe bij
 // elke hertekening (die bleven tot nu toe allemaal in het geheugen staan). Bij uitloggen gaan ze weg.
@@ -1979,7 +1979,7 @@ function tekenLijst(){
     // Recent alleen als er meer is dan het blok zelf toont, en niet tijdens zoeken of met Vandaag aan:
     // dan is de lijst er al naar gesnoeid.
     const metRecent=!zoek&&!vandaag&&gewoon.length>RECENT_N;
-    if(metRecent) h+=blok('recent','Recent',[...gewoon].sort(nieuwsteEerst).slice(0,RECENT_N),{volgorde:nieuwsteEerst,cls:' nrecent'});
+    if(metRecent) h+=blok('recent','Laatst toegevoegd of gewijzigd',[...gewoon].sort(nieuwsteEerst).slice(0,RECENT_N),{volgorde:nieuwsteEerst,cls:' nrecent'});
     h+=blok('alg','Algemeen',gewoon.filter(it=>it.dag===0),{volgorde:nieuwsteEerst});
     // Tijdens de reis (ook de voorreis en nareis) splitst dit blok in Vanaf vandaag, open, en Eerder,
     // dicht: wat voorbij is, de voorreis inbegrepen, hoeft niet bovenaan. Daarbuiten is het één blok Bij
@@ -2994,7 +2994,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-293';
+const APP_VERSIE='2026-10-30-294';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
