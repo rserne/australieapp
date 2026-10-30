@@ -28,13 +28,17 @@ create table public.reizigers (
 -- Notities en bijlagen bij een dag. dag: 0 is algemeen, negatief de voorreis, 1 tot en met 29 de
 -- groepsreis, 30 en hoger de nareis. soort: 'notitie' of 'bestand'. type: notitie, ticket,
 -- reservering, adres, tip of verzekering. Bij een bijlage verwijst file_id naar storage.files.
--- Aangenomen, niet gecontroleerd: de primaire sleutel op id en de verwijzing naar auth.users met
--- on delete cascade, zoals bij waarnemingen.
+-- Gecontroleerd op 30 oktober 2026 (pg_constraint): in de Australië-database heeft deze tabel alleen
+-- de controle op soort. Er is geen verwijzing naar auth.users, dus wie zijn account kwijtraakt, laat
+-- zijn notities achter. Hier staat die verwijzing er wel in, met on delete cascade, net als bij
+-- waarnemingen: zo hoort het. De primaire sleutel op id is nodig, want de app wijzigt en verwijdert
+-- notities met update_dagitems_by_pk en delete_dagitems_by_pk, en die biedt Hasura alleen aan bij een
+-- tabel met primaire sleutel.
 create table public.dagitems (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references auth.users(id) on delete cascade,
   dag        integer not null,
-  soort      text not null,
+  soort      text not null check (soort in ('notitie','bestand')),
   tekst      text,
   wie        text,
   file_id    uuid,

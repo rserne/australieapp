@@ -29,7 +29,7 @@ Kort samengevat, voor de rol `user`:
 
 ## De tabellen
 
-`schema.sql` bevat de vier tabellen en de view, met bovenin de volgorde om een nieuw project op te bouwen. Kolommen, types en standaardwaarden komen uit de database zelf (30 oktober 2026). Sleutels en verwijzingen naar `auth.users` staan niet in die opvraag: voor `reizigers` en `waarnemingen` komen ze uit de hoofd-README, voor `dagitems` zijn ze aangenomen.
+`schema.sql` bevat de vier tabellen en de view, met bovenin de volgorde om een nieuw project op te bouwen. Kolommen, types en standaardwaarden komen uit de database zelf (30 oktober 2026). Sleutels en verwijzingen naar `auth.users` staan niet in die opvraag: voor `reizigers` en `waarnemingen` komen ze uit de hoofd-README. Voor `dagitems` is het nagekeken in `pg_constraint`: daar staat alleen de controle dat `soort` 'notitie' of 'bestand' is. Er is geen verwijzing naar `auth.users`, dus bij het verwijderen van een account blijven diens notities staan, anders dan de hoofd-README zei. In `schema.sql` staat die verwijzing er wel in, zoals het hoort.
 
 Eén verschil met de hoofd-README: in de database staat `gast` standaard op `true`, de README noemde `false`. De app maakt een nieuwe reiziger ook als gast aan (`DELEN_AAN`), dus `true` is bedoeld. Samen met de ontbrekende kolom `gast` bij Wijzigen (hierboven) betekent het wel dat wie als gast begint, in de app niet meer gewone reiziger kan worden.
 
