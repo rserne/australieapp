@@ -1578,7 +1578,7 @@ function noteCard(it,kop,{zonderNaam=false}={}){
   // Zonder label en zonder knoppen (een notitie van een ander onder het kopje Notities) geen lege kopregel.
   const head=kop||acts?`<div class="nhead">${kop}${acts}</div>`:'';
   // Eén moment op de kaart: het meest recente. Bij een gewijzigde notitie is dat de wijziging, met
-  // 'bewerkt' ervoor. Daarop sorteert ook het blok Laatst toegevoegd of gewijzigd in Notities. Een paar
+  // 'bewerkt' ervoor. Daarop sorteert ook het blok Laatste wijzigingen in Notities. Een paar
   // seconden verschil met het aanmaken telt niet als wijziging.
   const gewijzigd=!it.pending&&it.updated_at&&tijdMs(it.updated_at)-tijdMs(it.created_at)>60000;
   const wanneer=it.pending?(it.fout?`versturen mislukt: ${esc(it.fout)}`:wachtTekst(it)):gewijzigd?`bewerkt ${fmtWhen(it.updated_at)}`:fmtWhen(it.created_at);
@@ -1981,7 +1981,7 @@ function tekenLijst(){
     // Recent alleen als er meer is dan het blok zelf toont, en niet tijdens zoeken of met Vandaag aan:
     // dan is de lijst er al naar gesnoeid.
     const metRecent=!zoek&&!vandaag&&gewoon.length>RECENT_N;
-    if(metRecent) h+=blok('recent','Laatst toegevoegd of gewijzigd',[...gewoon].sort(nieuwsteEerst).slice(0,RECENT_N),{volgorde:nieuwsteEerst,cls:' nrecent'});
+    if(metRecent) h+=blok('recent','Laatste wijzigingen',[...gewoon].sort(nieuwsteEerst).slice(0,RECENT_N),{volgorde:nieuwsteEerst,cls:' nrecent'});
     h+=blok('alg','Algemeen',gewoon.filter(it=>it.dag===0),{volgorde:nieuwsteEerst});
     // Tijdens de reis (ook de voorreis en nareis) splitst dit blok in Vanaf vandaag, open, en Eerder,
     // dicht: wat voorbij is, de voorreis inbegrepen, hoeft niet bovenaan. Daarbuiten is het één blok Bij
@@ -2996,7 +2996,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-295';
+const APP_VERSIE='2026-10-30-296';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
