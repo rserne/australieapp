@@ -27,9 +27,14 @@ Kort samengevat, voor de rol `user`:
 
 **Fout gevonden bij het exporteren.** Bij Wijzigen op `reizigers` ontbreekt de kolom `gast`. De chip Gast in Reizigers beheren wijzigt precies die kolom, en Hasura weigert dat. Iemand gast maken of weer gewone reiziger kan zo alleen bij het aanmaken van het account. Herstellen kan in de Hasura-console bij `reizigers`, Permissions, rol `user`, update: vink `gast` aan bij de kolommen. Exporteer daarna de metadata opnieuw naar dit bestand.
 
+## De tabellen
+
+`schema.sql` bevat de vier tabellen en de view, met bovenin de volgorde om een nieuw project op te bouwen. Kolommen, types en standaardwaarden komen uit de database zelf (30 oktober 2026). Sleutels en verwijzingen naar `auth.users` staan niet in die opvraag: voor `reizigers` en `waarnemingen` komen ze uit de hoofd-README, voor `dagitems` zijn ze aangenomen.
+
+Eén verschil met de hoofd-README: in de database staat `gast` standaard op `true`, de README noemde `false`. De app maakt een nieuwe reiziger ook als gast aan (`DELEN_AAN`), dus `true` is bedoeld. Samen met de ontbrekende kolom `gast` bij Wijzigen (hierboven) betekent het wel dat wie als gast begint, in de app niet meer gewone reiziger kan worden.
+
 ## Wat hier nog niet in staat
 
-- **De tabellen zelf.** `dagitems` (de notities), `waarnemingen`, `reizigers` en de view `reizigers_actief`. Voor de laatste drie staat de SQL in de hoofd-README; voor `dagitems` nergens. De metadata beschrijft wel de rechten, niet de kolommen en hun types.
 - **De maximale bestandsgrootte** van de bucket `default` (20 MB). Die staat in de database zelf (`storage.buckets`), niet in deze configuratie.
 
 ## Om naar te kijken bij een volgend project
