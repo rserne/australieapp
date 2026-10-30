@@ -1,8 +1,8 @@
 -- De tabellen van de AustralieApp in Nhost (Postgres, schema public).
 -- Opgesteld op 30 oktober 2026 uit information_schema.columns van het project, aangevuld met de
--- hoofd-README. Kolommen, types, verplichte velden en standaardwaarden komen uit de database zelf.
+-- SQL waarmee de tabellen destijds zijn aangemaakt. Kolommen, types, verplichte velden en standaardwaarden komen uit de database zelf.
 -- Sleutels, verwijzingen naar auth.users en indexen staan niet in information_schema.columns: die
--- komen uit de README (reizigers, waarnemingen) of zijn aangenomen (dagitems, zie daar).
+-- komen uit die SQL (reizigers, waarnemingen) of zijn aangenomen (dagitems, zie daar).
 --
 -- Opbouwen in een nieuw project, in deze volgorde:
 --   1. dit bestand uitvoeren in de SQL-editor (Database, SQL Editor)
