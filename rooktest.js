@@ -1125,6 +1125,28 @@ function zoek(w,fouten,term){
     w.Storage.prototype.setItem=function(k,v){ if(k==='aus_pending') throw new Error('QuotaExceededError'); return orig.call(this,k,v); };
     return ()=>{ w.Storage.prototype.setItem=orig; }; };
 
+  // Voorreisnotities staan in Bij een dag, op datum. Tijdens de reis splitst dat blok in Vanaf vandaag en Eerder.
+  { const N=(id,dag,tijd)=>({id,user_id:'u1',dag,soort:'notitie',type:'notitie',tekst:'Notitie '+id,wie:'Test',created_at:tijd,updated_at:tijd});
+    const lijst=[N('v1',-5,'2026-09-01T10:00:00Z'),N('g0',0,'2026-09-02T10:00:00Z'),N('d3',3,'2026-09-03T10:00:00Z'),N('d15',15,'2026-09-04T10:00:00Z'),N('d20',20,'2026-09-05T10:00:00Z')];
+    const kijk=async(datum)=>{ const {w,fouten}=start(datum,{login:'voor'});
+      w.localStorage.setItem('aus_cache_all',JSON.stringify(lijst)); klik(w,'btnAlles',fouten); await sleep(60);
+      const box=$(w,'alles');
+      const koppen=[...box.querySelectorAll('#nlijst h2')].map(x=>x.textContent.replace(/\d+$/,'').trim());
+      const ids=sleutel=>{ const k=box.querySelector(`.nklap[data-blok="${sleutel}"]`); if(!k) return null; if(k.getAttribute('aria-expanded')!=='true') return 'dicht';
+        return [...k.closest('h2').nextElementSibling.querySelectorAll('.nitem')].map(x=>x.dataset.id).join(); };
+      return {w,fouten,box,koppen,ids}; };
+    { const {fouten,koppen,ids}=await kijk('2026-10-30');
+      eis(fouten,koppen.join('|')==='Algemeen|Bij een dag',`na de reis geen apart blok Voorreis (nu: ${koppen.join(' | ')})`);
+      eis(fouten,ids('dag')==='v1,d3,d15,d20',`de voorreisnotitie staat in Bij een dag, op datum (nu: ${ids('dag')})`);
+      meld('30 okt: voorreisnotities in Bij een dag, op datum',fouten); }
+    { const {fouten,box,koppen,ids}=await kijk('2026-10-15');
+      eis(fouten,koppen.join('|')==='Algemeen|Vanaf vandaag|Eerder',`tijdens de reis Vanaf vandaag en Eerder (nu: ${koppen.join(' | ')})`);
+      eis(fouten,ids('komend')==='d15,d20',`Vanaf vandaag toont vandaag en later (nu: ${ids('komend')})`);
+      eis(fouten,ids('eerder')==='dicht','Eerder staat dicht');
+      box.querySelector('.nklap[data-blok="eerder"]').click(); await sleep(5);
+      eis(fouten,ids('eerder')==='v1,d3',`Eerder bevat wat voorbij is, de voorreis inbegrepen (nu: ${ids('eerder')})`);
+      meld('15 okt: Notities splitst in Vanaf vandaag en Eerder',fouten); }
+  }
   // Notities van de voorreis zie je in Notities en bij zoeken alleen als je zelf de voorreis doet
   for(const login of ['groep','voor']){
     const {w,fouten}=start('2026-10-30',{login});

@@ -1963,8 +1963,8 @@ function tekenLijst(){
   else {
     // Een notitie bij een dag staat ook op die dagpagina. Een algemene notitie staat nergens anders,
     // dus die krijgt een eigen blok bovenaan. Daarboven Recent, want wat je net maakte, zoek je het vaakst.
-    // Voorreis en nareis staan als eigen blok, op datum. De voorreis staat bovenaan zolang de
-    // groepsreis nog niet begonnen is. Daarna zakt hij onder de gewone notities.
+    // Notities van de voorreis en nareis horen gewoon bij een dag en staan daar tussen, op datum: de
+    // dagnummers lopen met de tijd mee (voorreis negatief, groepsreis 1 tot 29, nareis 30 en hoger).
     // Elk blok klapt in en uit met een tik op de kop, met het aantal ernaast. Wat je zelf open- of
     // dichttikt, blijft zo tot de app opnieuw start (window._notOpen). Tijdens het zoeken staat alles
     // open en zijn de koppen gewone koppen: een treffer hoort niet achter een dichte kop te zitten.
@@ -1977,20 +1977,22 @@ function tekenLijst(){
       return `<h2 class="nklapkop"><button type="button" class="nklap" data-blok="${sleutel}" aria-expanded="${open}">`+
         `<span>${kop}</span><span class="cnt">${rij.length}</span><span class="rchev">${ICO_CHEV}</span></button></h2>`+(open?kaarten:'');
     };
-    const voor=blok('voor','Voorreis',zichtbaar.filter(it=>it.dag<0&&!isVerz(it))), na=blok('na','Nareis',zichtbaar.filter(it=>it.dag>29&&!isVerz(it)));
     const gewoon=zichtbaar.filter(it=>!isVerz(it));
     // Recent alleen als er meer is dan het blok zelf toont, en niet tijdens zoeken of met Vandaag aan:
     // dan is de lijst er al naar gesnoeid.
     const metRecent=!zoek&&!vandaag&&gewoon.length>RECENT_N;
     if(metRecent) h+=blok('recent','Recent',[...gewoon].sort(nieuwsteEerst).slice(0,RECENT_N),{volgorde:nieuwsteEerst,cls:' nrecent'});
-    if(T.before) h+=voor;
     h+=blok('alg','Algemeen',gewoon.filter(it=>it.dag===0),{volgorde:nieuwsteEerst});
-    // De notities bij een dag staan dicht zodra er een blok Recent is: die vind je ook op de dagpagina, en
-    // wat je net maakte staat al in Recent. Wie namen aanvinkt, krijgt ze wel meteen te zien: dan wil je
-    // juist alles van die mensen. Bij een andere keuze van namen geldt weer deze standaard.
-    h+=blok('dag','Bij een dag',gewoon.filter(it=>it.dag>=1&&it.dag<=29),{dicht:metRecent&&!selWie.length});
-    if(!T.before) h+=voor;
-    h+=na;
+    // Tijdens de reis (ook de voorreis en nareis) splitst dit blok in Vanaf vandaag, open, en Eerder,
+    // dicht: wat voorbij is, de voorreis inbegrepen, hoeft niet bovenaan. Daarbuiten is het één blok Bij
+    // een dag, dat dicht staat zodra er een blok Recent is: die notities vind je ook op de dagpagina, en
+    // wat je net maakte staat al in Recent. Wie namen aanvinkt, krijgt alles meteen te zien: dan wil je
+    // juist alles van die mensen. Bij een andere keuze van namen geldt weer de standaard.
+    const bijDag=gewoon.filter(it=>it.dag!==0), nu=T.dag;
+    if(nu!=null&&!zoek&&!vandaag){
+      h+=blok('komend','Vanaf vandaag',bijDag.filter(it=>it.dag>=nu));
+      h+=blok('eerder','Eerder',bijDag.filter(it=>it.dag<nu),{dicht:!selWie.length});
+    }else h+=blok('dag','Bij een dag',bijDag,{dicht:metRecent&&!selWie.length});
     // Verzekeringen helemaal onderaan: die gegevens hoop je niet nodig te hebben.
     h+=blok('verz','Verzekeringen',zichtbaar.filter(isVerz));
   }
@@ -1999,7 +2001,7 @@ function tekenLijst(){
   lijst.querySelectorAll('.nklap[data-blok]').forEach(k=>k.onclick=()=>{
     window._notOpen[k.dataset.blok]=k.getAttribute('aria-expanded')!=='true'; tekenLijst(); });
   const wf=lijst.querySelector('#wisfilters');
-  if(wf) wf.onclick=()=>{ window._notVandaag=false; window._notBuiten=''; window._notType=''; window._notZoek=''; window._notWie=[]; delete (window._notOpen||{}).dag;
+  if(wf) wf.onclick=()=>{ window._notVandaag=false; window._notBuiten=''; window._notType=''; window._notZoek=''; window._notWie=[]; ['dag','eerder'].forEach(k=>delete (window._notOpen||{})[k]);
     const zv=box.querySelector('#nzoek'); if(zv){ zv.value=''; box.querySelector('#nwis').hidden=true; }
     tekenLijst(); };
   rij.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
@@ -2007,7 +2009,7 @@ function tekenLijst(){
     // is daarmee overbodig. Het totaal staat al in de banner.
     // De dagchips sluiten elkaar uit: een notitie hoort bij één dag.
     if(c.dataset.wie!==undefined){ const sel=window._notWie||[], id=c.dataset.wie;
-      window._notWie=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id]; delete (window._notOpen||{}).dag; }
+      window._notWie=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id]; ['dag','eerder'].forEach(k=>delete (window._notOpen||{})[k]); }
     else if(c.dataset.d==='1'){ window._notVandaag=!window._notVandaag; window._notBuiten=''; }
     else if(c.dataset.d){ window._notBuiten=(window._notBuiten===c.dataset.d)?'':c.dataset.d; window._notVandaag=false; }
     else window._notType=(window._notType===c.dataset.f)?'':c.dataset.f;
@@ -2995,7 +2997,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-291';
+const APP_VERSIE='2026-10-30-292';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
