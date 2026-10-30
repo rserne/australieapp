@@ -420,7 +420,7 @@ function zoek(w,fouten,term){
     klik(w,'shclose',fouten);
     klik(w,'btnAlles',fouten); await sleep(50);
     const koppen=[...w.document.querySelectorAll('#nlijst h2')].map(x=>x.textContent);
-    eis(fouten,koppen.length&&koppen[koppen.length-1]==='Verzekeringen',`Verzekeringen staat onderaan in Notities (nu: ${koppen.join(' | ')})`);
+    eis(fouten,koppen.length&&/^Verzekeringen\d*$/.test(koppen[koppen.length-1]),`Verzekeringen staat onderaan in Notities (nu: ${koppen.join(' | ')})`);
     const label=w.document.querySelector('#nlijst .ndag.verz');
     eis(fouten,label&&/Praktisch/.test(label.textContent),'verzekeringskaart in Notities draagt het label Praktisch');
     if(label){ label.click(); eis(fouten,$(w,'prakt').style.display==='block','label Praktisch opent het tabblad Praktisch'); }
@@ -1125,6 +1125,23 @@ function zoek(w,fouten,term){
     w.Storage.prototype.setItem=function(k,v){ if(k==='aus_pending') throw new Error('QuotaExceededError'); return orig.call(this,k,v); };
     return ()=>{ w.Storage.prototype.setItem=orig; }; };
 
+  // Notities van de voorreis zie je in Notities en bij zoeken alleen als je zelf de voorreis doet
+  for(const login of ['groep','voor']){
+    const {w,fouten}=start('2026-10-30',{login});
+    w.localStorage.setItem('aus_cache_all',JSON.stringify(NOTITIES));   // met de voorreisnotitie 'a'
+    klik(w,'btnAlles',fouten); await sleep(60);
+    const box=$(w,'alles'), heeft=[...box.querySelectorAll('#nlijst .nitem')].some(x=>x.dataset.id==='a');
+    const chip=!!box.querySelector('#typefilter .dagchip[data-d="voor"]');
+    const banner=w.document.querySelector('#hero .bsub')?.textContent||'';
+    if(login==='groep'){
+      eis(fouten,!heeft&&!chip,'wie geen voorreis doet, ziet in Notities geen voorreisnotities en geen chip Voorreis');
+      eis(fouten,/^4 notities/.test(banner),`de banner telt alleen wat je ziet (nu: '${banner}')`);
+    }else eis(fouten,heeft&&chip,'een voorreiziger ziet de voorreisnotities en de chip Voorreis');
+    klik(w,'btnIndex',fouten); zoek(w,fouten,'eerste voorreisdag');
+    const treffer=/Eerste voorreisdag/.test($(w,'results').textContent);
+    eis(fouten,login==='voor'?treffer:!treffer,`zoeken in Alle dagen volgt dezelfde regel (${login})`);
+    meld(`30 okt: voorreisnotities alleen voor wie de voorreis doet (${login==='voor'?'voorreiziger':'groep'})`,fouten);
+  }
   // Het tabblad Notities: Recent, Algemeen, Bij een dag (ingeklapt), namen om op te filteren, oplichten na toevoegen
   { const {w,fouten}=start('2026-10-30',{login:'groep'});
     const N=(id,user_id,wie,dag,type,tekst,tijd)=>({id,user_id,dag,soort:'notitie',type,tekst,wie,created_at:tijd,updated_at:tijd});
@@ -1141,18 +1158,32 @@ function zoek(w,fouten,term){
     // De kopie in de volgorde waarin Hasura hem gaf toen order_by een object was: op aanmaakmoment, niet op dag
     w.localStorage.setItem('aus_cache_all',JSON.stringify([...veel].sort((a,b)=>a.created_at.localeCompare(b.created_at))));
     klik(w,'btnAlles',fouten); await sleep(60);
-    const box=$(w,'alles'), koppen=()=>[...box.querySelectorAll('#nlijst h2')].map(x=>x.textContent.replace(/\d+$/,'').trim());
+    const box=$(w,'alles'), dagKop=()=>box.querySelector('.nklap[data-blok="dag"]'), koppen=()=>[...box.querySelectorAll('#nlijst h2')].map(x=>x.textContent.replace(/\d+$/,'').trim());
     const blokVan=kop=>{ const h=[...box.querySelectorAll('#nlijst h2')].find(x=>x.textContent.startsWith(kop)); const ul=h&&h.nextElementSibling; return ul&&ul.tagName==='UL'?[...ul.querySelectorAll('.nitem')].map(x=>x.dataset.id):null; };
     eis(fouten,koppen().join('|')==='Recent|Algemeen|Bij een dag|Verzekeringen',`blokken in de juiste volgorde (nu: ${koppen().join(' | ')})`);
     eis(fouten,!koppen().includes('Ticket')&&!koppen().includes('Notitie'),'geen indeling meer per soort');
     eis(fouten,(blokVan('Recent')||[]).join()==='n8,n7,n6,n5,n4',`Recent toont de vijf laatst gemaakte of gewijzigde, nieuwste eerst (nu: ${blokVan('Recent')})`);
     eis(fouten,(blokVan('Algemeen')||[]).join()==='n7,n2,n1',`Algemeen toont alleen notities zonder dag, nieuwste eerst (nu: ${blokVan('Algemeen')})`);
-    eis(fouten,$(w,'nklap')&&$(w,'nklap').getAttribute('aria-expanded')==='false'&&blokVan('Bij een dag')===null,'Bij een dag staat dicht');
+    eis(fouten,dagKop()&&dagKop().getAttribute('aria-expanded')==='false'&&blokVan('Bij een dag')===null,'Bij een dag staat dicht');
     eis(fouten,/Ticket/.test(box.querySelector('.nitem[data-id="n1"] .ntype')?.textContent||''),'het soort staat als label op de kaart');
-    klik(w,'nklap',fouten);
+    dagKop().click(); await sleep(5);
     eis(fouten,(blokVan('Bij een dag')||[]).join()==='n3,n4,n5,n6,n8',`een tik klapt Bij een dag open, op dagvolgorde (nu: ${blokVan('Bij een dag')})`);
-    klik(w,'nklap',fouten);
+    dagKop().click(); await sleep(5);
     eis(fouten,blokVan('Bij een dag')===null,'en een tweede tik klapt hem weer dicht');
+    // elk blok klapt in en uit, met het aantal in de kop
+    const blokKop=k=>box.querySelector(`.nklap[data-blok="${k}"]`);
+    eis(fouten,['recent','alg','dag','verz'].every(k=>blokKop(k)),'elk blok heeft een kop die in- en uitklapt');
+    eis(fouten,blokKop('alg')?.querySelector('.cnt')?.textContent==='3','de kop toont het aantal notities in het blok');
+    blokKop('alg').click(); await sleep(5);
+    eis(fouten,blokVan('Algemeen')===null&&blokKop('alg').getAttribute('aria-expanded')==='false','Algemeen klapt dicht');
+    blokKop('recent').click(); await sleep(5);
+    eis(fouten,blokVan('Recent')===null,'Recent klapt dicht');
+    klik(w,'btnToday',fouten); klik(w,'btnAlles',fouten); await sleep(30);
+    eis(fouten,blokVan('Algemeen')===null&&blokVan('Recent')===null,'en dat blijft zo na terugkomen in het tabblad');
+    const zv=$(w,'nzoek'); zv.value='algemeen'; zv.dispatchEvent(new w.Event('input')); await sleep(200);
+    eis(fouten,!box.querySelector('.nklap')&&(blokVan('Algemeen')||[]).length===3,'tijdens zoeken staat alles open, zonder inklapknoppen');
+    zv.value=''; zv.dispatchEvent(new w.Event('input')); await sleep(200);
+    blokKop('alg').click(); blokKop('recent').click(); await sleep(5);
     // de platte lijst met een chip aan staat op dag, ook als de kopie dat niet doet
     const typeChip=f=>box.querySelector(`#typefilter .chip[data-f="${f}"]`);
     typeChip('notitie').click(); await sleep(10);
@@ -1166,13 +1197,13 @@ function zoek(w,fouten,term){
     naam('Anna').click(); await sleep(10);
     const zicht=()=>[...new Set([...box.querySelectorAll('#nlijst .nitem')].map(x=>x.dataset.id))].sort().join();
     eis(fouten,zicht()==='n2,n3,n7,n9',`met Anna aangevinkt alleen haar notities, ook die bij een dag (nu: ${zicht()})`);
-    eis(fouten,$(w,'nklap')?.getAttribute('aria-expanded')!=='false','met een naam aangevinkt staat Bij een dag open');
+    eis(fouten,dagKop()?.getAttribute('aria-expanded')!=='false','met een naam aangevinkt staat Bij een dag open');
     naam('Piet').click(); await sleep(10);
     eis(fouten,zicht()==='n2,n3,n4,n6,n7,n9',`Anna en Piet samen (nu: ${zicht()})`);
     const tc=box.querySelector('#typefilter .chip[data-f="ticket"] .cnt');
     eis(fouten,tc&&tc.textContent==='1',`de typechips tellen binnen de aangevinkte namen (nu: ${tc&&tc.textContent})`);
     naam('Anna').click(); naam('Piet').click(); await sleep(10);
-    eis(fouten,koppen()[0]==='Recent'&&$(w,'nklap')?.getAttribute('aria-expanded')==='false','namen weer uit: terug naar het begin');
+    eis(fouten,koppen()[0]==='Recent'&&dagKop()?.getAttribute('aria-expanded')==='false','namen weer uit: terug naar het begin');
     // een nieuwe notitie licht op in Recent
     w._notFlits=Date.now();
     w.localStorage.setItem('aus_pending',JSON.stringify([{uid:'p1',tabel:'dagitems',dag:0,tekst:'Net gemaakt',wie:'Test',type:'notitie'}]));
