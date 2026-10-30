@@ -1138,7 +1138,8 @@ function zoek(w,fouten,term){
       N('n7','u2','Anna',0,'tip','Anna algemeen nieuw','2026-10-25T10:00:00Z'),
       {...N('n8','u1','Test',26,'notitie','Test dag zesentwintig, later bewerkt','2026-10-01T10:00:00Z'),updated_at:'2026-10-28T10:00:00Z'},
       N('n9','u2','Anna',0,'verzekering','Polis Anna','2026-09-04T10:00:00Z')];
-    w.localStorage.setItem('aus_cache_all',JSON.stringify(veel));
+    // De kopie in de volgorde waarin Hasura hem gaf toen order_by een object was: op aanmaakmoment, niet op dag
+    w.localStorage.setItem('aus_cache_all',JSON.stringify([...veel].sort((a,b)=>a.created_at.localeCompare(b.created_at))));
     klik(w,'btnAlles',fouten); await sleep(60);
     const box=$(w,'alles'), koppen=()=>[...box.querySelectorAll('#nlijst h2')].map(x=>x.textContent.replace(/\d+$/,'').trim());
     const blokVan=kop=>{ const h=[...box.querySelectorAll('#nlijst h2')].find(x=>x.textContent.startsWith(kop)); const ul=h&&h.nextElementSibling; return ul&&ul.tagName==='UL'?[...ul.querySelectorAll('.nitem')].map(x=>x.dataset.id):null; };
@@ -1152,6 +1153,12 @@ function zoek(w,fouten,term){
     eis(fouten,(blokVan('Bij een dag')||[]).join()==='n3,n4,n5,n6,n8',`een tik klapt Bij een dag open, op dagvolgorde (nu: ${blokVan('Bij een dag')})`);
     klik(w,'nklap',fouten);
     eis(fouten,blokVan('Bij een dag')===null,'en een tweede tik klapt hem weer dicht');
+    // de platte lijst met een chip aan staat op dag, ook als de kopie dat niet doet
+    const typeChip=f=>box.querySelector(`#typefilter .chip[data-f="${f}"]`);
+    typeChip('notitie').click(); await sleep(10);
+    const plat=()=>[...box.querySelectorAll('#nlijst .nitem')].map(x=>x.dataset.id).join();
+    eis(fouten,plat()==='n2,n3,n5,n6,n8',`met een soortchip aan staat de lijst op dag (nu: ${plat()})`);
+    typeChip('notitie').click(); await sleep(10);
     // namen
     const namen=()=>[...box.querySelectorAll('#wiefilter .chip')].map(c=>c.firstChild.textContent+' '+c.querySelector('.cnt').textContent);
     eis(fouten,namen().join('|')==='Ik 3|Anna 4|Piet 2',`namenrij met Ik voorop en het aantal per persoon (nu: ${namen().join(' | ')})`);

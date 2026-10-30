@@ -1182,7 +1182,9 @@ async function gql(query,variables){
   if(j.errors) throw new Error(j.errors[0].message); return j.data;
 }
 const Q_ITEMS=`query($dag:Int!){dagitems(where:{dag:{_eq:$dag}},order_by:{created_at:asc}){id user_id dag soort type tekst wie file_id naam mime grootte created_at updated_at}}`;
-const Q_ALL=`query{dagitems(order_by:{dag:asc,created_at:asc}){id user_id dag soort type tekst wie file_id naam mime grootte created_at updated_at}}`;
+// order_by als lijst: in één object garandeert Hasura de volgorde van de velden niet, en dan kwam
+// created_at vóór dag. De app sorteert in het tabblad Notities toch zelf, maar de kopie hoort te kloppen.
+const Q_ALL=`query{dagitems(order_by:[{dag:asc},{created_at:asc}]){id user_id dag soort type tekst wie file_id naam mime grootte created_at updated_at}}`;
 const M_INS=`mutation($o:dagitems_insert_input!){insert_dagitems_one(object:$o){id created_at}}`;
 const M_UPD=`mutation($id:uuid!,$t:String,$ty:String){update_dagitems_by_pk(pk_columns:{id:$id},_set:{tekst:$t,type:$ty}){id}}`;
 // types, in de volgorde waarin ze in de lijst staan. Verzekering staat achteraan: die gegevens
@@ -1941,6 +1943,10 @@ function tekenLijst(){
     :'';
 
   let h='';
+  // Op dag, en binnen een dag op het moment van aanmaken. Een wachtende notitie heeft als aanmaakmoment
+  // 'nu' en staat dus onderaan zijn dag. De app sorteert zelf, ook de platte lijst met een chip aan: de
+  // volgorde uit de kopie is niet te vertrouwen.
+  const opDag=(a,b)=>a.dag-b.dag||String(a.created_at||'').localeCompare(String(b.created_at||''));
   if(!items.length) h+=`<div class="empty">Nog geen notities.</div>`;
   else if(!zichtbaar.length){
     const wat=filter?`notities van het type ${typeLabel(filter).toLowerCase()}`:'notities';
@@ -1948,13 +1954,12 @@ function tekenLijst(){
     h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':buiten?` van de ${buiten==='voor'?'voorreis':'nareis'}`:''}.`}`+
        `<button type="button" class="btn wisfilter" id="wisfilters">Alle filters wissen</button></div>`;
   }
-  else if(filter||buiten) h+=`<ul class="list nlist">`+zichtbaar.map(kaart).join('')+`</ul>`;
+  else if(filter||buiten) h+=`<ul class="list nlist">`+[...zichtbaar].sort(opDag).map(kaart).join('')+`</ul>`;
   else {
     // Een notitie bij een dag staat ook op die dagpagina. Een algemene notitie staat nergens anders,
     // dus die krijgt een eigen blok bovenaan. Daarboven Recent, want wat je net maakte, zoek je het vaakst.
     // Voorreis en nareis staan als eigen blok, op datum. De voorreis staat bovenaan zolang de
     // groepsreis nog niet begonnen is. Daarna zakt hij onder de gewone notities.
-    const opDag=(a,b)=>a.dag-b.dag||String(a.created_at||'').localeCompare(String(b.created_at||''));
     const blok=(kop,rij,volgorde=opDag,cls='')=>rij.length?`<h2>${kop}</h2><ul class="list nlist${cls}">`+rij.sort(volgorde).map(kaart).join('')+`</ul>`:'';
     const voor=blok('Voorreis',zichtbaar.filter(it=>it.dag<0&&!isVerz(it))), na=blok('Nareis',zichtbaar.filter(it=>it.dag>29&&!isVerz(it)));
     const gewoon=zichtbaar.filter(it=>!isVerz(it));
@@ -2982,7 +2987,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-289';
+const APP_VERSIE='2026-10-30-290';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
