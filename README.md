@@ -381,3 +381,36 @@ Sinds uitgave 238 heeft elke dag van de groepsreis een verhaal over de geschiede
 Op de dagpagina staat het verhaal als dichtgeklapte kaart onder het tijdschema en de callouts, met de titel en de leestijd. Een tik klapt hem open. De bron staat alleen in `verhalen.js` en niet op het scherm. Zoeken in Alle dagen vindt ook de verhalen. Een teken in de dagenlijst is er niet, want elke dag heeft er een.
 
 De feiten zijn bij het schrijven gecontroleerd tegen bronnen als de Australian Dictionary of Biography, het National Museum of Australia, museumsites en UNESCO. Overleden Aboriginal-mensen worden alleen bij naam genoemd waar dat in Australië zelf gebruikelijk is. `check.js` controleert of elke dag een verhaal heeft, of titel, tekst en bron er zijn, en waarschuwt bij een verhaal dat veel korter of langer is dan de bedoeling. `verhalen.js` staat in `CODE` van `sw.js`, dus de verhalen zijn ook offline te lezen.
+
+
+## Een volgende reis
+
+Deze app is gemaakt voor één reis. Voor een volgende reis is het advies geen nieuwe app te bouwen, maar ook geen app voor meerdere reizen tegelijk: één herbruikbare basis, met per reis een eigen kopie. Het waardevolste is niet het Australische programma, maar wat eronder zit: werken zonder verbinding, de wachtrij, bijlagen op de telefoon, veilig updaten, de sessie en de tests. Dat is in bijna driehonderd uitgaven gegroeid.
+
+### Aanpak
+
+1. **Australië bevriezen.** Deze repo, het adres en het Nhost-project blijven zoals ze zijn, als herinnering. De stand na de reis is vastgelegd als release `australie-2026` (uitgave 299).
+2. **De basis loskoppelen van Australië.** Wat hieronder staat, gaat naar instellingen in `reis.js` (of een nieuw instellingenbestand), of wordt een onderdeel dat je per reis aan- of uitzet.
+3. **Per reis een kopie.** Een nieuwe repo met Use this template (deze repo staat als sjabloon), met een eigen GitHub Pages-adres, eigen inhoud en beelden, en een eigen Nhost-project. Een apart project is het eenvoudigst: notities van verschillende reizen lopen nooit door elkaar, en het gratis abonnement volstaat. De database bouw je op met `nhost/`.
+4. **De tests meenemen.** `check.js` en `rooktest.js` horen in de basis met een kleine, verzonnen testreis te werken, zodat elke nieuwe reis meteen beschermd is.
+
+Begin daar pas aan als de volgende reis bekend is. Het loskoppelen kost een paar sessies; het meeste werk blijft de inhoud (programma, restaurants, verhalen, dieren).
+
+### Wat nog aan Australië vastzit
+
+Staat al netjes in `reis.js` en hoeft alleen opnieuw gevuld te worden: `START`, `VOORREIS` en `NAREIS`, de dagen (`DAYS`), regio's met naam en kleuren (`REGION`, `TONE`, `TONE_INK`), hotels (`HOTELGEO`), restaurants (`RDATA`), winkels, excursies, de kofferlijst, noodnummers, inchecklinks (`CHECKIN`), boekingen en de reisbegeleider.
+
+Moet nog los van de code gemaakt worden:
+
+- **Het aantal dagen.** De groepsreis is vast 29 dagen. In `app.js` staat het getal 29 tientallen keren, onder meer in de datumrekening (`todayInfo`, `isBuiten`, `reisKlaar`), het bladeren (`volgende`, `vorige`), de kop van een dag ('van 29') en de voortgangsbalk. In `check.js` (`dagRef`) en in de tests ook. Dat wordt één constante in `reis.js`, af te leiden uit de lengte van `DAYS`.
+- **Het land in zoekopdrachten.** Links naar Google Maps voor hotels, restaurants, winkels en routes plakken ', Australia' achter de plaats (`app.js`, zes plekken). Dat wordt een instelling.
+- **Namen en teksten.** 'Rondreis Australië' en 'dagen Australië' op het reisoverzicht, 'Reis voorbij · 29 dagen Australië' op de afsluitpagina, 'AustralieApp' in de voettekst, het welkomstbericht voor nieuwe reizigers (`welkomTekst`) en de deeltekst van een prijs. Verder de titel en de naam in `index.html`, `manifest.webmanifest` (ook 'Dag voor dag door Australië, 1 t/m 29 oktober 2026') en `prijzen.html`.
+- **De wisselkoers.** Praktisch rekent vast van Australische dollar naar euro (`base=AUD` bij frankfurter.dev, en de labels AUD en EUR). De valuta wordt een instelling.
+- **Tijdzones.** `check.js` keurt alleen Australische tijdzones goed (UTC+8 tot +11, in halve uren). Dat wordt een bereik per reis.
+- **Dieren en prijzen.** `dieren.js` (68 dieren, de groepen en de prijzen) en `dieren-iconen.js` zijn helemaal Australisch, net als de prijsteksten in `prijzen.html`. De prijs Kriskras telt 'streken' via de regio's en werkt dus met elke reis met regio's. Het hele tabblad Dieren is per reis een keuze: opnieuw vullen of uitzetten.
+- **De emoe-alert.** Een vast onderdeel van de dagpagina (`emoe` bij een dag, met eigen icoon en kleur). Dat wordt een algemene 'uitgelicht dier'-regel, of verdwijnt.
+- **Het verhaal van de dag.** `verhalen.js` hoort bij Australië; `check.js` eist een verhaal voor elke dag. Per reis opnieuw schrijven, of de eis laten vallen.
+- **De beelden.** De regiobanners (`reg-nsw.jpg` en de rest), de bannerfoto's per tabblad en de iconen. De namen staan ook in `BEELD` in `sw.js`.
+- **De paklijst.** `paklijst.html` heeft een Australische startlijst (ETA-visum, stekker type I, het weer in oktober).
+- **Nhost.** Het adres van het project staat in `app.js` (`NHOST_SUB`, `NHOST_REG`). Een nieuw project krijgt een nieuw adres.
+- **Boekingscodes.** De herkenning van regels als 'Sawadee: 1234567' gaat uit van de sleutels in `CHECKIN` en `BOEKINGEN` en werkt dus mee met andere maatschappijen; alleen de voorbeelden in deze README zijn Australisch.
