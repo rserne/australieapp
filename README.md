@@ -293,9 +293,9 @@ Deze app is gemaakt voor één reis. Voor een volgende reis is het advies geen n
 
 ### Aanpak
 
-1. **Australië bevriezen.** Deze repo, het adres en het Nhost-project blijven zoals ze zijn, als herinnering. Leg de stand na de reis vast als release `australie-2026` (uitgave 299).
+1. **Australië bevriezen.** Deze repo, het adres en het Nhost-project blijven zoals ze zijn, als herinnering. De stand na de reis is vastgelegd als release `australie-2026` (uitgave 299).
 2. **De basis loskoppelen van Australië.** Wat hieronder staat, gaat naar instellingen in `reis.js` (of een nieuw instellingenbestand), of wordt een onderdeel dat je per reis aan- of uitzet.
-3. **Per reis een kopie.** Zet deze repo in GitHub als sjabloon (Settings, Template repository) en maak per reis een nieuwe repo met Use this template, met een eigen GitHub Pages-adres, eigen inhoud en beelden, en een eigen Nhost-project. Een apart project is het eenvoudigst: notities van verschillende reizen lopen nooit door elkaar, en het gratis abonnement volstaat. De database bouw je op met `nhost/`.
+3. **Per reis een kopie.** Deze repo staat in GitHub als sjabloon. Maak per reis een nieuwe repo met Use this template, met een eigen GitHub Pages-adres, eigen inhoud en beelden, en een eigen Nhost-project. Een apart project is het eenvoudigst: notities van verschillende reizen lopen nooit door elkaar, en het gratis abonnement volstaat. De database bouw je op met `nhost/`.
 4. **De tests meenemen.** `check.js` en `rooktest.js` horen in de basis met een kleine, verzonnen testreis te werken, zodat elke nieuwe reis meteen beschermd is.
 
 Begin daar pas aan als de volgende reis bekend is. Het loskoppelen kost een paar sessies; het meeste werk blijft de inhoud (programma, restaurants, verhalen, dieren).
