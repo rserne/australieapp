@@ -1166,7 +1166,7 @@ async function nhLogin(email,pw){
 }
 // Bij uitloggen blijft er niets van de groep op de telefoon achter
 async function wisPriveGegevens(){
-  window._notZoek=''; window._notType=''; window._notVandaag=false; window._notBuiten=''; window._notWie=[]; window._notOpen={}; window._notFlits=0; window._notFlitsOp=null;
+  window._notZoek=''; window._notType=''; window._notVandaag=false; window._notWie=[]; window._notOpen={}; window._notFlits=0; window._notFlitsOp=null;
   window._dzoek=''; window._dfilter=''; window._dgroep='';
   await wisThumbUrls();
   _verzonden.clear(); _migratie=null;   // wat de wachtrij in het geheugen nog wist, hoort bij het vorige account
@@ -1578,7 +1578,10 @@ function noteCard(it,kop,{zonderNaam=false}={}){
   // Zonder label en zonder knoppen (een notitie van een ander onder het kopje Notities) geen lege kopregel.
   const head=kop||acts?`<div class="nhead">${kop}${acts}</div>`:'';
   const wanneer=it.pending?(it.fout?`versturen mislukt: ${esc(it.fout)}`:wachtTekst(it)):fmtWhen(it.created_at);
-  const bewerkt=(!it.pending&&it.updated_at&&it.updated_at!==it.created_at)?' · bewerkt':'';
+  // Bij een gewijzigde notitie ook wanneer: daarop sorteert Recent in het tabblad Notities, en zonder
+  // tijdstip leek die volgorde willekeurig. Een paar seconden verschil telt niet als wijziging.
+  const gewijzigd=!it.pending&&it.updated_at&&tijdMs(it.updated_at)-tijdMs(it.created_at)>60000;
+  const bewerkt=gewijzigd?` · bewerkt ${fmtWhen(it.updated_at)}`:'';
   if(it.soort==='bestand'){
     const isImg=/^image\//.test(it.mime||'');
     const soort=isImg?'Afbeelding':(/pdf/.test(it.mime||'')?'PDF':'Bestand');
@@ -1906,12 +1909,11 @@ function tekenLijst(){
     const x=DAYS[d-1]; return `dag ${d} ${fmtLong(dateFor(d))} ${x?x.t+' '+x.p:''}`.toLowerCase(); };
   const hooi=it=>[it.tekst,it.naam,it.wie,dagTekst(it.dag)].filter(Boolean).join(' ').toLowerCase();
   const raak=it=>!zoek||hooi(it).includes(zoek);
-  // Twee losse assen: welke dag (vandaag, voorreis, nareis of alles) en welk soort. Ze werken samen.
-  // 'Vandaag' volgt de echte datum: tijdens de voorreis dus de voorreisdag van vandaag.
+  // Twee losse assen: vandaag of alles, en welk soort. Ze werken samen. 'Vandaag' volgt de echte datum:
+  // tijdens de voorreis dus de voorreisdag van vandaag. De chips Voorreis en Nareis zijn sinds uitgave 293
+  // weg: die notities staan op datum in Bij een dag (of Eerder), en zoeken op 'voorreis' vindt ze ook.
   const vandaag=!!window._notVandaag&&T.dag!=null;
-  const buiten=window._notBuiten||'';
-  const inBuiten=(it,b)=>b==='voor'?it.dag<0:it.dag>29;
-  const dagOk=it=>vandaag?it.dag===T.dag:(!buiten||inBuiten(it,buiten));
+  const dagOk=it=>!vandaag||it.dag===T.dag;
   const typeOk=it=>!filter||(it.type||'notitie')===filter;
   // Een derde as: van wie. Ik voorop, dan de anderen op alfabet, net als de namenrij bij Dieren. Je kunt
   // er meer tegelijk aanvinken. Alleen voor deze sessie, net als de andere filters in dit tabblad.
@@ -1925,13 +1927,9 @@ function tekenLijst(){
   const inDag=naZoek.filter(it=>dagOk(it)&&wieOk(it));
   const telling={}; inDag.forEach(it=>{const t=it.type||'notitie'; telling[t]=(telling[t]||0)+1});
   const telVandaag=naZoek.filter(it=>it.dag===T.dag&&typeOk(it)&&wieOk(it)).length;
-  const telBuiten=b=>naZoek.filter(it=>inBuiten(it,b)&&typeOk(it)&&wieOk(it)).length;
   const telWie=id=>naZoek.filter(it=>dagOk(it)&&typeOk(it)&&it.user_id===id).length;
-  // De chips Voorreis en Nareis verschijnen pas als iemand er een notitie voor heeft gemaakt.
   const dagChips=[];
   if(T.dag!=null) dagChips.push(['1','Vandaag',telVandaag,vandaag]);
-  if(items.some(it=>it.dag<0)||buiten==='voor') dagChips.push(['voor','Voorreis',telBuiten('voor'),buiten==='voor']);
-  if(items.some(it=>it.dag>29)||buiten==='na') dagChips.push(['na','Nareis',telBuiten('na'),buiten==='na']);
 
   // Links de dag, rechts het soort. Het streepje ertussen laat zien dat het twee vragen zijn.
   // Een actieve chip krijgt een kruisje, zodat zichtbaar is dat je hem ook weer uit kunt zetten.
@@ -1956,10 +1954,10 @@ function tekenLijst(){
   else if(!zichtbaar.length){
     const wat=filter?`notities van het type ${typeLabel(filter).toLowerCase()}`:'notities';
     // Wie op nul uitkomt moet er in één tik weer uit kunnen, zonder te puzzelen welke chip het deed.
-    h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':buiten?` van de ${buiten==='voor'?'voorreis':'nareis'}`:''}.`}`+
+    h+=`<div class="empty">${zoek?`Niets gevonden voor “${esc(zoek)}”.`:`Geen ${wat}${vandaag?' voor vandaag':''}.`}`+
        `<button type="button" class="btn wisfilter" id="wisfilters">Alle filters wissen</button></div>`;
   }
-  else if(filter||buiten) h+=`<ul class="list nlist">`+[...zichtbaar].sort(opDag).map(kaart).join('')+`</ul>`;
+  else if(filter) h+=`<ul class="list nlist">`+[...zichtbaar].sort(opDag).map(kaart).join('')+`</ul>`;
   else {
     // Een notitie bij een dag staat ook op die dagpagina. Een algemene notitie staat nergens anders,
     // dus die krijgt een eigen blok bovenaan. Daarboven Recent, want wat je net maakte, zoek je het vaakst.
@@ -2001,7 +1999,7 @@ function tekenLijst(){
   lijst.querySelectorAll('.nklap[data-blok]').forEach(k=>k.onclick=()=>{
     window._notOpen[k.dataset.blok]=k.getAttribute('aria-expanded')!=='true'; tekenLijst(); });
   const wf=lijst.querySelector('#wisfilters');
-  if(wf) wf.onclick=()=>{ window._notVandaag=false; window._notBuiten=''; window._notType=''; window._notZoek=''; window._notWie=[]; ['dag','eerder'].forEach(k=>delete (window._notOpen||{})[k]);
+  if(wf) wf.onclick=()=>{ window._notVandaag=false; window._notType=''; window._notZoek=''; window._notWie=[]; ['dag','eerder'].forEach(k=>delete (window._notOpen||{})[k]);
     const zv=box.querySelector('#nzoek'); if(zv){ zv.value=''; box.querySelector('#nwis').hidden=true; }
     tekenLijst(); };
   rij.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
@@ -2010,8 +2008,7 @@ function tekenLijst(){
     // De dagchips sluiten elkaar uit: een notitie hoort bij één dag.
     if(c.dataset.wie!==undefined){ const sel=window._notWie||[], id=c.dataset.wie;
       window._notWie=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id]; ['dag','eerder'].forEach(k=>delete (window._notOpen||{})[k]); }
-    else if(c.dataset.d==='1'){ window._notVandaag=!window._notVandaag; window._notBuiten=''; }
-    else if(c.dataset.d){ window._notBuiten=(window._notBuiten===c.dataset.d)?'':c.dataset.d; window._notVandaag=false; }
+    else if(c.dataset.d==='1') window._notVandaag=!window._notVandaag;
     else window._notType=(window._notType===c.dataset.f)?'':c.dataset.f;
     tekenLijst();
   });
@@ -2997,7 +2994,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-292';
+const APP_VERSIE='2026-10-30-293';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

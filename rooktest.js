@@ -1155,10 +1155,11 @@ function zoek(w,fouten,term){
     const box=$(w,'alles'), heeft=[...box.querySelectorAll('#nlijst .nitem')].some(x=>x.dataset.id==='a');
     const chip=!!box.querySelector('#typefilter .dagchip[data-d="voor"]');
     const banner=w.document.querySelector('#hero .bsub')?.textContent||'';
+    eis(fouten,!chip,'er is geen chip Voorreis meer');
     if(login==='groep'){
-      eis(fouten,!heeft&&!chip,'wie geen voorreis doet, ziet in Notities geen voorreisnotities en geen chip Voorreis');
+      eis(fouten,!heeft,'wie geen voorreis doet, ziet in Notities geen voorreisnotities');
       eis(fouten,/^4 notities/.test(banner),`de banner telt alleen wat je ziet (nu: '${banner}')`);
-    }else eis(fouten,heeft&&chip,'een voorreiziger ziet de voorreisnotities en de chip Voorreis');
+    }else eis(fouten,heeft,'een voorreiziger ziet de voorreisnotities');
     klik(w,'btnIndex',fouten); zoek(w,fouten,'eerste voorreisdag');
     const treffer=/Eerste voorreisdag/.test($(w,'results').textContent);
     eis(fouten,login==='voor'?treffer:!treffer,`zoeken in Alle dagen volgt dezelfde regel (${login})`);
@@ -1188,6 +1189,9 @@ function zoek(w,fouten,term){
     eis(fouten,(blokVan('Algemeen')||[]).join()==='n7,n2,n1',`Algemeen toont alleen notities zonder dag, nieuwste eerst (nu: ${blokVan('Algemeen')})`);
     eis(fouten,dagKop()&&dagKop().getAttribute('aria-expanded')==='false'&&blokVan('Bij een dag')===null,'Bij een dag staat dicht');
     eis(fouten,/Ticket/.test(box.querySelector('.nitem[data-id="n1"] .ntype')?.textContent||''),'het soort staat als label op de kaart');
+    const meta=id=>box.querySelector(`.nrecent .nitem[data-id="${id}"] .nmeta`)?.textContent||'';
+    eis(fouten,/bewerkt woensdag 28 oktober|bewerkt wo 28 okt/.test(meta('n8')),`een gewijzigde notitie toont wanneer hij is gewijzigd (nu: '${meta('n8')}')`);
+    eis(fouten,!/bewerkt/.test(meta('n7')),`een niet gewijzigde notitie zegt niets over bewerken (nu: '${meta('n7')}')`);
     dagKop().click(); await sleep(5);
     eis(fouten,(blokVan('Bij een dag')||[]).join()==='n3,n4,n5,n6,n8',`een tik klapt Bij een dag open, op dagvolgorde (nu: ${blokVan('Bij een dag')})`);
     dagKop().click(); await sleep(5);
