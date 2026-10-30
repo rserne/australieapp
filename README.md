@@ -261,6 +261,17 @@ Ze staan ook in het tabblad Notities, helemaal onderaan onder een eigen kop, omd
 
 De polisnummers staan bewust niet in `reis.js`: de repository is openbaar.
 
+## Het tabblad Notities
+
+Sinds uitgave 289 is het tabblad Notities niet meer per soort (Ticket, Notitie, enzovoort) ingedeeld. Een notitie die je net had gemaakt, zat daar ergens midden in een lange lijst, en welk soort je destijds koos, weet je bij het zoeken meestal niet meer. Het soort staat nu als label naast de dag op de kaart. De blokken, van boven naar beneden:
+
+- **Recent**: de vijf notities die het laatst zijn gemaakt of gewijzigd (`RECENT_N`), ongeacht dag of soort. Een notitie die nog op verbinding wacht, staat bovenaan. Het blok verschijnt alleen bij meer dan vijf notities, en niet tijdens zoeken of met Vandaag aan.
+- **Algemeen**: de notities die niet aan een dag hangen, nieuwste eerst. Die staan nergens anders in de app, dus ze krijgen een vast blok.
+- **Bij een dag**: de rest, op dagvolgorde. Omdat je die ook op de dagpagina vindt, staat dit blok dicht zodra er een blok Recent is. Een tik op de kop klapt het open en weer dicht. Bij weinig notities staat het gewoon open.
+- **Voorreis**, **Nareis** en **Verzekeringen** zoals voorheen.
+
+Onder de chips voor dag en soort staat een rij met namen, net als bij Dieren: Ik voorop, dan de anderen op alfabet, met per naam het aantal notities binnen de andere filters. Je kunt meer namen tegelijk aanvinken. Met namen aangevinkt staat Bij een dag open. De keuze geldt voor de sessie, net als de andere filters in dit tabblad. Wie een notitie toevoegt vanuit dit tabblad, ziet hem daarna even oplichten bovenaan Recent (`flitsNieuwe`). Een filter op soort, Voorreis of Nareis toont, zoals voorheen, één platte lijst.
+
 ## Notities zonder verbinding
 
 Een notitie die je zonder verbinding schrijft, blijft op de telefoon staan en wordt verstuurd zodra er weer verbinding is. Dat geldt ook als de server even niet antwoordt. Weigert Nhost de notitie om een andere reden (rechten, ongeldige invoer), dan blijft hij ook staan, maar met de reden erbij, zodat je hem kunt aanpassen of weggooien. De statusregel in Notities telt beide soorten apart.

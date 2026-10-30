@@ -719,6 +719,20 @@
      dezelfde afstand als een kop, of de lijst nu gevuld is of leeg. */
   #nlijst>.empty:first-child,#nlijst>h2:first-child{margin-top:34px}
   #nlijst>.nlist:first-child{margin-top:20px}
+  /* Notities: de dag en het soort naast elkaar links in de kop van een kaart, de knoppen rechts. */
+  .nkopl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+  /* De namen op een tweede filterrij, vlak onder de eerste. */
+  .chips.filters.wierij{margin-top:6px}
+  /* Bij een dag: een kop die in- en uitklapt. Zelfde letter als een gewone kop, met het aantal en een pijltje. */
+  h2.nklapkop{margin-bottom:12px}
+  .nklap{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}
+  .nklap .cnt{padding:1px 7px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0;background:var(--glass-2);color:var(--text-dim)}
+  .nklap[aria-expanded="true"] .rchev{transform:rotate(90deg)}
+  .nklap:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px}
+  /* Een notitie die je net toevoegde, licht even op. */
+  .nitem.flits{animation:nflits 2.4s ease-out}
+  @keyframes nflits{0%,35%{box-shadow:0 0 0 2px var(--accent) inset;background:color-mix(in srgb, var(--accent) 14%, transparent)}100%{box-shadow:0 0 0 0 transparent inset}}
+  @media (prefers-reduced-motion:reduce){.nitem.flits{animation:none;box-shadow:0 0 0 2px var(--accent) inset}}
 
   /* ---------- Prijzen ---------- */
   /* De kast: ronde medailles, drie naast elkaar, alleen de verdiende. De munt is crème met de tekening in

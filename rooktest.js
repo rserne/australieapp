@@ -1125,6 +1125,54 @@ function zoek(w,fouten,term){
     w.Storage.prototype.setItem=function(k,v){ if(k==='aus_pending') throw new Error('QuotaExceededError'); return orig.call(this,k,v); };
     return ()=>{ w.Storage.prototype.setItem=orig; }; };
 
+  // Het tabblad Notities: Recent, Algemeen, Bij een dag (ingeklapt), namen om op te filteren, oplichten na toevoegen
+  { const {w,fouten}=start('2026-10-30',{login:'groep'});
+    const N=(id,user_id,wie,dag,type,tekst,tijd)=>({id,user_id,dag,soort:'notitie',type,tekst,wie,created_at:tijd,updated_at:tijd});
+    const veel=[
+      N('n1','u1','Test',0,'ticket','Boekingscodes algemeen','2026-09-01T10:00:00Z'),
+      N('n2','u2','Anna',0,'notitie','Anna algemeen oud','2026-09-02T10:00:00Z'),
+      N('n3','u2','Anna',3,'notitie','Anna dag drie','2026-10-03T10:00:00Z'),
+      N('n4','u3','Piet',8,'ticket','Piet dag acht','2026-10-08T10:00:00Z'),
+      N('n5','u1','Test',12,'notitie','Test dag twaalf','2026-10-12T10:00:00Z'),
+      N('n6','u3','Piet',20,'notitie','Piet dag twintig','2026-10-20T10:00:00Z'),
+      N('n7','u2','Anna',0,'tip','Anna algemeen nieuw','2026-10-25T10:00:00Z'),
+      {...N('n8','u1','Test',26,'notitie','Test dag zesentwintig, later bewerkt','2026-10-01T10:00:00Z'),updated_at:'2026-10-28T10:00:00Z'},
+      N('n9','u2','Anna',0,'verzekering','Polis Anna','2026-09-04T10:00:00Z')];
+    w.localStorage.setItem('aus_cache_all',JSON.stringify(veel));
+    klik(w,'btnAlles',fouten); await sleep(60);
+    const box=$(w,'alles'), koppen=()=>[...box.querySelectorAll('#nlijst h2')].map(x=>x.textContent.replace(/\d+$/,'').trim());
+    const blokVan=kop=>{ const h=[...box.querySelectorAll('#nlijst h2')].find(x=>x.textContent.startsWith(kop)); const ul=h&&h.nextElementSibling; return ul&&ul.tagName==='UL'?[...ul.querySelectorAll('.nitem')].map(x=>x.dataset.id):null; };
+    eis(fouten,koppen().join('|')==='Recent|Algemeen|Bij een dag|Verzekeringen',`blokken in de juiste volgorde (nu: ${koppen().join(' | ')})`);
+    eis(fouten,!koppen().includes('Ticket')&&!koppen().includes('Notitie'),'geen indeling meer per soort');
+    eis(fouten,(blokVan('Recent')||[]).join()==='n8,n7,n6,n5,n4',`Recent toont de vijf laatst gemaakte of gewijzigde, nieuwste eerst (nu: ${blokVan('Recent')})`);
+    eis(fouten,(blokVan('Algemeen')||[]).join()==='n7,n2,n1',`Algemeen toont alleen notities zonder dag, nieuwste eerst (nu: ${blokVan('Algemeen')})`);
+    eis(fouten,$(w,'nklap')&&$(w,'nklap').getAttribute('aria-expanded')==='false'&&blokVan('Bij een dag')===null,'Bij een dag staat dicht');
+    eis(fouten,/Ticket/.test(box.querySelector('.nitem[data-id="n1"] .ntype')?.textContent||''),'het soort staat als label op de kaart');
+    klik(w,'nklap',fouten);
+    eis(fouten,(blokVan('Bij een dag')||[]).join()==='n3,n4,n5,n6,n8',`een tik klapt Bij een dag open, op dagvolgorde (nu: ${blokVan('Bij een dag')})`);
+    klik(w,'nklap',fouten);
+    eis(fouten,blokVan('Bij een dag')===null,'en een tweede tik klapt hem weer dicht');
+    // namen
+    const namen=()=>[...box.querySelectorAll('#wiefilter .chip')].map(c=>c.firstChild.textContent+' '+c.querySelector('.cnt').textContent);
+    eis(fouten,namen().join('|')==='Ik 3|Anna 4|Piet 2',`namenrij met Ik voorop en het aantal per persoon (nu: ${namen().join(' | ')})`);
+    const naam=n=>[...box.querySelectorAll('#wiefilter .chip')].find(c=>c.firstChild.textContent===n);
+    naam('Anna').click(); await sleep(10);
+    const zicht=()=>[...new Set([...box.querySelectorAll('#nlijst .nitem')].map(x=>x.dataset.id))].sort().join();
+    eis(fouten,zicht()==='n2,n3,n7,n9',`met Anna aangevinkt alleen haar notities, ook die bij een dag (nu: ${zicht()})`);
+    eis(fouten,$(w,'nklap')?.getAttribute('aria-expanded')!=='false','met een naam aangevinkt staat Bij een dag open');
+    naam('Piet').click(); await sleep(10);
+    eis(fouten,zicht()==='n2,n3,n4,n6,n7,n9',`Anna en Piet samen (nu: ${zicht()})`);
+    const tc=box.querySelector('#typefilter .chip[data-f="ticket"] .cnt');
+    eis(fouten,tc&&tc.textContent==='1',`de typechips tellen binnen de aangevinkte namen (nu: ${tc&&tc.textContent})`);
+    naam('Anna').click(); naam('Piet').click(); await sleep(10);
+    eis(fouten,koppen()[0]==='Recent'&&$(w,'nklap')?.getAttribute('aria-expanded')==='false','namen weer uit: terug naar het begin');
+    // een nieuwe notitie licht op in Recent
+    w._notFlits=Date.now();
+    w.localStorage.setItem('aus_pending',JSON.stringify([{uid:'p1',tabel:'dagitems',dag:0,tekst:'Net gemaakt',wie:'Test',type:'notitie'}]));
+    klik(w,'btnToday',fouten); klik(w,'btnAlles',fouten); await sleep(60);
+    const eerste=box.querySelector('.nrecent .nitem');
+    eis(fouten,eerste&&/Net gemaakt/.test(eerste.textContent)&&eerste.classList.contains('flits'),`een net toegevoegde notitie staat bovenaan Recent en licht op (nu: '${eerste&&eerste.className} ${eerste&&eerste.textContent.slice(0,40)}', vlag ${w._notFlits})`);
+    meld('30 okt: Notities met Recent, Algemeen, Bij een dag en namen',fouten); }
   // 1. Notities meteen uit de kopie, terwijl de synchronisatie nog op Nhost wacht
   { const {w,fouten}=start('2026-10-05',{login:'groep',online:true});
     const hou=stuur(); let rondes=0;
