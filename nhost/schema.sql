@@ -28,12 +28,12 @@ create table public.reizigers (
 -- Notities en bijlagen bij een dag. dag: 0 is algemeen, negatief de voorreis, 1 tot en met 29 de
 -- groepsreis, 30 en hoger de nareis. soort: 'notitie' of 'bestand'. type: notitie, ticket,
 -- reservering, adres, tip of verzekering. Bij een bijlage verwijst file_id naar storage.files.
--- Gecontroleerd op 30 oktober 2026 (pg_constraint): in de Australië-database heeft deze tabel alleen
--- de controle op soort. Er is geen verwijzing naar auth.users, dus wie zijn account kwijtraakt, laat
--- zijn notities achter. Hier staat die verwijzing er wel in, met on delete cascade, net als bij
--- waarnemingen: zo hoort het. De primaire sleutel op id is nodig, want de app wijzigt en verwijdert
+-- Nagekeken op 30 oktober 2026: de primaire sleutel op id (dagitems_pkey), de controle op soort en de
+-- index op user_id en dag bestaan. De app heeft de primaire sleutel nodig: hij wijzigt en verwijdert
 -- notities met update_dagitems_by_pk en delete_dagitems_by_pk, en die biedt Hasura alleen aan bij een
--- tabel met primaire sleutel.
+-- tabel met primaire sleutel. Of er een verwijzing naar auth.users met on delete cascade is, bleef
+-- onzeker: de opvraag van pg_constraint gaf alleen de controle op soort terug, terwijl ook de primaire
+-- sleutel daar had moeten staan. Hier staat de verwijzing er wel in, net als bij waarnemingen.
 create table public.dagitems (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references auth.users(id) on delete cascade,
@@ -50,6 +50,7 @@ create table public.dagitems (
   updated_at timestamptz not null default now(),
   type       text default 'notitie'
 );
+create index dagitems_user_dag on public.dagitems (user_id, dag);
 
 -- Waarnemingen van dieren. gezien_op is het moment van zien, created_at dat van versturen.
 -- hoe: 'gezien' of 'gegeten'.
