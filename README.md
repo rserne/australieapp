@@ -19,6 +19,7 @@ Online op https://rserne.github.io/australieapp/ (GitHub Pages). Notities en tic
 | `paklijst.html` | Losse paklijst naast de app, met eigen icoon (`icon-paklijst.png`). Alles staat op de telefoon, er gaat niets naar Nhost | Bij een andere startlijst. Staat in `CODE` en `BEELD` van `sw.js`, zodat hij ook na een update offline opent |
 | `check.js` | Controleert `reis.js`, `voorreis.js`, de beelden (ook die van de paklijst) en de versienummers | Draaien vóór elke uitgave |
 | `rooktest.js` | Start de app in een kale browser (jsdom) op een reeks datums, meldt elke JavaScript-fout en beproeft de wachtrij en de sessie met nagebootste Nhost-antwoorden. Sinds uitgave 298 zonder de tijdgevoelige test die af en toe omviel als de computer druk was | Draaien na een wijziging in `app.js` |
+| `nhost/` | De projectconfiguratie van Nhost (`nhost.toml`), zonder geheimen, met een eigen README over wat de app ervan verwacht en wat er nog ontbreekt | Als je in het dashboard van Nhost iets aan de instellingen verandert |
 
 ## Een nieuwe versie uitbrengen
 
