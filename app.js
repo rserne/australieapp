@@ -53,14 +53,18 @@ function todayInfo(){
   const t=new Date(n.getFullYear(),n.getMonth(),n.getDate());
   const raw=Math.round((t-START)/864e5)+1;
   const before=raw<1, after=raw>29;
-  // n: welke pagina 'Vandaag' toont. Vóór de reis de startpagina (0), na afloop de afsluitpagina
-  // (30) als er een nareis is, anders dag 29. dag: bij welk notitienummer vandaag hoort, ook een
-  // voorreis- of nareisdag. Null als vandaag buiten alles valt.
-  const nPag=before?0:(after?(NA>0?EINDE:29):raw);
+  // n: welke pagina 'Vandaag' toont. Vóór de reis de startpagina (0). Tijdens een nareis de
+  // afsluitpagina voor wie niet meedoet, en zodra ook de nareis voorbij is weer de startpagina, het
+  // reisoverzicht. dag: bij welk notitienummer vandaag hoort, ook een voorreis- of nareisdag. Null
+  // als vandaag buiten alles valt.
+  const nPag=before?0:(after?(raw>29+NA?0:EINDE):raw);
   const dag=(!before&&!after)?raw:(before&&raw-1>=-VOOR)?raw-1:(after&&raw<=29+NA)?raw:null;
   return {n:nPag,before,after,raw,dag};
 }
 let T=todayInfo();
+// De hele reis is voorbij, ook de nareis. Dan is de startpagina weer het overzicht van de reis,
+// zonder gedimde regio's, en staan in Alle dagen alle blokken weer open.
+const reisKlaar=()=>T.after&&T.raw>29+NA;
 let cur=T.n,view='day',clockTimer=null;
 // Een geïnstalleerde app blijft dagen open staan. Na middernacht moet 'Vandaag' meebewegen.
 function herbereken(){
@@ -409,11 +413,11 @@ const namenVan=deel=>(reizigers()||[]).filter(x=>x[deel]).map(x=>x.naam).filter(
 const opsom=n=>n.length<=1?n.join(''):`${n.slice(0,-1).join(', ')} en ${n[n.length-1]}`;
 // Welke pagina 'Vandaag' toont. Vóór de reis de startpagina, behalve voor een voorreiziger tijdens
 // zijn voorreis: die ziet zijn eigen dag. Na de reis de afsluitpagina, behalve voor een nareiziger
-// tijdens zijn nareis (zonder nareis: dag 29). Wie thuis nog wacht, komt bij de voorreisnotities
+// tijdens zijn nareis. Is ook de nareis voorbij, dan weer de startpagina met het reisoverzicht. Wie thuis nog wacht, komt bij de voorreisnotities
 // via de kaart Voorreis op de startpagina of door terug te bladeren vanaf dag 1.
 function vandaagPagina(){
   if(T.before) return (T.dag!=null&&voorreiziger())?T.dag:0;
-  if(T.after) return NA>0?((T.dag!=null&&nareiziger())?T.dag:EINDE):29;
+  if(T.after) return reisKlaar()?0:((T.dag!=null&&nareiziger())?T.dag:EINDE);
   return T.raw;
 }
 // Bladeren. De pijl vanaf de startpagina volgt je eigen reis: een voorreiziger gaat naar de eerste
@@ -508,7 +512,8 @@ function reisSpan(){
     nr:d=>d<0?d+VOOR+1:v+d};
 }
 
-// Startpagina (vóór 1 oktober) en afsluitpagina (na de reis, als er een nareis is).
+// Startpagina (vóór 1 oktober, en weer zodra de hele reis voorbij is) en afsluitpagina (tijdens een
+// nareis, voor wie er niet aan meedoet).
 function renderBuiten(){
   const start=cur===0, vr=voorreiziger();
   const vandaagTxt=`<span class="dot live"></span>Vandaag · ${fmtLong(vandaagDatum())}`;
@@ -518,7 +523,7 @@ function renderBuiten(){
   // hij te bereiken via de eerste regel van Alle dagen, want Vandaag hoort de dag zelf te tonen.
   // De voortgang gaat over je eigen reis: wie een voorreis doet, is al onderweg vóór 1 oktober en
   // telt die dagen mee. Voor hem is dag 1 de eerste voorreisdag en loopt de teller door tot 42.
-  const span=reisSpan(), onderweg=start&&(!T.before||(T.dag!=null&&vr));
+  const span=reisSpan(), klaar=reisKlaar(), onderweg=start&&!klaar&&(!T.before||(T.dag!=null&&vr));
   let h='';
   if(start){
     const kGroep=1-T.raw, kVoor=(-VOOR+1)-T.raw;   // dagen tot vertrek van de groep / van de voorreis
@@ -529,8 +534,13 @@ function renderBuiten(){
     const gedaan=onderweg?span.nr(T.after?span.laatste:(T.dag!=null?T.dag:T.n)):0;
     const gdGroep=T.before?0:(T.after?29:Math.max(0,Math.min(29,T.n)));
     heroBuiten({tone:bb.tone,foto:bb.foto,eyebrow:vandaagTxt,num:onderweg?'Reisoverzicht':'Rondreis Australië',titel:'',
-      track:`${Math.round(gedaan/span.totaal*100)}%`});
-    if(onderweg){
+      track:klaar?'100%':`${Math.round(gedaan/span.totaal*100)}%`});
+    if(klaar){
+      // Thuis: geen aftellen en geen voortgang meer, maar hoe lang de reis duurde en wanneer.
+      const van=span.eerste<0?dagDatum(span.eerste):dateFor(1), tot=span.laatste>29?dagDatum(span.laatste):dateFor(29);
+      h+=`<div class="aftel"><div class="anum">${span.totaal}<small>dagen Australië</small></div>`+
+        `<div class="asub">${fmtLong(van)} tot en met ${fmtLong(tot)}</div></div>`;
+    }else if(onderweg){
       const rest=span.totaal-gedaan;
       h+=`<div class="aftel"><div class="anum">Dag ${gedaan}<small>van ${span.totaal}</small></div>`+
         `<div class="asub">${rest?`Nog ${rest} ${rest===1?'dag':'dagen'} te gaan`:'De laatste dag'}</div></div>`;
@@ -732,10 +742,12 @@ function drawResults(term){
     // zelf open- of dichttikt, blijft zo tot de app opnieuw start (window._idxOpen). laatsteRaw is
     // het nummer van de laatste dag op de schaal van T.raw, dus een voorreisdag n telt als n+1.
     const IDXOPEN=window._idxOpen||(window._idxOpen={});
-    const blokOpen=(sleutel,laatsteRaw)=>sleutel in IDXOPEN?IDXOPEN[sleutel]:!(T.raw>laatsteRaw);
+    // Is de hele reis voorbij, dan staat alles weer open en is niets meer gedempt: terugkijken.
+    const blokVoorbij=laatsteRaw=>!reisKlaar()&&T.raw>laatsteRaw;
+    const blokOpen=(sleutel,laatsteRaw)=>sleutel in IDXOPEN?IDXOPEN[sleutel]:!blokVoorbij(laatsteRaw);
     const idxKop=(label,sleutel,bereik,open)=>`<button type="button" class="idxkop" data-sec="${sleutel}" aria-expanded="${open}" style="${inktVan(sleutel)}">`+
       `<span class="lbl">${esc(label)}</span><span class="bereik">${bereik}<span class="rchev">${ICO_CHEV}</span></span></button>`;
-    const blok=(sleutel,laatsteRaw,kop,lijst)=>{ const open=blokOpen(sleutel,laatsteRaw), voorbij=T.raw>laatsteRaw;
+    const blok=(sleutel,laatsteRaw,kop,lijst)=>{ const open=blokOpen(sleutel,laatsteRaw), voorbij=blokVoorbij(laatsteRaw);
       return `<div class="idxsec${open?'':' dicht'}${voorbij?' voorbij':''}">${kop(open)}${lijst}</div>`; };
     const buitenRegel=(b,eerste,laatste)=>{
       const n=aantal(b), vandaag=T.dag!=null&&(b==='voor'?T.dag<0:T.dag>29), k=b==='voor'?'voorreis':'nareis';
@@ -2911,7 +2923,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-26-287';
+const APP_VERSIE='2026-10-30-288';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

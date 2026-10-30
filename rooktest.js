@@ -177,6 +177,20 @@ function zoek(w,fouten,term){
     klik(w,'btnToday',fouten); klik(w,'btnIndex',fouten);
     eis(fouten,!sec('New South Wales').classList.contains('dicht'),'en zo blijft het na terugkomen in Alle dagen');
     meld('15 okt: blokken die voorbij zijn, staan dicht in Alle dagen',fouten); }
+  // Na de reis: Vandaag toont weer het reisoverzicht, niets gedempt, en Alle dagen staat helemaal open
+  for(const login of ['groep','voor']){
+    const {w,fouten}=start('2026-10-30',{login});
+    eis(fouten,kop(w)==='Rondreis Australië',`na de reis toont Vandaag het reisoverzicht (nu: '${kop(w)}')`);
+    const tekst=$(w,'day').textContent;
+    eis(fouten,/dagen Australië/.test(tekst)&&!/Nog \d/.test(tekst)&&!/Dag \d+van/.test(tekst),`geen aftellen en geen voortgang meer (nu: '${tekst.slice(0,60)}')`);
+    eis(fouten,!w.document.querySelector('.regio.gehad'),'na de reis is geen enkele regio gedempt');
+    klik(w,'btnIndex',fouten);
+    eis(fouten,!w.document.querySelector('#results .idxsec.dicht'),'in Alle dagen staat na de reis elk blok open');
+    eis(fouten,!w.document.querySelector('#results .idxsec.voorbij'),'en is geen enkele kop gedempt');
+    klik(w,'btnToday',fouten); klik(w,'next',fouten);
+    eis(fouten,/^(Dag 1van 29|Voorreis)/.test(kop(w)),`vanaf het overzicht blader je naar het begin van de reis (nu: '${kop(w)}')`);
+    meld(`30 okt: na de reis het reisoverzicht (${login==='voor'?'voorreiziger':'groep'})`,fouten);
+  }
   { const {w,fouten}=start('2026-10-05',{login:'groep',lijst:REIZIGERS(false).filter(r=>r.user_id!=='u1')});
     klik(w,'btnPrakt',fouten);
     const c=$(w,'acct').querySelector('.callout');
