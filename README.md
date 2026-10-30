@@ -319,6 +319,15 @@ Moet nog los van de code gemaakt worden:
 - **Nhost.** Het adres van het project staat in `app.js` (`NHOST_SUB`, `NHOST_REG`). Een nieuw project krijgt een nieuw adres.
 - **Boekingscodes.** De herkenning van regels als 'Sawadee: 1234567' gaat uit van de sleutels in `CHECKIN` en `BOEKINGEN` en werkt dus mee met andere maatschappijen; alleen de voorbeelden in deze README zijn Australisch.
 
+### Opschonen in de basis
+
+Twee refactors maken de basis makkelijker te onderhouden. Ze zijn niet nodig voor Australië, wel voor een volgende reis:
+
+- **`app.js` splitsen.** Eén bestand van ruim 3000 regels, al ingedeeld met kopjes (buiten de groepsreis, bijlagen, wisselkoers, dieren, prijzen, stand, versie). Langs die lijnen wordt het een stuk of zes bestanden, zonder bouwstap. `CODE` in `sw.js`, `check.js` en `rooktest.js` gaan dan mee.
+- **Eén toestandsobject.** De filters en open blokken staan nu in elf losse vensterwaarden (`window._notOpen`, `window._idxOpen` en verder), die `wisPriveGegevens` bij het uitloggen één voor één leegmaakt. Een nieuwe die daar ontbreekt, laat de filters van de vorige gebruiker staan. Eén object dat in zijn geheel wordt gewist, sluit dat uit.
+
+Volgorde: eerst het aantal dagen en de andere instellingen hierboven, dan het splitsen, dan de toestand, met na elke stap de rooktest. Begin pas als de volgende reis bekend is, zodat je niets refactort wat je daarna weggooit. De opbouw met HTML in tekstsjablonen blijft: herschrijven naar een framework kost veel en voegt voor een app van deze omvang weinig toe.
+
 ### Nog open in de basis
 
 Punten uit een eerdere codereview die niet zijn aangepakt, en die bij het loskoppelen aandacht verdienen:
