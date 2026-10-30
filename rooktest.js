@@ -1269,9 +1269,10 @@ function zoek(w,fouten,term){
     eis(fouten,plat()==='n2,n3,n5,n6,n8',`met een soortchip aan staat de lijst op dag (nu: ${plat()})`);
     typeChip('notitie').click(); await sleep(10);
     // namen
-    const namen=()=>[...box.querySelectorAll('#wiefilter .chip')].map(c=>c.firstChild.textContent+' '+c.querySelector('.cnt').textContent);
+    const namen=()=>[...box.querySelectorAll('#wiefilter .dchip')].map(c=>c.firstChild.textContent+' '+c.querySelector('span').textContent);
     eis(fouten,namen().join('|')==='Ik 3|Anna 4|Piet 2',`namenrij met Ik voorop en het aantal per persoon (nu: ${namen().join(' | ')})`);
-    const naam=n=>[...box.querySelectorAll('#wiefilter .chip')].find(c=>c.firstChild.textContent===n);
+    const naam=n=>[...box.querySelectorAll('#wiefilter .dchip')].find(c=>c.firstChild.textContent===n);
+    eis(fouten,box.querySelector('#wiefilter .dchip.dwie')&&!box.querySelector('#wiefilter .chip'),'de namenrij heeft de opmaak van de namenrij bij Dieren');
     naam('Anna').click(); await sleep(10);
     const zicht=()=>[...new Set([...box.querySelectorAll('#nlijst .nitem')].map(x=>x.dataset.id))].sort().join();
     eis(fouten,zicht()==='n2,n3,n7,n9',`met Anna aangevinkt alleen haar notities, ook die bij een dag (nu: ${zicht()})`);

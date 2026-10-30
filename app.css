@@ -721,8 +721,8 @@
   #nlijst>.nlist:first-child{margin-top:20px}
   /* Notities: de dag en het soort naast elkaar links in de kop van een kaart, de knoppen rechts. */
   .nkopl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
-  /* De namen op een tweede filterrij, vlak onder de eerste. */
-  .chips.filters.wierij{margin-top:6px}
+  /* De namen op een tweede filterrij, vlak onder de eerste, in de opmaak van de namenrij bij Dieren. */
+  .dchips.nwierij{margin:2px 0 0;padding-top:4px}
   /* Bij een dag: een kop die in- en uitklapt. Zelfde letter als een gewone kop, met het aantal en een pijltje. */
   h2.nklapkop{margin-bottom:12px}
   .nklap{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}

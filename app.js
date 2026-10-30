@@ -1967,8 +1967,10 @@ function tekenLijst(){
       `<button type="button" class="chip${filter===k?' on':''}" data-f="${k}"${filter===k?' aria-pressed="true"':''}>${l}<span class="cnt">${telling[k]||0}</span>${filter===k?uit:''}</button>`).join('')+
     `</div>`+
     // De namen op een eigen rij, alleen als er notities van meer dan één persoon zijn.
-    (personen.length>1?`<div class="chips filters wierij" id="wiefilter">`+personen.map(p=>{ const on=selWie.includes(p.id);
-      return `<button type="button" class="chip${on?' on':''}" data-wie="${esc(p.id)}"${on?' aria-pressed="true"':''}>${esc(p.naam)}<span class="cnt">${telWie(p.id)}</span>${on?uit:''}</button>`; }).join('')+`</div>`:'')
+    // Dezelfde opmaak als de namenrij bij Dieren: gedempt als hij uitstaat, een gele rand als hij aanstaat.
+    // Zo zien de namen er in beide tabbladen hetzelfde uit en lijken ze niet op de soorten erboven.
+    (personen.length>1?`<div class="dchips dwierij nwierij" id="wiefilter">`+personen.map(p=>{ const on=selWie.includes(p.id);
+      return `<button type="button" class="dchip dwie${on?' on':''}" data-wie="${esc(p.id)}"${on?' aria-pressed="true"':''}>${esc(p.naam)}<span>${telWie(p.id)}</span>${on?uit:''}</button>`; }).join('')+`</div>`:'')
     :'';
 
   let h='';
@@ -2028,7 +2030,7 @@ function tekenLijst(){
   if(wf) wf.onclick=()=>{ window._notVandaag=false; window._notType=''; window._notZoek=''; window._notWie=[]; ['dag','eerder'].forEach(k=>delete (window._notOpen||{})[k]);
     const zv=box.querySelector('#nzoek'); if(zv){ zv.value=''; box.querySelector('#nwis').hidden=true; }
     tekenLijst(); };
-  rij.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  rij.querySelectorAll('.chip,.dchip').forEach(c=>c.onclick=()=>{
     // Elke chip is een schakelaar: nog een tik zet hem weer uit. Een aparte knop 'Alles'
     // is daarmee overbodig. Het totaal staat al in de banner.
     // De dagchips sluiten elkaar uit: een notitie hoort bij één dag.
@@ -3020,7 +3022,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-298';
+const APP_VERSIE='2026-10-30-299';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;
