@@ -314,10 +314,33 @@ Moet nog los van de code gemaakt worden:
 - **Dieren en prijzen.** `dieren.js` (68 dieren, de groepen en de prijzen) en `dieren-iconen.js` zijn helemaal Australisch, net als de prijsteksten in `prijzen.html`. De prijs Kriskras telt 'streken' via de regio's en werkt dus met elke reis met regio's. Het hele tabblad Dieren is per reis een keuze: opnieuw vullen of uitzetten.
 - **De emoe-alert.** Een vast onderdeel van de dagpagina (`emoe` bij een dag, met eigen icoon en kleur). Dat wordt een algemene 'uitgelicht dier'-regel, of verdwijnt.
 - **Het verhaal van de dag.** `verhalen.js` hoort bij Australië; `check.js` eist een verhaal voor elke dag. Per reis opnieuw schrijven, of de eis laten vallen.
-- **De beelden.** De regiobanners (`reg-nsw.jpg` en de rest), de bannerfoto's per tabblad en de iconen. De namen staan ook in `BEELD` in `sw.js`.
+- **De beelden.** De regiobanners (`reg-nsw.jpg` en de rest), de banners per tabblad, de app-iconen en de dierenicoontjes. De namen staan ook in `BEELD` in `sw.js`. Zie Nieuwe beelden hieronder.
 - **De paklijst.** `paklijst.html` heeft een Australische startlijst (ETA-visum, stekker type I, het weer in oktober).
 - **Nhost.** Het adres van het project staat in `app.js` (`NHOST_SUB`, `NHOST_REG`). Een nieuw project krijgt een nieuw adres.
 - **Boekingscodes.** De herkenning van regels als 'Sawadee: 1234567' gaat uit van de sleutels in `CHECKIN` en `BOEKINGEN` en werkt dus mee met andere maatschappijen; alleen de voorbeelden in deze README zijn Australisch.
+
+### Nieuwe beelden
+
+De beelden zijn met ChatGPT gemaakt, in één stijl: vlakke illustraties met grote kleurvlakken en schuine lichtbundels, het onderwerp in het midden of rechts daarvan, en links een rustig vlak. Er staat geen tekst, logo of herkenbaar persoon in. Maak de beelden van een nieuwe reis in één gesprek en beschrijf de stijl bij elk beeld opnieuw, dan blijven ze bij elkaar passen.
+
+**Banners**, jpg in de verhouding 12:5:
+
+- Minstens 1200 × 500 pixels, liefst rond 1800 × 750. ChatGPT levert liggend meestal 1536 × 1024; snijd dat bij tot 1536 × 640, met het onderwerp in beeld.
+- Progressieve jpg, kwaliteit rond 75, zo'n 40 tot 110 KB per stuk. Ze gaan bij de eerste keer openen allemaal naar de telefoon.
+- Per regio `reg-<sleutel>.jpg`, met de sleutel uit `TONE` (zoals `reg-nsw.jpg`), en verder `reg-reis.jpg` voor de startpagina, `reg-voorreis.jpg` en `reg-nareis.jpg` (via `BUITEN`). Per tabblad `banner-dagen.jpg`, `banner-notities.jpg`, `banner-praktisch.jpg` en `banner-dieren.jpg` (via `BANNERS` in `app.js`). Reizigers beheren gebruikt de banner van de eerste regio.
+- In de kop van een dag of tabblad staat linksonder de titel in wit, linksboven de datumknop en rechtsboven soms een knop. Houd de linkeronderhoek dus rustig en niet te licht.
+- Op de startpagina is een regio een tegel van ongeveer 175 × 124 pixels. Daarin blijft alleen het middelste deel van de banner over, zo'n zestig procent van de breedte, met onderaan een donker verloop voor de naam. Het onderwerp moet ook in dat middendeel herkenbaar zijn.
+- Bij elke banner hoort een toon in `TONE` (of in `BANNERS` en `BUITEN`): een diepe kleur uit het beeld zelf, die eronder ligt zolang de foto laadt. Het lichtere paar in `TONE_INK` is voor kleine tekst en mag afwijken.
+
+**App-iconen**, png van 512 × 512 pixels, zonder transparantie:
+
+- `icon-512.png`, het gewone icoon. Mag tot de rand gevuld zijn.
+- `icon-maskable-512.png`, dezelfde tekening voor Android en het beginscherm van de iPhone (`apple-touch-icon`). Android snijdt er een cirkel of druppel uit, dus alles wat ertoe doet, staat binnen de middelste cirkel van 80 procent (zo'n 410 pixels doorsnede), en de achtergrondkleur loopt door tot in de hoeken.
+- `icon-paklijst.png`, het icoon van de losse paklijst, met dezelfde eisen als het maskable icoon.
+
+**Dierenicoontjes en prijzen**, svg: één kleur, zonder achtergrond, het dier van opzij en zo veel mogelijk met dezelfde lijndikte. ChatGPT maakt een png; die moet eerst naar svg worden omgezet. Daarna komt hij in `dieren-iconen.js` met `fill="currentColor"` en een viewBox die is bijgesneden tot de tekening met vier procent rand. Een icoon met een dunnere pen krijgt een `stroke-width` die hem even zwaar laat ogen als de rest. `check.js` controleert of die er nog staat. De tekeningen op de munten van de prijzen (`PRIJS_ICONEN` in `dieren.js`) volgen dezelfde regels.
+
+Zet elk nieuw beeld ook in `BEELD` in `sw.js`. `check.js` meldt een beeld dat de app gebruikt maar dat daar ontbreekt.
 
 ### Opschonen in de basis
 
