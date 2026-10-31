@@ -331,18 +331,6 @@
   .fkopieer b{font-size:16px;letter-spacing:.06em;font-variant-numeric:tabular-nums;-webkit-user-select:all;user-select:all}
   .fkopieer .fk2{flex:none;font-size:13px;font-weight:600;color:var(--accent-ink)}
   .fkopieer:active{opacity:.6}
-  .rkopieer{font:inherit;font-weight:600;letter-spacing:.04em;color:inherit;background:var(--glass-2);
-    border:1px solid var(--rim);border-radius:10px;padding:4px 9px;cursor:pointer;-webkit-user-select:all;user-select:all}
-  .rkopieer:active{opacity:.6}
-  /* Uitlegregels onderaan Vluchten en boekingen (Praktisch): icoon, label en tekst, net als Goed om te weten */
-  .list li.irij{display:flex;gap:11px;align-items:flex-start;font-size:15.5px;line-height:1.5}
-  .irij>.b{flex:none;color:var(--text-faint)}
-  .irij>.b>svg{display:block;width:19px;height:19px;margin-top:2px}
-  .irij .plabel{display:block;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;
-    color:var(--text-dim);margin-bottom:2px}
-  .list li.icodes{background:var(--glass-2)}
-  .list li.icodes>.b{color:var(--accent-ink)}
-  .irij code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em}
 
   /* ---------- Tijdschema ---------- */
   .agenda{list-style:none;margin:0;padding:0;border-radius:var(--radius);overflow:hidden;

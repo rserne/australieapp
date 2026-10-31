@@ -642,7 +642,6 @@ function tipsKaart(d){
 }
 const IC_KLOK='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
 const IC_SLOT='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>';
-const IC_KOFFER='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="13" rx="2.5"/><path d="M8.5 7.5V5a1.5 1.5 0 0 1 1.5-1.5h4A1.5 1.5 0 0 1 15.5 5v2.5"/><path d="M3 12.5h18"/></svg>';
 const PLUS='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
 const WIS='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg>';
 const MAG='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
@@ -677,9 +676,7 @@ const HAY_BUITEN=[...VOORDG,...NADG].map(d=>[dagNr(d.datum),hooiberg(d,dagNr(d.d
 // Praktische informatie is niet aan een dag gebonden. Zoekresultaten hiervan openen het tabblad Praktisch
 const HAY_PRAKT=[
   [SOS[0]+' — '+SOS[1],'Noodgevallen'],
-  ...NOOD.map(([a,b])=>[a+' — '+b,'Noodgevallen']),
-  ['Bagage — '+BAGAGE,'Bagage'],
-  ...Object.values(CHECKIN).map(c=>[c[0]+' — online inchecken '+c[2],'Vluchten en boekingen'])
+  ...NOOD.map(([a,b])=>[a+' — '+b,'Noodgevallen'])
 ];
 
 function snippet(text,term){
@@ -692,10 +689,10 @@ function snippet(text,term){
   return (from>0?'… ':'')+out+(to<text.length?' …':'');
 }
 
-// Boekingscodes staan in een Ticket-notitie: regels als "SQ: ABC123" of "Sawadee: 12345".
-// Ze komen uit de lokale kopie, zodat het ook offline werkt. Zonder login: niets.
+// Boekingscodes staan in een Ticket-notitie: regels als "SQ: ABC123". Ze verschijnen bij de vluchten
+// op de dagpagina. Ze komen uit de lokale kopie, zodat het ook offline werkt. Zonder login: niets.
 // Verschillen de codes per persoon, dan staat boven elk blokje een regel met alleen de naam, zoals hij
-// in de reizigerslijst staat (de voornaam is genoeg; 'Robbert en Gemma' geldt voor allebei). Een code
+// in de reizigerslijst staat (de voornaam is genoeg; 'Anna en Bram' geldt voor allebei). Een code
 // vóór de eerste naam is van iedereen. Een regel die geen naam en geen code is, zoals een titel, telt niet.
 function boekingscode(sleutel){
   if(!magNotities()) return null;
@@ -704,7 +701,7 @@ function boekingscode(sleutel){
   const norm=t=>String(t||'').trim().toLowerCase().replace(/[:\s]+$/,'');
   const mij=[(mijnReiziger()||{}).naam,NH.user.displayName].filter(Boolean).map(norm);
   const iedereen=[...new Set([...mij,...(reizigers()||[]).map(r=>norm(r.naam))])].filter(Boolean);
-  // 'Robbert', 'Robbert Serne' of 'Robbert en Gemma': elk deel past op een voornaam of een hele naam
+  // 'Anna', 'Anna de Vries' of 'Anna en Bram': elk deel past op een voornaam of een hele naam
   const past=(deel,naam)=>deel===naam||deel===naam.split(' ')[0]||deel.split(' ')[0]===naam.split(' ')[0];
   const namenIn=regel=>norm(regel).split(/\s*(?:,|&|\/|\ben\b)\s*/).filter(Boolean);
   const vanWie=regel=>{ const delen=namenIn(regel); if(!delen.length||delen.some(d=>/[:=]/.test(d))) return null;
@@ -923,21 +920,6 @@ function renderPrakt(){
   // schrijver te wijzigen. Ze staan hier omdat je ze in een noodgeval als eerste zoekt.
   // Zonder login bestaat het blok niet, net als het tabblad Notities. Voor een gast ook niet.
   if(magNotities()) h+=`<h2>Verzekeringen</h2><div id="verz"></div>`;
-
-  // Vluchten per maatschappij, afgeleid uit de dagen zelf: één bron
-  const perMij={};
-  DAYS.forEach(d=>(d.fl||[]).forEach(f=>{const k=f[0].split(' ')[0];(perMij[k]=perMij[k]||[]).push(f[0]);}));
-  const codeCel=k=>{const bc=boekingscode(k);return bc?`<button type="button" class="r rkopieer" data-kopieer="${esc(bc)}" aria-label="Code ${esc(bc)} kopiëren">${esc(bc)}</button>`:(NH.user?'':`<span class="r" style="opacity:.5">na inloggen</span>`)};
-  h+=`<h2>Vluchten en boekingen</h2><ul class="list">`+
-   Object.keys(CHECKIN).filter(k=>perMij[k]).map(k=>{const c=CHECKIN[k];
-     return `<li><div class="row"><span><strong><a href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])}${EXT}</a></strong>`+
-       `<span class="sub">${[...new Set(perMij[k])].map(esc).join(' · ')} — inchecken ${esc(c[2])}</span></span>${codeCel(k)}</div></li>`;}).join('')+
-   BOEKINGEN.map(([a,b,k])=>`<li><div class="row"><span><strong>${esc(a)}</strong><span class="sub">${linkify(b)}</span></span>${codeCel(k)}</div></li>`).join('')+
-   // Uitleg over de codes en de bagageregels als regels onderaan hetzelfde paneel, niet als losse kaarten
-   (magNotities()&&!Object.keys(CHECKIN).some(boekingscode)
-     ?`<li class="irij icodes"><span class="b">${IC_SLOT}</span><span><b class="plabel">Boekingscodes toevoegen</b>Maak in Notities één notitie van het type Ticket, met per regel een maatschappij en de code, bijvoorbeeld <code>SQ: ABC123</code>. Verschillen de codes per persoon, zet dan boven elk blokje een regel met alleen de naam. De codes verschijnen dan hier en bij de vluchten. Ze staan zo veilig achter de login en niet in de openbare app.</span></li>`:'')+
-   `<li class="irij"><span class="b">${IC_KOFFER}</span><span><b class="plabel">Bagage</b>${esc(BAGAGE)}</span></li>`+
-   `</ul>`;
 
   h+=`<h2>Weergave</h2><div class="chips" id="themekeuze">`+
      THEMES.map(([k,l,ico])=>`<button type="button" class="chip" data-th="${k}">${ico}${l}</button>`).join('')+`</div>`;
@@ -2472,7 +2454,7 @@ const dierSleutel=w=>w.dier==='overig'?'overig:'+(w.opmerking||'').toLowerCase()
 const groepVan=w=>w.dier==='overig'?'overig':((dierVan(w.dier)||{}).g||null);
 // Aantal soorten in een lijst waarnemingen, van één soort (gezien of gegeten), eventueel binnen één groep.
 // Elk getal in de chips komt hiervandaan, zodat elke teller rekening houdt met de andere filters:
-// 'Robbert 0' naast een aangezette groep Vogels betekent dat Robbert geen vogel at.
+// 'Bram 0' naast een aangezette groep Vogels betekent dat Bram geen vogel at.
 const soortenVan=(lijst,hoe,groep)=>new Set(lijst.filter(w=>hoeVan(w)===hoe&&(!groep||groepVan(w)===groep)).map(dierSleutel)).size;
 // De mensen die iets hebben gespot of gegeten, voor de namenrij in het tabblad Dieren: Ik voorop, dan de
 // reizigers en daarna de gasten, elk op alfabet. De naam komt uit de reizigerslijst, anders van de waarneming.
@@ -3022,7 +3004,7 @@ window.addEventListener('online',()=>{
 // Eén nummer per uitgave. Sw.js heeft zijn eigen VERSION die je tegelijk ophoogt.
 // De service worker merkt zelf op dat er een nieuwe versie is (nieuwe worker, of gewijzigde
 // bestanden op de achtergrond) en meldt dat. De app hoeft daar niets meer voor op te halen.
-const APP_VERSIE='2026-10-30-299';
+const APP_VERSIE='2026-10-31-300';
 document.getElementById('foot').innerHTML=`AustralieApp · versie ${APP_VERSIE}`;
 function toonUpdateBalk(){
   if(document.getElementById('updatebar')) return;

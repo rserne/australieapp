@@ -336,18 +336,18 @@ function zoek(w,fouten,term){
     eis(fouten,$(w,'rpw').selectionStart===0&&$(w,'rpw').selectionEnd===pw2.length&&/geselecteerd/.test($(w,'rstat').textContent),'als kopiëren niet lukt, staat het wachtwoord geselecteerd in het veld en zegt de statusregel dat');
     $(w,'rpw').value='wombat-2026';
     eis(fouten,$(w,'rpw').value==='wombat-2026','zelf iets typen kan ook');
-    $(w,'rnaam').value='Kees'; $(w,'remail').value='kees@voorbeeld.nl';
+    $(w,'rnaam').value='Daan'; $(w,'remail').value='daan@voorbeeld.nl';
     sheet.querySelector('#rdelen .chip[data-deel="nareis"]').click();
     let gedeeld=null; w.navigator.share=async d=>{ gedeeld=d; };
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);
-    eis(fouten,aanmeldingen.length===1&&aanmeldingen[0].email==='kees@voorbeeld.nl'&&aanmeldingen[0].options.displayName==='Kees','account aangemaakt via het aanmeldpunt met naam als displayName');
-    eis(fouten,mutaties[mutaties.length-1]==='insert'&&lijst.some(r=>r.user_id==='u9'&&r.naam==='Kees'&&r.reis&&r.nareis&&r.gast===true&&!r.voorreis),`rij in reizigers met de gekozen delen en gast (nu ${JSON.stringify(lijst.find(r=>r.user_id==='u9'))})`);
+    eis(fouten,aanmeldingen.length===1&&aanmeldingen[0].email==='daan@voorbeeld.nl'&&aanmeldingen[0].options.displayName==='Daan','account aangemaakt via het aanmeldpunt met naam als displayName');
+    eis(fouten,mutaties[mutaties.length-1]==='insert'&&lijst.some(r=>r.user_id==='u9'&&r.naam==='Daan'&&r.reis&&r.nareis&&r.gast===true&&!r.voorreis),`rij in reizigers met de gekozen delen en gast (nu ${JSON.stringify(lijst.find(r=>r.user_id==='u9'))})`);
     eis(fouten,$(w,'beheer').querySelectorAll('.rlijst li').length===4,'nieuwe reiziger staat in de lijst');
     // het paneel blijft open met het welkomstbericht om door te sturen
     sheet=$(w,'sheet');
-    eis(fouten,sheet&&/Kees is toegevoegd/.test(sheet.textContent)&&$(w,'rwelkom')&&!$(w,'rform'),'na het toevoegen toont het paneel het welkomstbericht in plaats van het formulier');
+    eis(fouten,sheet&&/Daan is toegevoegd/.test(sheet.textContent)&&$(w,'rwelkom')&&!$(w,'rform'),'na het toevoegen toont het paneel het welkomstbericht in plaats van het formulier');
     const wt=$(w,'rwelkom').value;
-    eis(fouten,/^Hoi Kees,\n\nJe hebt nu toegang/.test(wt)&&/Adres: https:\/\/rserne\.github\.io\/australieapp\/\n\nE-mailadres: kees@voorbeeld\.nl\nWachtwoord: wombat-2026\n/.test(wt),`het bericht begint met de aanhef en heeft het adres, een lege regel, e-mail en wachtwoord (nu: '${wt.slice(0,170).replace(/\n/g,'⏎')}')`);
+    eis(fouten,/^Hoi Daan,\n\nJe hebt nu toegang/.test(wt)&&/Adres: https:\/\/rserne\.github\.io\/australieapp\/\n\nE-mailadres: daan@voorbeeld\.nl\nWachtwoord: wombat-2026\n/.test(wt),`het bericht begint met de aanhef en heeft het adres, een lege regel, e-mail en wachtwoord (nu: '${wt.slice(0,170).replace(/\n/g,'⏎')}')`);
     eis(fouten,!/Notities/.test(wt)&&/nareis staat na dag 29/.test(wt)&&!/voorreis/.test(wt),'een gast krijgt geen regel over Notities, wel over zijn nareis');
     eis(fouten,/Dieren\. Tik op een dier/.test(wt)&&/mes en vork: tik daarop als je het hebt gegeten/.test(wt)&&wt.trim().endsWith("'Toevoegen aan startscherm'.")&&/'Zet op beginscherm'/.test(wt),'de tabbladen staan erin, met het mes en vork bij Dieren, en het startscherm staat helemaal onderaan');
     $(w,'rdeel').click(); await sleep(50);
@@ -374,7 +374,7 @@ function zoek(w,fouten,term){
     w.gql=async q=>{ if(/^query/.test(q)) return {reizigers:REIZIGERS(false,true)}; throw new Error('onverwacht'); };
     w.fetch=async url=>{ if(/signup/.test(url)) return {ok:true,status:200,json:async()=>({session:null})}; throw new TypeError('Failed to fetch'); };
     klik(w,'btnPrakt',fouten); klik(w,'rbeheer',fouten); klik(w,'radd',fouten);
-    $(w,'rnaam').value='Kees'; $(w,'remail').value='k@v.nl'; $(w,'rpw').value='wombat-2026';
+    $(w,'rnaam').value='Daan'; $(w,'remail').value='k@v.nl'; $(w,'rpw').value='wombat-2026';
     $(w,'rform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(150);
     eis(fouten,!!$(w,'sheet')&&/e-mailbevestiging/.test($(w,'rstat').textContent)&&!$(w,'rbtn').disabled,'zonder sessie uit het aanmeldpunt blijft het paneel open met uitleg');
     meld('5 okt: aanmelden met e-mailbevestiging aan',fouten); }
@@ -1033,18 +1033,15 @@ function zoek(w,fouten,term){
     w.localStorage.setItem('aus_pending','[]');
     meld('6 okt: prijzen, kast en kaart',fouten); }
   // Boekingscodes per persoon: een regel met alleen een naam begint een blokje. Test (u1) is ingelogd;
-  // hij krijgt zijn eigen SQ, de gedeelde Sawadee-code van boven de namen, en niets van Anna.
+  // hij krijgt bij de vluchten zijn eigen SQ, de gedeelde QF-code van boven de namen, en niets van Anna.
   { const {w,fouten}=start('2026-10-05',{login:'groep'});
     const codes=[...NOTITIES.filter(n=>n.dag>=0&&n.id!=='b'),{id:'b',user_id:'u1',dag:0,soort:'notitie',type:'ticket',
-      tekst:'Boekingscodes\nSawadee: 1234567\nTest\nSQ: AAA111\nAnna en Piet\nSQ: BBB222\nJQ: CCC333',wie:'Test',created_at:'2026-09-01T10:00:00Z',updated_at:'2026-09-01T10:00:00Z'}];
+      tekst:'Boekingscodes\nQF: DDD444\nTest\nSQ: AAA111\nAnna en Piet\nSQ: BBB222\nJQ: CCC333',wie:'Test',created_at:'2026-09-01T10:00:00Z',updated_at:'2026-09-01T10:00:00Z'}];
     w.localStorage.setItem('aus_cache_all',JSON.stringify(codes));
-    klik(w,'btnPrakt',fouten);
-    const rij=n=>[...w.document.querySelectorAll('#prakt .row')].find(r=>r.textContent.includes(n));
-    const code=n=>{ const r=rij(n), c=r&&r.querySelector('.r'); return c?c.textContent.trim():''; };
-    eis(fouten,code('Singapore')==='AAA111',`eigen SQ-code uit het blokje Test (nu: '${code('Singapore')}')`);
-    eis(fouten,code('Sawadee')==='1234567',`gedeelde code vóór de eerste naam geldt voor iedereen (nu: '${code('Sawadee')}')`);
-    eis(fouten,code('Jetstar')==='',`code uit andermans blokje wordt niet getoond (nu: '${code('Jetstar')}')`);
-    eis(fouten,!/Boekingscodes toevoegen/.test($(w,'prakt').textContent),'callout blijft weg zodra er een eigen code is');
+    const code=n=>{ w.ga(n); const b=w.document.querySelector('#day .fkopieer b'); return b?b.textContent.trim():''; };
+    eis(fouten,code(28)==='AAA111',`eigen SQ-code uit het blokje Test (nu: '${code(28)}')`);
+    eis(fouten,code(24)==='DDD444',`gedeelde code vóór de eerste naam geldt voor iedereen (nu: '${code(24)}')`);
+    eis(fouten,code(18)==='',`code uit andermans blokje wordt niet getoond (nu: '${code(18)}')`);
     meld('5 okt: boekingscodes per persoon in de Ticket-notitie',fouten); }
 
   // Gast: doet mee met de waarnemingen en ziet de hele groepsreis, maar geen notities. De kopie op de
@@ -1061,8 +1058,6 @@ function zoek(w,fouten,term){
     klik(w,'btnPrakt',fouten);
     const p=$(w,'prakt');
     eis(fouten,!$(w,'verz')&&!/Verzekeringen/.test(p.textContent),'geen blok Verzekeringen');
-    eis(fouten,!/Boekingscodes toevoegen/.test(p.textContent),'geen callout over boekingscodes');
-    eis(fouten,![...p.querySelectorAll('.row .r')].some(c=>/ABC123|DEF456|1234567|na inloggen/.test(c.textContent)),'geen boekingscodes bij Vluchten en boekingen, ook niet \'na inloggen\'');
     const koppenP=[...p.querySelectorAll('h2')].map(h=>h.textContent);
     eis(fouten,koppenP.includes('Account')&&!koppenP.includes('Notities'),`kop boven het inlogblok heet Account (nu: ${koppenP.join(' | ')})`);
     const c=$(w,'acct').querySelector('.callout');
@@ -1139,7 +1134,7 @@ function zoek(w,fouten,term){
     $(w,'lemail').value='test@example.org'; $(w,'lpw').value='wombat-2026';
     $(w,'lform').dispatchEvent(new w.Event('submit',{cancelable:true})); await sleep(300);
     eis(fouten,$(w,'btnAlles').hidden===true&&$(w,'btnDieren').hidden===false,'na het inloggen als gast is het tabblad Notities er niet, Dieren wel');
-    eis(fouten,!$(w,'verz')&&!/Boekingscodes toevoegen/.test($(w,'prakt').textContent),'Praktisch is meteen zonder de notitieblokken getekend');
+    eis(fouten,!$(w,'verz'),'Praktisch is meteen zonder de notitieblokken getekend');
     eis(fouten,queries.includes('reizigers')&&!queries.includes('dagitems'),`de lijst is opgehaald, de notities niet (nu: ${queries.join(',')})`);
     eis(fouten,/als gast/.test($(w,'acct').textContent),'inlogblok noemt de gast');
     klik(w,'btnToday',fouten);
@@ -1836,15 +1831,18 @@ function zoek(w,fouten,term){
     eis(fouten,items[0]&&!items[0].querySelector('.nhead')&&items[1]&&items[1].querySelector('.nhead .nacts [data-edit]'),'een notitie van een ander heeft geen lege kopregel, een eigen notitie houdt zijn knoppen');
     meld('9 okt: notities als één paneel',fouten); }
 
-  // Vluchten van een overstapdag in één paneel; bij Praktisch staan Bagage en de uitleg over codes in de lijst.
+  // Vluchten van een overstapdag in één paneel. De vluchten staan alleen bij de dag; Praktisch heeft
+  // geen eigen blok meer, en Sawadee staat bij de noodnummers.
   { const {w,fouten}=start('2026-10-24',{login:'groep'});
     const fl=w.document.querySelectorAll('#day .flights');
     eis(fouten,fl.length===1&&fl[0].querySelectorAll(':scope>.flight').length===2,`dag 24 heeft één vluchtenpaneel met twee vluchten (nu ${fl.length} panelen)`);
+    eis(fouten,fl.length===1&&fl[0].querySelector('.fcheck'),'bij de vlucht staat Online inchecken');
     klik(w,'btnPrakt',fouten);
-    const p=$(w,'prakt'), h=[...p.querySelectorAll('h2')].find(x=>x.textContent==='Vluchten en boekingen'), ul=h&&h.nextElementSibling;
-    eis(fouten,ul&&ul.matches('ul.list')&&ul.lastElementChild.matches('li.irij')&&/Bagage/.test(ul.lastElementChild.textContent),'Bagage is de laatste regel van de lijst');
-    eis(fouten,![...p.querySelectorAll('.callout')].some(c=>/Bagage|Boekingscodes toevoegen/.test(c.textContent)),'geen losse kaarten meer voor Bagage en de boekingscodes');
-    meld('24 okt: vluchten en boekingen als één paneel',fouten); }
+    const p=$(w,'prakt'), koppen=[...p.querySelectorAll('h2')].map(x=>x.textContent);
+    eis(fouten,!koppen.includes('Vluchten en boekingen')&&!/Bagage|Boekingscodes toevoegen/.test(p.textContent),`Praktisch heeft geen blok Vluchten en boekingen meer (nu: ${koppen.join(' | ')})`);
+    const nood=koppen.includes('Noodgevallen')&&[...p.querySelectorAll('h2')].find(x=>x.textContent==='Noodgevallen').nextElementSibling;
+    eis(fouten,nood&&/Sawadee/.test(nood.textContent)&&nood.querySelector('a[href^="tel:"]'),'Sawadee staat bij de noodnummers, met een aanklikbaar nummer');
+    meld('24 okt: vluchten alleen bij de dag, Sawadee bij de noodnummers',fouten); }
 
   // Verhaal van de dag: een dichtgeklapte kaart op de dagpagina, met titel, alinea's en bron. Zoeken vindt de tekst.
   { const {w,fouten}=start('2026-10-08');

@@ -41,16 +41,15 @@ SQ: ABC123
 JQ: DEF456
 QF: GHI789
 TL: JKL012
-Sawadee: 1234567
 ```
 
-De sleutels (`SQ`, `JQ`, `QF`, `TL`) zijn de IATA-codes uit `CHECKIN` in `reis.js`. `Sawadee` komt uit `BOEKINGEN`. De codes verschijnen daarna bij de vluchten en in het tabblad Praktisch, ook offline.
+De sleutels (`SQ`, `JQ`, `QF`, `TL`) zijn de IATA-codes uit `CHECKIN` in `reis.js`. De codes verschijnen daarna op de dagpagina bij elke vlucht van die maatschappij, met een knop om ze te kopiëren, ook offline. Een tik op Online inchecken kopieert de code ook.
 
 Verschillen de codes per persoon, zet dan boven elk blokje een regel met alleen de naam, zoals die in de reizigerslijst staat (de voornaam is genoeg). Iedereen ziet dan zijn eigen codes. Een code die vóór de eerste naam staat, is van iedereen, en `Anna en Bram` boven een blokje geldt voor allebei. Een regel die geen naam en geen code is, zoals de titel hierboven, telt niet mee.
 
 ```
 Boekingscodes
-Sawadee: 1234567
+QF: GHI789
 Anna
 SQ: ABC123
 JQ: DEF456
@@ -65,7 +64,7 @@ Boekingscodes in voorreis- of nareisnotities tellen niet mee voor de groepsvluch
 
 Wie eerder gaat of langer blijft, kan notities maken voor dagen buiten de groepsreis. In `reis.js` staat hoeveel dagen dat zijn, namelijk `VOORREIS=13` (18 t/m 30 september) en `NAREIS=0`. Die dagen verschijnen in de dagkiezer van Notities boven 'Algemeen'. Intern hebben ze de nummers -1 t/m -13, en de nareis 30 en hoger. Wie er gaat, staat nergens in de code, maar in de tabel `reizigers` bij Nhost (zie Reizigers). De kaarten Voorreis en Nareis op de startpagina noemen de namen uit die tabel, en verschijnen alleen als iemand het deel doet.
 
-Vóór 1 oktober toont het tabblad Vandaag een startpagina met het aftellen tot het vertrek en de reis in beeld, een raster met per regio de foto en de dagen. Wie is ingelogd, ziet in dat raster ook een kaart Voorreis (en Nareis, als die er is); een gast alleen als hij er zelf aan meedoet (zie Gasten). Tijdens de voorreis brengt die kaart je bij de notities van vandaag van wie onderweg is. Een voorreiziger telt op de startpagina af naar zijn eigen vertrek, en tijdens zijn voorreis toont Vandaag zijn dag zelf. Wie thuis nog wacht, blijft de startpagina zien. Inchecklinks, boekingscodes en bagage staan in het tabblad Praktisch.
+Vóór 1 oktober toont het tabblad Vandaag een startpagina met het aftellen tot het vertrek en de reis in beeld, een raster met per regio de foto en de dagen. Wie is ingelogd, ziet in dat raster ook een kaart Voorreis (en Nareis, als die er is); een gast alleen als hij er zelf aan meedoet (zie Gasten). Tijdens de voorreis brengt die kaart je bij de notities van vandaag van wie onderweg is. Een voorreiziger telt op de startpagina af naar zijn eigen vertrek, en tijdens zijn voorreis toont Vandaag zijn dag zelf. Wie thuis nog wacht, blijft de startpagina zien.
 
 Bovenaan Alle dagen staat een regel **Reisoverzicht**, die naar diezelfde pagina brengt. Vóór vertrek telt die af naar het vertrek; zodra jouw reis loopt, toont hij de voortgang en dooft in het raster elke regio die achter je ligt. De voortgang gaat over je eigen reis: een voorreiziger is op 25 september al acht dagen onderweg van zijn 42, iemand zonder voorreis ziet op 14 oktober 'Dag 14 van 29'. Zo blijft Vandaag altijd de dag zelf tonen en heeft het overzicht toch een vaste ingang. Terugbladeren vanaf dag 1 (of de eerste voorreisdag) komt er ook uit.
 
@@ -115,7 +114,7 @@ Een gewone gebruiker mag `auth.users` niet lezen. Daarom zet de view `reizigers_
 
 ### Gasten
 
-Wie `gast = true` heeft, reist mee zonder de notities van de groep te zien. Dat is bedoeld voor iemand die wel meedoet met de waarnemingen, maar niets te maken heeft met tickets, reserveringen, boekingscodes en verzekeringen. Een gast ziet de hele groepsreis en het tabblad Dieren, en kan daar net als iedereen waarnemingen noteren. Wat hij niet ziet: het tabblad Notities, de notities en de blokken 'Vandaag nodig' en 'Nodig op deze dag' op de dagpagina's, de knop Notitie toevoegen, de boekingscodes bij de vluchten en in Praktisch (en de callout die daarover gaat), en het blok Verzekeringen. In het inlogblok staat 'als gast' achter zijn deelname, en de kop erboven heet Account in plaats van Notities.
+Wie `gast = true` heeft, reist mee zonder de notities van de groep te zien. Dat is bedoeld voor iemand die wel meedoet met de waarnemingen, maar niets te maken heeft met tickets, reserveringen, boekingscodes en verzekeringen. Een gast ziet de hele groepsreis en het tabblad Dieren, en kan daar net als iedereen waarnemingen noteren. Wat hij niet ziet: het tabblad Notities, de notities en de blokken 'Vandaag nodig' en 'Nodig op deze dag' op de dagpagina's, de knop Notitie toevoegen, de boekingscodes bij de vluchten, en het blok Verzekeringen. In het inlogblok staat 'als gast' achter zijn deelname, en de kop erboven heet Account in plaats van Notities.
 
 Hasura houdt de notities en bijlagen voor een gast dicht. De app vraagt ze dan ook niet op: bij het synchroniseren haalt hij eerst de reizigerslijst, slaat voor een gast de notities over en haalt een oude kopie van de telefoon, voor wie eerder gewoon reiziger was. Bij het inloggen haalt de app de lijst op voordat hij de tabbladen tekent, zodat een gast het tabblad Notities niet eerst even ziet.
 
@@ -191,7 +190,7 @@ Het programma in `reis.js` komt uit twee bronnen: de reisbeschrijving van Sawade
 
 **Eten vanavond** is ook één paneel (`.rpanel` met `.rrij`): eerst de eettips van de reisbegeleider, dan elk restaurant en de link Meer restaurants in de buurt, met een dun lijntje ertussen. Elke regel klapt apart open. De tips staan als lijst `tips` bij de dag, per adres `[naam, wat, waar, openingstijden]`, en verschijnen als "Tips van" met de naam uit `REISBEGELEIDER` in `reis.js`; uitgeklapt staat elk adres als link naar de kaart. Voor steden waar je meer nachten blijft, staat de lijst één keer bovenin `reis.js` (`TIPS_HOBART`, `TIPS_ADELAIDE`, `TIPS_MELBOURNE`, `TIPS_ALICE`, `TIPS_CAIRNS`, `TIPS_PERTH`) en hangt hij aan elke dag in die stad. Een korte opmerking over openingstijden staat in `rnote` en verschijnt als callout boven het paneel. `check.js` controleert de vorm van de tips en zoeken in Alle dagen vindt ze ook.
 
-**Vluchten** van een dag staan ook in één paneel (`.flights`), met een lijntje tussen de vluchten van een overstapdag. In Praktisch zijn Bagage en de uitleg Boekingscodes toevoegen regels onderaan de lijst Vluchten en boekingen (`li.irij`), en is 000 de bovenste regel van het paneel met de noodnummers, rood getint (`li.sos`).
+**Vluchten** van een dag staan ook in één paneel (`.flights`), met een lijntje tussen de vluchten van een overstapdag. Bij elke vlucht staat de link Online inchecken uit `CHECKIN` en, na inloggen, je boekingscode. Dat is de enige plek: Praktisch heeft geen eigen overzicht van vluchten en boekingen meer, want onderweg keek iedereen bij de dag zelf. Bij Noodgevallen in Praktisch is 000 de bovenste regel, rood getint (`li.sos`), met daaronder `NOOD` uit `reis.js`, Sawadee voorop.
 
 **Dieren spotten** begint met de emoe-alert (`emoe` bij de dag), in de accentkleur. Heeft een dag een emoe-alert, dan laat de app een regel met precies de naam Emoe uit `wild` weg (`wildRijen` in `app.js`), op de dagpagina, bij zoeken en bij Kans vandaag. Regels als Rode reuzenkangoeroe en emoe blijven staan. Een dag met alleen een emoe-alert en geen `wild` krijgt ook het blok Dieren spotten.
 
@@ -302,7 +301,7 @@ Begin daar pas aan als de volgende reis bekend is. Het loskoppelen kost een paar
 
 ### Wat nog aan Australië vastzit
 
-Staat al netjes in `reis.js` en hoeft alleen opnieuw gevuld te worden: `START`, `VOORREIS` en `NAREIS`, de dagen (`DAYS`), regio's met naam en kleuren (`REGION`, `TONE`, `TONE_INK`), hotels (`HOTELGEO`), restaurants (`RDATA`), winkels, excursies, de kofferlijst, noodnummers, inchecklinks (`CHECKIN`), boekingen en de reisbegeleider.
+Staat al netjes in `reis.js` en hoeft alleen opnieuw gevuld te worden: `START`, `VOORREIS` en `NAREIS`, de dagen (`DAYS`), regio's met naam en kleuren (`REGION`, `TONE`, `TONE_INK`), hotels (`HOTELGEO`), restaurants (`RDATA`), winkels, excursies, de kofferlijst, noodnummers met de reisorganisatie (`NOOD`), inchecklinks (`CHECKIN`) en de reisbegeleider.
 
 Moet nog los van de code gemaakt worden:
 
@@ -317,7 +316,7 @@ Moet nog los van de code gemaakt worden:
 - **De beelden.** De regiobanners (`reg-nsw.jpg` en de rest), de banners per tabblad, de app-iconen en de dierenicoontjes. De namen staan ook in `BEELD` in `sw.js`. Zie Nieuwe beelden hieronder.
 - **De paklijst.** `paklijst.html` heeft een Australische startlijst (ETA-visum, stekker type I, het weer in oktober).
 - **Nhost.** Het adres van het project staat in `app.js` (`NHOST_SUB`, `NHOST_REG`). Een nieuw project krijgt een nieuw adres.
-- **Boekingscodes.** De herkenning van regels als 'Sawadee: 1234567' gaat uit van de sleutels in `CHECKIN` en `BOEKINGEN` en werkt dus mee met andere maatschappijen; alleen de voorbeelden in deze README zijn Australisch.
+- **Boekingscodes.** De herkenning van regels als 'SQ: ABC123' gaat uit van de sleutels in `CHECKIN` en werkt dus mee met andere maatschappijen. `check.js` zoekt daarnaast naar een nummer achter 'Sawadee'; bij een andere reisorganisatie pas je die naam aan.
 
 ### Nieuwe beelden
 

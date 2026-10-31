@@ -881,8 +881,6 @@ const CHECKIN={
 "QF":["Qantas","https://www.qantas.com/au/en/travel-info/check-in.html","vanaf 24 uur vooraf"],
 "VA":["Virgin Australia","https://www.virginaustralia.com/","vanaf 24 uur vooraf"],
 "TL":["Airnorth","https://www.airnorth.com.au/","vanaf 24 uur vooraf"]};
-// Overige partijen in het blok Vluchten en boekingen (naam, omschrijving, sleutel in de codenotitie)
-const BOEKINGEN=[["Sawadee","Reisbureau, +31 20 420 2220","Sawadee"]];
 const SRC='Google';
 const RDATA={
 // Voorreis (Nhulunbuy en Darwin). Geen looptijd: er is nog geen hotel bekend.
@@ -997,10 +995,10 @@ const WINKELS_CHECKED='14 sep 2026';
 // Praktisch: noodgevallen en bagage. Wordt in het tabblad Praktisch getoond én doorzocht.
 const SOS=["000","Politie, brandweer en ambulance in heel Australië. Vanaf een mobiel werkt 112 ook."];
 const NOOD=[
+ ["Sawadee","+31 20 420 2220. Het reisbureau van de groepsreis, voor vragen over vluchten, hotels en het programma."],
  ["Consulaat-generaal Sydney","+61 2 8305 6800. Je aanspreekpunt bij verlies van je paspoort. Level 23, Westfield Tower 2, 101 Grafton Street, Bondi Junction."],
  ["Ambassade Canberra","+61 2 6220 9400. Geen consulaire balie, maar wel bereikbaar."],
  ["Buitenlandse Zaken, 24/7","+31 247 247 247, of WhatsApp +31 857 737 400. Werkt dag en nacht, ook met tijdverschil."],
  ["Bij verlies van je paspoort","Eerst aangifte bij de lokale politie, dán bellen. Zonder proces-verbaal krijg je geen noodpaspoort."],
  ["Zelf invullen vóór vertrek","Nummer van je reisverzekering, alarmcentrale en je reisbegeleider. Schrijf ze op papier en stop dat in je koffer. Niet alleen in je telefoon."]
 ];
-const BAGAGE="Singapore Airlines: 25 kg. Jetstar en Airnorth: 20 kg. Qantas: 1 koffer. Cabinebagage overal maximaal 7 kg. Pak dus op 20 kilo. Online inchecken doe je met de boekingscode plus je achternaam. Tik op de naam van de maatschappij. Bij Jetstar sluit het inchecken een uur voor vertrek, dus doe het de avond ervoor.";

@@ -2,10 +2,10 @@
 // Controleert reis.js en voorreis.js vóór je een nieuwe versie online zet:  node check.js
 // Sluit af met code 1 als er iets mis is, zodat je het ook in een git pre-commit hook kunt zetten.
 const fs=require('fs'), vm=require('vm');
-const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','TONE_INK','REGION','BOEKINGEN','NOOD','BAGAGE','VOORREIS','NAREIS','BUITEN','SOS','WINKELS','REISBEGELEIDER'];
+const NAMEN=['START','DAYS','PACK','EXC','HOTELGEO','RDATA','CHECKIN','TONE','TONE_INK','REGION','NOOD','VOORREIS','NAREIS','BUITEN','SOS','WINKELS','REISBEGELEIDER'];
 // const-declaraties komen niet op het context-object terecht. Daarom halen we ze expliciet terug
 const data=vm.runInNewContext(fs.readFileSync(__dirname+'/reis.js','utf8')+`;({${NAMEN.join(',')}})`,{});
-const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,TONE_INK,REGION,BOEKINGEN,NOOD,BAGAGE,VOORREIS,NAREIS,BUITEN,SOS,WINKELS,REISBEGELEIDER}=data;
+const {START,DAYS,PACK,EXC,HOTELGEO,RDATA,CHECKIN,TONE,TONE_INK,REGION,NOOD,VOORREIS,NAREIS,BUITEN,SOS,WINKELS,REISBEGELEIDER}=data;
 
 const fouten=[], waarschuwingen=[];
 const fout=m=>fouten.push(m), waarschuw=m=>waarschuwingen.push(m);
@@ -192,9 +192,7 @@ Object.entries(RDATA).forEach(([n,m])=>{ if(!('sluit' in m)) waarschuw(`RDATA ${
 EXC.forEach(e=>{ if(e.length!==4||!dagRef(e[1])) fout(`EXC '${e[0]}': verwacht [naam, dag 1–29 of datum van een voorreisdag, prijs, tekst]`); });
 PACK.forEach(p=>{ if(p.length!==3||!Array.isArray(p[2])||!p[2].every(dagRef)) fout(`PACK '${p[0]}': verwacht [naam, tekst, [dagen: 1–29 of datum van een voorreisdag]]`); });
 Object.entries(CHECKIN).forEach(([k,c])=>{ if(c.length!==3||!/^https:\/\//.test(c[1])) fout(`CHECKIN ${k}: verwacht [naam, url, wanneer]`); });
-BOEKINGEN.forEach(b=>{ if(b.length!==3) fout(`BOEKINGEN '${b[0]}': verwacht [naam, tekst, sleutel]`); });
 NOOD.forEach(n=>{ if(n.length!==2) fout(`NOOD '${n[0]}': verwacht [naam, tekst]`); });
-if(typeof BAGAGE!=='string') fout('BAGAGE ontbreekt');
 if(typeof REISBEGELEIDER!=='string'||!REISBEGELEIDER) fout('REISBEGELEIDER ontbreekt (de naam boven de tips)');
 // Elke regio heeft twee inktkleuren voor tekst en kleine vlakken: licht thema en donker thema.
 // Ontbreekt er een, dan valt de app terug op de diepe TONE en oogt die regio flets.
@@ -207,7 +205,7 @@ Object.keys(TONE_INK||{}).forEach(k=>{ if(!TONE[k]&&k!=='voorreis'&&k!=='nareis'
 // Geen boekingscodes in openbare bestanden. Een PNR is 6 hoofdletters/cijfers. We zoeken naar bekende sleutels.
 const lees=n=>fs.existsSync(__dirname+'/'+n)?fs.readFileSync(__dirname+'/'+n,'utf8'):'';
 const bron=lees('reis.js')+lees('voorreis.js')+lees('app.js');
-const sleutels=[...Object.keys(CHECKIN),...BOEKINGEN.map(b=>b[2])].join('|');   // dezelfde sleutels als in de Ticket-notitie
+const sleutels=[...Object.keys(CHECKIN),'Sawadee'].join('|');   // de sleutels uit de Ticket-notitie, plus het nummer van de reisorganisatie
 const pnr=(bron.match(new RegExp(`\\b(${sleutels})\\s*[:=]\\s*[A-Z0-9]{6,8}\\b`,'g'))||[]).filter(x=>!/ABC123/.test(x)); // ABC123 is het voorbeeld in de uitleg
 if(pnr.length) fout(`Boekingscode in de code gevonden: ${pnr.join(', ')} — die hoort in een Ticket-notitie, niet in de openbare app`);
 
